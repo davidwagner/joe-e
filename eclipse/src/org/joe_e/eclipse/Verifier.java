@@ -128,8 +128,11 @@ public class Verifier {
 	{
 		try {
 			if (type.isAnnotation() || type.isEnum()) {
-				problems.add(new Problem("I'm not sure I'm handling annotations and enums correctly.",
-										 type.getNameRange()));
+				// I think these are fine as is.  Should test.
+				// Annotations are a special case of interfaces.
+				// Enumerations are final classes without run-time constructors:
+				//problems.add(new Problem("I'm not sure I'm handling annotations and enums correctly.",
+				//						 type.getNameRange()));
 			}
 			
 			// Restrictions on fields.
@@ -159,8 +162,8 @@ public class Verifier {
 			}
 			
 			if (type.isInterface()) {
-				// Nothing more to check.  All fields are static final and must be immutable,
-				// which has already been checked.
+				// Nothing more to check.  All fields are static final and have already
+				// been verified to be immutable.
 				
 				return;
 			}
@@ -176,11 +179,6 @@ public class Verifier {
 					problems.add(new Problem("Native method " + name + ".",
 								 			 methods[i].getNameRange()));
 				}
-
-				// TODO: Add == checking?  How tough will that be?  Will I have to 
-				// do my own type inference (yuck)?  Hopefully not.
-	
-
 			}
 			*/
 			
@@ -306,7 +304,7 @@ public class Verifier {
 		
 		VerifierASTVisitor(IJavaProject project, List<Problem> problems)
 		{
-			System.out.println("VAV init");
+			//System.out.println("VAV init");
 			this.project = project;
 			this.problems = problems;
 		}
@@ -333,18 +331,35 @@ public class Verifier {
 					problems.add(new Problem("== used to compare two arrays",
 							 				 ie.getStartPosition(), ie.getLength()));
 					return true;
+				} else if (leftTB.isTypeVariable()) {
+					problems.add(new Problem("== used to compare variable typed objects",
+											 ie.getStartPosition(), ie.getLength()));
+					return true;
 				}
 				
 				ITypeBinding rightTB = ie.getRightOperand().resolveTypeBinding();
-				if (!rightTB.isNullType()) {
+				
+				// otherwise redundant isPrimitive check required for auto-unboxing
+				if (!rightTB.isNullType() && !rightTB.isPrimitive()) {
 					try {
-						IType leftType = project.findType(leftTB.getQualifiedName());
-						IType rightType = project.findType(rightTB.getQualifiedName());
+						// For now, generic types ignore their type parameters.
+						// TODO: Possibly, deal with generics in more detail.
+						String leftTypeName = Utility.stripGenerics(leftTB.getQualifiedName());
+						String rightTypeName = Utility.stripGenerics(rightTB.getQualifiedName());
+						// IJavaProject.findType is confused by type parameters.
+						IType leftType = project.findType(leftTypeName);
+						IType rightType = project.findType(rightTypeName);
 						ITypeHierarchy leftSTH = leftType.newSupertypeHierarchy(null);
 						ITypeHierarchy rightSTH = rightType.newSupertypeHierarchy(null);
 						IType tokenType = project.findType("org.joe_e.Token");
-					
-					
+						IType enumType = project.findType("java.lang.Enum");
+						
+						// Allow == on enumeration values.
+						if (enumType != null && leftSTH.contains(enumType) 
+									         && rightSTH.contains(enumType)) {
+							return true;
+						}
+
 						if (!leftSTH.contains(tokenType) || !rightSTH.contains(tokenType)) {
 							problems.add(new Problem("== used on non-Token types",
 								 				 	 ie.getStartPosition(),

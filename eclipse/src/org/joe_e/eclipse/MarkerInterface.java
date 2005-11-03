@@ -36,9 +36,15 @@ public class MarkerInterface {
 		} else if (n1.charAt(0) == '[') {
 			return false;
 		} else if (n1.charAt(0) == 'Q') {
+			System.out.println("is called on type " + n1);
 			try {
 				IType t1 = Utility.lookupType(n1, context);
-				return (is(t1, mi));
+				if (t1 == null) {
+					System.out.println("type not found (maybe generic?)");
+					return false;
+				} else {
+					return (is(t1, mi));
+				}
 			} catch (JavaModelException jme) {
 				jme.printStackTrace();
 				return false;
