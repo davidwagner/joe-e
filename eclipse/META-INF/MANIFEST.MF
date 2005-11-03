@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Joe_E Plug-in
+Bundle-SymbolicName: Joe_E; singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Activator: org.joe_e.eclipse.Plugin
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.jdt,
+ org.eclipse.jdt.source,
+ org.eclipse.jdt.core,
+ org.eclipse.ui.editors
+Eclipse-AutoStart: true
