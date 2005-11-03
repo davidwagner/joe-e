@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+
+   <extension
+         id="JoeEBuilder"
+         name="Joe-E Builder"
+         point="org.eclipse.core.resources.builders">
+      <builder
+            hasNature="true">
+         <run
+               class="org.joe_e.eclipse.Builder">
+         </run>
+      </builder>
+   </extension>
+   <extension
+         id="JoeENature"
+         name="Joe-E Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="org.joe_e.eclipse.Nature">
+         </run>
+      </runtime>
+      <builder
+            id="Joe_E.JoeEBuilder">
+      </builder>
+   </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            adaptable="true"
+            objectClass="org.eclipse.core.resources.IProject"
+            nameFilter="*"
+            id="Joe_E.toggleNature">
+         <action
+               label="Enable/Disable Joe-E Verifier"
+               class="org.joe_e.eclipse.ToggleNatureAction"
+               menubarPath="additions"
+               enablesFor="+"
+               id="Joe_E.toggleNatureAction">
+         </action>
+      </objectContribution>
+   </extension>
+   <extension
+         id="JoeEProblem"
+         name="Joe-E Problem Marker"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.jdt.core.problem">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+   </extension>
+   <extension
+   		 id="JoeEAnnotation"
+   		 name="Joe-E Problem Annotation"
+         point="org.eclipse.ui.editors.markerAnnotationSpecification">
+       <specification
+             annotationType="JoeEError"
+             symbolicIcon="error">
+       </specification>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.annotationTypes">
+      <type
+            markerSeverity="2"
+            markerType="JoeEProblem"
+            name="JoeEError"/>
+   </extension>
+
+</plugin>
