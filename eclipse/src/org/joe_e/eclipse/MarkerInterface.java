@@ -15,6 +15,7 @@ public class MarkerInterface {
 		honoraries.put("java.lang.String", new String[]{"Incapable"});
 		honoraries.put("java.lang.Integer", new String[]{"Incapable"});
 		honoraries.put("java.lang.Double", new String[]{"Incapable"});
+		honoraries.put("java.lang.Enum", new String[]{"Incapable"});
 		
 		// as is, no need to put deemings in here, as library classes are never verified.
 		// TODO: this may be an oversight.
@@ -79,7 +80,7 @@ public class MarkerInterface {
 	/**
 	 * Checks whether the type t1 honorarily implements the interface mi
 	 * 
-	 * TODO: may need rewriting once real deeming mechanism is in place
+	 * TODO: will need rewriting once real deeming mechanism is in place
 	 */
 	static boolean isHonorarily(IType t1, String mi) throws JavaModelException
 	{
