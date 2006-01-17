@@ -142,8 +142,8 @@ public class Verifier {
 				String name = fields[i].getElementName();
 				System.out.println("Field " + name + ":");
 				int flags = fields[i].getFlags();
-				if (Flags.isStatic(flags)) {
-					if (Flags.isFinal(flags)) {
+				if (Flags.isStatic(flags)) { // TODO: instances with implicit stuff: Enumerations
+					if (Flags.isFinal(flags)) { // TODO: implicit final?
 						String fieldType = fields[i].getTypeSignature();
 						
 						// must be Incapable
@@ -204,7 +204,7 @@ public class Verifier {
 				}
 			}
 			
-			if (MarkerInterface.is(type, "Incapable")
+			if (MarkerInterface.is(type, "Incapable") 
 				&& !MarkerInterface.isDeemed(type, "Incapable")) {
 				
 				IType tokenType = type.getJavaProject().findType("org.joe_e.Token");
@@ -322,7 +322,8 @@ public class Verifier {
 		}
 		
 		public boolean visit(InfixExpression ie) {
-			if (ie.getOperator() == InfixExpression.Operator.EQUALS) {
+			if (ie.getOperator() == InfixExpression.Operator.EQUALS ||
+				ie.getOperator() == InfixExpression.Operator.NOT_EQUALS) {
 				ITypeBinding leftTB = ie.getLeftOperand().resolveTypeBinding();
 				// cases where we don't need to look at right hand type
 				if (leftTB.isPrimitive() || leftTB.isNullType()) {
