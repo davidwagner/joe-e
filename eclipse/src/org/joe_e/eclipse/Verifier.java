@@ -142,8 +142,8 @@ public class Verifier {
 				String name = fields[i].getElementName();
 				System.out.println("Field " + name + ":");
 				int flags = fields[i].getFlags();
-				if (Flags.isStatic(flags)) { // TODO: instances with implicit stuff: Enumerations
-					if (Flags.isFinal(flags)) { // TODO: implicit final?
+				if (Flags.isStatic(flags)) { 
+					if (Flags.isFinal(flags) || type.isEnum()) {
 						String fieldType = fields[i].getTypeSignature();
 						
 						// must be Incapable
@@ -355,17 +355,20 @@ public class Verifier {
 						IType tokenType = project.findType("org.joe_e.Token");
 						IType enumType = project.findType("java.lang.Enum");
 						
-						// Allow == on enumeration values.
-						if (enumType != null && leftSTH.contains(enumType) 
-									         && rightSTH.contains(enumType)) {
+						// Allow == and != on enumeration values.
+						if (enumType != null && (leftSTH.contains(enumType) 
+									             || rightSTH.contains(enumType))) {
 							return true;
 						}
-
-						if (!leftSTH.contains(tokenType) || !rightSTH.contains(tokenType)) {
-							problems.add(new Problem("== used on non-Token types",
-								 				 	 ie.getStartPosition(),
-								 				 	 ie.getLength()));
+						
+						// Allow == and != on Tokens.
+						if (tokenType != null && (leftSTH.contains(tokenType)
+												  || rightSTH.contains(tokenType))) {
+							return true;
 						}
+						
+						problems.add(new Problem("== used on non-Token types",
+								     ie.getStartPosition(), ie.getLength()));
 					}
 					catch (JavaModelException jme) {
 						jme.printStackTrace();
