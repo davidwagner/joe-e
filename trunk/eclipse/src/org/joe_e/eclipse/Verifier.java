@@ -143,7 +143,7 @@ public class Verifier {
 				System.out.println("Field " + name + ":");
 				int flags = fields[i].getFlags();
 				if (Flags.isStatic(flags)) { 
-					if (Flags.isFinal(flags) || type.isEnum()) {
+					if (Flags.isFinal(flags)) {
 						String fieldType = fields[i].getTypeSignature();
 						
 						// must be Incapable
@@ -250,7 +250,7 @@ public class Verifier {
 			String name = fields[i].getElementName();
 			// System.out.println("Field " + name + ":");
 			int flags = fields[i].getFlags();
-			if (!Flags.isStatic(flags)) {
+			if (!Flags.isStatic(flags) && !Flags.isEnum(flags)) {
 				if (Flags.isFinal(flags)) {
 					String fieldType = fields[i].getTypeSignature();
 					// must implement mi
