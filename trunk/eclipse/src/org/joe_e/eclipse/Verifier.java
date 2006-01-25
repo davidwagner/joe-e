@@ -9,6 +9,13 @@ import java.util.List;
 import java.util.LinkedList;
 
 public class Verifier {
+	/**
+	 * Run the Joe-E verifier on an IFile
+	 * 
+	 * @param icu
+	 *            ICompilationUnit on which to run the verifier
+	 * @return a List of Problems (Joe-E verification errors) encountered
+	 */
 	static List<Problem> checkJavaFile(IFile resource) {
 		try {
 			System.out.println("Joe-E Verifier examining " + resource.getName());
@@ -19,18 +26,21 @@ public class Verifier {
 		catch (Exception e)
 		{
 			e.printStackTrace();
+			// TODO: fail to verify here - an error has occured!
 			return new LinkedList<Problem>();
 		}	
 	}		
 
 	/**
-	 * Run the Joe-E verifier on a file (an ICompilationUnit)
-	 * @param icu ICompilationUnit on which to run the verifier
-	 * @return a List of Problems (Joe-E verification errors) encountered
+	 * Run the Joe-E verifier on an ICompilationUnit
+	 * 
+	 * @param icu
+	 *            ICompilationUnit on which to run the verifier
+	 * @return a List of Problems (Joe-E verification errors) encounteredas
+	 *         cleanly
 	 */
 	static List<Problem> checkICU(ICompilationUnit icu)
 	{
-		System.out.println("hihi");
 		LinkedList<Problem> problems = new LinkedList<Problem>();
 		
 		try {
@@ -114,25 +124,21 @@ public class Verifier {
 	
 	
 	/*
-	static void printParseTree(ASTNode t) {
-		printParseTree(t, "");
-	}
-	static void printParseTree(ASTNode t, String indent) {
-		System.out.print(indent);
-		System.out.println(t.getClass().getName());
-		if (t instanceof t.get
-	} 
-	*/
+	 * static void printParseTree(ASTNode t) { printParseTree(t, ""); } static
+	 * void printParseTree(ASTNode t, String indent) { System.out.print(indent);
+	 * System.out.println(t.getClass().getName()); if (t instanceof t.get }
+	 */
 	
 	static void checkIType(IType type, List<Problem> problems)
 	{
 		try {
 			if (type.isAnnotation() || type.isEnum()) {
-				// I think these are fine as is.  Should test.
-				// Annotations are a special case of interfaces.
-				// Enumerations are final classes without run-time constructors:
-				//problems.add(new Problem("I'm not sure I'm handling annotations and enums correctly.",
-				//						 type.getNameRange()));
+				// I think these are fine as is. Should test.
+				// Annotations are a special case of interfaces with (I believe)
+				// no additional abilities.
+				// Enumerations are final classes without run-time constructors
+				// in which the enumeration values are implicitly static,
+				// implicitly final fields.
 			}
 			
 			// Restrictions on fields.
@@ -162,25 +168,16 @@ public class Verifier {
 			}
 			
 			if (type.isInterface()) {
-				// Nothing more to check.  All fields are static final and have already
+				// Nothing more to check. All fields are static final and have
+				// already
 				// been verified to be immutable.
 				
 				return;
 			}
 
-			/*			
+			//
 			// Otherwise, it is a "real" class.
-			IMethod[] methods = type.getMethods();
-			for (int i = 0; i < methods.length; ++i) {
-				String name = methods[i].getElementName();
-				int flags = methods[i].getFlags();
-				if (Flags.isNative(flags))
-				{
-					problems.add(new Problem("Native method " + name + ".",
-								 			 methods[i].getNameRange()));
-				}
-			}
-			*/
+			//
 			
 			// get supertype hierarchy, we'll need it.
 			ITypeHierarchy sth = type.newSupertypeHierarchy(null);
@@ -227,11 +224,13 @@ public class Verifier {
 	}
 
 	/**
-	 * Verify that all fields (declared and inherited) of a type are final and implement
-	 * the specified marker interface in the overlay type system.
+	 * Verify that all fields (declared and inherited) of a type are final and
+	 * implement the specified marker interface in the overlay type system.
 	 * 
-	 * @param type the type whose fields to verify
-	 * @param mi the marker interface, i.e. DeepFrozen or Incapable
+	 * @param type
+	 *            the type whose fields to verify
+	 * @param mi
+	 *            the marker interface, i.e. DeepFrozen or Incapable
 	 * @throws JavaModelException
 	 */
 	static void verifyFieldsAre(IType type, String mi, List<Problem> problems) 
@@ -286,7 +285,8 @@ public class Verifier {
 			if (superclass != null) {
 				IType supertype = Utility.lookupType(superclass, type);
 				if (MarkerInterface.is(supertype, mi)) {
-					// everything should be fine; verifier has already verified it
+					// everything should be fine; verifier has already verified
+					// it
 				} else {
 					verifyFieldsAre(supertype, mi, candidate, problems);
 				}
@@ -304,9 +304,164 @@ public class Verifier {
 		
 		VerifierASTVisitor(IJavaProject project, List<Problem> problems)
 		{
-			//System.out.println("VAV init");
+			// System.out.println("VAV init");
 			this.project = project;
 			this.problems = problems;
+		}
+		
+		public boolean visit(FieldDeclaration fd) {
+			int flags = fd.getModifiers();
+			List frags = fd.fragments();  // element type:
+											// VariableDeclarationFragment
+			Type baseType = fd.getType();
+			if (Flags.isStatic(flags)) {
+				if (Flags.isFinal(flags)) {
+					if (MarkerInterface.is(baseType, "Incapable")) {
+						for (Object o: frags) {
+							VariableDeclarationFragment vdf = (VariableDeclarationFragment) o;
+							if (vdf.getExtraDimensions() > 0) {
+								// sneaky sneaky... 
+								String name = vdf.getName().getFullyQualifiedName();
+								problems.add(new Problem("Non-incapable static field " 
+										+ name + ".", vdf.getStartPosition(), vdf.getLength()));
+							}
+						}
+					}
+					else {
+						String name = "";
+						for (Object o: frags) {
+							name += (VariableDeclarationFragment) o.getName().getFullyQualifiedName() + " ";
+						}
+						problems.add(new Problem ("Non-incapable static field(s) "
+								+ name + ".", fd.getStartPosition(), fd.getLength()));
+					}
+				} else {
+					String name = "";
+					for (Object o: frags) {
+						name += (VariableDeclarationFragment) o.getName().getFullyQualifiedName() + " ";
+					}
+					problems.add(new Problem ("Non-final static field(s) "
+							+ name + ".", fd.getStartPosition(), fd.getLength()));			
+				}
+			}
+			
+			
+			
+			
+			for (Object o: frags) {
+				VariableDeclarationFragment vdf = (VariableDeclarationFragment) o;
+				
+				System.out.println("Field " + name + ":");
+				
+				if (Flags.isStatic(flags)) { 
+					if (Flags.isFinal(flags)) {
+						// must be Incapable
+						
+						
+						
+						if (MarkerInterface.is(fieldType, "Incapable", type)) {
+							// OKAY
+						} else {
+							problems.add(new Problem("Non-incapable static field " 
+									+ name + ".", 
+									fields[i].getNameRange()));					}
+					} else {
+						problems.add(new Problem("Non-final static field " + name + ".",
+								fields[i].getNameRange()));
+					}
+				} 
+			}if (Flags.isStatic(flags)) 
+		}
+		}
+			if (Flags.isStatic(flags)) {
+				if (Flags.isFinal(flags)) {
+					
+				}
+		}
+			
+			if (Flags.isStatic(flags)) { 
+				if (Flags.isFinal(flags)) {
+					if MarkerInterface.is()
+					
+			String name = fd.;
+			System.out.println("Field " + name + ":");
+					int flags = fields[i].getFlags();
+					if (Flags.isStatic(flags)) { 
+						if (Flags.isFinal(flags)) {
+							String fieldType = fields[i].getTypeSignature();
+							
+							// must be Incapable
+							
+							if (MarkerInterface.is(fieldType, "Incapable", type)) {
+								// OKAY
+							} else {
+								problems.add(new Problem("Non-incapable static field " 
+														 + name + ".", 
+														 fields[i].getNameRange()));					}
+						} else {
+							problems.add(new Problem("Non-final static field " + name + ".",
+										 fields[i].getNameRange()));
+						}
+					} 
+				}
+				
+				if (type.isInterface()) {
+					// Nothing more to check. All fields are static final and
+					// have already
+					// been verified to be immutable.
+					
+					return;
+				}
+
+				//
+				// Otherwise, it is a "real" class.
+				//
+				
+				// get supertype hierarchy, we'll need it.
+				ITypeHierarchy sth = type.newSupertypeHierarchy(null);
+				String superclass = type.getSuperclassTypeSignature();
+				
+				if (superclass != null) {
+					System.out.println("Superclass " + superclass);
+
+					// See what honoraries superclass has, make sure that all
+					// are
+					// implemented by this class.
+					
+					IType supertype = Utility.lookupType(superclass, type);
+					String[] sh = MarkerInterface.getHonoraries(supertype);
+					for (int i = 0; i < sh.length; ++i) {
+						if (!MarkerInterface.is(type, sh[i])) {
+							problems.add(
+								new Problem("Honorary interface " + sh[i] + 
+										    "not inherited from " + supertype.getElementName(), 
+											type.getNameRange()));
+						}
+					}
+				}
+				
+				if (MarkerInterface.is(type, "Incapable") 
+					&& !MarkerInterface.isDeemed(type, "Incapable")) {
+					
+					IType tokenType = type.getJavaProject().findType("org.joe_e.Token");
+					if (sth.contains(tokenType)) {
+						problems.add(new Problem("Incapable type " + type.getElementName() + 
+								     			 " can't extend Token.", 
+								     			 type.getNameRange()));
+					}
+					
+					verifyFieldsAre(type, "Incapable", problems);
+					
+				} else if (MarkerInterface.is(type, "DeepFrozen")
+						   && !MarkerInterface.isDeemed(type, "DeepFrozen")) {
+					
+					verifyFieldsAre(type, "DeepFrozen", problems);
+				}
+			} catch (JavaModelException jme) {
+				jme.printStackTrace();
+			}			
+			
+			return true;
 		}
 		
 		public boolean visit(MethodDeclaration md) {
@@ -340,7 +495,8 @@ public class Verifier {
 				
 				ITypeBinding rightTB = ie.getRightOperand().resolveTypeBinding();
 				
-				// otherwise redundant isPrimitive check required for auto-unboxing
+				// otherwise redundant isPrimitive check required for
+				// auto-unboxing
 				if (!rightTB.isNullType() && !rightTB.isPrimitive()) {
 					try {
 						// For now, generic types ignore their type parameters.
