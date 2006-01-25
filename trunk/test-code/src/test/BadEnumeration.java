@@ -2,15 +2,17 @@ package test;
 
 import org.joe_e.Incapable;
 
-public enum BadEnumeration implements Incapable {
-	foo(0, 1), bar(0, 2), baz(1, 3);
+public  enum BadEnumeration implements Incapable {
+	foo(0, 1), barr(0, 2), baz(1, 3);
 	
 	final int q;
 	int z;
+	final java.io.File capability;
 	
 	BadEnumeration(int q, int z) {
 		this.q = q;
 		this.z = z;
+		this.capability = null;
 	}
 	
 	// Each enumeration value represents a fibonacci sequence. Yay!
