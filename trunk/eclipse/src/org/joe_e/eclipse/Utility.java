@@ -1,6 +1,7 @@
 package org.joe_e.eclipse;
 
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeParameter;
 import org.eclipse.jdt.core.JavaModelException;
 
 public class Utility {
@@ -21,11 +22,25 @@ public class Utility {
 		// resolveType seems to just ignore type parameters and succeed correctly.
 		// Warning: this appears to be undocumented and thus may be brittle!
 		String[][] typePaths = context.resolveType(sourceType);
-		if (typePaths == null)
-			return null; // possibly a generic type?
-		else
-			return context.getJavaProject().findType(typePaths[0][0],
-													 typePaths[0][1]);
+		if (typePaths == null) {
+			// Probably a parameterized type
+			// TODO: This does not correctly handle type parameters that shadow real types (ugggh).  Fix.
+			ITypeParameter itp = context.getTypeParameter(sourceType);
+			if (itp == null) {
+				return null; // this shouldn't happen
+				
+			} else { // For now just return the FIRST declared type bound, if any
+					 // TODO: THIS IS WRONG, FIX!
+				String[] bounds = itp.getBounds();
+				if (bounds.length == 0) {
+					typePaths = context.resolveType("java.lang.Object");
+				} else {
+					typePaths = context.resolveType(bounds[0]);
+				}
+			}
+		}
+
+	    return context.getJavaProject().findType(typePaths[0][0], typePaths[0][1]);
 	}
 	
 	static String stripGenerics(String typeName) 

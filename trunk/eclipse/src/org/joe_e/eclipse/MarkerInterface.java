@@ -41,16 +41,8 @@ public class MarkerInterface {
 			try {
 				IType t1 = Utility.lookupType(n1, context);
 				if (t1 == null) {
-					
-					System.out.println("type not found (maybe generic?)");
-					System.out.println("Trying T version -- maybe Q was a bug?");
-					IType t1again = Utility.lookupType("T"+n1.substring(1), context);
-					if (t1again == null) {
-						System.out.println("no dice");
-						return false;
-					} else {
-						return (is(t1again, mi));
-					}
+					System.out.println("type not found (shouldn't happen -- BUG)");
+					return false;
 				} else {
 					return (is(t1, mi));
 				}
