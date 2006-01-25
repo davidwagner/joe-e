@@ -309,6 +309,70 @@ public class Verifier {
 			this.problems = problems;
 		}
 		
+		/*
+		 *
+		 * Alternate method: use the ASTVisitor for more stuff.  
+		 * Not necessary. (?)
+		 *
+		 
+		public boolean visit(EnumDeclaration ed)
+		
+		
+		public boolean visit(TypeDeclaration td) {
+			if (td.isInterface()) {
+				// Nothing more to check. All fields are static final.  Whether inherited or not,
+				// they will be verified immutable.
+			} else {
+				//
+				// Otherwise, it is a "real" class.
+				//
+				try {
+					// get supertype hierarchy, we'll need it.
+					ITypeHierarchy sth = type.newSupertypeHierarchy(null);
+				String superclass = type.getSuperclassTypeSignature();
+				
+				if (superclass != null) {
+					System.out.println("Superclass " + superclass);
+
+					// See what honoraries superclass has, make sure that all are
+					// implemented by this class.
+					
+					IType supertype = Utility.lookupType(superclass, type);
+					String[] sh = MarkerInterface.getHonoraries(supertype);
+					for (int i = 0; i < sh.length; ++i) {
+						if (!MarkerInterface.is(type, sh[i])) {
+							problems.add(
+								new Problem("Honorary interface " + sh[i] + 
+										    "not inherited from " + supertype.getElementName(), 
+											type.getNameRange()));
+						}
+					}
+				}
+				
+				if (MarkerInterface.is(type, "Incapable") 
+					&& !MarkerInterface.isDeemed(type, "Incapable")) {
+					
+					IType tokenType = type.getJavaProject().findType("org.joe_e.Token");
+					if (sth.contains(tokenType)) {
+						problems.add(new Problem("Incapable type " + type.getElementName() + 
+								     			 " can't extend Token.", 
+								     			 type.getNameRange()));
+					}
+					
+					verifyFieldsAre(type, "Incapable", problems);
+					
+				} else if (MarkerInterface.is(type, "DeepFrozen")
+						   && !MarkerInterface.isDeemed(type, "DeepFrozen")) {
+					
+					verifyFieldsAre(type, "DeepFrozen", problems);
+				}
+			} catch (JavaModelException jme) {
+				jme.printStackTrace();
+			}
+			}
+			return true;
+		}
+		
 		public boolean visit(FieldDeclaration fd) {
 			int flags = fd.getModifiers();
 			List frags = fd.fragments();  // element type:
@@ -345,125 +409,9 @@ public class Verifier {
 				}
 			}
 			
+		*/	
 			
-			
-			
-			for (Object o: frags) {
-				VariableDeclarationFragment vdf = (VariableDeclarationFragment) o;
-				
-				System.out.println("Field " + name + ":");
-				
-				if (Flags.isStatic(flags)) { 
-					if (Flags.isFinal(flags)) {
-						// must be Incapable
-						
-						
-						
-						if (MarkerInterface.is(fieldType, "Incapable", type)) {
-							// OKAY
-						} else {
-							problems.add(new Problem("Non-incapable static field " 
-									+ name + ".", 
-									fields[i].getNameRange()));					}
-					} else {
-						problems.add(new Problem("Non-final static field " + name + ".",
-								fields[i].getNameRange()));
-					}
-				} 
-			}if (Flags.isStatic(flags)) 
-		}
-		}
-			if (Flags.isStatic(flags)) {
-				if (Flags.isFinal(flags)) {
 					
-				}
-		}
-			
-			if (Flags.isStatic(flags)) { 
-				if (Flags.isFinal(flags)) {
-					if MarkerInterface.is()
-					
-			String name = fd.;
-			System.out.println("Field " + name + ":");
-					int flags = fields[i].getFlags();
-					if (Flags.isStatic(flags)) { 
-						if (Flags.isFinal(flags)) {
-							String fieldType = fields[i].getTypeSignature();
-							
-							// must be Incapable
-							
-							if (MarkerInterface.is(fieldType, "Incapable", type)) {
-								// OKAY
-							} else {
-								problems.add(new Problem("Non-incapable static field " 
-														 + name + ".", 
-														 fields[i].getNameRange()));					}
-						} else {
-							problems.add(new Problem("Non-final static field " + name + ".",
-										 fields[i].getNameRange()));
-						}
-					} 
-				}
-				
-				if (type.isInterface()) {
-					// Nothing more to check. All fields are static final and
-					// have already
-					// been verified to be immutable.
-					
-					return;
-				}
-
-				//
-				// Otherwise, it is a "real" class.
-				//
-				
-				// get supertype hierarchy, we'll need it.
-				ITypeHierarchy sth = type.newSupertypeHierarchy(null);
-				String superclass = type.getSuperclassTypeSignature();
-				
-				if (superclass != null) {
-					System.out.println("Superclass " + superclass);
-
-					// See what honoraries superclass has, make sure that all
-					// are
-					// implemented by this class.
-					
-					IType supertype = Utility.lookupType(superclass, type);
-					String[] sh = MarkerInterface.getHonoraries(supertype);
-					for (int i = 0; i < sh.length; ++i) {
-						if (!MarkerInterface.is(type, sh[i])) {
-							problems.add(
-								new Problem("Honorary interface " + sh[i] + 
-										    "not inherited from " + supertype.getElementName(), 
-											type.getNameRange()));
-						}
-					}
-				}
-				
-				if (MarkerInterface.is(type, "Incapable") 
-					&& !MarkerInterface.isDeemed(type, "Incapable")) {
-					
-					IType tokenType = type.getJavaProject().findType("org.joe_e.Token");
-					if (sth.contains(tokenType)) {
-						problems.add(new Problem("Incapable type " + type.getElementName() + 
-								     			 " can't extend Token.", 
-								     			 type.getNameRange()));
-					}
-					
-					verifyFieldsAre(type, "Incapable", problems);
-					
-				} else if (MarkerInterface.is(type, "DeepFrozen")
-						   && !MarkerInterface.isDeemed(type, "DeepFrozen")) {
-					
-					verifyFieldsAre(type, "DeepFrozen", problems);
-				}
-			} catch (JavaModelException jme) {
-				jme.printStackTrace();
-			}			
-			
-			return true;
-		}
-		
 		public boolean visit(MethodDeclaration md) {
 			String name = md.getName().toString();
 			int modifiers = md.getModifiers();
