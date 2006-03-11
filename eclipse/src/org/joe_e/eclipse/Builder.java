@@ -4,47 +4,69 @@ import java.util.Map;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.ListIterator;
+//import java.util.HashSet;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceDelta;
-import org.eclipse.core.resources.IResourceDeltaVisitor;
-import org.eclipse.core.resources.IResourceVisitor;
-import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.jdt.core.*;
+import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.*;
+//import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.QualifiedName;
 
 public class Builder extends IncrementalProjectBuilder {
 	public static final String BUILDER_ID = "Joe_E.JoeEBuilder";
 	private static final String MARKER_TYPE = "Joe_E.JoeEProblem";
-
+	private static final QualifiedName INTERESTED_PROP = new QualifiedName("Joe_E", "interested-classes");
+	
+	
 	static JavaCore jc = JavaCore.getJavaCore();
 	
-	class SampleDeltaVisitor implements IResourceDeltaVisitor {
+	BuildState state = null;	// empty until first full build
+	
+	class DeltaVisitor implements IResourceDeltaVisitor {
+		//HashSet<String> interested; // classes that are affected by visited deltas and thus must be re-verified.
+		
 		/*
 		 * (non-Javadoc)
 		 * 
 		 * @see org.eclipse.core.resources.IResourceDeltaVisitor#visit(org.eclipse.core.resources.IResourceDelta)
 		 */
+		
+		/**
+		 * includes a data structure for storing classes that must be re-verified.
+		 */
+		DeltaVisitor() {
+			super();
+			//this.interested = interested;
+		}
+
+		
 		public boolean visit(IResourceDelta delta) throws CoreException {
+			System.out.println("Delta!" + delta.toString());
 			IResource resource = delta.getResource();
-			switch (delta.getKind()) {
-			case IResourceDelta.ADDED:
-				// handle added resource
-				checkAndUpdateProblems(resource);
-				break;
-			case IResourceDelta.REMOVED:
+			
+			if (delta.getKind() == IResourceDelta.REMOVED) {
 				// handle removed resource
-				// TODO: need to remove markers??
-				break;
-			case IResourceDelta.CHANGED:
+				// TODO: need to remove markers?? apparently not?
+				// NOT reverifying if an interesting class has been removed; compilation will fail anyway
+			} else {  // ADDED or CHANGED 
 				// handle changed resource
 				checkAndUpdateProblems(resource);
-				break;
+				
+				/*
+				String interestedClasses = resource.getPersistentProperty(INTERESTED_PROP);
+				if (interestedClasses != null && interestedClasses.length() > 0) {
+					int curIndex = 0;
+					int nextSpace = interestedClasses.indexOf(' ');
+					do {
+						interested.add(interestedClasses.substring(curIndex, nextSpace));
+						curIndex = nextSpace + 1;
+						nextSpace = interestedClasses.indexOf(' ', curIndex);
+					} while (nextSpace > 0);
+				}
+				*/
 			}
+			
 			//return true to continue visiting children.
 			return true;
 		}
@@ -145,16 +167,44 @@ public class Builder extends IncrementalProjectBuilder {
 	 */
 	protected IProject[] build(int kind, Map args, IProgressMonitor monitor)
 			throws CoreException {
-		if (kind == FULL_BUILD) {
+		System.out.println("Build request issued.");
+		
+		switch (kind) {
+		case CLEAN_BUILD:
+		case FULL_BUILD:
+		case INCREMENTAL_BUILD:
+		case AUTO_BUILD:
 			fullBuild(monitor);
-		} else {
-			IResourceDelta delta = getDelta(getProject());
-			if (delta == null) {
+			break;
+		
+		/*
+		case AUTO_BUILD:
+			// don't launch a full build, they may be slow(?).
+			if (state == null || getDelta(getProject()) == null) {
+				break;
+			}
+		*/
+			// otherwise fall through
+		/*
+		case INCREMENTAL_BUILD:
+			if (state == null) {
 				fullBuild(monitor);
 			} else {
-				incrementalBuild(delta, monitor);
+				IResourceDelta delta = getDelta(getProject());
+				if (delta == null) {
+					fullBuild(monitor);
+				} else {
+					incrementalBuild(delta, monitor);
+				}
 			}
+			break;
+		*/
+		
+		default:
+			// this should never happen: all values enumerated above
+			throw new IllegalArgumentException("Invalid kind of build: " + kind);
 		}
+		
 		return null;
 	}
 
@@ -166,17 +216,38 @@ public class Builder extends IncrementalProjectBuilder {
 		}
 	}
 
-	protected void fullBuild(final IProgressMonitor monitor)
-			throws CoreException {
-		try {
+	protected void fullBuild(final IProgressMonitor monitor) 
+		throws CoreException {
+		state = new BuildState(); // clear build state
+		
+		try {			
 			getProject().accept(new SampleResourceVisitor());
 		} catch (CoreException e) {
+			e.printStackTrace();
 		}
 	}
 
-	protected void incrementalBuild(IResourceDelta delta,
-			IProgressMonitor monitor) throws CoreException {
+	protected void incrementalBuild(IResourceDelta delta, IProgressMonitor monitor)
+		throws CoreException {
 		// the visitor does the work.
-		delta.accept(new SampleDeltaVisitor());
+		
+		// TODO: include re-verification necessitated by dependencies or always
+		// do a full build!
+		delta.accept(new DeltaVisitor());
+		
+		// re-check interested classes
+		/*
+		for (String i : recheck) {
+			// = something;
+			
+			
+			//if (delta.findMember(path) == null) {
+				// get IResource
+				//checkAndUpdateProblems(resource);
+			//}
+		}
+		*/
+		// see if they are already included with delta.findMember(), else re-verify them
+	
 	}
 }
