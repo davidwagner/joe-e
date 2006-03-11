@@ -7,6 +7,7 @@ import org.eclipse.jdt.core.dom.*;
 
 import java.util.List;
 import java.util.LinkedList;
+import java.util.HashSet;
 
 public class Verifier {
 	/**
@@ -224,8 +225,8 @@ public class Verifier {
 	}
 
 	/**
-	 * Verify that all fields (declared and inherited) of a type are final and
-	 * implement the specified marker interface in the overlay type system.
+	 * Verify that all fields (declared, inherited, and lexically visible) of a type are 
+	 * final and implement the specified marker interface in the overlay type system.
 	 * 
 	 * @param type
 	 *            the type whose fields to verify
@@ -234,10 +235,70 @@ public class Verifier {
 	 * @throws JavaModelException
 	 */
 	static void verifyFieldsAre(IType type, String mi, List<Problem> problems) 
-		throws JavaModelException {
-		verifyFieldsAre(type, mi, type, problems);
+			throws JavaModelException {
+		HashSet<IType> needCheck = findClasses(type, mi);
+		for (IType i : needCheck) {
+			verifyFieldsAre(i, mi, type, problems);
+		}
 	}
 	
+	/**
+	 * Find the set of classes all of whose fields must satisfy a given marker interface
+	 * Classes already declared to implement the marker interface are not returned.
+	 * 
+	 * @param type the type at which to start
+	 * @param mi the marker interface whose implementors to skip
+	 * @return the set of classes found
+	 * @throws JavaModelException
+	 */
+	static HashSet<IType> findClasses(IType type, String mi) 
+			throws JavaModelException {
+		HashSet<IType> found = new HashSet<IType>();
+		found.add(type);
+		LinkedList<IType> left = new LinkedList<IType>();
+		left.add(type);
+		
+		while (!left.isEmpty()) {
+			IType next = left.removeFirst();
+			// non-static member classes get access to variables in their containing class
+			if (next.isMember() && !Flags.isStatic(next.getFlags())) {
+				IType enclosingType = next.getDeclaringType();
+				if (MarkerInterface.is(enclosingType, mi)) {
+					System.out.println(enclosingType + " is " + mi);
+					// already verified
+				} else {
+					if (found.add(enclosingType)) {
+						left.add(enclosingType);  // only add if we haven't traversed it yet
+					}
+				}
+			}
+			
+			String superclass = type.getSuperclassTypeSignature();
+			if (superclass != null) {
+				IType supertype = Utility.lookupType(superclass, type);
+				if (MarkerInterface.is(supertype, mi)) {
+					// already verified
+				} else {
+					if (found.add(supertype)) {
+						left.add(supertype);  // only add if we haven't traversed it yet
+					}
+				}
+			}
+		}
+		
+		return found;
+	}
+	
+	/**
+	 * Verify that a class's explicit instance fields are final and honorarily implement the
+	 * specified marker interface
+	 * 
+	 * @param type the type whose instance fields to check
+	 * @param mi the marker interface to check implementation of
+	 * @param candidate the type for which to report Problems
+	 * @param problems the list to which to append problems
+	 * @throws JavaModelException
+	 */
 	static void verifyFieldsAre(IType type, String mi, IType candidate,
 								List<Problem> problems) throws JavaModelException {
 		//
@@ -277,26 +338,33 @@ public class Verifier {
 								    candidate.getNameRange()));
 				}
 			}
+		}	
 			
-			//
-			// Check inherited instance fields also implement mi
-			//
-			String superclass = type.getSuperclassTypeSignature();
-			if (superclass != null) {
-				IType supertype = Utility.lookupType(superclass, type);
-				if (MarkerInterface.is(supertype, mi)) {
-					// everything should be fine; verifier has already verified
-					// it
-				} else {
-					verifyFieldsAre(supertype, mi, candidate, problems);
-				}
+		/*
+		 * now handled by findClasses
+		//
+		// Check inherited instance fields also implement mi
+		//
+		String superclass = type.getSuperclassTypeSignature();
+		if (superclass != null) {
+			IType supertype = Utility.lookupType(superclass, type);
+			if (MarkerInterface.is(supertype, mi)) {
+				// everything should be fine; verifier has already verified
+				// it
+			} else {
+				verifyFieldsAre(supertype, mi, candidate, problems);
 			}
 		}
+		*/
+		
 	}
 
-	// 
-	// 
-	//
+	/**
+	 * AST visitor class.
+	 * 
+	 * Performs checks not possible using the IType interface, i.e. those that require
+	 * examination of method source code.
+	 */
 	static class VerifierASTVisitor extends ASTVisitor
 	{
 		final IJavaProject project;
@@ -377,7 +445,7 @@ public class Verifier {
 			int flags = fd.getModifiers();
 			List frags = fd.fragments();  // element type:
 											// VariableDeclarationFragment
-			Type baseType = fd.getType();
+			Type baseType = fd.getType();rameter
 			if (Flags.isStatic(flags)) {
 				if (Flags.isFinal(flags)) {
 					if (MarkerInterface.is(baseType, "Incapable")) {
@@ -428,6 +496,11 @@ public class Verifier {
 			if (ie.getOperator() == InfixExpression.Operator.EQUALS ||
 				ie.getOperator() == InfixExpression.Operator.NOT_EQUALS) {
 				ITypeBinding leftTB = ie.getLeftOperand().resolveTypeBinding();
+				if (leftTB == null) {
+					System.out.println("ERROR: Left type binding null: " + ie.getLeftOperand().toString());
+					return false;
+				}
+				
 				// cases where we don't need to look at right hand type
 				if (leftTB.isPrimitive() || leftTB.isNullType()) {
 					return true;
@@ -442,6 +515,10 @@ public class Verifier {
 				}
 				
 				ITypeBinding rightTB = ie.getRightOperand().resolveTypeBinding();
+				if (rightTB == null) {
+					System.out.println("ERROR: Left type binding null: " + ie.getRightOperand().toString());
+					return false;
+				}
 				
 				// otherwise redundant isPrimitive check required for
 				// auto-unboxing
@@ -453,7 +530,17 @@ public class Verifier {
 						String rightTypeName = Utility.stripGenerics(rightTB.getQualifiedName());
 						// IJavaProject.findType is confused by type parameters.
 						IType leftType = project.findType(leftTypeName);
+						if (leftType == null) {
+							System.out.println("ERROR: Couldn't find type \"" + leftTB.getQualifiedName()
+								+ "\" for type binding " + leftTB);
+							return false;
+						}
 						IType rightType = project.findType(rightTypeName);
+						if (rightType == null) {
+							System.out.println("ERROR: Couldn't find type \"" 
+									+ rightTB.getQualifiedName() + "\" for type binding " + rightTB); 
+							return false;
+						}
 						ITypeHierarchy leftSTH = leftType.newSupertypeHierarchy(null);
 						ITypeHierarchy rightSTH = rightType.newSupertypeHierarchy(null);
 						IType tokenType = project.findType("org.joe_e.Token");

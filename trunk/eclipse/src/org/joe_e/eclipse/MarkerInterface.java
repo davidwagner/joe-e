@@ -66,6 +66,11 @@ public class MarkerInterface {
 			ITypeHierarchy sth = t1.newSupertypeHierarchy(null);
 			IType incapableType = 
 				t1.getJavaProject().findType("org.joe_e." + mi);
+			if (incapableType == null) {
+				System.out.println("Incapable type not found! joe_e.org.Incapable");
+				System.out.println("should be in the project or linked libraries.");
+				return false;
+			}
 			if (sth.contains(incapableType)) {
 				return true;
 			} else { 
