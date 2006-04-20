@@ -67,6 +67,8 @@ public class EqualsEqualsTester {
 		if (34 != new Integer(34));
 		if (new Integer(34)      == 34);
 		if (new Integer(34)      != 34);
+	
+		org.joe_e.Incapable k = new org.joe_e.Incapable() {int i = 4; }; 
 		
 	}
 }
