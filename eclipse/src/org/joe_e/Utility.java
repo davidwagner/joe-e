@@ -9,6 +9,19 @@ import org.eclipse.jdt.core.*;
 
 public class Utility {
 
+	static public boolean instanceOf(Object obj, Class<?> type) {
+		// now only handles non-deemed classes
+		
+		return type.isAssignableFrom(obj.getClass());
+	}
+
+	static public boolean isSubtypeOf(Class<?> c1, Class<?> c2) {
+		// now only handles non-deemed classes
+		
+		return c2.isAssignableFrom(c1);
+	}
+	
+	
 	/*
 	static public boolean instanceOf(String n1, IType t2, IType context)
 	{
