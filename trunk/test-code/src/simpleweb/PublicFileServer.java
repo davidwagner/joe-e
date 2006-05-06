@@ -1,95 +1,63 @@
-package test;
+package simpleweb;
 
-import java.net.Socket;
 import java.io.File;
-import java.io.InputStream;
-import java.io.FileInputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
+import java.io.FileInputStream;
 
-public class Connection {
+public class PublicFileServer {
 	File base;
-	Socket sock;
 	
-	Connection(File base, Socket sock) {
+	PublicFileServer(File base) {
 		this.base = base;
-		this.sock = sock;
 	}
 	
-	void handle() {
-		try{
-			InputStream sockIn = sock.getInputStream();
-			OutputStream sockOut = sock.getOutputStream();
-			
-			BufferedReader br = new BufferedReader(new InputStreamReader(sockIn));
+	void serve(String fileName, OutputStream serveOut) 
+	{
+		try {
+			File toServe = findFile(fileName);
 		
-			String nextLine = br.readLine();
-		
-			while (!nextLine.startsWith("GET")) {
-				nextLine = br.readLine();
-			}
-			
-			System.out.println(nextLine);
-
-			/* Service the request */
-			
-			nextLine = nextLine.substring(4);
-			int nextSpace = nextLine.indexOf(" ");
-			if (nextSpace >= 0) {
-				nextLine = nextLine.substring(0, nextSpace);
-			}
-
-			System.out.println("Requested resource \"" + nextLine + "\"");
-
-			File toServe = findFile(nextLine);
-			
 			if (toServe == null) {
-				PrintStream ps = new PrintStream(sockOut);
+				PrintStream ps = new PrintStream(serveOut);
 				ps.println("<html><head><title>Not found.</title></head><body>");
-				ps.println("<p>Error: Requested resource " + nextLine + " not found.</p>" + 
+				ps.println("<p>Error: Requested resource " + fileName + " not found.</p>" + 
 						   "<p>Please check the URL.</p>");
 				ps.println("</body></html>");
-				sockOut.flush();
+				serveOut.flush();
 			} else {
 				System.out.println("Serving " + toServe.getAbsolutePath());
-
-				// log here
 			
+				// log here
+		
 				if (toServe.isDirectory()) {
-					PrintStream ps = new PrintStream(sockOut);
-					
-					ps.println("<html><head><title>Directory of " + nextLine 
+					PrintStream ps = new PrintStream(serveOut);
+				
+					ps.println("<html><head><title>Directory of " + fileName 
 							   + "</title></head></title>"); 
-	
-					ps.println("<h2>Directory of " + nextLine + "</h2>");
+					
+					ps.println("<h2>Directory of " + fileName + "</h2>");
 					
 					File[] contents = toServe.listFiles();
 					for (File f : contents) {
 						ps.println("<p><a href=\"" + f.getName() + "\">" 
-								   + f.getName() + "</a></p>");
+							        + f.getName() + "</a></p>");
 					}
-					
-					ps.println("</body></html>");
 				
+					ps.println("</body></html>");
+			
 				} else {
 					FileInputStream fis = new FileInputStream(toServe);
-			
+		
 					int nextByte = fis.read();
 					while (nextByte >= 0) {
-						sockOut.write(nextByte);
+						serveOut.write(nextByte);
 						nextByte = fis.read();
 					}
 				}
 			}
-			
-			sock.close();
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
 	}
 	
 	/**
@@ -136,5 +104,5 @@ public class Connection {
 		}
 		
 		return current;
-	}
+	}	
 }
