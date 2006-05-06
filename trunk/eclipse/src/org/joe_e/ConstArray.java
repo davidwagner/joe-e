@@ -23,7 +23,7 @@ public class ConstArray<T> {
 	 *  this is the only problematic method (?)
 	 */
 	ConstArray<T> with(T newt) {
-		T[] newArr = T[arr.length + 1];
+		T[] newArr = (T[]) new Object[arr.length + 1];
 		System.arraycopy(newt, 0, newArr, 0, arr.length);
 		newArr[arr.length] = newt;
 		return new ConstArray<T>(newArr);
