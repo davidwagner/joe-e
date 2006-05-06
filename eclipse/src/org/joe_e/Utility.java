@@ -5,8 +5,6 @@
  */
 package org.joe_e;
 
-import org.eclipse.jdt.core.*;
-
 public class Utility {
 
 	static public boolean instanceOf(Object obj, Class<?> type) {
