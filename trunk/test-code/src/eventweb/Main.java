@@ -10,6 +10,7 @@ import java.nio.charset.CharsetDecoder;
 import java.util.Set;
 import java.util.HashMap;
 import java.io.File;
+import java.net.Socket;
 
 public class Main {
 
@@ -50,40 +51,40 @@ public class Main {
 								SelectionKey newKey = newChan.register(selector, SelectionKey.OP_READ);
 								Socket newSocket = newChan.socket();
 								newSocket.setSoTimeout(SOCKET_TIMEOUT_MS);
-								connectionMap.put(key, new Connection(SERVE_BASE, newChan.socket()));
+								connectionMap.put(newKey, 
+										new Connection(SERVE_BASE, newChan, debugOut));
 								
 								// another?
 								newChan = ssc.accept();
 							}
-						}
-						else {
-							Connection c = connectionMap.get(k);
-						SelectableChannel chan = k.channel();
-						if (chan instanceof ServerSocketChannel) {
-							ServerSocketChannel ssc = (ServerSocketChannel) chan;
-							SocketChannel newChan = ssc.accept();
-							while (newChan != null) {
-								debugOut.println("Accepting connection to " + newChan.socket().toString());
-								newChan.configureBlocking(false);
-								SelectionKey newKey = newChan.register(selector, SelectionKey.OP_READ);
-								
-								newChan = ssc.accept();
+						} else {
+							int status = connectionMap.get(k).newData();
+							if (status < 0) {
+								k.cancel();
 							}
-						} else if (chan instanceof SocketChannel) {
-							SocketChannel sc = (SocketChannel) chan;
-							processNewData(sc);
+							
+							// SelectableChannel sc = (k.channel());
+							// if (sc instanceof SocketChannel) {
+								
+								//processNewData(k, debugOut);
+							// } else {
+							//	System.out.println("wtf mates? not a socket!");
+							// }							
 						}
 					}
 				}
 			}
+		
 			return 0;
+		
 		} catch (java.io.IOException ioe) {
 			ioe.printStackTrace();
 			return 10;
 		}
 	}
 
-	void processNewData(SocketChannel sc) {
+	/*
+	static void processNewData(SocketChannel sc, PrintStream debugOut) {
 		ByteBuffer bb = ByteBuffer.allocate(4096);
 		int numBytesRead = sc.read(bb);
 		if (numBytesRead > 0) {
@@ -97,4 +98,5 @@ public class Main {
 			k.cancel(); // remove from selector.
 		}
 	}
+	*/
 }

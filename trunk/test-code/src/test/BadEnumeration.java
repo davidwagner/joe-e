@@ -32,7 +32,7 @@ public  enum BadEnumeration implements Incapable {
 	// modify the enumeration's "constants"!  Fields of enumeration members
 	// (or their contents) can convey authority.  Ouch!
 	void muy_eviloso(int q, int z) {
-		this.q = q;
+		// this.q = q;
 		this.z = z;
 	}
 }	

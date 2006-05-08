@@ -8,8 +8,8 @@ import java.io.PrintStream;
 public class MonkeyServer implements Incapable {
 	void serve(String fileName, OutputStream serveOut) 
 	{
+		PrintStream ps = new PrintStream(serveOut);
 		try {
-			PrintStream ps = new PrintStream(serveOut);
 			ps.println("Monkey see, monkey do!");
 			ps.println(fileName.substring(16) + " is made of poo!");
 			serveOut.flush();
