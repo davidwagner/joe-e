@@ -25,6 +25,7 @@ public class PublicFileServer {
 			File toServe = findFile(fileName);
 		
 			if (toServe == null) {
+				debugOut.println("404'ed!");
 				return new HTTPResponse(404, new byte[]{});				
 				/*
 				PrintStream ps = new PrintStream(serveOut);
@@ -81,7 +82,7 @@ public class PublicFileServer {
 	File findFile(String fileName) {
 		File current = base;
 
-		// invariant: remaining URL starts with
+		// invariant: remaining URL starts with '/' or is empty
 		while (current != null && fileName.length() > 0) {
 			if (!current.isDirectory()) {
 				return null;
@@ -93,6 +94,10 @@ public class PublicFileServer {
 			}
 		
 			fileName = fileName.substring(i);
+			
+			if (fileName.length() == 0) {
+				break;
+			}
 			
 			String next = fileName;
 			int nextSlash = fileName.indexOf('/');
