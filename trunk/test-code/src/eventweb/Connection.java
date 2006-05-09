@@ -56,10 +56,7 @@ public class Connection {
 				bb.flip();	// Crucial! argh.
 				CharsetDecoder decoder = Charset.forName("US-ASCII").newDecoder();
 				CharBuffer result = decoder.decode(bb);
-				debugOut.println("59:result: " + result);
-				debugOut.println("60:sb: length " + sb.length() + "<" + sb + ">");
 				sb = sb.append(result);
-				debugOut.println("62:sb: length " + sb.length() + "<" + sb + ">");
 				bb.clear();
 				numBytesRead = sc.read(bb);
 			} 
@@ -72,12 +69,12 @@ public class Connection {
 			String nextLine;
 			
 			nextLine = readLine();
-			debugOut.println("A line of input: " + nextLine);
+			debugOut.println("Input: " + nextLine);
 			
 			while (nextLine != null) {				
 				while (!nextLine.startsWith("GET")) {
 					nextLine = readLine();
-					debugOut.println("Additional line: " + nextLine);
+					debugOut.println("Input: " + nextLine);
 					if (nextLine == null) {
 						return 0;
 					}
@@ -94,6 +91,7 @@ public class Connection {
 				debugOut.println("Requested resource \"" + nextLine + "\"");
 		
 				HTTPResponse response;
+				
 				if (nextLine.startsWith("/dynamic/monkey")) {
 					response = monkey.serve(nextLine, debugOut);
 				} else {
@@ -134,7 +132,7 @@ public class Connection {
 		} else {
 			String nextLine = sb.substring(0, firstNewLine);
 			sb.delete(0, firstNewLine + 2);
-			debugOut.println("Remaining: " + sb);
+			// debugOut.println("Remaining: " + sb);
 			return nextLine;
 		}	
 	}

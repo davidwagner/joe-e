@@ -2,13 +2,10 @@ package eventweb;
 
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.channels.*;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
 import java.util.Set;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.io.File;
 import java.net.Socket;
 
@@ -41,8 +38,10 @@ public class Main {
 					// TODO: wait a while before polling again?
 				} else {
 					Set<SelectionKey> keys = selector.selectedKeys();
-					for (SelectionKey k : keys) {
-						keys.remove(k);
+					Iterator<SelectionKey> iter = keys.iterator();
+					while(iter.hasNext()) {
+						SelectionKey k = iter.next();
+						iter.remove();
 						if (k == sscKey) {
 							SocketChannel newChan = ssc.accept();
 							while (newChan != null) {
