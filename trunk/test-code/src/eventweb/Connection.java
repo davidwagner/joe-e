@@ -1,12 +1,5 @@
 package eventweb;
 
-import java.net.Socket;
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -14,34 +7,38 @@ import java.nio.channels.*;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.util.Map;
+import java.util.HashMap;
 
 public class Connection {
-	File base;
+	Map<String, Service> services;
+	Service defaultService;
 	SocketChannel sc;
 	PrintStream debugOut;	
-	
-	PublicFileServer pfs;
-	MonkeyServer monkey;
 	
 	enum State {
 		NEW;
 	}
 	
 	State state;
+	String user;
+	Map<Service, ServiceSession> sessions;
 	
 	ByteBuffer bb;
 	StringBuilder sb;
 	
 	CharsetEncoder ce;
 	
-	Connection(File base, SocketChannel sc, PrintStream debugOut) {
-		this.base = base;
+	Connection(Map<String, Service> services, Service defaultService, SocketChannel sc, PrintStream debugOut) {
+		this.services = services;
+		this.defaultService = defaultService;
 		this.sc = sc;
 		this.debugOut = debugOut;
 		
-		pfs = new PublicFileServer(base);
-		monkey = new MonkeyServer();
 		state = State.NEW;
+		user = "";
+		this.sessions = new HashMap<Service, ServiceSession>();
+		
 		bb = ByteBuffer.allocate(4096);
 		sb = new StringBuilder();
 		ce = Charset.forName("US-ASCII").newEncoder();
@@ -92,12 +89,31 @@ public class Connection {
 		
 				HTTPResponse response;
 				
-				if (nextLine.startsWith("/dynamic/monkey")) {
-					response = monkey.serve(nextLine, debugOut);
+				if (nextLine.startsWith("/login/")) {
+					user = nextLine.substring("/login/".length());
+					sessions = new HashMap<Service, ServiceSession>();
+					response = new HTTPResponse(200, "Logged in as " + user + ".");
 				} else {
-					response = pfs.serve(nextLine, debugOut);
+					Service service = null;
+					
+					for (String k : services.keySet()) {
+						if (nextLine.startsWith(k)) {
+							service = services.get(k);
+						}
+					}
+					
+					if (service == null) {
+						service = defaultService;
+					}
+							
+					ServiceSession session = sessions.get(service);
+					if (session == null) {
+						session = service.getSession(user);
+						sessions.put(service, session);
+					}
+					
+					response = session.serve(nextLine, debugOut);
 				}
-				
 				
 				writeLine("HTTP/1.1 " + response.code + " " + HTTPResponse.describe(response.code));
 				if (response.content == null) {

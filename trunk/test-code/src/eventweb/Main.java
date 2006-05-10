@@ -4,10 +4,11 @@ import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.nio.channels.*;
 import java.util.Set;
+import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.io.File;
-import java.net.Socket;
+import eventweb.bank.BankServer;
 
 public class Main {
 
@@ -16,9 +17,17 @@ public class Main {
 	}
 	
 	public static int serve(PrintStream debugOut) {
-		final File SERVE_BASE = new File("/home/adrian/website");
+		final PublicFileServer pfs = new PublicFileServer(new File("/home/adrian/website"));
+
+		final Map<String, Service> services = new HashMap<String, Service>();
+
+		final MonkeyServer monkey = new MonkeyServer();
+		services.put("/monkey", monkey);
+		final BankServer bank = new BankServer();
+		services.put("/bank", bank);
+		
 		final int SERVE_PORT = 13579;		
-		final int SOCKET_TIMEOUT_MS = 10;
+		
 		try {
 			Selector selector = Selector.open();
 		
@@ -28,7 +37,7 @@ public class Main {
 			ssc.configureBlocking(false);
 			
 			SelectionKey sscKey = ssc.register(selector, SelectionKey.OP_ACCEPT);			
-			HashMap<SelectionKey, Connection> connectionMap = new HashMap<SelectionKey, Connection>();
+			Map<SelectionKey, Connection> connectionMap = new HashMap<SelectionKey, Connection>();
 			
 			boolean quit = false;
 			while(!quit) {
@@ -48,10 +57,9 @@ public class Main {
 								debugOut.println("Accepting connection to " + newChan.socket().toString());
 								newChan.configureBlocking(false);
 								SelectionKey newKey = newChan.register(selector, SelectionKey.OP_READ);
-								Socket newSocket = newChan.socket();
-								newSocket.setSoTimeout(SOCKET_TIMEOUT_MS);
+
 								connectionMap.put(newKey, 
-										new Connection(SERVE_BASE, newChan, debugOut));
+										new Connection(services, pfs, newChan, debugOut));
 								
 								// another?
 								newChan = ssc.accept();
