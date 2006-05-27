@@ -1,6 +1,6 @@
 package test;
-import org.joe_e.Incapable;
-import org.joe_e.DeepFrozen;
+import org.joe_e.Powerless;
+import org.joe_e.Immutable;
 
 public class HasInner {
 
@@ -14,7 +14,7 @@ public class HasInner {
 		}
 	}
 	
-	static class StaticInner implements DeepFrozen {
+	static class StaticInner implements Immutable {
 		
 	}
 }

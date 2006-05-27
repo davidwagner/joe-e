@@ -10,7 +10,7 @@ public class MonkeySession implements ServiceSession {
 		bananas = 0;
 	}
 	
-	public HTTPResponse serve(String fileName, PrintStream debugOut) 
+	public HTTPResponse serve(HTTPRequest request, PrintStream debugOut) 
 	{
 		try{
 			StringBuilder sb = new StringBuilder();
@@ -33,7 +33,7 @@ public class MonkeySession implements ServiceSession {
 	
 	String bananaMessage(int bananas) {
 		if (bananas == 0) {
-			return "Starving Monkey!";
+			return "Starving Monkey.";
 		} else if (bananas < 3) {
 			return "Hungry Monkey.";
 		} else if (bananas < 6) {
@@ -43,13 +43,13 @@ public class MonkeySession implements ServiceSession {
 		} else if (bananas < 14) {
 			return "Sick Monkey.";
 		} else if (bananas < 15) {
-			return "KABOOM!";
+			return "Banana pressure critical!  She's gonna blow! . . . BOOM!";
 		} else if (bananas < 18) {
 			return "Splatted Monkey.";
 		} else if (bananas < 19) {
 			return "Stupid Monkey.";
 		} else {
-			return "Stupid Monkey.  (I mean you, not the dead one.)";
+			return "Stupid Monkey.  (I mean you, not the splode.)";
 		}
 	}
 }

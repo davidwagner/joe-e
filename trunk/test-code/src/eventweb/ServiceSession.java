@@ -7,5 +7,5 @@ import java.io.PrintStream;
 //
 
 public interface ServiceSession {
-	public HTTPResponse serve(String fileName, PrintStream debugOut);
+	public HTTPResponse serve(HTTPRequest request, PrintStream debugOut);
 }

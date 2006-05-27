@@ -1,10 +1,10 @@
 package test;
 
-import org.joe_e.DeepFrozen;
+import org.joe_e.Immutable;
 import org.joe_e.Token;
-import org.joe_e.Incapable;
+import org.joe_e.Powerless;
 
-public class GoodParameterizedType<I extends Incapable, T extends ExtendsToken> implements DeepFrozen {
+public class GoodParameterizedType<I extends Powerless, T extends ExtendsToken> implements Immutable {
 	final I inc;
 	final T tok;
 	

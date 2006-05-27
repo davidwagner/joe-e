@@ -1,8 +1,8 @@
 package test;
 
-import org.joe_e.Incapable;
+import org.joe_e.Powerless;
 
-public  enum BadEnumeration implements Incapable {
+public  enum BadEnumeration implements Powerless {
 	foo(0, 1), barr(0, 2), baz(1, 3);
 	
 	final int q;
