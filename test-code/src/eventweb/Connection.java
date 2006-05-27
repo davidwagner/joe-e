@@ -14,7 +14,7 @@ public class Connection {
 	Map<String, Service> services;
 	Service defaultService;
 	SocketChannel sc;
-	PrintStream debugOut;	
+	PrintStream debugOut;
 	
 	enum State {
 		NEW;
@@ -51,6 +51,9 @@ public class Connection {
 			while (numBytesRead > 0) {
 				debugOut.println("Read " + numBytesRead + " bytes from " + sc.socket());
 				bb.flip();	// Crucial! argh.
+				// TODO: 'contents', if any present, may not be in ASCII; need to walk byte
+				// stream to see how much to decode (to first \r\n\r\n), for which I'd have to write
+				// my own grep code.  Not happening today.
 				CharsetDecoder decoder = Charset.forName("US-ASCII").newDecoder();
 				CharBuffer result = decoder.decode(bb);
 				sb = sb.append(result);
@@ -63,76 +66,57 @@ public class Connection {
 				return -1;
 			}
 			
-			String nextLine;
+			String nextRequest = readRequest();
 			
-			nextLine = readLine();
-			debugOut.println("Input: " + nextLine);
+			while (nextRequest != null) {
+				debugOut.println("HTTP Request:\n" + nextRequest);
+				HTTPRequest request = new HTTPRequest(nextRequest);
 			
-			while (nextLine != null) {				
-				while (!nextLine.startsWith("GET")) {
-					nextLine = readLine();
-					debugOut.println("Input: " + nextLine);
-					if (nextLine == null) {
-						return 0;
-					}
-				}
-				
-				/* Service the request */
-				
-				nextLine = nextLine.substring(4);
-				int nextSpace = nextLine.indexOf(" ");
-				if (nextSpace >= 0) {
-					nextLine = nextLine.substring(0, nextSpace);
-				}
-		
-				debugOut.println("Requested resource \"" + nextLine + "\"");
-		
+				String requestURI = request.requestURI;
+				debugOut.println("Requested resource \"" + requestURI + "\"");
+
 				HTTPResponse response;
 				
-				if (nextLine.startsWith("/login/")) {
-					user = nextLine.substring("/login/".length());
+				if (requestURI.startsWith("/login/")) {
+					user = requestURI.substring("/login/".length());
 					sessions = new HashMap<Service, ServiceSession>();
 					response = new HTTPResponse(200, "Logged in as " + user + ".");
 				} else {
 					Service service = null;
-					
+				
 					for (String k : services.keySet()) {
-						if (nextLine.startsWith(k)) {
+						if (requestURI.startsWith(k)) {
 							service = services.get(k);
 						}
 					}
-					
+				
 					if (service == null) {
 						service = defaultService;
 					}
-							
+						
 					ServiceSession session = sessions.get(service);
 					if (session == null) {
 						session = service.getSession(user);
 						sessions.put(service, session);
 					}
-					
-					response = session.serve(nextLine, debugOut);
-				}
 				
+					response = session.serve(request, debugOut);
+				}
+							
 				writeLine("HTTP/1.1 " + response.code + " " + HTTPResponse.describe(response.code));
+				writeBytes(response.headers);
 				if (response.content == null) {
 					writeLine("");
 				} else {
-				   writeLine("Content-Length: " + response.content.length);
-				   writeLine("");
-				   writeBytes(response.content);
+					writeLine("Content-Length: " + response.content.length);
+					writeLine("");
+					writeBytes(response.content);
 				}
-				/*
-				byte[] content;
-				if (nextLine.startsWith("/dynamic/monkey")) {
-					content = monkey.serve(nextLine);
-				} else {
-					content = pfs.serve(nextLine);
-				}
-				*/				
-		
+				
+				nextRequest = readRequest();
 			}
+			
+			debugOut.println("End of input lines.");			
 			
 		} catch (Exception e) {
 		 	e.printStackTrace();
@@ -141,13 +125,13 @@ public class Connection {
 		return 0;
 	}
 
-	String readLine() {
-		int	firstNewLine = sb.indexOf("\r\n"); 
-		if (firstNewLine == -1) {
+	String readRequest() {
+		int	firstNewRequest = sb.indexOf("\r\n\r\n"); 
+		if (firstNewRequest == -1) {
 			return null;
 		} else {
-			String nextLine = sb.substring(0, firstNewLine);
-			sb.delete(0, firstNewLine + 2);
+			String nextLine = sb.substring(0, firstNewRequest + "\r\n".length());
+			sb.delete(0, firstNewRequest + "\r\n\r\n".length());
 			// debugOut.println("Remaining: " + sb);
 			return nextLine;
 		}	

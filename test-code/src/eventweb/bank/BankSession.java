@@ -2,39 +2,45 @@ package eventweb.bank;
 
 import java.io.PrintStream;
 
+import eventweb.HTTPRequest;
 import eventweb.HTTPResponse;
 import eventweb.ServiceSession;
 
 public class BankSession implements ServiceSession {
-	BankAccount account;
+	final TransactionSubmitter ts;
 	
-	BankSession(BankAccount account) {
-		this.account = account;
+	BankSession(TransactionSubmitter ts) {
+		this.ts = ts;
 	}
 	
-	public HTTPResponse serve(String fileName, PrintStream debugOut) {
-		StringBuilder sb;
-		if (fileName.startsWith("/bank/deposit/")) {
-			int delta = Integer.parseInt(fileName.substring("/bank/deposit/".length()));
-			account.delta(delta);
-			sb = new StringBuilder("Deposited $" + String.format("%.2f", delta/100.0) + ".  Hooray.\n");
-			sb.append(balanceDisplay());
+	public HTTPResponse serve(HTTPRequest request, PrintStream debugOut) {
+		String fileName = request.requestURI;
+		
+		TransactionReply reply;
+		if (fileName.startsWith("/bank/print/")) {
+			int delta = Integer.parseInt(fileName.substring("/bank/print/".length()));
+			reply = ts.deposit(delta, "my very own virtual printing press");		
+		} else if (fileName.startsWith("/bank/transfer/")) {
+			int nextSlash = fileName.indexOf("/", "/bank/transfer/".length());
+			if (nextSlash > 0) {
+				String payee = fileName.substring("/bank/transfer/".length(), nextSlash);
+				int amount = Integer.parseInt(fileName.substring(nextSlash + 1));
+				reply = ts.transfer(amount, payee);
+			} else {
+				TransactionReply nopReply = ts.nop();
+				reply = new TransactionReply("Transfer request parsing failed.", nopReply.snapshot);
+			}
 		} else {
-			sb = balanceDisplay();
+			reply = ts.nop();
 		}
 		
+		CharSequence webpage = new PrettyDisplay(reply).display();
+		
 		try {
-			return new HTTPResponse(200, sb);
+			return new HTTPResponse(200, webpage);
 		} catch (Exception e) {
 			e.printStackTrace(debugOut);
 			return null;
 		}
-	}
-	
-	StringBuilder balanceDisplay() {
-		StringBuilder sb = new StringBuilder("Account balance for user ");
-		sb.append(account.getUser() + " is: ");
-		sb.append(String.format("%.2f", account.getBalance() / 100.0));
-		return sb;
 	}
 }

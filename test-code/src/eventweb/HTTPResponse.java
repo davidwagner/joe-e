@@ -18,6 +18,8 @@ public class HTTPResponse {
 		switch(code) {
 		case 200:
 			return "OK";
+		case 301:
+			return "Moved Permanently";
 		case 404:
 			return "File not found.";
 		default:
@@ -46,7 +48,12 @@ public class HTTPResponse {
 	{
 		this.code = code;
 		CharsetEncoder ce = Charset.forName("ISO-8859-1").newEncoder();
-		CharBuffer headerCB = CharBuffer.wrap(headers);
+		
+		StringBuilder headersBuilder = new StringBuilder();
+		for (CharSequence line : headers) {
+			headersBuilder.append(line + "\r\n");
+		}
+		CharBuffer headerCB = CharBuffer.wrap(headersBuilder);
 		ByteBuffer headerBB = ce.encode(headerCB);
 		this.headers = headerBB.array();
 		CharBuffer cb = CharBuffer.wrap(stringContent);
