@@ -21,16 +21,10 @@ import org.eclipse.core.runtime.QualifiedName;
 public class Builder extends IncrementalProjectBuilder {
 	public static final String BUILDER_ID = "Joe_E.JoeEBuilder";
 	private static final String MARKER_TYPE = "Joe_E.JoeEProblem";
-	private static final QualifiedName INTERESTED_PROP = new QualifiedName("Joe_E", "interested-classes");
 	
-	
-	static JavaCore jc = JavaCore.getJavaCore();
-	
-	BuildState state = null;	// empty until first full build
+	private BuildState state = null;	// empty until first full build
 	
 	class DeltaVisitor implements IResourceDeltaVisitor {
-		//HashSet<String> interested; // classes that are affected by visited deltas and thus must be re-verified.
-		
 		/*
 		 * (non-Javadoc)
 		 * 
@@ -42,10 +36,8 @@ public class Builder extends IncrementalProjectBuilder {
 		 */
 		DeltaVisitor() {
 			super();
-			//this.interested = interested;
 		}
 
-		
 		public boolean visit(IResourceDelta delta) throws CoreException {
 			System.out.println("Delta!" + delta.toString());
 			IResource resource = delta.getResource();
@@ -77,7 +69,10 @@ public class Builder extends IncrementalProjectBuilder {
 		}
 	}
 
-	class SampleResourceVisitor implements IResourceVisitor {
+	/**
+	 * Used by full build
+	 */
+	class ResourceVisitor implements IResourceVisitor {
 		public boolean visit(IResource resource) {
 			checkAndUpdateProblems(resource);
 			
@@ -85,7 +80,7 @@ public class Builder extends IncrementalProjectBuilder {
 			return true;
 		}
 	}
-
+	
 	
 	class SourceLocationConverter{
 		Integer[] lineStarts; 
@@ -177,21 +172,11 @@ public class Builder extends IncrementalProjectBuilder {
 		switch (kind) {
 		case CLEAN_BUILD:
 		case FULL_BUILD:
-		case INCREMENTAL_BUILD:
-		case AUTO_BUILD:
 			fullBuild(monitor);
 			break;
-		
-		/*
-		case AUTO_BUILD:
-			// don't launch a full build, they may be slow(?).
-			if (state == null || getDelta(getProject()) == null) {
-				break;
-			}
-		*/
-			// otherwise fall through
-		/*
+			
 		case INCREMENTAL_BUILD:
+		case AUTO_BUILD:
 			if (state == null) {
 				fullBuild(monitor);
 			} else {
@@ -203,7 +188,6 @@ public class Builder extends IncrementalProjectBuilder {
 				}
 			}
 			break;
-		*/
 		
 		default:
 			// this should never happen: all values enumerated above
@@ -226,7 +210,7 @@ public class Builder extends IncrementalProjectBuilder {
 		state = new BuildState(); // clear build state
 		
 		try {			
-			getProject().accept(new SampleResourceVisitor());
+			getProject().accept(new ResourceVisitor());
 		} catch (CoreException e) {
 			e.printStackTrace();
 		}

@@ -7,12 +7,38 @@ package org.joe_e.eclipse;
 
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ISourceRange;
+import org.eclipse.jdt.core.ICompilationUnit;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.HashMap;
 import java.util.LinkedList;
 
 class BuildState {
+	
+	final Map<IType, ITypeState> classStates;
+	final Map<ICompilationUnit, ICUState> icuStates;
+	
+	BuildState() {
+		classStates = new HashMap<IType, ITypeState>();
+		icuStates = new HashMap<ICompilationUnit, ICUState>();
+	}
+	
+	void resetLinks(ICompilationUnit building) {
+		ITypeState rebuild = classStates.get(rebuiltClass);
+		
+		if (rebuild != null) {
+			for (IType referenced : rebuild.references) {
+				ITypeState referencedState = classStates.get(referenced);
+				referencedState.resetDependencies(rebuiltClass);
+			}
+		}
+		
+		rebuild.references.clear();
+	}
+	
+	
+	/*
 	// contains list of dependencies and initializer invocations in order to detect
 	// evil, nasty initialization cycles
 	class InitializerRef {
@@ -59,7 +85,7 @@ class BuildState {
 		return new LinkedList<IType>();
 	}
 	
-	/*
+	
 	 * If more types of edges are added, I may want these
 	 
 	class Edge {
