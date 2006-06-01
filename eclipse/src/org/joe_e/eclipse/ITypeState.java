@@ -2,8 +2,9 @@ package org.joe_e.eclipse;
 
 import java.util.Set;
 import java.util.HashSet;
-import org.eclipse.jdt.core.IType;
 
+//import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ICompilationUnit;
 
 /**
  * Information determined about a class by the verifier
@@ -12,37 +13,47 @@ class ITypeState {
 	static final int IMPL_SELFLESS =    0x0001;
 	static final int IMPL_IMMUTABLE =   0x0002;
 	static final int IMPL_POWERLESS =   0x0004;
-
+	
 	/*
 	static final int VERIFY_SELFLESS =  0x0100;
 	static final int VERIFY_IMMUTABLE = 0x0200;
 	static final int VERIFY_POWERLESS = 0x0400;  
 	*/
 	
-	final String name;
-	final int flags;
-	final Set<IType> subclasses;  // subclasses of this class
-	final Set<IType> containers;  // classes with fields having this class as a declared type
-								  //  and relying on this class to implement a marker interface
+	//final String name;
+	final int flags; // if set to < 0, flags invalid, otherwise bitfield based on constants
+	final Set<ICompilationUnit> flagDependents;  // compilation units on this class to implement a marker interface
+	final Set<ICompilationUnit> deepDependents;      // compiltion units relying on deeper properties of this class
 	
-	ITypeState(String name, int flags, Set<IType> references) {
-		this.name = name;
+	/* flags not known */
+		
+	ITypeState(int flags) {
+		//this.name = name;
 		this.flags = flags;
-		this.subclasses = new HashSet<IType>();
-		this.containers = new HashSet<IType>();
+		this.deepDependents = new HashSet<ICompilationUnit>();
+		this.flagDependents = new HashSet<ICompilationUnit>();
 	}
 	
 	
 	
 	boolean implementsSelfless() {
+		if (flags < 0) {
+			throw new RuntimeException("flags not initialized!");
+		}
 		return ((flags & IMPL_SELFLESS) != 0);
 	}
 	
 	boolean implementsImmutable() {
-		return ((flags & IMPL_IMMUTABLE) != 0);
+		if (flags < 0) {
+			throw new RuntimeException("flags not initialized!");
+		}
+			return ((flags & IMPL_IMMUTABLE) != 0);
 	}
 	
 	boolean implementsPowerless() {
+		if (flags < 0) {
+			throw new RuntimeException("flags not initialized!");
+		}
 		return ((flags & IMPL_POWERLESS) != 0);
 	}
 	
@@ -61,23 +72,22 @@ class ITypeState {
 	*/
 	
 
+	void addFlagDependent (ICompilationUnit newDependent) {
+		if (!deepDependents.contains(newDependent)) {
+			flagDependents.add(newDependent);
+		}
+	}
 	
-	void addSubclass (IType newSubclass) {
-		subclasses.add(newSubclass);
+	void addDeepDependent (ICompilationUnit newDependent) {
+		deepDependents.add(newDependent);
 		
-		if (containers.contains(newSubclass)) {
-			containers.remove(newSubclass);
+		if (flagDependents.contains(newDependent)) {
+			flagDependents.remove(newDependent);
 		}
 	}
 	
-	void addContainer (IType newContainer) {
-		if (!subclasses.contains(newContainer)) {
-			containers.add(newContainer);
-		}
-	}
-	
-	void resetDependencies (IType otherClass) {
-		subclasses.remove(otherClass);
-		containers.remove(otherClass);
+	void resetDependencies (ICompilationUnit dependent) {
+		deepDependents.remove(dependent);
+		flagDependents.remove(dependent);
 	}
 }

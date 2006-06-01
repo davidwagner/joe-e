@@ -5,7 +5,7 @@
  */
 package org.joe_e.eclipse;
 
-import org.eclipse.core.resources.IFile;
+//import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.core.*;
 
 import org.eclipse.jdt.core.dom.*;
@@ -15,13 +15,19 @@ import java.util.LinkedList;
 import java.util.HashSet;
 
 public class Verifier {
-	/**
+    BuildState state;
+    
+    Verifier(BuildState state) {
+        this.state = state;
+    }
+    
+	/*
 	 * Run the Joe-E verifier on an IFile
 	 * 
 	 * @param icu
 	 *            ICompilationUnit on which to run the verifier
 	 * @return a List of Problems (Joe-E verification errors) encountered
-	 */
+	 *
 	static List<Problem> checkJavaFile(IFile resource) {
 		try {
 			System.out.println("Joe-E Verifier examining " + resource.getName());
@@ -36,6 +42,7 @@ public class Verifier {
 			return new LinkedList<Problem>();
 		}	
 	}		
+	*/
 
 	/**
 	 * Run the Joe-E verifier on an ICompilationUnit
@@ -45,11 +52,9 @@ public class Verifier {
 	 * @return a List of Problems (Joe-E verification errors) encounteredas
 	 *         cleanly
 	 */
-	static List<Problem> checkICU(ICompilationUnit icu)
+	List<ICompilationUnit> checkICU(ICompilationUnit icu, List<Problem> problems)
 	{
-		LinkedList<Problem> problems = new LinkedList<Problem>();
-		
-		try {
+        try {
 			// Check for package membership
 			IPackageDeclaration[] pkg = icu.getPackageDeclarations();
 			if (pkg.length > 1) {
@@ -99,10 +104,10 @@ public class Verifier {
 		}
 		
 		System.out.println(problems);
-		return problems;
+		return new LinkedList<ICompilationUnit>();
 	}
 
-
+/*
 	String ppArray2(Object[][] array)
 	{
 		String out = "[";
@@ -127,7 +132,7 @@ public class Verifier {
 		}
 		return out + "]";
 	}
-	
+*/	
 	
 	/*
 	 * static void printParseTree(ASTNode t) { printParseTree(t, ""); } static
@@ -135,7 +140,7 @@ public class Verifier {
 	 * System.out.println(t.getClass().getName()); if (t instanceof t.get }
 	 */
 	
-	static void checkIType(IType type, List<Problem> problems)
+	void checkIType(IType type, List<Problem> problems)
 	{
 		try {
 			if (type.isAnnotation() || type.isEnum()) {
@@ -239,7 +244,7 @@ public class Verifier {
 	 *            the marker interface, i.e. DeepFrozen or Incapable
 	 * @throws JavaModelException
 	 */
-	static void verifyFieldsAre(IType type, String mi, List<Problem> problems) 
+	void verifyFieldsAre(IType type, String mi, List<Problem> problems) 
 			throws JavaModelException {
 		HashSet<IType> needCheck = findClasses(type, mi);
 		for (IType i : needCheck) {
@@ -304,7 +309,7 @@ public class Verifier {
 	 * @param problems the list to which to append problems
 	 * @throws JavaModelException
 	 */
-	static void verifyFieldsAre(IType type, String mi, IType candidate,
+	void verifyFieldsAre(IType type, String mi, IType candidate,
 								List<Problem> problems) throws JavaModelException {
 		//
 		// Check declared instance fields implement mi
@@ -370,7 +375,7 @@ public class Verifier {
 	 * Performs checks not possible using the IType interface, i.e. those that require
 	 * examination of method source code.
 	 */
-	static class VerifierASTVisitor extends ASTVisitor
+	class VerifierASTVisitor extends ASTVisitor
 	{
 		final IJavaProject project;
 		final List<Problem> problems; 

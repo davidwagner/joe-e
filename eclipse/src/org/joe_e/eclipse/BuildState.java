@@ -9,6 +9,7 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.ICompilationUnit;
 
+import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
@@ -24,18 +25,72 @@ class BuildState {
 		icuStates = new HashMap<ICompilationUnit, ICUState>();
 	}
 	
-	void resetLinks(ICompilationUnit building) {
-		ITypeState rebuild = classStates.get(rebuiltClass);
-		
-		if (rebuild != null) {
-			for (IType referenced : rebuild.references) {
-				ITypeState referencedState = classStates.get(referenced);
-				referencedState.resetDependencies(rebuiltClass);
+	/**
+	 * Resets all outgoing dependencies for a compilation unit, and assigns a new
+	 * ICUState to the unit.  Called before calculating a new set of dependencies
+	 * for a new build.
+	 */
+	void prebuild(ICompilationUnit toRebuild) {
+		ICUState oldState = icuStates.get(toRebuild);
+		if (oldState != null) {
+			Set<IType> typesReferenced = oldState.references;
+			
+			for (IType i : typesReferenced) {
+				ITypeState referencedState = classStates.get(i);
+				referencedState.resetDependencies(toRebuild);
 			}
 		}
-		
-		rebuild.references.clear();
+
+		icuStates.put(toRebuild, new ICUState());
 	}
+    
+	/**
+	 * Adds a flag (marker interface) based dependency.  Such a dependency only
+	 * causes recompilation if the flags change.  Assumes that there is
+	 * a valid ICUState object for the current compilation unit.  This can be
+	 * ensured by calling prebuild() before calling this method. 
+	 * 
+	 * @param current the compilation unit to which to add the dependency
+	 * @param dependedOn the class depended on to implement a marker interface
+	 */
+	void addFlagDependency(ICompilationUnit current, IType dependedOn) {
+		if (!dependedOn.isBinary()) {
+			ITypeState dependedState = classStates.get(dependedOn);
+			if (dependedState == null) {
+				// create a node with an unitialized flags state
+				dependedState = new ITypeState(-1);
+				classStates.put(dependedOn, dependedState);
+			}
+			dependedState.addFlagDependent(current);
+			
+			ICUState currentState = icuStates.get(current);
+			currentState.references.add(dependedOn);
+		}
+	}
+	
+	/**
+	 * Adds a deep (source based) dependency.  Such a dependency causes
+	 * recompilation whenever the source changes.  Assumes that there is
+	 * a valid ICUState object for the current compilation unit.  This can be
+	 * ensured by calling prebuild() before calling this method. 
+	 * 
+	 * @param current the compilation unit to which to add the dependency
+	 * @param dependedOn the class depended on to implement a marker interface
+	 */
+	void addDeepDependency(ICompilationUnit current, IType dependedOn) {
+		if (!dependedOn.isBinary()) {
+			ITypeState dependedState = classStates.get(dependedOn);
+			if (dependedState == null) {
+				// create a node with an unitialized flags state
+				dependedState = new ITypeState(-1);
+				classStates.put(dependedOn, dependedState);
+			}
+			dependedState.addDeepDependent(current);
+			
+			ICUState currentState = icuStates.get(current);
+			currentState.references.add(dependedOn);
+		}
+	}	
 	
 	
 	/*
