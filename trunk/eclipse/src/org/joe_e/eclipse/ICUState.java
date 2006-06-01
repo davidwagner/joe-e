@@ -12,8 +12,8 @@ class ICUState {
 	Set<IType> references;  // verifer dependencies of this compilation unit on other classes 
 						    //  (either type)
 	
-	ICUState(String name, int flags, Set<IType> references) {
-		this.references = references;
+	ICUState() {
+		this.references = new HashSet<IType>();
 	}
 	
 }
