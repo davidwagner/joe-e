@@ -69,57 +69,12 @@ public class Builder extends IncrementalProjectBuilder {
 		return null;
 	}
 	
-	
-	
-	
 
 
-	class SourceLocationConverter{
-		Integer[] lineStarts; 
-		
-		SourceLocationConverter(IFile file) {
-			List<Integer> newLines = new LinkedList<Integer>();
-			newLines.add(0);
-			try {
-				java.io.InputStream contents = file.getContents();
-				
-				int nextByte = contents.read();
-				for (int i = 0; nextByte >= 0; ++i) {
-					if (nextByte == '\n')
-						newLines.add(i);
-					nextByte = contents.read();
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			
-			lineStarts = newLines.toArray(new Integer[]{});
-		}
-		
-		int getLine(int charNumber) {
-			int low = 1;
-			int hi = lineStarts.length;
-			
-			// invariant: low <= answer <= hi
-			while (low < hi) {
-				//System.out.println("hi " + hi + ", low " + low);
-				int mid = (low + hi) / 2;
-				if (charNumber < lineStarts[mid]) {
-					hi = mid;
-				} else { 
-				    low = mid + 1;
-				}
-			}
-			
-			return hi;
-		}
-	}
-	
 	/**
-	 * Invoke the Joe-E verifier on a resource and update the markers for Joe-E problems.
+	 * Invoke the Joe-E verifier on a compilation unit and update the markers for Joe-E problems.
 	 * (First removes old problems, then runs verifier to generate new problems.)
-	 * Will silently ignore resources, such as directories, to which the verifier does not apply.
-	 * @param resource the resource to check
+	 * @param icu the compilation unit to check
      * @return additional ICompilationUnits that must be re-verified due to changes in this
      *  compilation unit
 	 */
@@ -155,7 +110,6 @@ public class Builder extends IncrementalProjectBuilder {
 		}
 	}
 
-
 	private void deleteMarkers(IFile file) {
 		try {
 			file.deleteMarkers(MARKER_TYPE, false, IResource.DEPTH_ZERO);
@@ -170,7 +124,7 @@ public class Builder extends IncrementalProjectBuilder {
 	protected void fullBuild(final IProgressMonitor monitor) 
 		throws CoreException {
 		state = new BuildState(); // clear build state
-        verifier = new Verifier(state);
+        verifier = new Verifier(JavaCore.create(getProject()), state);
 		
 		try {			
 		    ResourceVisitor rv = new ResourceVisitor();
@@ -222,8 +176,7 @@ public class Builder extends IncrementalProjectBuilder {
             
             while (!workQueue.isEmpty()) {
                 ICompilationUnit current = workQueue.remove();
-                // for full build, ignore dependency-induced build requests --
-                // we should have everything
+                // additional units to build
                 Collection<ICompilationUnit> additional = checkAndUpdateProblems(current);
                 for (ICompilationUnit i : additional) {
                     // add to build and to work queue if it's not already part of the build
@@ -234,43 +187,25 @@ public class Builder extends IncrementalProjectBuilder {
             } 
         } catch (CoreException e) {
             e.printStackTrace();
-        }		// the visitor does the work.
-		
-		// TODO: include re-verification necessitated by dependencies or always
-		// do a full build!
-		delta.accept(new DeltaVisitor());
-		
-		// re-check interested classes
-		/*
-		for (String i : recheck) {
-			// = something;
-			
-			
-			//if (delta.findMember(path) == null) {
-				// get IResource
-				//checkAndUpdateProblems(resource);
-			//}
-		}
-		*/
-		// see if they are already included with delta.findMember(), else re-verify them
-	
+        }		
 	}
     
-    
+    /**
+     * Visitor that extracts a set of changed ICompilationUnits from 
+     * an IResourceDelta
+     */
     class DeltaVisitor implements IResourceDeltaVisitor {
-       Set<ICompilationUnit> inBuild = new HashSet<ICompilationUnit>();
-        
-        /**
-         * includes a data structure for storing classes that must be re-verified.
-         */
-       public boolean visit(IResourceDelta delta) throws CoreException {
+        final Set<ICompilationUnit> inBuild = new HashSet<ICompilationUnit>();
+              
+        public boolean visit(IResourceDelta delta) throws CoreException {
             System.out.println("Delta! " + delta.toString());
             IResource resource = delta.getResource();
             
             if (delta.getKind() == IResourceDelta.REMOVED) {
                 // handle removed resource
                 // TODO: need to remove markers?? apparently not?
-                // NOT reverifying if an interesting class has been removed; compilation will fail anyway
+                // NOT reverifying if an interesting class has been removed; 
+            	//  compilation will fail anyway
             } else {  // ADDED or CHANGED 
                 if (resource instanceof IFile) {
                     IFile file = (IFile) resource;
@@ -279,11 +214,71 @@ public class Builder extends IncrementalProjectBuilder {
                         inBuild.add(icu);
                     }
                 }
-             }
+            }
             
             //return true to continue visiting children.
             return true;
         }
     }
-
+    
+    
+	/**
+	 * Computes line numbers for all characters in a file.  Lines are numbered
+	 * starting with 1.
+	 */
+	private class SourceLocationConverter{
+		Integer[] lineStarts; 
+		
+		/**
+		 * Create a source location converter for the specified file.  The
+		 * constructor reads the file and records the location of newlines
+		 * to make calls to newLine() fast.
+		 * 
+		 * @param file the file for which to compute line numbers
+		 */
+		SourceLocationConverter(IFile file) {
+			List<Integer> newLines = new LinkedList<Integer>();
+			newLines.add(0);
+			try {
+				java.io.InputStream contents = file.getContents();
+				
+				int nextByte = contents.read();
+				for (int i = 0; nextByte >= 0; ++i) {
+					if (nextByte == '\n')
+						newLines.add(i);
+					nextByte = contents.read();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			lineStarts = newLines.toArray(new Integer[]{});
+		}
+		
+		/**
+		 * Get the line number for the specified character in the file
+		 * associated with this SourceLocationConverter instance.
+		 * 
+		 * @param charNumber the position in the file for which to search
+		 * @return the number of the line containing this character, starting
+		 * 		   with line 1
+		 */
+		int getLine(int charNumber) {
+			int low = 1;
+			int hi = lineStarts.length;
+			
+			// invariant: low <= answer <= hi
+			while (low < hi) {
+				//System.out.println("hi " + hi + ", low " + low);
+				int mid = (low + hi) / 2;
+				if (charNumber < lineStarts[mid]) {
+					hi = mid;
+				} else { 
+				    low = mid + 1;
+				}
+			}
+			
+			return hi;
+		}
+	}
 }

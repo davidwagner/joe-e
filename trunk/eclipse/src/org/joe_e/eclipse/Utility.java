@@ -12,6 +12,17 @@ import org.eclipse.jdt.core.JavaModelException;
 public class Utility {
 
 	/**
+	 * Tests whether the Eclipse signature specified is for a class type
+	 * (as opposed to a primitive or array type).
+	 * @param sig An Eclipse type signature
+	 * @return true if sig is a class type
+	 */
+	static boolean signatureIsClass(String sig)
+	{
+		return sig.charAt(0) == 'Q';
+	}
+	
+	/**
 	 * Looks up the IType for a source type
 	 * 
 	 * @param n1 An eclipse Signature string indicating an object type, possibly
@@ -23,13 +34,14 @@ public class Utility {
 	 */
 	static IType lookupType(String n1, IType context) throws JavaModelException
 	{
-		String sourceType = n1.substring(1, n1.length() - 1);
+	    String sourceType = n1.substring(1, n1.length() - 1);
 		// resolveType seems to just ignore type parameters and succeed correctly.
 		// Warning: this appears to be undocumented and thus may be brittle!
 		String[][] typePaths = context.resolveType(sourceType);
 		if (typePaths == null) {
 			// Probably a parameterized type
-			// TODO: This does not correctly handle type parameters that shadow real types (ugggh).  Fix.
+			// TODO: This does not correctly handle type parameters that shadow real
+			//   types (ugggh).  Fix.
 			ITypeParameter itp = context.getTypeParameter(sourceType);
 			if (itp == null) {
 				return null; // this shouldn't happen

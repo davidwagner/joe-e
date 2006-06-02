@@ -13,13 +13,27 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Collection;
+import java.util.List;
 import java.util.LinkedList;
 
 class BuildState {
+  
+    static final int IMPL_SELFLESS =   0x0001;
+    static final int IMPL_IMMUTABLE =  0x0002;
+    static final int IMPL_POWERLESS =  0x0004; 
 	
-	final Map<IType, ITypeState> classStates;
-	final Map<ICompilationUnit, ICUState> icuStates;
-	
+    static final int IS_EQUATABLE =    0x0010;
+
+    /*
+    static final int VERIFY_SELFLESS =   0x0100;
+    static final int VERIFY_IMMUTABLE =  0x0200;
+    static final int VERIFY_POWERLESS =  0x0400;
+    */
+    
+    final Map<IType, ITypeState> classStates;
+    final Map<ICompilationUnit, ICUState> icuStates;
+    
 	BuildState() {
 		classStates = new HashMap<IType, ITypeState>();
 		icuStates = new HashMap<ICompilationUnit, ICUState>();
@@ -51,14 +65,14 @@ class BuildState {
 	 * ensured by calling prebuild() before calling this method. 
 	 * 
 	 * @param current the compilation unit to which to add the dependency
-	 * @param dependedOn the class depended on to implement a marker interface
+	 * @param dependedOn the class depended on to implement some marker interface
 	 */
 	void addFlagDependency(ICompilationUnit current, IType dependedOn) {
 		if (!dependedOn.isBinary()) {
 			ITypeState dependedState = classStates.get(dependedOn);
 			if (dependedState == null) {
 				// create a node with an unitialized flags state
-				dependedState = new ITypeState(-1);
+				dependedState = new ITypeState();
 				classStates.put(dependedOn, dependedState);
 			}
 			dependedState.addFlagDependent(current);
@@ -70,19 +84,18 @@ class BuildState {
 	
 	/**
 	 * Adds a deep (source based) dependency.  Such a dependency causes
-	 * recompilation whenever the source changes.  Assumes that there is
+	 * recompilation whenever the source is reverified.  Assumes that there is
 	 * a valid ICUState object for the current compilation unit.  This can be
 	 * ensured by calling prebuild() before calling this method. 
 	 * 
 	 * @param current the compilation unit to which to add the dependency
-	 * @param dependedOn the class depended on to implement a marker interface
+	 * @param dependedOn the class depended on to have some property
 	 */
 	void addDeepDependency(ICompilationUnit current, IType dependedOn) {
 		if (!dependedOn.isBinary()) {
 			ITypeState dependedState = classStates.get(dependedOn);
 			if (dependedState == null) {
-				// create a node with an unitialized flags state
-				dependedState = new ITypeState(-1);
+				dependedState = new ITypeState();
 				classStates.put(dependedOn, dependedState);
 			}
 			dependedState.addDeepDependent(current);
@@ -91,6 +104,25 @@ class BuildState {
 			currentState.references.add(dependedOn);
 		}
 	}	
+	
+	Collection<ICompilationUnit> updateTags(IType type, int newFlags) {
+		ITypeState typeState = classStates.get(type);
+
+		// if state node doesn't already exist, create a new one with flags
+		// initialized
+		if (typeState == null) {
+			typeState = new ITypeState();
+		}
+		
+		int oldTags = typeState.tags;
+		typeState.tags = newFlags;
+		if (oldTags < 0 || newFlags == oldTags) { // Flags unchanged
+			// Only rebuild deep dependents
+			return typeState.deepDependents;
+		} else { 
+			return typeState.allDependents;
+		}	
+	}
 	
 	
 	/*
