@@ -10,15 +10,28 @@ import org.eclipse.jdt.core.*;
 
 import org.eclipse.jdt.core.dom.*;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.LinkedList;
+import java.util.Set;
 import java.util.HashSet;
 
 public class Verifier {
-    BuildState state;
+    final BuildState state;
+    final IType selflessType;
+    final IType immutableType;
+    final IType powerlessType;
+    final IType tokenType;
+    final IType enumType;
     
-    Verifier(BuildState state) {
+    Verifier(IJavaProject project, BuildState state) throws JavaModelException {
         this.state = state;
+        
+        selflessType = project.findType("org.joe_e.Selfless");
+        immutableType = project.findType("org.joe_e.Immutable");
+        powerlessType = project.findType("org.joe_e.Powerless");
+        tokenType = project.findType("org.joe_e.Token");
+        enumType = project.findType("java.lang.Enum");
     }
     
 	/*
@@ -49,15 +62,20 @@ public class Verifier {
 	 * 
 	 * @param icu
 	 *            ICompilationUnit on which to run the verifier
-	 * @return a List of Problems (Joe-E verification errors) encounteredas
-	 *         cleanly
+	 * @return a List of Problems (Joe-E verification errors) encountered
 	 */
-	List<ICompilationUnit> checkICU(ICompilationUnit icu, List<Problem> problems)
+	Collection<ICompilationUnit> checkICU(ICompilationUnit icu, List<Problem> problems)
 	{
+           
+		// Clear any state existing from previous build of icu.
+		state.prebuild(icu);
+        Set<ICompilationUnit> dependents = new HashSet<ICompilationUnit>();
+		
         try {
 			// Check for package membership
 			IPackageDeclaration[] pkg = icu.getPackageDeclarations();
 			if (pkg.length > 1) {
+				// File shouldn't compile anyway...
 				problems.add(new Problem("More than one package! I'm confused.", 
 										 pkg[1].getSourceRange()));
 			}
@@ -86,7 +104,7 @@ public class Verifier {
 				IType type = itypes[i];
 				System.out.println("Analyzing " + type.getFullyQualifiedName() + ".");
 			
-				checkIType(type, problems);
+				checkIType(type, dependents, problems);
 			}
 			
 			// checks that require ugly DOM hacking directly
@@ -95,7 +113,7 @@ public class Verifier {
 			parser.setSource(icu);
 			parser.setResolveBindings(true);
 			ASTNode parse = parser.createAST(null);
-			VerifierASTVisitor vav = new VerifierASTVisitor(icu.getJavaProject(), problems);
+			VerifierASTVisitor vav = new VerifierASTVisitor(icu, problems);
 			parse.accept(vav);
 		}	
 		catch (Exception e)
@@ -104,53 +122,46 @@ public class Verifier {
 		}
 		
 		System.out.println(problems);
-		return new LinkedList<ICompilationUnit>();
+		return dependents;
 	}
 
-/*
-	String ppArray2(Object[][] array)
-	{
-		String out = "[";
-		if (array.length > 0) {
-			out += ppArray(array[0]);
-		}
-		for (int i = 1; i < array.length; ++i) {
-			out += ", " + ppArray(array[i]);
-		}
-		return out + "]";
-	}
-	
-	
-	String ppArray(Object[] array) 
-	{
-		String out = "[";
-		if (array.length > 0) {
-			out += array[0];
-		}
-		for (int i = 1; i < array.length; ++i) {
-			out += ", " + array[i];
-		}
-		return out + "]";
-	}
-*/	
-	
 	/*
-	 * static void printParseTree(ASTNode t) { printParseTree(t, ""); } static
-	 * void printParseTree(ASTNode t, String indent) { System.out.print(indent);
-	 * System.out.println(t.getClass().getName()); if (t instanceof t.get }
+     * 
 	 */
-	
-	void checkIType(IType type, List<Problem> problems)
-	{
-		try {
-			if (type.isAnnotation() || type.isEnum()) {
-				// I think these are fine as is. Should test.
-				// Annotations are a special case of interfaces with (I believe)
-				// no additional abilities.
-				// Enumerations are final classes without run-time constructors
-				// in which the enumeration values are implicitly static,
-				// implicitly final fields.
-			}
+	void checkIType(IType type, Set<ICompilationUnit> dependents,
+                    List<Problem> problems)
+	{	
+        try {
+            //TODO: use progress monitor?
+        
+            ITypeHierarchy sth = type.newSupertypeHierarchy(null);
+        
+            // Don't check honoraries for the type being analyzed here.
+            // Only libraries have honoraries...
+        
+            boolean isSelfless = sth.contains(selflessType);
+            boolean isImmutable = sth.contains(immutableType);
+            boolean isPowerless = sth.contains(powerlessType);
+            boolean isEquatable = sth.contains(enumType) ||
+                sth.contains(tokenType); //TODO: change if MI is added for this
+        
+            int tags = isSelfless ? BuildState.IMPL_SELFLESS  : 0;
+            tags |=   isImmutable ? BuildState.IMPL_IMMUTABLE : 0;
+            tags |=   isPowerless ? BuildState.IMPL_POWERLESS : 0;
+            tags |=   isEquatable ? BuildState.IS_EQUATABLE   : 0;    
+        
+            // update flags and add dependents
+            dependents.addAll(state.updateTags(type, tags));
+        
+            // I don't think these need special handling here. Should test.
+			// Annotations are a special case of interfaces with (I believe)
+			// no additional abilities.
+			// Enumerations are final classes without run-time constructors
+			// in which the enumeration values are implicitly static,
+			// implicitly final fields.
+			
+			// if (type.isAnnotation() || type.isEnum()) {
+			// }
 			
 			// Restrictions on fields.
 			IField[] fields = type.getFields();
@@ -161,16 +172,21 @@ public class Verifier {
 				int flags = fields[i].getFlags();
 				if (Flags.isStatic(flags)) { 
 					if (Flags.isFinal(flags)) {
-						String fieldType = fields[i].getTypeSignature();
+						String fieldTypeSig = fields[i].getTypeSignature();
+						// must be Powerless
+
+						if (Utility.signatureIsClass(fieldTypeSig)) {
+							IType fieldType = Utility.lookupType(fieldTypeSig, type);
+							state.addFlagDependency(type.getCompilationUnit(), fieldType);
+						}
 						
-						// must be Incapable
-						
-						if (MarkerInterface.is(fieldType, "Incapable", type)) {
+						if (MarkerInterface.is(fieldTypeSig, "Powerless", type)) {
 							// OKAY
 						} else {
-							problems.add(new Problem("Non-incapable static field " 
+							problems.add(new Problem("Non-powerless static field " 
 													 + name + ".", 
-													 fields[i].getNameRange()));					}
+													 fields[i].getNameRange()));					
+						}
 					} else {
 						problems.add(new Problem("Non-final static field " + name + ".",
 									 fields[i].getNameRange()));
@@ -180,8 +196,7 @@ public class Verifier {
 			
 			if (type.isInterface()) {
 				// Nothing more to check. All fields are static final and have
-				// already
-				// been verified to be immutable.
+				// already been verified to be immutable.
 				
 				return;
 			}
@@ -190,20 +205,18 @@ public class Verifier {
 			// Otherwise, it is a "real" class.
 			//
 			
-			// get supertype hierarchy, we'll need it.
-			ITypeHierarchy sth = type.newSupertypeHierarchy(null);
 			String superclass = type.getSuperclassTypeSignature();
 			
 			if (superclass != null) {
 				System.out.println("Superclass " + superclass);
 
-				// See what honoraries superclass has, make sure that all are
+				// See what honoraries superclass has; make sure that all are
 				// implemented by this class.
 				
 				IType supertype = Utility.lookupType(superclass, type);
 				String[] sh = MarkerInterface.getHonoraries(supertype);
 				for (int i = 0; i < sh.length; ++i) {
-					if (!MarkerInterface.is(type, sh[i])) {
+					if (!MarkerInterface.is(type, sh[i])) { // TODO: search sth instead?
 						problems.add(
 							new Problem("Honorary interface " + sh[i] + 
 									    "not inherited from " + supertype.getElementName(), 
@@ -212,17 +225,16 @@ public class Verifier {
 				}
 			}
 			
-			if (MarkerInterface.is(type, "Incapable") 
-				&& !MarkerInterface.isDeemed(type, "Incapable")) {
+			if (isPowerless	&& !MarkerInterface.isDeemed(type, "Powerless")) {
 				
 				IType tokenType = type.getJavaProject().findType("org.joe_e.Token");
 				if (sth.contains(tokenType)) {
-					problems.add(new Problem("Incapable type " + type.getElementName() + 
+					problems.add(new Problem("Powerless type " + type.getElementName() + 
 							     			 " can't extend Token.", 
 							     			 type.getNameRange()));
 				}
 				
-				verifyFieldsAre(type, "Incapable", problems);
+				verifyFieldsAre(type, "Powerless", problems);
 				
 			} else if (MarkerInterface.is(type, "DeepFrozen")
 					   && !MarkerInterface.isDeemed(type, "DeepFrozen")) {
@@ -241,11 +253,19 @@ public class Verifier {
 	 * @param type
 	 *            the type whose fields to verify
 	 * @param mi
-	 *            the marker interface, i.e. DeepFrozen or Incapable
+	 *            the marker interface, i.e. Immutable or Powerless
 	 * @throws JavaModelException
 	 */
 	void verifyFieldsAre(IType type, String mi, List<Problem> problems) 
 			throws JavaModelException {
+		
+        // deep dependency on superclass, if one exists
+        String superclassSig = type.getSuperclassTypeSignature();
+        if (superclassSig != null) {
+            IType superclass = Utility.lookupType(superclassSig, type);
+            state.addDeepDependency(type.getCompilationUnit(), superclass);
+        }
+		
 		HashSet<IType> needCheck = findClasses(type, mi);
 		for (IType i : needCheck) {
 			verifyFieldsAre(i, mi, type, problems);
@@ -322,9 +342,16 @@ public class Verifier {
 			int flags = fields[i].getFlags();
 			if (!Flags.isStatic(flags) && !Flags.isEnum(flags)) {
 				if (Flags.isFinal(flags)) {
-					String fieldType = fields[i].getTypeSignature();
-					// must implement mi
-					if (MarkerInterface.is(fieldType, mi, type)) {
+                    // Field must implement mi
+                    String fieldTypeSig = fields[i].getTypeSignature();
+
+                    // add dependency on types of fields
+                    if (Utility.signatureIsClass(fieldTypeSig)) {
+                        IType fieldType = Utility.lookupType(fieldTypeSig, type);
+                        state.addFlagDependency(candidate.getCompilationUnit(), fieldType);
+                    }					
+                    
+                    if (MarkerInterface.is(fieldTypeSig, mi, type)) {
 						// OKAY
 					} else if (type == candidate) {
 						problems.add(
@@ -378,12 +405,14 @@ public class Verifier {
 	class VerifierASTVisitor extends ASTVisitor
 	{
 		final IJavaProject project;
+        final ICompilationUnit icu;
 		final List<Problem> problems; 
 		
-		VerifierASTVisitor(IJavaProject project, List<Problem> problems)
+		VerifierASTVisitor(ICompilationUnit icu, List<Problem> problems)
 		{
 			// System.out.println("VAV init");
-			this.project = project;
+			this.project = icu.getJavaProject();
+            this.icu = icu;
 			this.problems = problems;
 		}
 		
@@ -427,17 +456,17 @@ public class Verifier {
 					}
 				}
 				
-				if (MarkerInterface.is(type, "Incapable") 
-					&& !MarkerInterface.isDeemed(type, "Incapable")) {
+				if (MarkerInterface.is(type, "Powerless") 
+					&& !MarkerInterface.isDeemed(type, "Powerless")) {
 					
 					IType tokenType = type.getJavaProject().findType("org.joe_e.Token");
 					if (sth.contains(tokenType)) {
-						problems.add(new Problem("Incapable type " + type.getElementName() + 
+						problems.add(new Problem("Powerless type " + type.getElementName() + 
 								     			 " can't extend Token.", 
 								     			 type.getNameRange()));
 					}
 					
-					verifyFieldsAre(type, "Incapable", problems);
+					verifyFieldsAre(type, "Powerless", problems);
 					
 				} else if (MarkerInterface.is(type, "DeepFrozen")
 						   && !MarkerInterface.isDeemed(type, "DeepFrozen")) {
@@ -458,13 +487,13 @@ public class Verifier {
 			Type baseType = fd.getType();rameter
 			if (Flags.isStatic(flags)) {
 				if (Flags.isFinal(flags)) {
-					if (MarkerInterface.is(baseType, "Incapable")) {
+					if (MarkerInterface.is(baseType, "Powerless")) {
 						for (Object o: frags) {
 							VariableDeclarationFragment vdf = (VariableDeclarationFragment) o;
 							if (vdf.getExtraDimensions() > 0) {
 								// sneaky sneaky... 
 								String name = vdf.getName().getFullyQualifiedName();
-								problems.add(new Problem("Non-incapable static field " 
+								problems.add(new Problem("Non-powerless static field " 
 										+ name + ".", vdf.getStartPosition(), vdf.getLength()));
 							}
 						}
@@ -474,7 +503,7 @@ public class Verifier {
 						for (Object o: frags) {
 							name += (VariableDeclarationFragment) o.getName().getFullyQualifiedName() + " ";
 						}
-						problems.add(new Problem ("Non-incapable static field(s) "
+						problems.add(new Problem ("Non-powerless static field(s) "
 								+ name + ".", fd.getStartPosition(), fd.getLength()));
 					}
 				} else {
@@ -545,6 +574,7 @@ public class Verifier {
 								+ "\" for type binding " + leftTB);
 							return false;
 						}
+                                             
 						IType rightType = project.findType(rightTypeName);
 						if (rightType == null) {
 							System.out.println("ERROR: Couldn't find type \"" 
@@ -553,7 +583,10 @@ public class Verifier {
 						}
 						ITypeHierarchy leftSTH = leftType.newSupertypeHierarchy(null);
 						ITypeHierarchy rightSTH = rightType.newSupertypeHierarchy(null);
-						IType tokenType = project.findType("org.joe_e.Token");
+						state.addFlagDependency(icu, leftType);
+                        state.addFlagDependency(icu, rightType);
+                        
+                        IType tokenType = project.findType("org.joe_e.Token");
 						IType enumType = project.findType("java.lang.Enum");
 						
 						// Allow == and != on enumeration values.

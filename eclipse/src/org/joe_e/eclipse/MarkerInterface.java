@@ -17,10 +17,10 @@ public class MarkerInterface {
 	static {
 		// TODO: read from a file.
 		
-		honoraries.put("java.lang.String", new String[]{"Incapable"});
-		honoraries.put("java.lang.Integer", new String[]{"Incapable"});
-		honoraries.put("java.lang.Double", new String[]{"Incapable"});
-		honoraries.put("java.lang.Enum", new String[]{"Incapable"});
+		honoraries.put("java.lang.String", new String[]{"Powerless"});
+		honoraries.put("java.lang.Integer", new String[]{"Powerless"});
+		honoraries.put("java.lang.Double", new String[]{"Powerless"});
+		honoraries.put("java.lang.Enum", new String[]{"Powerless"});
 		
 		// as is, no need to put deemings in here, as library classes are never verified.
 		// TODO: this may be an oversight.
@@ -69,14 +69,14 @@ public class MarkerInterface {
 	{
 		try {
 			ITypeHierarchy sth = t1.newSupertypeHierarchy(null);
-			IType incapableType = 
+			IType powerlessType = 
 				t1.getJavaProject().findType("org.joe_e." + mi);
-			if (incapableType == null) {
-				System.out.println("Incapable type not found! joe_e.org.Incapable");
+			if (powerlessType == null) {
+				System.out.println("Powerless type not found! org.joe_e.Powerless");
 				System.out.println("should be in the project or linked libraries.");
 				return false;
 			}
-			if (sth.contains(incapableType)) {
+			if (sth.contains(powerlessType)) {
 				return true;
 			} else { 
 				return isHonorarily(t1, mi);

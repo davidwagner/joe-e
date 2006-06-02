@@ -10,51 +10,71 @@ import org.eclipse.jdt.core.ICompilationUnit;
  * Information determined about a class by the verifier
  */
 class ITypeState {
-	static final int IMPL_SELFLESS =    0x0001;
-	static final int IMPL_IMMUTABLE =   0x0002;
-	static final int IMPL_POWERLESS =   0x0004;
 	
-	/*
-	static final int VERIFY_SELFLESS =  0x0100;
-	static final int VERIFY_IMMUTABLE = 0x0200;
-	static final int VERIFY_POWERLESS = 0x0400;  
-	*/
+    //final String name;
+	int tags; // if set to < 0, tags invalid, otherwise bitfield based on constants
 	
-	//final String name;
-	final int flags; // if set to < 0, flags invalid, otherwise bitfield based on constants
-	final Set<ICompilationUnit> flagDependents;  // compilation units on this class to implement a marker interface
-	final Set<ICompilationUnit> deepDependents;      // compiltion units relying on deeper properties of this class
+	/**
+	 * All compilation units relying on any property of this class.  This may 
+	 * be a weak dependency only on properties of the class represented with 
+	 * flags.  This is the set that must be rebuilt when the class's flags
+	 * change. 
+	 */
+	final Set<ICompilationUnit> allDependents;
 	
-	/* flags not known */
-		
-	ITypeState(int flags) {
+	/**
+	 * Compilation units relying on deeper properties of the class.  These
+	 * compilation units will be rebuilt whenever the source of the class
+	 * changes.
+	 */
+	final Set<ICompilationUnit> deepDependents;
+	
+	/**
+	 * Create a new ITypeState, with an empty set of dependents and an
+	 * unititialized flags bitfield.
+	 */
+	ITypeState() {
 		//this.name = name;
-		this.flags = flags;
+		this.tags = -1;  // negative means uninitialized
 		this.deepDependents = new HashSet<ICompilationUnit>();
-		this.flagDependents = new HashSet<ICompilationUnit>();
+		this.allDependents = new HashSet<ICompilationUnit>();
 	}
 	
 	
-	
+	/**
+	 * Tests if this class implements Selfless (according to its flags)
+	 * @return true if the class implements Selfless
+	 * @throws RuntimeException if flags are unitialized
+	 */
 	boolean implementsSelfless() {
-		if (flags < 0) {
+		if (tags < 0) {
 			throw new RuntimeException("flags not initialized!");
 		}
-		return ((flags & IMPL_SELFLESS) != 0);
+		return ((tags & BuildState.IMPL_SELFLESS) != 0);
 	}
-	
+
+	/**
+	 * Tests if this class implements Immutable (according to its flags)
+	 * @return true if the class implements Immutable
+	 * @throws RuntimeException if flags are unitialized
+	 */
 	boolean implementsImmutable() {
-		if (flags < 0) {
+		if (tags < 0) {
 			throw new RuntimeException("flags not initialized!");
 		}
-			return ((flags & IMPL_IMMUTABLE) != 0);
+		return ((tags & BuildState.IMPL_IMMUTABLE) != 0);
 	}
 	
+	/**
+	 * Tests if this class implements Powerless (according to its flags)
+	 * @return true if the class implements Powerless
+	 * @throws RuntimeException if flags are unitialized
+	 */
 	boolean implementsPowerless() {
-		if (flags < 0) {
+		if (tags < 0) {
 			throw new RuntimeException("flags not initialized!");
 		}
-		return ((flags & IMPL_POWERLESS) != 0);
+		return ((tags & BuildState.IMPL_POWERLESS) != 0);
 	}
 	
 	/*
@@ -73,21 +93,16 @@ class ITypeState {
 	
 
 	void addFlagDependent (ICompilationUnit newDependent) {
-		if (!deepDependents.contains(newDependent)) {
-			flagDependents.add(newDependent);
-		}
+		allDependents.add(newDependent);
 	}
 	
 	void addDeepDependent (ICompilationUnit newDependent) {
 		deepDependents.add(newDependent);
-		
-		if (flagDependents.contains(newDependent)) {
-			flagDependents.remove(newDependent);
-		}
+		allDependents.add(newDependent);
 	}
 	
 	void resetDependencies (ICompilationUnit dependent) {
 		deepDependents.remove(dependent);
-		flagDependents.remove(dependent);
+		allDependents.remove(dependent);
 	}
 }
