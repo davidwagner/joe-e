@@ -1,0 +1,275 @@
+// Copyright 2005-06 Regents of the University of California.  May be used 
+// under the terms of the revised BSD license.  See LICENSING for details.
+/** 
+ * @author Adrian Mettler 
+ */
+package org.joe_e.eclipse;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.LinkedList;
+
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.ITypeHierarchy;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaModelException;
+
+public class Taming {
+    private final HashMap<IType, Entry> db;
+    
+    class Entry {
+        Set<IMethod> allowed;
+        Set<IType> deemings;
+        LinkedList<IType> honoraries;
+        
+        /*
+        Entry(File f) {
+            try {
+                BufferedReader br = 
+                    new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+                String[] firstLine = br.readLine().split(" ");
+                for (String word : firstLine) {
+                    
+                }
+                
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        */
+    }
+    
+    
+    Taming(File persistentDB, IJavaProject project) throws JavaModelException {
+        this.db = new HashMap<IType, Entry>();
+             
+        /*
+        if (persistentDB.isDirectory()) {
+            File[] files = persistentDB.listFiles();
+            for (File f : files) {
+                String name = f.getName();
+                int ext = name.lastIndexOf(".taming");
+                if (ext > 0) {
+                   IType type = project.findType(name.substring(0, ext));
+                   db.put(type, new Entry(f)); 
+                }
+            }
+        }
+        */
+    }
+
+    /*
+     * Returns whether the class with signature sig implements the marker
+     * interface mi.
+     * For now assumes that base types implement all marker interfaces
+     * and arrays implement none!
+     * @param n1 An Eclipse Signature type
+     * @param mi A marker interface, once prepended with "org.joe_e."
+     * @param context the context in which to evaluate bindings
+     * @return true if n1 implements mi in the overlay type system
+     */
+    boolean is(String n1, IType mi, IType context)
+    {
+        if (n1.length() == 1) {
+            return true;
+        } else if (n1.charAt(0) == '[') {
+            return false;
+        } else if (n1.charAt(0) == 'Q') {
+            System.out.println("is called on type " + n1);
+            try {
+                IType t1 = Utility.lookupType(n1, context);
+                if (t1 == null) {
+                    System.out.println("type not found (shouldn't happen -- BUG)");
+                    return false;
+                } else {
+                    return (implementsOverlay(t1, mi));
+                }
+            } catch (JavaModelException jme) {
+                jme.printStackTrace();
+                return false;
+            }
+        } else {
+            System.out.println("unknown type kind: " + n1);
+            return false;
+        }
+    }
+    
+    
+    boolean implementsOverlay(IType subtype, IType mi) throws JavaModelException {
+        ITypeHierarchy sth = subtype.newSupertypeHierarchy(null);
+        if (sth.contains(mi)) {
+            return true;
+        } else {
+            for (IType t : sth.getAllClasses()) {
+                Collection<IType> h = getHonorariesFor(t);
+                if (h.contains(mi)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    Collection<IType> getHonorariesFor(IType type) {
+        Entry e = db.get(type);
+        if (e == null) {
+            return new LinkedList<IType>();
+        } else {
+            return e.honoraries;
+        }
+    }
+    
+    Set<IType> unimplementedHonoraries(ITypeHierarchy sth) {
+        Set<IType> result = new HashSet<IType>();
+        
+        for (IType t : sth.getAllClasses()) {
+            Collection<IType> h = getHonorariesFor(t); 
+            for (IType ht : h) {
+                if (!sth.contains(ht)) {
+                    result.add(ht);
+                }
+            }
+        }
+        
+        return result;
+    }
+    
+    boolean allowed(IMethod im) {
+        if (im.getDeclaringType().isBinary()) {
+            Entry e = db.get(im.getDeclaringType());
+            if (e == null) {
+                return false;
+            } else {
+                return e.allowed.contains(im);
+            }       
+        } else {
+            return true;
+        }
+    }
+    
+    /**
+     * Returns true if the specified type is deemed to satisfy the specified interface.
+     * At present, does not handle transitive case (I don't think it needs to?)
+     * @param type
+     *            the type to test 
+     * @param mi
+     *            the marker interface
+     * @return
+     */
+    boolean isDeemed(IType type, IType mi) {
+        Entry e = db.get(type);
+        if (e == null) {
+            return false;
+        } else {
+            return e.deemings.contains(mi);
+        }
+    }
+    
+    
+
+	
+	/*
+	 * Checks whether a type implements the marker interface specified.
+	 * The marker interface is prepended with "org.joe_e."
+	 *
+	static boolean is(IType t1, String mi)
+	{
+		try {
+			ITypeHierarchy sth = t1.newSupertypeHierarchy(null);
+			IType powerlessType = 
+				t1.getJavaProject().findType("org.joe_e." + mi);
+			if (powerlessType == null) {
+				System.out.println("Powerless type not found! org.joe_e.Powerless");
+				System.out.println("should be in the project or linked libraries.");
+				return false;
+			}
+			if (sth.contains(powerlessType)) {
+				return true;
+			} else { 
+				return isHonorarily(t1, mi);
+			}
+		} catch (JavaModelException jme) {
+			jme.printStackTrace();
+			return false;
+		}
+	}
+	*/
+    
+    
+	/*
+	 * Checks whether the type t1 honorarily implements the interface mi
+	 * 
+	 * TODO: will need rewriting once real deeming mechanism is in place
+	 *
+	static boolean isHonorarily(IType t1, String mi) throws JavaModelException
+	{
+		String[] record = getHonoraries(t1);
+		if (record == null) {
+			return false;
+		}
+		//
+		// check if interface is explicitly honorary
+		//
+		for (int i = 0; i < record.length; ++i) {
+			if (record[i].equals(mi)) {
+				return true;
+			}
+		}
+		//
+		// check if a subinterface is honorary
+		//
+		IType miType = t1.getJavaProject().findType("org.joe_e." + mi);
+		
+		for (int i = 0; i < record.length; ++i) {
+			ITypeHierarchy sth = 
+				t1.getJavaProject().findType("org.joe_e." + record[i])
+					.newSupertypeHierarchy(null);
+			if (sth.contains(miType)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	*/
+    
+	/*
+	 * Get the honorary interfaces implemented by a type
+	 * @param t1 the type to look up the honorary interfaces for
+	 * @return a (possibly empty) array of strings representing honorary interfaces
+	 *
+	static String[] getHonoraries(IType t1)
+	{
+		String[] t1Honoraries = honoraries.get(t1.getFullyQualifiedName());
+		if (t1Honoraries == null) {
+			return new String[]{};
+		} else {
+			return t1Honoraries;
+		}
+	}
+	
+	static boolean isDeemed(IType t1, String mi) throws JavaModelException
+	{
+		String[] record = deemings.get(t1.getFullyQualifiedName());
+		if (record == null) {
+			return false;
+		}
+		
+		for (int i = 0; i < record.length; ++i) {
+			if (record[i].equals(mi)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+    */
+}
