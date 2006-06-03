@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.HashSet;
 
 public class Verifier {
+    final IJavaProject project;
     final BuildState state;
     final IType selflessType;
     final IType immutableType;
@@ -26,6 +27,7 @@ public class Verifier {
     
     Verifier(IJavaProject project, BuildState state) throws JavaModelException {
         this.state = state;
+        this.project = project;
         
         selflessType = project.findType("org.joe_e.Selfless");
         immutableType = project.findType("org.joe_e.Immutable");
@@ -136,9 +138,7 @@ public class Verifier {
         
             ITypeHierarchy sth = type.newSupertypeHierarchy(null);
         
-            // Don't check honoraries for the type being analyzed here.
-            // Only libraries have honoraries...
-        
+            // Marker interfaces here = implements in BASE type system
             boolean isSelfless = sth.contains(selflessType);
             boolean isImmutable = sth.contains(immutableType);
             boolean isPowerless = sth.contains(powerlessType);
@@ -180,7 +180,7 @@ public class Verifier {
 							state.addFlagDependency(type.getCompilationUnit(), fieldType);
 						}
 						
-						if (MarkerInterface.is(fieldTypeSig, "Powerless", type)) {
+						if (Taming.is(fieldTypeSig, "Powerless", type)) {
 							// OKAY
 						} else {
 							problems.add(new Problem("Non-powerless static field " 
@@ -214,9 +214,9 @@ public class Verifier {
 				// implemented by this class.
 				
 				IType supertype = Utility.lookupType(superclass, type);
-				String[] sh = MarkerInterface.getHonoraries(supertype);
+				String[] sh = Taming.getHonoraries(supertype);
 				for (int i = 0; i < sh.length; ++i) {
-					if (!MarkerInterface.is(type, sh[i])) { // TODO: search sth instead?
+					if (!Taming.is(type, sh[i])) { // TODO: search sth instead?
 						problems.add(
 							new Problem("Honorary interface " + sh[i] + 
 									    "not inherited from " + supertype.getElementName(), 
@@ -225,7 +225,7 @@ public class Verifier {
 				}
 			}
 			
-			if (isPowerless	&& !MarkerInterface.isDeemed(type, "Powerless")) {
+			if (isPowerless	&& !Taming.isDeemed(type, "Powerless")) {
 				
 				IType tokenType = type.getJavaProject().findType("org.joe_e.Token");
 				if (sth.contains(tokenType)) {
@@ -236,8 +236,8 @@ public class Verifier {
 				
 				verifyFieldsAre(type, "Powerless", problems);
 				
-			} else if (MarkerInterface.is(type, "DeepFrozen")
-					   && !MarkerInterface.isDeemed(type, "DeepFrozen")) {
+			} else if (Taming.is(type, "DeepFrozen")
+					   && !Taming.isDeemed(type, "DeepFrozen")) {
 				
 				verifyFieldsAre(type, "DeepFrozen", problems);
 			}
@@ -293,7 +293,7 @@ public class Verifier {
 			// non-static member classes get access to variables in their containing class
 			if (next.isMember() && !Flags.isStatic(next.getFlags())) {
 				IType enclosingType = next.getDeclaringType();
-				if (MarkerInterface.is(enclosingType, mi)) {
+				if (Taming.is(enclosingType, mi)) {
 					System.out.println(enclosingType + " is " + mi);
 					// already verified
 				} else {
@@ -306,7 +306,7 @@ public class Verifier {
 			String superclass = type.getSuperclassTypeSignature();
 			if (superclass != null) {
 				IType supertype = Utility.lookupType(superclass, type);
-				if (MarkerInterface.is(supertype, mi)) {
+				if (Taming.is(supertype, mi)) {
 					// already verified
 				} else {
 					if (found.add(supertype)) {
@@ -351,7 +351,7 @@ public class Verifier {
                         state.addFlagDependency(candidate.getCompilationUnit(), fieldType);
                     }					
                     
-                    if (MarkerInterface.is(fieldTypeSig, mi, type)) {
+                    if (Taming.is(fieldTypeSig, mi, type)) {
 						// OKAY
 					} else if (type == candidate) {
 						problems.add(
@@ -404,14 +404,12 @@ public class Verifier {
 	 */
 	class VerifierASTVisitor extends ASTVisitor
 	{
-		final IJavaProject project;
-        final ICompilationUnit icu;
+	    final ICompilationUnit icu;
 		final List<Problem> problems; 
 		
 		VerifierASTVisitor(ICompilationUnit icu, List<Problem> problems)
 		{
 			// System.out.println("VAV init");
-			this.project = icu.getJavaProject();
             this.icu = icu;
 			this.problems = problems;
 		}
@@ -518,7 +516,20 @@ public class Verifier {
 			
 		*/	
 			
-					
+		
+        public boolean visit(MethodInvocation mi) {
+            IMethodBinding imb = mi.resolveMethodBinding();
+            ITypeBinding classBinding = imb.getDeclaringClass();
+            if (!classBinding.isFromSource()) {
+                IType classType = (IType) classBinding.getJavaElement();
+                // check in taming database
+                
+                
+            }
+            System.out.println(mi.resolveMethodBinding());
+            return true;
+        }
+        
 		public boolean visit(MethodDeclaration md) {
 			String name = md.getName().toString();
 			int modifiers = md.getModifiers();
