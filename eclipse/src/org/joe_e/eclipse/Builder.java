@@ -25,7 +25,8 @@ public class Builder extends IncrementalProjectBuilder {
 	public static final String BUILDER_ID = "Joe_E.JoeEBuilder";
 	private static final String MARKER_TYPE = "Joe_E.JoeEProblem";
 	
-	private BuildState state = null;	// empty until first full build
+    private BuildState state = null;	// empty until first full build
+	private Taming taming = null;
     private Verifier verifier = null;
 
 //	private Set<ICompilationUnit> completed;
@@ -124,7 +125,9 @@ public class Builder extends IncrementalProjectBuilder {
 	protected void fullBuild(final IProgressMonitor monitor) 
 		throws CoreException {
 		state = new BuildState(); // clear build state
-        verifier = new Verifier(JavaCore.create(getProject()), state);
+        IJavaProject jp = JavaCore.create(getProject());
+        taming = new Taming(null, jp);
+        verifier = new Verifier(jp, state, taming);
 		
 		try {			
 		    ResourceVisitor rv = new ResourceVisitor();

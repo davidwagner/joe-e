@@ -18,22 +18,14 @@ import java.util.HashSet;
 
 public class Verifier {
     final IJavaProject project;
+    final Taming taming;
     final BuildState state;
-    final IType selflessType;
-    final IType immutableType;
-    final IType powerlessType;
-    final IType tokenType;
-    final IType enumType;
     
-    Verifier(IJavaProject project, BuildState state) throws JavaModelException {
+    
+    Verifier(IJavaProject project, BuildState state, Taming taming) throws JavaModelException {
         this.state = state;
         this.project = project;
-        
-        selflessType = project.findType("org.joe_e.Selfless");
-        immutableType = project.findType("org.joe_e.Immutable");
-        powerlessType = project.findType("org.joe_e.Powerless");
-        tokenType = project.findType("org.joe_e.Token");
-        enumType = project.findType("java.lang.Enum");
+        this.taming = taming;
     }
     
 	/*
@@ -139,11 +131,11 @@ public class Verifier {
             ITypeHierarchy sth = type.newSupertypeHierarchy(null);
         
             // Marker interfaces here = implements in BASE type system
-            boolean isSelfless = sth.contains(selflessType);
-            boolean isImmutable = sth.contains(immutableType);
-            boolean isPowerless = sth.contains(powerlessType);
-            boolean isEquatable = sth.contains(enumType) ||
-                sth.contains(tokenType); //TODO: change if MI is added for this
+            boolean isSelfless = sth.contains(taming.SELFLESS);
+            boolean isImmutable = sth.contains(taming.IMMUTABLE);
+            boolean isPowerless = sth.contains(taming.POWERLESS);
+            boolean isEquatable = sth.contains(taming.ENUM) ||
+                sth.contains(taming.TOKEN); //TODO: change if MI is added for this
         
             int tags = isSelfless ? BuildState.IMPL_SELFLESS  : 0;
             tags |=   isImmutable ? BuildState.IMPL_IMMUTABLE : 0;
@@ -180,7 +172,7 @@ public class Verifier {
 							state.addFlagDependency(type.getCompilationUnit(), fieldType);
 						}
 						
-						if (Taming.is(fieldTypeSig, "Powerless", type)) {
+						if (taming.implementsOverlay(fieldTypeSig, taming.POWERLESS, type)) {
 							// OKAY
 						} else {
 							problems.add(new Problem("Non-powerless static field " 
@@ -214,32 +206,27 @@ public class Verifier {
 				// implemented by this class.
 				
 				IType supertype = Utility.lookupType(superclass, type);
-				String[] sh = Taming.getHonoraries(supertype);
-				for (int i = 0; i < sh.length; ++i) {
-					if (!Taming.is(type, sh[i])) { // TODO: search sth instead?
-						problems.add(
-							new Problem("Honorary interface " + sh[i] + 
-									    "not inherited from " + supertype.getElementName(), 
-										type.getNameRange()));
-					}
+                Set<IType> unimp = taming.unimplementedHonoraries(sth);
+                for (IType i : unimp) {
+               		problems.add(
+						new Problem("Honorary interface " + i.getElementName() + 
+							"not inherited from " + supertype.getElementName(), 
+							type.getNameRange()));
 				}
 			}
 			
-			if (isPowerless	&& !Taming.isDeemed(type, "Powerless")) {
-				
-				IType tokenType = type.getJavaProject().findType("org.joe_e.Token");
-				if (sth.contains(tokenType)) {
+			if (isPowerless	&& !taming.isDeemed(type, taming.POWERLESS)) {
+				if (sth.contains(taming.TOKEN)) {
 					problems.add(new Problem("Powerless type " + type.getElementName() + 
 							     			 " can't extend Token.", 
 							     			 type.getNameRange()));
 				}
 				
-				verifyFieldsAre(type, "Powerless", problems);
+				verifyFieldsAre(type, taming.POWERLESS, problems);
 				
-			} else if (Taming.is(type, "DeepFrozen")
-					   && !Taming.isDeemed(type, "DeepFrozen")) {
+			} else if (isImmutable && !taming.isDeemed(type, taming.IMMUTABLE)) {
 				
-				verifyFieldsAre(type, "DeepFrozen", problems);
+				verifyFieldsAre(type, taming.IMMUTABLE, problems);
 			}
 		} catch (JavaModelException jme) {
 			jme.printStackTrace();
@@ -256,7 +243,7 @@ public class Verifier {
 	 *            the marker interface, i.e. Immutable or Powerless
 	 * @throws JavaModelException
 	 */
-	void verifyFieldsAre(IType type, String mi, List<Problem> problems) 
+	void verifyFieldsAre(IType type, IType mi, List<Problem> problems) 
 			throws JavaModelException {
 		
         // deep dependency on superclass, if one exists
@@ -281,7 +268,7 @@ public class Verifier {
 	 * @return the set of classes found
 	 * @throws JavaModelException
 	 */
-	static HashSet<IType> findClasses(IType type, String mi) 
+	HashSet<IType> findClasses(IType type, IType mi) 
 			throws JavaModelException {
 		HashSet<IType> found = new HashSet<IType>();
 		found.add(type);
@@ -293,8 +280,9 @@ public class Verifier {
 			// non-static member classes get access to variables in their containing class
 			if (next.isMember() && !Flags.isStatic(next.getFlags())) {
 				IType enclosingType = next.getDeclaringType();
-				if (Taming.is(enclosingType, mi)) {
-					System.out.println(enclosingType + " is " + mi);
+				if (taming.implementsOverlay(enclosingType, mi)) {
+					System.out.println(enclosingType.getElementName() 
+					                   + " is " + mi.getElementName());
 					// already verified
 				} else {
 					if (found.add(enclosingType)) {
@@ -303,11 +291,13 @@ public class Verifier {
 				}
 			}
 			
-			String superclass = type.getSuperclassTypeSignature();
+			String superclass = next.getSuperclassTypeSignature();
 			if (superclass != null) {
-				IType supertype = Utility.lookupType(superclass, type);
-				if (Taming.is(supertype, mi)) {
-					// already verified
+				IType supertype = Utility.lookupType(superclass, next);
+				if (taming.implementsOverlay(supertype, mi)) {
+                    System.out.println(supertype.getElementName() 
+                                       + " is " + mi.getElementName());
+                    // already verified
 				} else {
 					if (found.add(supertype)) {
 						left.add(supertype);  // only add if we haven't traversed it yet
@@ -329,15 +319,18 @@ public class Verifier {
 	 * @param problems the list to which to append problems
 	 * @throws JavaModelException
 	 */
-	void verifyFieldsAre(IType type, String mi, IType candidate,
+	void verifyFieldsAre(IType type, IType mi, IType candidate,
 								List<Problem> problems) throws JavaModelException {
-		//
+        String miName = mi.getElementName();
+        String candName = candidate.getElementName();
+        String typeName = type.getElementName();
+        //
 		// Check declared instance fields implement mi
 		//
 		IField[] fields = type.getFields();
 		
 		for (int i = 0; i < fields.length; ++i) {
-			String name = fields[i].getElementName();
+			String fieldName = fields[i].getElementName();
 			// System.out.println("Field " + name + ":");
 			int flags = fields[i].getFlags();
 			if (!Flags.isStatic(flags) && !Flags.isEnum(flags)) {
@@ -351,28 +344,29 @@ public class Verifier {
                         state.addFlagDependency(candidate.getCompilationUnit(), fieldType);
                     }					
                     
-                    if (Taming.is(fieldTypeSig, mi, type)) {
+                    if (taming.implementsOverlay(fieldTypeSig, mi, type)) {
 						// OKAY
 					} else if (type == candidate) {
 						problems.add(
-						    new Problem("Non-" + mi + " field " + name +  " in " + mi + " class " + 
-							    		candidate.getElementName(), fields[i].getNameRange()));
+						    new Problem(String.format("Non-%s field %s in %s class %s",
+                                                      miName, fieldName, miName, candName),
+                                        fields[i].getNameRange()));
 					} else { // type != candidate
 						problems.add(
-						    new Problem("Non-" + mi + " field " + name + " from " +
-						    			type.getElementName() +	" in " + mi + " class " + 
-						    			candidate.getElementName(),
+						    new Problem(String.format("Non-%s field %s from %s in %s class %s",
+                                                      miName, fieldName, typeName, miName, candName),
 								        candidate.getNameRange()));
 					}
 				} else if (type == candidate) {
 					problems.add(
-						    new Problem("Non-final field " + name + " in " + mi + " class " + 
-						    			candidate.getElementName(), fields[i].getNameRange()));
+						    new Problem(String.format("Non-final field %s in %s class %s", 
+                                                      fieldName, miName, candName), 
+						    			fields[i].getNameRange()));
 				} else { // type != candidate
 					problems.add(
-					    new Problem("Non-final field " + name + " from " + type.getElementName() 
-					    			+ " in " + mi + " class " + candidate.getElementName(),
-								    candidate.getNameRange()));
+					    new Problem(String.format("Non-final field %s from %s in %s class %s",
+                                                  fieldName, typeName, miName, candName),
+                                    candidate.getNameRange()));
 				}
 			}
 		}	
@@ -515,18 +509,74 @@ public class Verifier {
 			}
 			
 		*/	
-			
 		
+        public boolean visit(FieldAccess fa) {
+            IVariableBinding ivb = fa.resolveFieldBinding();
+            checkFieldBinding(fa, ivb);
+            return true;
+        }
+        
+        private void checkFieldBinding(ASTNode source, IVariableBinding fieldBinding) {
+            ITypeBinding classBinding = fieldBinding.getDeclaringClass();
+            // "The field length of an array type has no declaring class."
+            // It appears to return null.  It needs to be special-cased here; 
+            // we allow it.
+            if (classBinding != null && !classBinding.isFromSource()) {
+                IType classType = (IType) classBinding.getJavaElement();
+                
+                // check in taming database  
+                if (!taming.isTamed(classType)) {
+                    problems.add(
+                        new Problem("Field from untamed class "
+                                    + classType.getElementName() + " accessed.",
+                                    source.getStartPosition(), source.getLength()));
+                    return;
+                }
+                
+                if (!taming.isAllowed((IField) fieldBinding.getJavaElement())) {
+                    problems.add(
+                        new Problem("Disabled field " + fieldBinding.getName() + " from class "
+                                    + classType.getElementName() + " accessed.",
+                                    source.getStartPosition(), source.getLength()));
+                }
+            }
+        }
+        
+        public boolean visit(QualifiedName qn) {
+            IBinding ib = qn.resolveBinding();
+            if (ib instanceof IVariableBinding)
+            {
+                IVariableBinding ivb = (IVariableBinding) ib;
+                assert(ivb.isField());
+                checkFieldBinding(qn, ivb);
+            } else {
+                assert (ib instanceof ITypeBinding || ib instanceof IPackageBinding);
+            }
+            return true;
+        }
+        
         public boolean visit(MethodInvocation mi) {
             IMethodBinding imb = mi.resolveMethodBinding();
             ITypeBinding classBinding = imb.getDeclaringClass();
             if (!classBinding.isFromSource()) {
                 IType classType = (IType) classBinding.getJavaElement();
-                // check in taming database
                 
+                // check in taming database  
+                if (!taming.isTamed(classType)) {
+                    problems.add(
+                        new Problem("Method from untamed class "
+                                    + classType.getElementName() + " called.",
+                                    mi.getStartPosition(), mi.getLength()));
+                    return true;
+                }
                 
+                if (!taming.isAllowed((IMethod) imb.getJavaElement())) {
+                    problems.add(
+                        new Problem("Disabled method " + imb.getName() + " from class "
+                                    + classType.getElementName() + " called.",
+                                    mi.getStartPosition(), mi.getLength()));
+                }
             }
-            System.out.println(mi.resolveMethodBinding());
             return true;
         }
         
@@ -547,77 +597,84 @@ public class Verifier {
 				ie.getOperator() == InfixExpression.Operator.NOT_EQUALS) {
 				ITypeBinding leftTB = ie.getLeftOperand().resolveTypeBinding();
 				if (leftTB == null) {
-					System.out.println("ERROR: Left type binding null: " + ie.getLeftOperand().toString());
-					return false;
+					System.out.println("ERROR: Left type binding unresolvable: "
+                                       + ie.getLeftOperand().toString());
+					return true;
 				}
 				
 				// cases where we don't need to look at right hand type
 				if (leftTB.isPrimitive() || leftTB.isNullType()) {
 					return true;
-				} else if (leftTB.isArray()) {
-					problems.add(new Problem("== used to compare two arrays",
-							 				 ie.getStartPosition(), ie.getLength()));
-					return true;
-				} else if (leftTB.isTypeVariable()) {
-					problems.add(new Problem("== used to compare variable typed objects",
-											 ie.getStartPosition(), ie.getLength()));
-					return true;
 				}
-				
+                				
 				ITypeBinding rightTB = ie.getRightOperand().resolveTypeBinding();
 				if (rightTB == null) {
-					System.out.println("ERROR: Left type binding null: " + ie.getRightOperand().toString());
-					return false;
+					System.out.println("ERROR: Right type binding unresolvable: "
+                                       + ie.getRightOperand().toString());
+					return true;
 				}
 				
-				// otherwise redundant isPrimitive check required for
-				// auto-unboxing
-				if (!rightTB.isNullType() && !rightTB.isPrimitive()) {
-					try {
-						// For now, generic types ignore their type parameters.
-						// TODO: Possibly, deal with generics in more detail.
-						String leftTypeName = Utility.stripGenerics(leftTB.getQualifiedName());
-						String rightTypeName = Utility.stripGenerics(rightTB.getQualifiedName());
-						// IJavaProject.findType is confused by type parameters.
-						IType leftType = project.findType(leftTypeName);
-						if (leftType == null) {
-							System.out.println("ERROR: Couldn't find type \"" + leftTB.getQualifiedName()
-								+ "\" for type binding " + leftTB);
-							return false;
-						}
-                                             
-						IType rightType = project.findType(rightTypeName);
-						if (rightType == null) {
-							System.out.println("ERROR: Couldn't find type \"" 
-									+ rightTB.getQualifiedName() + "\" for type binding " + rightTB); 
-							return false;
-						}
-						ITypeHierarchy leftSTH = leftType.newSupertypeHierarchy(null);
-						ITypeHierarchy rightSTH = rightType.newSupertypeHierarchy(null);
-						state.addFlagDependency(icu, leftType);
+				// (otherwise redundant isPrimitive check required for auto-unboxing)
+				if (rightTB.isNullType() || rightTB.isPrimitive()) {
+				    return true;
+                }
+                
+                if (leftTB.isArray() || rightTB.isArray()) {
+                    problems.add(new Problem("== used to compare arrays",
+                                                 ie.getStartPosition(), ie.getLength()));
+                    return true;
+                } else if (leftTB.isTypeVariable() || rightTB.isTypeVariable()) {
+                    problems.add(new Problem("== used to compare objects of generic type",
+                                             ie.getStartPosition(), ie.getLength()));
+                    return true;
+                }
+                
+                // At this point, we hope to have dealt with any funny stuff.
+                assert((leftTB.isClass() || leftTB.isInterface()) && (rightTB.isClass() || rightTB.isInterface()));
+                
+                try {
+					// Evaluate left type binding
+                    IType leftType = (IType) leftTB.getJavaElement();
+                    if (leftType == null) {
+                        System.out.println("ERROR: Couldn't find type \"" + leftTB.getQualifiedName()
+                                           + "\" for type binding " + leftTB);
+                        return true;
+                    }
+                    ITypeHierarchy leftSTH = leftType.newSupertypeHierarchy(null);
+                    
+                    // OK if left side is Equatable
+                    if (leftSTH.contains(taming.ENUM) || leftSTH.contains(taming.TOKEN)) {
+                        // need to recheck if left side becomes un-equatable
+                        state.addFlagDependency(icu, leftType);
+                        return true;
+                    }
+                    
+                    // Otherwise, evaluate right type binding
+					IType rightType = (IType) rightTB.getJavaElement();
+					if (rightType == null) {
+						System.out.println("ERROR: Couldn't find type \"" + rightTB.getQualifiedName()
+                                           + "\" for type binding " + rightTB); 
+						return true;
+					}
+
+					ITypeHierarchy rightSTH = rightType.newSupertypeHierarchy(null);
+                    // OK if right side is Equatable
+                    if (leftSTH.contains(taming.ENUM) || leftSTH.contains(taming.TOKEN)) {
+                        // need to recheck if right side becomes un-equatable
                         state.addFlagDependency(icu, rightType);
-                        
-                        IType tokenType = project.findType("org.joe_e.Token");
-						IType enumType = project.findType("java.lang.Enum");
-						
-						// Allow == and != on enumeration values.
-						if (enumType != null && (leftSTH.contains(enumType) 
-									             || rightSTH.contains(enumType))) {
-							return true;
-						}
-						
-						// Allow == and != on Tokens.
-						if (tokenType != null && (leftSTH.contains(tokenType)
-												  || rightSTH.contains(tokenType))) {
-							return true;
-						}
-						
-						problems.add(new Problem("== used on non-Token types",
-								     ie.getStartPosition(), ie.getLength()));
-					}
-					catch (JavaModelException jme) {
-						jme.printStackTrace();
-					}
+                        return true;
+                    }
+                    
+                    // Otherwise, we have a problem
+                    problems.add(new Problem("Pointer equality test on non-Equatable types",
+								             ie.getStartPosition(), ie.getLength()));
+                    
+                    // need to recheck if either type becomes equatable
+                    state.addFlagDependency(icu, rightType);
+                    state.addFlagDependency(icu, leftType);              
+				}
+				catch (JavaModelException jme) {
+					jme.printStackTrace();
 				}
 			}
 			return true;
