@@ -16,17 +16,23 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.ITypeHierarchy;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.*;
 
 public class Taming {
     private final HashMap<IType, Entry> db;
+    final IJavaProject project;
     
+    /* Important types used by multiple modules
+     */
+    final IType SELFLESS;
+    final IType IMMUTABLE;
+    final IType POWERLESS;
+    final IType TOKEN;
+    final IType ENUM;
+         
     class Entry {
-        Set<IMethod> allowed;
+        Set<IMethod> allowedMethods;
+        Set<IField> allowedFields;
         Set<IType> deemings;
         LinkedList<IType> honoraries;
         
@@ -50,7 +56,14 @@ public class Taming {
     
     Taming(File persistentDB, IJavaProject project) throws JavaModelException {
         this.db = new HashMap<IType, Entry>();
-             
+        this.project = project;
+        
+        SELFLESS = project.findType("org.joe_e.Selfless");
+        IMMUTABLE = project.findType("org.joe_e.Immutable");
+        POWERLESS = project.findType("org.joe_e.Powerless");
+        TOKEN = project.findType("org.joe_e.Token");
+        ENUM = project.findType("java.lang.Enum");  
+        
         /*
         if (persistentDB.isDirectory()) {
             File[] files = persistentDB.listFiles();
@@ -72,11 +85,11 @@ public class Taming {
      * For now assumes that base types implement all marker interfaces
      * and arrays implement none!
      * @param n1 An Eclipse Signature type
-     * @param mi A marker interface, once prepended with "org.joe_e."
+     * @param mi A marker interface
      * @param context the context in which to evaluate bindings
      * @return true if n1 implements mi in the overlay type system
      */
-    boolean is(String n1, IType mi, IType context)
+    boolean implementsOverlay(String n1, IType mi, IType context)
     {
         if (n1.length() == 1) {
             return true;
@@ -142,18 +155,36 @@ public class Taming {
         return result;
     }
     
-    boolean allowed(IMethod im) {
-        if (im.getDeclaringType().isBinary()) {
-            Entry e = db.get(im.getDeclaringType());
+    boolean isTamed(IType type) {
+        return db.containsKey(type);
+    }
+    
+    boolean isAllowed(IMethod method) {
+        if (method.getDeclaringType().isBinary()) {
+            Entry e = db.get(method.getDeclaringType());
             if (e == null) {
                 return false;
             } else {
-                return e.allowed.contains(im);
+                return e.allowedMethods.contains(method);
             }       
         } else {
             return true;
         }
     }
+    
+    boolean isAllowed(IField field) {
+        if (field.getDeclaringType().isBinary()) {
+            Entry e = db.get(field.getDeclaringType());
+            if (e == null) {
+                return false;
+            } else {
+                return e.allowedFields.contains(field);
+            }       
+        } else {
+            return true;
+        }
+    }
+    
     
     /**
      * Returns true if the specified type is deemed to satisfy the specified interface.
