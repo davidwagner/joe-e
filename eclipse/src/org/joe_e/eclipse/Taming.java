@@ -54,20 +54,22 @@ public class Taming {
                 parseMarkerInterfaces(secondLine, deemings);
                 
                 String nextLine = br.readLine();
-                
                 while (nextLine != null && !nextLine.contains("(")) {
                     // TODO: what happens if this isn't a real field??
                     IField field = type.getField(nextLine);
                     allowedFields.add(field);
                     System.out.println("added field " + field);
                 }
-                                
+                
                 IMethod[] methods = type.getMethods();
                 Map<String, IMethod> stringsToMethods = new HashMap<String, IMethod>();
                 for (IMethod im : methods) {
                     String imToString = im.toString();
-                    imToString = imToString.substring(0, imToString.indexOf(" ["));
-                    System.out.println("itsa method <" + imToString + ">");
+                    int lparen = imToString.indexOf("(");
+                    // no space found results in start = 0, just what we want
+                    int start = imToString.lastIndexOf(" ", lparen) + 1;
+                    imToString = imToString.substring(start, imToString.indexOf(")") + 1);
+                    System.out.println(imToString);
                     stringsToMethods.put(imToString, im);
                 }
                 
@@ -78,6 +80,8 @@ public class Taming {
                     } else {
                         allowedMethods.add(allowed);
                     }
+                    
+                    nextLine = br.readLine();
                 }
                 
             } catch (Exception e) {
