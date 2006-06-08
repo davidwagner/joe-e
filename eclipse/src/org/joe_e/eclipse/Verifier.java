@@ -160,7 +160,7 @@ public class Verifier {
 			
 			for (int i = 0; i < fields.length; ++i) {
 				String name = fields[i].getElementName();
-				System.out.println("Field " + name + ":");
+				// System.out.println("Field " + name + ":");
 				int flags = fields[i].getFlags();
 				if (Flags.isStatic(flags)) { 
 					if (Flags.isFinal(flags)) {
