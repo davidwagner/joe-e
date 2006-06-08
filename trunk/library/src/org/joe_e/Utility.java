@@ -8,15 +8,15 @@ package org.joe_e;
 public class Utility {
 
 	static public boolean instanceOf(Object obj, Class<?> type) {
-		// now only handles non-deemed classes
-		
-		return type.isAssignableFrom(obj.getClass());
-	}
+		return isSubtypeOf(obj.getClass(), type);
+    }
 
 	static public boolean isSubtypeOf(Class<?> c1, Class<?> c2) {
-		// now only handles non-deemed classes
-		
-		return c2.isAssignableFrom(c1);
+	    if (c2.isAssignableFrom(c1)) {
+            return true;
+        } else {
+            return Honoraries.honorarilyImplements(c1, c2);
+        }
 	}
 	
 	
