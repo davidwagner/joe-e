@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.io.BufferedReader;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
@@ -31,28 +32,74 @@ public class Taming {
     final IType ENUM;
          
     class Entry {
-        Set<IMethod> allowedMethods;
-        Set<IField> allowedFields;
-        Set<IType> deemings;
-        LinkedList<IType> honoraries;
+        final Set<IMethod> allowedMethods;
+        final Set<IField> allowedFields;
+        final Set<IType> deemings;
+        final Set<IType> honoraries;
         
-        /*
-        Entry(File f) {
-            try {
+        Entry(IType type, File f) {
+            allowedMethods = new HashSet<IMethod>();
+            allowedFields  = new HashSet<IField>();
+            deemings       = new HashSet<IType>();
+            honoraries     = new HashSet<IType>();
+            
+            try {    
                 BufferedReader br = 
                     new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+                
                 String[] firstLine = br.readLine().split(" ");
-                for (String word : firstLine) {
-                    
+                parseMarkerInterfaces(firstLine, honoraries);
+                
+                String[] secondLine = br.readLine().split(" ");
+                parseMarkerInterfaces(secondLine, deemings);
+                
+                String nextLine = br.readLine();
+                
+                while (nextLine != null && !nextLine.contains("(")) {
+                    // TODO: what happens if this isn't a real field??
+                    IField field = type.getField(nextLine);
+                    allowedFields.add(field);
+                    System.out.println("added field " + field);
+                }
+                                
+                IMethod[] methods = type.getMethods();
+                Map<String, IMethod> stringsToMethods = new HashMap<String, IMethod>();
+                for (IMethod im : methods) {
+                    String imToString = im.toString();
+                    imToString = imToString.substring(0, imToString.indexOf(" ["));
+                    System.out.println("itsa method <" + imToString + ">");
+                    stringsToMethods.put(imToString, im);
+                }
+                
+                while (nextLine != null) {
+                    IMethod allowed = stringsToMethods.get(nextLine);
+                    if (allowed == null) {
+                        System.out.println("PARSE ERROR! Unrecognized method " + nextLine);
+                    } else {
+                        allowedMethods.add(allowed);
+                    }
                 }
                 
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        */
+        
+        void parseMarkerInterfaces (String[] line, Set<IType> dest) {
+            for (String s : line) {
+                if (s.equals(SELFLESS.getElementName())) {
+                    dest.add(SELFLESS);
+                } else if (s.equals(IMMUTABLE.getElementName())) {
+                    dest.add(IMMUTABLE);
+                } else if (s.equals(POWERLESS.getElementName())) {
+                    dest.add(POWERLESS);
+                } else {
+                    System.out.println("PARSE ERROR! Unrecognized marker interface " + s);
+                }
+            }
+        }
+        
     }
-    
     
     Taming(File persistentDB, IJavaProject project) throws JavaModelException {
         this.db = new HashMap<IType, Entry>();
@@ -64,19 +111,18 @@ public class Taming {
         TOKEN = project.findType("org.joe_e.Token");
         ENUM = project.findType("java.lang.Enum");  
         
-        /*
-        if (persistentDB.isDirectory()) {
+        
+        if (persistentDB != null && persistentDB.isDirectory()) {
             File[] files = persistentDB.listFiles();
             for (File f : files) {
                 String name = f.getName();
-                int ext = name.lastIndexOf(".taming");
-                if (ext > 0) {
-                   IType type = project.findType(name.substring(0, ext));
-                   db.put(type, new Entry(f)); 
+                if (name.endsWith(".taming")) {
+                    IType type = project.findType(
+                        name.substring(0, name.length() - ".taming".length()));
+                    db.put(type, new Entry(type, f)); 
                 }
             }
         }
-        */
     }
 
     /*

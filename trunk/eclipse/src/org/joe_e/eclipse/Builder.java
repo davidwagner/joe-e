@@ -105,7 +105,7 @@ public class Builder extends IncrementalProjectBuilder {
 			marker.setAttribute(IMarker.LINE_NUMBER, slc.getLine(problem.getStart()));
 			marker.setAttribute(IMarker.CHAR_START, problem.getStart());
 			marker.setAttribute(IMarker.CHAR_END, problem.getEnd());
-			System.out.println("added marker " + marker.toString());
+			// System.out.println("added marker " + marker.toString());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -126,7 +126,7 @@ public class Builder extends IncrementalProjectBuilder {
 		throws CoreException {
 		state = new BuildState(); // clear build state
         IJavaProject jp = JavaCore.create(getProject());
-        taming = new Taming(null, jp);
+        taming = new Taming(new java.io.File("/home/adrian/taming"), jp);
         verifier = new Verifier(jp, state, taming);
 		
 		try {			

@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.LinkedList;
 
 class BuildState {
-  
     static final int IMPL_SELFLESS =   0x0001;
     static final int IMPL_IMMUTABLE =  0x0002;
     static final int IMPL_POWERLESS =  0x0004; 
@@ -42,7 +41,7 @@ class BuildState {
 	/**
 	 * Resets all outgoing dependencies for a compilation unit, and assigns a new
 	 * ICUState to the unit.  Called before calculating a new set of dependencies
-	 * for a new build.
+	 * for a new build.conventions java libraries
 	 */
 	void prebuild(ICompilationUnit toRebuild) {
 		ICUState oldState = icuStates.get(toRebuild);
