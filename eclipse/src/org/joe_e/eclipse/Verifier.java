@@ -12,6 +12,7 @@ import org.eclipse.jdt.core.dom.*;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Queue;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.HashSet;
@@ -400,14 +401,19 @@ public class Verifier {
 	{
 	    final ICompilationUnit icu;
 		final List<Problem> problems; 
-		
-		VerifierASTVisitor(ICompilationUnit icu, List<Problem> problems)
+        final Queue<BodyDeclaration> codeContext;
+        
+       
+        VerifierASTVisitor(ICompilationUnit icu, List<Problem> problems)
 		{
 			// System.out.println("VAV init");
             this.icu = icu;
 			this.problems = problems;
+            this.codeContext = new LinkedList<BodyDeclaration>();
 		}
-		
+        
+   
+        
 		/*
 		 *
 		 * Alternate method: use the ASTVisitor for more stuff.  
@@ -558,9 +564,8 @@ public class Verifier {
         public boolean visit(MethodInvocation mi) {
             IMethodBinding imb = mi.resolveMethodBinding();
             ITypeBinding classBinding = imb.getDeclaringClass();
+            IType classType = (IType) classBinding.getJavaElement();
             if (!classBinding.isFromSource()) {
-                IType classType = (IType) classBinding.getJavaElement();
-                
                 // check in taming database  
                 if (!taming.isTamed(classType)) {
                     problems.add(
@@ -575,12 +580,63 @@ public class Verifier {
                         new Problem("Disabled method " + imb.getName() + " from class "
                                     + classType.getElementName() + " called.",
                                     mi.getStartPosition(), mi.getLength()));
+                    return true;
                 }
-            }
+            } 
+            // If we are in constructor or instance initializer, forbid local methods.
+            IType currentClass = getConstructorContext();
+                     
+            // check non-static methods called in construction contexts
+            if (currentClass != null && !Flags.isStatic(imb.getModifiers())) {
+                // if its of the current type, this is bad.
+                if (currentClass == classType) {
+                    problems.add(new Problem("Called non-static method " + imb.getName() +
+                                             " during instance initialization.",
+                                             mi.getStartPosition(), mi.getLength()));
+                } else {
+                // otherwise, the method could be from a member type of the current type
+                // FIXME: Overly conservative for now, assume any non-static method could
+                // map to current type or a subtype of a member type.
+                // Relaxations: I think this should be OK as long as classType isn't
+                // supertype or subtype of current method or any of its non-static members
+                
+                    problems.add(new Problem("Called non-static method " + imb.getName() + 
+                                             " from class " + classType + 
+                                             " during instance initialization.",
+                                             mi.getStartPosition(), mi.getLength()));
+                }
+             }
             return true;
         }
         
+        IType getConstructorContext() {
+            if (inConstructorContext()) {
+                BodyDeclaration bd = codeContext.peek();
+                return (IType) ((AbstractTypeDeclaration) bd.getParent()).resolveBinding().getJavaElement();
+            } else {
+                return null;
+            }
+        }
+        
+        boolean inConstructorContext() {
+            BodyDeclaration bd = codeContext.peek();
+            if (bd instanceof Initializer) {
+                Initializer init = (Initializer) bd;
+                return !Flags.isStatic(init.getModifiers());
+            } else if (bd instanceof MethodDeclaration) {
+                MethodDeclaration md = (MethodDeclaration) bd;
+                return md.isConstructor();
+            } else if (bd instanceof FieldDeclaration) {
+                FieldDeclaration fd = (FieldDeclaration) bd;
+                return !Flags.isStatic(fd.getFlags());
+            } else {
+                return false;
+                // FIXME: should sometimes be true? perhaps for enums?
+            }
+        }
+      
 		public boolean visit(MethodDeclaration md) {
+            codeContext.add(md);
 			String name = md.getName().toString();
 			int modifiers = md.getModifiers();
 			if (Modifier.isNative(modifiers))
@@ -592,6 +648,22 @@ public class Verifier {
 			return true;
 		}
 		
+        /*
+         * Body declarations not specifically handled above:
+         * AbstractTypeDeclaration, AnnotationTypeMemberDeclaration, EnumConstantDeclaration
+         */
+        public boolean visit(BodyDeclaration bd) {
+            codeContext.add(bd);
+            return true;
+        }
+        
+        public boolean endVisit(BodyDeclaration bd) {
+            assert(codeContext.peek() == bd);
+            codeContext.remove();
+            return true;
+        }
+        
+              
 		public boolean visit(InfixExpression ie) {
 			if (ie.getOperator() == InfixExpression.Operator.EQUALS ||
 				ie.getOperator() == InfixExpression.Operator.NOT_EQUALS) {
