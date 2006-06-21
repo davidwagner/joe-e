@@ -347,7 +347,7 @@ public class Verifier {
                     
                     if (taming.implementsOverlay(fieldTypeSig, mi, type)) {
 						// OKAY
-					} else if (type == candidate) {
+					} else if (type.equals(candidate)) {
 						problems.add(
 						    new Problem(String.format("Non-%s field %s in %s class %s",
                                                       miName, fieldName, miName, candName),
@@ -358,7 +358,7 @@ public class Verifier {
                                                       miName, fieldName, typeName, miName, candName),
 								        candidate.getNameRange()));
 					}
-				} else if (type == candidate) {
+				} else if (type.equals(candidate)) {
 					problems.add(
 						    new Problem(String.format("Non-final field %s in %s class %s", 
                                                       fieldName, miName, candName), 
@@ -413,108 +413,6 @@ public class Verifier {
 		}
         
    
-        
-		/*
-		 *
-		 * Alternate method: use the ASTVisitor for more stuff.  
-		 * Not necessary. (?)
-		 *
-		 
-		public boolean visit(EnumDeclaration ed)
-		
-		
-		public boolean visit(TypeDeclaration td) {
-			if (td.isInterface()) {
-				// Nothing more to check. All fields are static final.  Whether inherited or not,
-				// they will be verified immutable.
-			} else {
-				//
-				// Otherwise, it is a "real" class.
-				//
-				try {
-					// get supertype hierarchy, we'll need it.
-					ITypeHierarchy sth = type.newSupertypeHierarchy(null);
-				String superclass = type.getSuperclassTypeSignature();
-				
-				if (superclass != null) {
-					System.out.println("Superclass " + superclass);
-
-					// See what honoraries superclass has, make sure that all are
-					// implemented by this class.
-					
-					IType supertype = Utility.lookupType(superclass, type);
-					String[] sh = MarkerInterface.getHonoraries(supertype);
-					for (int i = 0; i < sh.length; ++i) {
-						if (!MarkerInterface.is(type, sh[i])) {
-							problems.add(
-								new Problem("Honorary interface " + sh[i] + 
-										    "not inherited from " + supertype.getElementName(), 
-											type.getNameRange()));
-						}
-					}
-				}
-				
-				if (MarkerInterface.is(type, "Powerless") 
-					&& !MarkerInterface.isDeemed(type, "Powerless")) {
-					
-					IType tokenType = type.getJavaProject().findType("org.joe_e.Token");
-					if (sth.contains(tokenType)) {
-						problems.add(new Problem("Powerless type " + type.getElementName() + 
-								     			 " can't extend Token.", 
-								     			 type.getNameRange()));
-					}
-					
-					verifyFieldsAre(type, "Powerless", problems);
-					
-				} else if (MarkerInterface.is(type, "DeepFrozen")
-						   && !MarkerInterface.isDeemed(type, "DeepFrozen")) {
-					
-					verifyFieldsAre(type, "DeepFrozen", problems);
-				}
-			} catch (JavaModelException jme) {
-				jme.printStackTrace();
-			}
-			}
-			return true;
-		}
-		
-		public boolean visit(FieldDeclaration fd) {
-			int flags = fd.getModifiers();
-			List frags = fd.fragments();  // element type:
-											// VariableDeclarationFragment
-			Type baseType = fd.getType();rameter
-			if (Flags.isStatic(flags)) {
-				if (Flags.isFinal(flags)) {
-					if (MarkerInterface.is(baseType, "Powerless")) {
-						for (Object o: frags) {
-							VariableDeclarationFragment vdf = (VariableDeclarationFragment) o;
-							if (vdf.getExtraDimensions() > 0) {
-								// sneaky sneaky... 
-								String name = vdf.getName().getFullyQualifiedName();
-								problems.add(new Problem("Non-powerless static field " 
-										+ name + ".", vdf.getStartPosition(), vdf.getLength()));
-							}
-						}
-					}
-					else {
-						String name = "";
-						for (Object o: frags) {
-							name += (VariableDeclarationFragment) o.getName().getFullyQualifiedName() + " ";
-						}
-						problems.add(new Problem ("Non-powerless static field(s) "
-								+ name + ".", fd.getStartPosition(), fd.getLength()));
-					}
-				} else {
-					String name = "";
-					for (Object o: frags) {
-						name += (VariableDeclarationFragment) o.getName().getFullyQualifiedName() + " ";
-					}
-					problems.add(new Problem ("Non-final static field(s) "
-							+ name + ".", fd.getStartPosition(), fd.getLength()));			
-				}
-			}
-			
-		*/	
 		
         public boolean visit(FieldAccess fa) {
             IVariableBinding ivb = fa.resolveFieldBinding();
@@ -561,6 +459,33 @@ public class Verifier {
             return true;
         }
         
+        public boolean visit(ClassInstanceCreation cic) {
+            IMethodBinding imb = cic.resolveConstructorBinding();
+            
+            IType currentClass = getConstructorContext();
+            ITypeBinding classBinding = imb.getDeclaringClass();
+            IType classType = (IType) classBinding.getJavaElement();
+            
+            if (currentClass != null) {
+                IJavaElement enclosingType = classType;
+                try {
+                    while (enclosingType instanceof IType && !enclosingType.equals(currentClass) 
+                           && !Flags.isStatic(((IType) enclosingType).getFlags())) {                       
+                        enclosingType = enclosingType.getParent();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                if (enclosingType.equals(currentClass)) {
+                    problems.add(new Problem("Construction of non-static member class " + 
+                                             imb.getName() + " during instance initialization.",
+                                             cic.getStartPosition(), cic.getLength()));
+                }
+                   
+            }
+            return true;
+        }
+        
         public boolean visit(MethodInvocation mi) {
             IMethodBinding imb = mi.resolveMethodBinding();
             ITypeBinding classBinding = imb.getDeclaringClass();
@@ -588,24 +513,14 @@ public class Verifier {
                      
             // check non-static methods called in construction contexts
             if (currentClass != null && !Flags.isStatic(imb.getModifiers())) {
-                // if its of the current type, this is bad.
-                if (currentClass == classType) {
-                    problems.add(new Problem("Called non-static method " + imb.getName() +
-                                             " during instance initialization.",
-                                             mi.getStartPosition(), mi.getLength()));
-                } else {
-                // otherwise, the method could be from a member type of the current type
-                // FIXME: Overly conservative for now, assume any non-static method could
-                // map to current type or a subtype of a member type.
-                // Relaxations: I think this should be OK as long as classType isn't
-                // supertype or subtype of current method or any of its non-static members
-                
-                    problems.add(new Problem("Called non-static method " + imb.getName() + 
-                                             " from class " + classType + 
+                // if the method is invoked on the current object (no explicit target
+                // given, this is bad.
+                if (mi.getExpression() == null) {
+                    problems.add(new Problem("Called local non-static method " + imb.getName() +
                                              " during instance initialization.",
                                              mi.getStartPosition(), mi.getLength()));
                 }
-             }
+            }
             return true;
         }
         
@@ -621,7 +536,7 @@ public class Verifier {
         boolean inConstructorContext() {
             BodyDeclaration bd = codeContext.peek();
             if (bd instanceof Initializer) {
-                Initializer init = (Initializer) bd;
+               Initializer init = (Initializer) bd;
                 return !Flags.isStatic(init.getModifiers());
             } else if (bd instanceof MethodDeclaration) {
                 MethodDeclaration md = (MethodDeclaration) bd;
@@ -634,8 +549,20 @@ public class Verifier {
                 // FIXME: should sometimes be true? perhaps for enums?
             }
         }
-      
+        
+        public boolean visit(Initializer init) {
+            codeContext.add(init);
+            return true;
+        }
+        
+        public boolean visit(FieldDeclaration fd) {
+            //System.out.println("visit(FieldDeclaration fd) of <" + fd + ">");
+            codeContext.add(fd);
+            return true;
+        }
+        
 		public boolean visit(MethodDeclaration md) {
+            //System.out.println("visit(MethodDeclaration bd) of <" + md + ">");
             codeContext.add(md);
 			String name = md.getName().toString();
 			int modifiers = md.getModifiers();
@@ -652,19 +579,74 @@ public class Verifier {
          * Body declarations not specifically handled above:
          * AbstractTypeDeclaration, AnnotationTypeMemberDeclaration, EnumConstantDeclaration
          */
-        public boolean visit(BodyDeclaration bd) {
-            codeContext.add(bd);
+        public boolean visit(AbstractTypeDeclaration atd) {
+            // System.out.println("visit(BodyDeclaration bd) of <" + bd + ">");
+            codeContext.add(atd);
             return true;
         }
         
-        public boolean endVisit(BodyDeclaration bd) {
-            assert(codeContext.peek() == bd);
+        public boolean visit(AnnotationTypeMemberDeclaration atmd) {
+            // System.out.println("visit(BodyDeclaration bd) of <" + bd + ">");
+            codeContext.add(atmd);
+            return true;
+        }
+        
+        public boolean visit(EnumConstantDeclaration ecd) {
+            // System.out.println("visit(BodyDeclaration bd) of <" + bd + ">");
+            codeContext.add(ecd);
+            return true;
+        }
+        
+        /*
+         * endVisit
+         * 
+         * If any of these assertions fail, try .equals() instead of ==
+         * I don't see why we'd be given two different versions of the same
+         * object, here, however.
+         */
+        public void endVisit(Initializer init) {
+            assert(codeContext.peek() == init);
             codeContext.remove();
-            return true;
         }
         
+        public void endVisit(FieldDeclaration fd) {
+            assert(codeContext.peek() == fd);
+            codeContext.remove();
+        }
+        
+        public void endVisit(MethodDeclaration md) {
+            assert(codeContext.peek() == md);
+            codeContext.remove();
+        }
+        
+        public void endVisit(AbstractTypeDeclaration atd) {
+            // System.out.println("End visit of <" + bd + ">");
+            assert(codeContext.peek() == atd);
+            codeContext.remove();
+        }
+        
+        public void endVisit(AnnotationTypeMemberDeclaration atmd) {
+            // System.out.println("End visit of <" + bd + ">");
+            assert(codeContext.peek() == atmd);
+            codeContext.remove();
+        }
               
-		public boolean visit(InfixExpression ie) {
+        public void endVisit(EnumConstantDeclaration ecd) {
+            // System.out.println("End visit of <" + bd + ">");
+            assert(codeContext.peek() == ecd);
+            codeContext.remove();
+        }
+
+        public boolean visit(ThisExpression te) {
+            if (inConstructorContext()) {
+                problems.add(new Problem("Possible escapement of 'this' not allowed in "+
+                                         "instance initialization.",
+                                         te.getStartPosition(), te.getLength()));
+            }
+            return true;
+        }
+                
+        public boolean visit(InfixExpression ie) {
 			if (ie.getOperator() == InfixExpression.Operator.EQUALS ||
 				ie.getOperator() == InfixExpression.Operator.NOT_EQUALS) {
 				ITypeBinding leftTB = ie.getLeftOperand().resolveTypeBinding();
@@ -751,5 +733,108 @@ public class Verifier {
 			}
 			return true;
 		}
-	}
+        
+        /*
+         *
+         * Alternate method: use the ASTVisitor for more stuff.  
+         * Not necessary. (?)
+         *
+         
+        public boolean visit(EnumDeclaration ed)
+        
+        
+        public boolean visit(TypeDeclaration td) {
+            if (td.isInterface()) {
+                // Nothing more to check. All fields are static final.  Whether inherited or not,
+                // they will be verified immutable.
+            } else {
+                //
+                // Otherwise, it is a "real" class.
+                //
+                try {
+                    // get supertype hierarchy, we'll need it.
+                    ITypeHierarchy sth = type.newSupertypeHierarchy(null);
+                String superclass = type.getSuperclassTypeSignature();
+                
+                if (superclass != null) {
+                    System.out.println("Superclass " + superclass);
+
+                    // See what honoraries superclass has, make sure that all are
+                    // implemented by this class.
+                    
+                    IType supertype = Utility.lookupType(superclass, type);
+                    String[] sh = MarkerInterface.getHonoraries(supertype);
+                    for (int i = 0; i < sh.length; ++i) {
+                        if (!MarkerInterface.is(type, sh[i])) {
+                            problems.add(
+                                new Problem("Honorary interface " + sh[i] + 
+                                            "not inherited from " + supertype.getElementName(), 
+                                            type.getNameRange()));
+                        }
+                    }
+                }
+                
+                if (MarkerInterface.is(type, "Powerless") 
+                    && !MarkerInterface.isDeemed(type, "Powerless")) {
+                    
+                    IType tokenType = type.getJavaProject().findType("org.joe_e.Token");
+                    if (sth.contains(tokenType)) {
+                        problems.add(new Problem("Powerless type " + type.getElementName() + 
+                                                 " can't extend Token.", 
+                                                 type.getNameRange()));
+                    }
+                    
+                    verifyFieldsAre(type, "Powerless", problems);
+                    
+                } else if (MarkerInterface.is(type, "DeepFrozen")
+                           && !MarkerInterface.isDeemed(type, "DeepFrozen")) {
+                    
+                    verifyFieldsAre(type, "DeepFrozen", problems);
+                }
+            } catch (JavaModelException jme) {
+                jme.printStackTrace();
+            }
+            }
+            return true;
+        }
+        
+        public boolean visit(FieldDeclaration fd) {
+            int flags = fd.getModifiers();
+            List frags = fd.fragments();  // element type:
+                                            // VariableDeclarationFragment
+            Type baseType = fd.getType();rameter
+            if (Flags.isStatic(flags)) {
+                if (Flags.isFinal(flags)) {
+                    if (MarkerInterface.is(baseType, "Powerless")) {
+                        for (Object o: frags) {
+                            VariableDeclarationFragment vdf = (VariableDeclarationFragment) o;
+                            if (vdf.getExtraDimensions() > 0) {
+                                // sneaky sneaky... 
+                                String name = vdf.getName().getFullyQualifiedName();
+                                problems.add(new Problem("Non-powerless static field " 
+                                        + name + ".", vdf.getStartPosition(), vdf.getLength()));
+                            }
+                        }
+                    }
+                    else {
+                        String name = "";
+                        for (Object o: frags) {
+                            name += (VariableDeclarationFragment) o.getName().getFullyQualifiedName() + " ";
+                        }
+                        problems.add(new Problem ("Non-powerless static field(s) "
+                                + name + ".", fd.getStartPosition(), fd.getLength()));
+                    }
+                } else {
+                    String name = "";
+                    for (Object o: frags) {
+                        name += (VariableDeclarationFragment) o.getName().getFullyQualifiedName() + " ";
+                    }
+                    problems.add(new Problem ("Non-final static field(s) "
+                            + name + ".", fd.getStartPosition(), fd.getLength()));          
+                }
+            }
+            
+        */  
+  
+    }
 }
