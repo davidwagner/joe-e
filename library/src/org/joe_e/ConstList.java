@@ -5,6 +5,11 @@
  */
 package org.joe_e;
 
+
+/*
+ * NOT AN ENDORSED STABLE INTERFACE!
+ */
+
 public class ConstList<T> {
 	private final T head;
 	private final ConstList<T> tail;

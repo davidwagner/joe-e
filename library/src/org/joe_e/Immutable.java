@@ -5,6 +5,14 @@
  */
 package org.joe_e;
 
+/**
+ * Marker interface for annotating classes that transitively do not contain any
+ * mutable state.  Joe-E requries that classes that implement this interface
+ * meet the obligation that all fields must be final and of a declared type
+ * that implements this interface.
+ * 
+ * This interface contains no members.
+ */
 public interface Immutable {
 
 }

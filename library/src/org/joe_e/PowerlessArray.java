@@ -4,13 +4,21 @@
  * @author Adrian Mettler 
  */
 package org.joe_e;
-/*
- * I'd really like to say T extends Incapable here, but then it wouldn't work
- * for String, Integer, etc., without requiring one to use an IncapableCell.
+
+/**
+ * An immutable array containing powerless objects
+ * 
+ * @param <E> the element type of objects contained in the array
  */
-public class PowerlessArray<T> extends ImmutableArray<T> implements Powerless {
-	
-	public PowerlessArray (T... arr) {
+public class PowerlessArray<E> extends ImmutableArray<E> implements Powerless {
+
+    /**
+     * Construct an immutable array with a copy of an existing array with
+     * powerless element type as backing store.
+     * 
+     * @param arr the array to make an unmodifiable duplicate of
+     */ 
+	public PowerlessArray (E... arr) {
 		// could use a hack with package-scope constructor to avoid redundant
 		// immutable check here as a minor optimization, but this is simpler,
 		// and more obviously correct.
