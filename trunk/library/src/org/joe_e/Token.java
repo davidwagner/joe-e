@@ -5,6 +5,10 @@
  */
 package org.joe_e;
 
+/**
+ * Content-less class used solely for its unforgeable object identity.
+ * Distinct categories of tokens can be created by subclassing this class.
+ */
 public class Token {
 
 }

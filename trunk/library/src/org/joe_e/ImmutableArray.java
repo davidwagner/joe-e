@@ -5,13 +5,20 @@
  */
 package org.joe_e;
 
-/*
- * I'd really like to say T extends DeepFrozen here, but then it wouldn't work for String, Integer, etc.,
- * without requiring one to use a DeepFrozenCell.
+/**
+ * An immutable array containing immutable objects
+ * 
+ * @param <E> the element type of objects contained in the array
  */
-public class ImmutableArray<T> extends SelflessArray<T> implements Immutable {	
-
-	public ImmutableArray (T... arr) {
+public class ImmutableArray<E> extends SelflessArray<E> implements Immutable {	
+    
+    /**
+     * Construct an immutable array with a copy of an existing array with
+     * immutable element type as backing store.
+     * 
+     * @param arr the array to make an unmodifiable duplicate of
+     */
+	public ImmutableArray (E... arr) {
 		super(arr);
 		
 		Class arrType = arr.getClass().getComponentType();

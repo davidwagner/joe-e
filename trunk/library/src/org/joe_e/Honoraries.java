@@ -3,6 +3,12 @@ package org.joe_e;
 import java.util.Map;
 import java.util.HashMap;
 
+/*
+ * NOT AN ENDORSED STABLE INTERFACE!
+ * 
+ * Comments?
+ */
+
 public class Honoraries {
     static final int IMPL_SELFLESS  = 0x0001;
     static final int IMPL_IMMUTABLE = 0x0002;
@@ -20,6 +26,15 @@ public class Honoraries {
         entries.put(Integer.class, IMPL_SELFLESS | IMPL_IMMUTABLE | IMPL_POWERLESS);
     }
     
+    /**
+     * Test whether a class implements an interface in the overlay type system
+     * 
+     * @argument implementor the class to test for implementation of the interface
+     * @argument mi the marker interface
+     * 
+     * @return true if the specified class implements the specified marker
+     *  interface
+     */
     public static boolean honorarilyImplements(Class<?> implementor, Class<?> mi) {
         Integer result = entries.get(implementor);
         if (result == null) {
