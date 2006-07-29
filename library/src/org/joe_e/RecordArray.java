@@ -11,7 +11,7 @@ import java.util.Arrays;
 /**
  * An immutable array containing elements of an arbitrary type.
  */
-public class SelflessArray<E> implements Selfless, Iterable<E> {
+public class RecordArray<E> implements Record, Iterable<E> {
 	private final E[] arr;
     
     /**
@@ -20,7 +20,7 @@ public class SelflessArray<E> implements Selfless, Iterable<E> {
      * 
      * @param arr the array to make an unmodifiable duplicate of
      */
-	public SelflessArray (E... arr) {
+	public RecordArray (E... arr) {
 		this.arr = arr.clone();
 	}
     
@@ -72,8 +72,8 @@ public class SelflessArray<E> implements Selfless, Iterable<E> {
      * contents as this array
      */
     public boolean equals(Object other) {
-        return (other instanceof SelflessArray &&
-                Arrays.equals(arr, ((SelflessArray) other).arr));
+        return (other instanceof RecordArray &&
+                Arrays.equals(arr, ((RecordArray) other).arr));
     }
 
     /**
@@ -96,13 +96,13 @@ public class SelflessArray<E> implements Selfless, Iterable<E> {
      * 
      * @return a new SelflessArray containing a specified additional element
      */
-	public SelflessArray<E> with(E newt) {
+	public RecordArray<E> with(E newt) {
 		Class componentType = arr.getClass().getComponentType();
 		// The following line generates a type-soundness warning.
 		E[] newArr = (E[]) 
 			java.lang.reflect.Array.newInstance(componentType, arr.length + 1);
 		System.arraycopy(arr, 0, newArr, 0, arr.length);
 		newArr[arr.length] = newt;
-		return new SelflessArray<E>(newArr);
+		return new RecordArray<E>(newArr);
 	}
 }

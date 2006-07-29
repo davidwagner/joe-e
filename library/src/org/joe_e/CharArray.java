@@ -15,12 +15,32 @@ public class CharArray extends PowerlessArray<Character> {
 	 * @param charArr the array to make an unmodifiable duplicate of
 	 */
 	public CharArray(char... charArr) {
-		// dummy array to make superclasses happy.  Could add protected safety-check-bypassing
-		// constructors as a minor optimization.
-		super(new Character[]{});	
-		
-		this.charArr = charArr.clone();
-	}
+	    // Unless I find a more clever way, making a Character[] copy is 
+        // necessary for equals() to work properly.  This is a bit of a bummer,
+        // as it removes some of the advantage of a char-backed array.
+        // Note that the following code is *NOT* thread-safe (the boxed array
+        // isn't made from the same clone as charArr), but it doesn't matter 
+        // for Joe-E code.  To make this threadsafe, we would need to copy
+        // the values back out of the boxed array.
+        super(boxCharArray(charArr));
+        
+        this.charArr = charArr.clone();
+   	}
+    
+    /**
+     * Helper method to create a boxed Character array given a char array.
+     * 
+     * @param charArr
+     * 
+     * @return a new Character array whose contents are the same as charArr
+     */
+    private static Character[] boxCharArray(char[] charArr) {
+        Character[] boxedArray = new Character[charArr.length];
+        for (int i = 0; i < charArr.length; ++i) {
+            boxedArray[i] = charArr[i];
+        }
+        return boxedArray;
+    }
     
     /**
      * Return the char located at a specified position
@@ -37,15 +57,6 @@ public class CharArray extends PowerlessArray<Character> {
 	}
 
     /**
-     * Return the length of the array
-     * 
-     * @return the length of the array
-     */
-	public int length() {
-		return charArr.length;
-	}
-
-    /**
      * Return a mutable copy of the char array
      * 
      * @return a mutable copy of the array
@@ -56,7 +67,17 @@ public class CharArray extends PowerlessArray<Character> {
 
 	/*
 	 *  Character versions of above methods required by inheritance
-	 */	
+	 *  No longer needed
+    
+    /**
+     * Return the length of the array
+     * 
+     * @return the length of the array
+     *
+    public int length() {
+        return charArr.length;
+    }
+
     
     /**
      * Return a Character containing the value located at a specified position
@@ -67,7 +88,7 @@ public class CharArray extends PowerlessArray<Character> {
      * 
      * @throws ArrayIndexOutOfBoundsException if the specified position is
      * out of bounds.
-     */
+     *
 	public Character at(int pos) {
 		return charArr[pos];
 	}
@@ -76,7 +97,7 @@ public class CharArray extends PowerlessArray<Character> {
      * Return a mutable Character array copy of the char array
      * 
      * @return a mutable Character array copy of the array
-     */
+     *
 	public Character[] toArray() {
 		Character[] boxedArray = new Character[charArr.length];
 		for (int i = 0; i < charArr.length; ++i) {
@@ -84,6 +105,8 @@ public class CharArray extends PowerlessArray<Character> {
 		}
 		return boxedArray;
 	}
+    
+    */
     
     /*
      * NOT PART OF AN ENDORSED STABLE INTERFACE! ... (yet)
