@@ -15,18 +15,18 @@ import java.util.NoSuchElementException;
  *
  * @param <E> the element type of the SelflessArray being iterated
  */
-public class ArrayIterator<E> implements Iterator<E> {
-	private final SelflessArray<E> arr;
-	private int pos;
+class ArrayIterator<E> implements Iterator<E> {
+	private final RecordArray<E> arr;
+	private int pos;     // the next position to return the contents of
 	private final int length;
 	
     /**
      * Create an ArrayIterator to iterate over the specified SelflessArray
      * @param arr the array to iterate over
      */
-	public ArrayIterator(SelflessArray<E> arr) {
+	public ArrayIterator(RecordArray<E> arr) {
 		this.arr = arr;
-		this.pos = 0;
+		this.pos = 0; 
 		this.length = arr.length();
 	}
 	
