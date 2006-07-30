@@ -6,7 +6,7 @@
 package org.joe_e;
 
 /**
- * An immutable array containing powerless objects
+ * An immutable array containing powerless objects.
  * 
  * @param <E> the element type of objects contained in the array
  */

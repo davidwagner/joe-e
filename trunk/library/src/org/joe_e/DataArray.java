@@ -6,7 +6,7 @@
 package org.joe_e;
 
 /**
- * An immutable array containing powerless objects
+ * An immutable array containing objects of type Data.
  * 
  * @param <E> the element type of objects contained in the array
  */
@@ -14,7 +14,7 @@ public class DataArray<E> extends PowerlessArray<E> implements Data {
 
     /**
      * Construct an immutable array with a copy of an existing array with
-     * powerless element type as backing store.
+     * Data element type as backing store.
      * 
      * @param arr the array to make an unmodifiable duplicate of
      */ 
@@ -26,8 +26,8 @@ public class DataArray<E> extends PowerlessArray<E> implements Data {
 		
 		Class arrType = arr.getClass().getComponentType();
 		if (!Utility.isSubtypeOf(arrType, Data.class)) {
-			throw new IllegalArgumentException("PowerlessArray component type "
-											   + arrType + " is not Powerless");
+			throw new IllegalArgumentException("DataArray component type "
+											   + arrType + " is not Data");
 		}
 	}
 }

@@ -5,6 +5,11 @@
  */
 package org.joe_e;
 
+/**
+ * An immutable array of char.
+ */
+
+// BUG: Should extend DataArray<Character>
 public class CharArray extends PowerlessArray<Character> {
 	private final char[] charArr;
 

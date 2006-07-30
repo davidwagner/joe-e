@@ -9,11 +9,11 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * An iterator for SelflessArrays.  Needed in order for SelflessArray and its
+ * An iterator for RecordArrays. Needed in order for RecordArray and its
  * subclasses to support the Iterable interface and be usable with the new 
  * for-loop syntax.
  *
- * @param <E> the element type of the SelflessArray being iterated
+ * @param <E> the element type of the RecordArray being iterated
  */
 class ArrayIterator<E> implements Iterator<E> {
 	private final RecordArray<E> arr;
@@ -21,7 +21,7 @@ class ArrayIterator<E> implements Iterator<E> {
 	private final int length;
 	
     /**
-     * Create an ArrayIterator to iterate over the specified SelflessArray
+     * Create an ArrayIterator to iterate over the specified RecordArray
      * @param arr the array to iterate over
      */
 	public ArrayIterator(RecordArray<E> arr) {

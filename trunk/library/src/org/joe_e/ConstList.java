@@ -6,7 +6,7 @@
 package org.joe_e;
 
 
-/*
+/**
  * NOT AN ENDORSED STABLE INTERFACE!
  */
 

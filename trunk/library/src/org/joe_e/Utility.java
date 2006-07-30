@@ -5,7 +5,7 @@
  */
 package org.joe_e;
 
-/*
+/**
  * NOT AN ENDORSED STABLE INTERFACE! (yet)
  * 
  * Comments?
@@ -14,8 +14,8 @@ public class Utility {
 
     /**
      * Tests whether the specified object belongs to the specified type in the
-     * overlay type system. The equivalent of the instanceof operator for the
-     * overlay type system.  
+     * overlay type system. The equivalent of the Java <CODE>instanceof</CODE>
+     * operator, for the overlay type system.  
      * 
      * @param obj  the object to test
      * @param type the type to test membership of

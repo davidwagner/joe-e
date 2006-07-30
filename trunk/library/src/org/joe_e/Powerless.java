@@ -8,11 +8,14 @@ package org.joe_e;
 /**
  * Marker interface for annotating classes that transitively do not contain any
  * mutable state or tokens.  Joe-E requires that classes that implement this 
- * interface meet the obligation that they do not extend Token, all fields must
- * be (1) final and (2) of a declared type that implements this interface in
+ * interface meet the obligation that they do not extend Token,
+ * and all fields must
+ * be (1) final and (2) of a declared type that implements Powerless in
  * the overlay type system.
  *  
- * This interface contains no members.
+ * <P>This interface contains no members.
+ * 
+ * @see Token
  */
 public interface Powerless extends Immutable {
 

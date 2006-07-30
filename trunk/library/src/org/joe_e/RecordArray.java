@@ -7,6 +7,7 @@
 package org.joe_e;
 
 import java.util.Arrays;
+import java.util.Iterator;
 
 /**
  * An immutable array containing elements of an arbitrary type.
@@ -61,16 +62,22 @@ public class RecordArray<E> implements Record, Iterable<E> {
      * 
      * @return the iterator over the array
      */
-	public ArrayIterator<E> iterator() {
+	public Iterator<E> iterator() {
 		return new ArrayIterator<E>(this);
 	}
        
     /**
      * Test for equality with another object
      * 
-     * @return true if the other object is a SelflessArray with the same
+     * @return true if the other object is a RecordArray with the same
      * contents as this array
      */
+    // BUG: This equals() method is incorrect once inherited.
+    // Perhaps the implementation should be:
+    //  return other != null && other.getClass() == this.getClass() &&
+    //          Arrays.equals(arr, ((RecordArray) other).arr);
+    // The JavaDoc comment should be updated accordingly (returns true
+    // if the other object is an array of the same type with...).
     public boolean equals(Object other) {
         return (other instanceof RecordArray &&
                 Arrays.equals(arr, ((RecordArray) other).arr));
@@ -85,16 +92,16 @@ public class RecordArray<E> implements Record, Iterable<E> {
         return Arrays.hashCode(arr);
     }
         
-	/*
-	 * Example of an additional method to allow use as an abstraction for sets
-	 * or lists . . . should be added to subclasses too, if we want it; otherwise
-	 * adding a new element would downgrade them to a ConstArray.
+    /*
+     * Example of an additional method to allow use as an abstraction for sets
+     * or lists . . . should be added to subclasses too, if we want it; otherwise
+     * adding a new element would downgrade them to a RecordArray.
      *  
      * NOT PART OF AN ENDORSED STABLE INTERFACE! ... (yet)
      *  
-     * Return a new SelflessArray containing a specified additional element
+     * Return a new RecordArray containing a specified additional element
      * 
-     * @return a new SelflessArray containing a specified additional element
+     * @return a new RecordArray containing a specified additional element
      */
 	public RecordArray<E> with(E newt) {
 		Class componentType = arr.getClass().getComponentType();
