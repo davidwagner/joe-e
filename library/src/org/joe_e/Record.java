@@ -9,20 +9,28 @@ package org.joe_e;
 
 /**
  * Marker interface for annotating classes that are indistinguishable from
- * a shallow copy of themselves, and are transparently copyable.  Joe-E
- * requries that classes that implement this interface meet the following
- * obligations 
- * 1. All instance fields must be public and final.
- * 2. The class cannot be equatable.
- * 3. The object identity of elements of the class is not visible.  This
+ * a shallow copy of themselves, and are transparently copyable.
+ * 
+ * <P>Joe-E requires that classes that implement this interface must
+ * meet all of the following obligations:
+ * <OL>
+ * <LI> All instance fields must be public and final.
+ * <LI> The class cannot be equatable.
+ * <LI> The object identity of elements of the class is not visible.  This
  *   can be satisfied by one of:
- *   (a) The superclass is selfless
- *   (b) The class overrides hashCode() and equals(),
- *       and doesn't call super.hashCode() or super.equals(). 
- * 4. A trivial constructor is provided (one that takes values for the fields
- *  and assigns them to the fields).
+ *   <OL>
+ *   <LI> The superclass implements Record; or,
+ *   <LI> The class overrides <CODE>hashCode()</CODE> and <CODE>equals()</CODE>,
+ *       and doesn't call <CODE>super.hashCode()</CODE> or <CODE>super.equals()</CODE>. 
+ *   </OL>
+ * <LI> A trivial constructor is provided (one that is passed values for
+ * the fields, directly assign parameters to the newly constructed object's
+ * fields, and does nothing else).
+ * </OL>
  *  
- * This interface contains no members (?).
+ * <P>This interface contains no members.
+ * 
+ * @see Equatable
  */
 public interface Record {
     /* doesn't matter whether these are here or not

@@ -3,7 +3,7 @@ package org.joe_e;
 import java.util.Map;
 import java.util.HashMap;
 
-/*
+/**
  * NOT AN ENDORSED STABLE INTERFACE!
  * 
  * Comments?
@@ -29,12 +29,25 @@ public class Honoraries {
     }
     
     /**
-     * Test whether a class implements an interface in the overlay type system
+     * Tests whether a class honorarily implements a Joe-E marker interface.
+     * This consults the list of Joe-E honoraries to see whether the class
+     * <CODE>implementor</CODE> is listed as honorarily implementing the
+     * interface <CODE>mi</CODE>.
      * 
-     * @argument implementor the class to test for implementation of the interface
-     * @argument mi the marker interface
+     * <P>Note: For most purposes, you probably want to use
+     * {@link Utility#isSubtypeOf(java.lang.Class, java.lang.Class) Utility.instanceOf()},
+     * which correctly traces the transitive implications of facts about
+     * honorary interfaces.  For instance, if class C honorarily implements
+     * interface I, and class D is a subclass of C, then
+     * <CODE>Honoraries.honorarilyImplements(D.class, I.class)</CODE> returns
+     * <CODE>false</CODE> (which may be counter to intuition), while
+     * <CODE>Utility.isSubtypeOf(D.class, I.class)</CODE> returns
+     * <CODE>true</CODE> (as expected).
      * 
-     * @return true if the specified class implements the specified marker
+     * @param implementor the class to test for implementation of the interface
+     * @param mi the marker interface
+     * 
+     * @return true if the specified class honorarily implements the specified marker
      *  interface
      */
     public static boolean honorarilyImplements(Class<?> implementor, Class<?> mi) {

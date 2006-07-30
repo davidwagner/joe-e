@@ -11,7 +11,7 @@ package org.joe_e;
  * meet the obligation that all fields must be (1) final and (2) of a declared type
  * that implements this interface in the overlay type system.
  * 
- * This interface contains no members.
+ * <P>This interface contains no members.
  */
 public interface Immutable {
 
