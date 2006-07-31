@@ -16,7 +16,6 @@ package org.joe_e;
  * 
  * @see Record
  */
-// BUG: Should extend Powerless, too.  --daw
-public interface Data extends Record {
+public interface Data extends Record, Powerless {
 
 }

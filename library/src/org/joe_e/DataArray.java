@@ -20,7 +20,7 @@ public class DataArray<E> extends PowerlessArray<E> implements Data {
      */ 
 	public DataArray (E... arr) {
 		// could use a hack with package-scope constructor to avoid redundant
-		// immutable check here as a minor optimization, but this is simpler,
+		// powerless check here as a minor optimization, but this is simpler,
 		// and more obviously correct.
 		super(arr); 
 		
@@ -30,4 +30,14 @@ public class DataArray<E> extends PowerlessArray<E> implements Data {
 											   + arrType + " is not Data");
 		}
 	}
+    
+    /**
+     * Package-scope back-door constructor for use by subclasses that
+     * override all methods that make use of the field arr.  Nullity of arr is
+     * used to distinguish between instances with which this class must interact
+     * by using the public interface rather than through their arr field.
+     */
+    DataArray() {
+        super();
+    }
 }
