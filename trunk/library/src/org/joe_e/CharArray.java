@@ -5,12 +5,12 @@
  */
 package org.joe_e;
 
+import java.util.Arrays;
+
 /**
  * An immutable array of char.
  */
-
-// BUG: Should extend DataArray<Character>
-public class CharArray extends PowerlessArray<Character> {
+public class CharArray extends DataArray<Character> {
 	private final char[] charArr;
 
 	/**
@@ -20,32 +20,13 @@ public class CharArray extends PowerlessArray<Character> {
 	 * @param charArr the array to make an unmodifiable duplicate of
 	 */
 	public CharArray(char... charArr) {
-	    // Unless I find a more clever way, making a Character[] copy is 
-        // necessary for equals() to work properly.  This is a bit of a bummer,
-        // as it removes some of the advantage of a char-backed array.
-        // Note that the following code is *NOT* thread-safe (the boxed array
-        // isn't made from the same clone as charArr), but it doesn't matter 
-        // for Joe-E code.  To make this threadsafe, we would need to copy
-        // the values back out of the boxed array.
-        super(boxCharArray(charArr));
+		// Use back door constructor that sets backing store to null.
+        // This lets RecordArray's methods know not to use the backing
+        // store for accessing this object.
+	    super();
         
         this.charArr = charArr.clone();
    	}
-    
-    /**
-     * Helper method to create a boxed Character array given a char array.
-     * 
-     * @param charArr
-     * 
-     * @return a new Character array whose contents are the same as charArr
-     */
-    private static Character[] boxCharArray(char[] charArr) {
-        Character[] boxedArray = new Character[charArr.length];
-        for (int i = 0; i < charArr.length; ++i) {
-            boxedArray[i] = charArr[i];
-        }
-        return boxedArray;
-    }
     
     /**
      * Return the char located at a specified position
@@ -71,14 +52,15 @@ public class CharArray extends PowerlessArray<Character> {
 	}
 
 	/*
-	 *  Character versions of above methods required by inheritance
-	 *  No longer needed
-    
+	 *  Methods that must be overriden, as the implementation in RecordArray
+     *  would try to use arr, which is null.
+	 */
+	
     /**
      * Return the length of the array
      * 
      * @return the length of the array
-     *
+     */
     public int length() {
         return charArr.length;
     }
@@ -93,25 +75,64 @@ public class CharArray extends PowerlessArray<Character> {
      * 
      * @throws ArrayIndexOutOfBoundsException if the specified position is
      * out of bounds.
-     *
-	public Character at(int pos) {
+     */
+	public Character get(int pos) {
 		return charArr[pos];
 	}
+	
+    /**
+     * Test for equality with another object
+     * 
+     * @return true if the other object is a RecordArray with the same
+     * contents as this array
+     */
+    public boolean equals(Object other) {
+        if (other instanceof CharArray) {
+            CharArray otherCharArray = (CharArray) other;
+            return Arrays.equals(charArr, otherCharArray.charArr);
+        } else if (other instanceof RecordArray) {
+            RecordArray otherArray = (RecordArray) other;
+            if (otherArray.length() != charArr.length) {
+                return false;
+            }
+            for (int i = 0; i < charArr.length; ++i) {
+                Object otherElement = otherArray.get(i);
+                if (!(otherElement instanceof Character) ||
+                    (Character) otherElement != charArr[i]) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
 
+    /**
+     * Computes a digest of the array for hashing
+     * 
+     * @return a hash code based on the contents of this array
+     */
+    public int hashCode() {
+        // Because wrappers for primitive types return the same hashCode as 
+        // their primitive values, a CharArray has the same hashCode as a
+        // RecordArray<Character>.
+        return Arrays.hashCode(charArr);
+    }
+    
     /**
      * Return a mutable Character array copy of the char array
      * 
      * @return a mutable Character array copy of the array
-     *
+     */
 	public Character[] toArray() {
 		Character[] boxedArray = new Character[charArr.length];
 		for (int i = 0; i < charArr.length; ++i) {
 			boxedArray[i] = charArr[i];
 		}
 		return boxedArray;
-	}
+	}  
     
-    */
     
     /*
      * NOT PART OF AN ENDORSED STABLE INTERFACE! ... (yet)

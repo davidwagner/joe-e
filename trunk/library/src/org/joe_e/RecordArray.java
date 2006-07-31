@@ -26,6 +26,16 @@ public class RecordArray<E> implements Record, Iterable<E> {
 	}
     
     /**
+     * Package-scope back-door constructor for use by subclasses that
+     * override all methods that make use of the field arr.  Nullity of arr is
+     * used to distinguish between instances with which this class must interact
+     * by using the public interface rather than through their arr field.
+     */
+    RecordArray() {
+        arr = null;
+    }
+    
+    /**
      * Return the element located at a specified position
      * 
      * @param pos the position whose contents to return
@@ -35,7 +45,7 @@ public class RecordArray<E> implements Record, Iterable<E> {
      * @throws ArrayIndexOutOfBoundsException if the specified position is
      * out of bounds.
      */
-	public E at(int pos) {
+	public E get(int pos) {
 		return arr[pos];
 	}
      
@@ -72,15 +82,24 @@ public class RecordArray<E> implements Record, Iterable<E> {
      * @return true if the other object is a RecordArray with the same
      * contents as this array
      */
-    // BUG: This equals() method is incorrect once inherited.
-    // Perhaps the implementation should be:
-    //  return other != null && other.getClass() == this.getClass() &&
-    //          Arrays.equals(arr, ((RecordArray) other).arr);
-    // The JavaDoc comment should be updated accordingly (returns true
-    // if the other object is an array of the same type with...).
     public boolean equals(Object other) {
-        return (other instanceof RecordArray &&
-                Arrays.equals(arr, ((RecordArray) other).arr));
+        if (!(other instanceof RecordArray)) {
+            return false;
+        }
+        RecordArray otherArray = (RecordArray) other;
+        if (otherArray.arr == null) {
+            if (arr.length != otherArray.length()) {
+                return false;
+            }
+            for (int i = 0; i < arr.length; ++i) {
+                if (!arr[i].equals(otherArray.get(i))) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return Arrays.equals(arr, otherArray.arr);
+        }
     }
 
     /**

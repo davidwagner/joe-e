@@ -27,4 +27,14 @@ public class ImmutableArray<E> extends RecordArray<E> implements Immutable {
 											   + arrType + " is not Immutable");
 		}
 	}
+    
+    /**
+     * Package-scope back-door constructor for use by subclasses that
+     * override all methods that make use of the field arr.  Nullity of arr is
+     * used to distinguish between instances with which this class must interact
+     * by using the public interface rather than through their arr field.
+     */
+    ImmutableArray() {
+        super();
+    }
 }

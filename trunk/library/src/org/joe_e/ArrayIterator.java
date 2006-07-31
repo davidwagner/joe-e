@@ -48,7 +48,7 @@ class ArrayIterator<E> implements Iterator<E> {
      */
     public E next() {
 		if (pos < length) {
-			return arr.at(pos++);
+			return arr.get(pos++);
 		} else {
 			throw new NoSuchElementException();
 		}
