@@ -38,7 +38,7 @@ public class CharArray extends DataArray<Character> {
      * @throws ArrayIndexOutOfBoundsException if the specified position is
      * out of bounds.
      */
-	public char charAt(int pos) {
+	public char getChar(int pos) {
 		return charArr[pos];
 	}
 
