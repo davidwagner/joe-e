@@ -16,7 +16,7 @@ package org.joe_e;
  * <OL>
  * <LI> All instance fields must be public and final.
  * <LI> The class cannot be equatable.
- * <LI> The object identity of elements of the class is not visible.  This
+ * <LI> The object identity of instances of the class is not visible.  This
  *   can be satisfied by one of:
  *   <OL>
  *   <LI> The superclass implements Record; or,
