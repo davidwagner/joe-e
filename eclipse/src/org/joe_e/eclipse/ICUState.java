@@ -10,7 +10,7 @@ import org.eclipse.jdt.core.IType;
  */
 class ICUState {
 	Set<IType> references;  // verifer dependencies of this compilation unit on other classes 
-						    //  (either type)
+						    //  (either shallow or deep dependencies -- see ITypeState)
 	
 	ICUState() {
 		this.references = new HashSet<IType>();

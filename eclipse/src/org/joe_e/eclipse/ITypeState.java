@@ -91,17 +91,43 @@ class ITypeState {
 	}	
 	*/
 	
-
-	void addFlagDependent (ICompilationUnit newDependent) {
+	/**
+     * Add a flag dependent of the class corresponding to this state object.
+     * The compilation unit specified will be rebuilt if changes to this
+     * state object's class cause any of its flags to change.  This represents
+     * a dependence on the marker interfaces the class implements but not on
+     * its content.
+     * 
+     * @param newDependent
+     *                  the compilation unit that has a new flag dependency
+	 */
+    void addFlagDependent(ICompilationUnit newDependent) {
 		allDependents.add(newDependent);
 	}
 	
-	void addDeepDependent (ICompilationUnit newDependent) {
+    /**
+     * Add a deep dependent of the class corresponding to this state object.
+     * The compilation unit specified will be rebuilt whenever this state
+     * object's class is rebuilt.  This represents a "deep" dependency on the
+     * content of the class.
+     * 
+     * @param newDependent
+     *                  the compilation unit that has a new deep dependency
+     */
+    void addDeepDependent(ICompilationUnit newDependent) {
 		deepDependents.add(newDependent);
 		allDependents.add(newDependent);
 	}
-	
-	void resetDependencies (ICompilationUnit dependent) {
+
+    /**
+     * Remove a dependent from the class corresponding to this state object.
+     * The compilation unit specified will no longer have rebuilds triggered
+     * by changes to the class.
+     * 
+     * @param dependent
+     *                  the compilation unit to have dependencies reset
+     */    
+	void resetDependencies(ICompilationUnit dependent) {
 		deepDependents.remove(dependent);
 		allDependents.remove(dependent);
 	}

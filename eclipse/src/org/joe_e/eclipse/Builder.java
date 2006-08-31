@@ -21,6 +21,25 @@ import org.eclipse.core.runtime.IProgressMonitor;
 //import org.eclipse.core.runtime.Path;
 //import org.eclipse.core.runtime.QualifiedName;
 
+/**
+ * The main class for the Joe-E verifier implementation.  The Eclipse framework
+ * creates an instance of this class for each project that has the Joe-E
+ * nature.  These objects keep track of the build state, taming state, and
+ * verifier object for the current build.  In the case of a clean re-build,
+ * these three objects are re-generated from scratch and all files in the
+ * project are rebuilt.
+ * 
+ * This class is responsible for keeping track of the set of resources that
+ * need to be verified, and invoking the Verifier on each one.  It also
+ * posts the Problems that are encounted during verification to the Eclipse
+ * compilation error reporting framework.  All of the rules of the actual
+ * verification, and the cases in which changes to one file require
+ * reverification of another are handled in Verifier and BuildState.
+ * 
+ * Note: for the release version, it may be unnecessary to re-compute the
+ * taming database on a clean rebuild if we wish to disallow modification of
+ * the database anyway.
+ */
 public class Builder extends IncrementalProjectBuilder {
 	public static final String BUILDER_ID = "Joe_E.JoeEBuilder";
 	private static final String MARKER_TYPE = "Joe_E.JoeEProblem";
@@ -29,17 +48,37 @@ public class Builder extends IncrementalProjectBuilder {
 	private Taming taming = null;
     private Verifier verifier = null;
 
-//	private Set<ICompilationUnit> completed;
-//	private Queue<ICompilationUnit> workList;
-	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.internal.events.InternalBuilder#build(int,
-	 *      java.util.Map, org.eclipse.core.runtime.IProgressMonitor)
-	 */
-	protected IProject[] build(int kind, Map args, IProgressMonitor monitor)
-			throws CoreException {
+    /**
+     * Build or re-build the project.  This will check all modified Joe-E
+     * source files (and any other files that depend on the contents of the
+     * changed files) and update the set of compilation errors and warnings
+     * accordingly.
+     * 
+     * Will invoke a full build if the build kind is CLEAN_BUILD or FULL_BUILD,
+     * or if there is no build state established from a previous build.  Will
+     * cause an incremental build the build kind is INCREMENTAL_BUILD or
+     * AUTO_BUILD given a valid delta and a build state established by a prior
+     * build.
+     * 
+     * @param kind  
+     *          the type of build to perform, see static members of 
+     *          the superclass, 
+     *          org.eclipse.core.resources.IncrementalProjectBuilder
+     * @param args
+     *          not needed for this Builder; ignored.
+     * @param monitor
+     *          used for reporting on the progress of the build
+     * 
+     * @return  always null for now
+     *          (TODO: should return project of any out-of-project dependencies)         
+     *          
+     * @throws CoreException
+     *          if a problem arises during the build that cannot be indicated
+     *          by adding an Error marker to a source file being built.
+     */
+    protected IProject[] build(int kind, Map args, IProgressMonitor monitor) 
+        throws CoreException {
+        //TODO: more disciplined debugging?
 		System.out.println("Build request issued.");
 		
 		switch (kind) {
@@ -69,8 +108,6 @@ public class Builder extends IncrementalProjectBuilder {
 		
 		return null;
 	}
-	
-
 
 	/**
 	 * Invoke the Joe-E verifier on a compilation unit and update the markers for Joe-E problems.
@@ -80,7 +117,7 @@ public class Builder extends IncrementalProjectBuilder {
      *  compilation unit
 	 */
 	private Collection<ICompilationUnit> checkAndUpdateProblems(ICompilationUnit icu) 
-            throws JavaModelException {
+            throws CoreException {
 		IFile file = (IFile) icu.getCorrespondingResource();
 		deleteMarkers(file);
 		List<Problem> problems = new LinkedList<Problem>();
@@ -96,63 +133,93 @@ public class Builder extends IncrementalProjectBuilder {
         return recheck;
 	}
 	
-	private void addMarker(IFile file, Problem problem, SourceLocationConverter slc) {
-		try {
-			IMarker marker = file.createMarker(MARKER_TYPE);
-			marker.setAttribute(IMarker.MESSAGE, problem.getMessage());
-			marker.setAttribute(IMarker.SEVERITY, problem.getSeverity());
-			marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_NORMAL);
-			marker.setAttribute(IMarker.LINE_NUMBER, slc.getLine(problem.getStart()));
-			marker.setAttribute(IMarker.CHAR_START, problem.getStart());
-			marker.setAttribute(IMarker.CHAR_END, problem.getEnd());
-			// System.out.println("added marker " + marker.toString());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+    /**
+     * Adds a Problem as a warning or error marker for a file in Eclipse's 
+     * marker framework.
+     * 
+     * @param file 
+     *          the resource to which to add the marker
+     * @param problem 
+     *          the problem to add
+     * @param slc 
+     *          a converter from byte offsets to line numbers that has been
+     *          initialized for the given file
+     */
+	private void addMarker(IFile file, Problem problem, SourceLocationConverter slc) 
+        throws CoreException {
+		IMarker marker = file.createMarker(MARKER_TYPE);
+		marker.setAttribute(IMarker.MESSAGE, problem.getMessage());
+		marker.setAttribute(IMarker.SEVERITY, problem.getSeverity());
+		marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_NORMAL);
+		marker.setAttribute(IMarker.LINE_NUMBER, slc.getLine(problem.getStart()));
+		marker.setAttribute(IMarker.CHAR_START, problem.getStart());
+		marker.setAttribute(IMarker.CHAR_END, problem.getEnd());
+		// System.out.println("added marker " + marker.toString());
 	}
 
+    /**
+     * Removes all Joe-E created markers from a file
+     *  
+     * @param file
+     *          the file from which to remove markers
+     */
 	private void deleteMarkers(IFile file) {
 		try {
 			file.deleteMarkers(MARKER_TYPE, false, IResource.DEPTH_ZERO);
 		} catch (CoreException ce) {
+            ce.printStackTrace(); // TODO: classier debug here
+            // No need to rethrow an exception here: failure to delete a marker
+            // can never result in an invalid build proceeding without error.
 		}
 	}
 
 	/**
-	 * Rebuild everything in the project.
-	 * TODO: Is this the correct semantics for "FULL_BUILD"?  "CLEAN_BUILD"?
+	 * Rebuild everything in the project.  Currently does not support 
+     * cancellation of the build.  
+     * 
+     * @param monitor
+     *          progress monitor to report progress of the build.
 	 */
-	protected void fullBuild(final IProgressMonitor monitor) 
-		throws CoreException {
+	protected void fullBuild(IProgressMonitor monitor) throws CoreException {
 		state = new BuildState(); // clear build state
         IJavaProject jp = JavaCore.create(getProject());
+        
         taming = new Taming(new java.io.File("/home/adrian/taming"), jp);
         verifier = new Verifier(jp, state, taming);
-		
-		try {			
-		    ResourceVisitor rv = new ResourceVisitor();
-            getProject().accept(rv);
-            Set<ICompilationUnit> inBuild = rv.inBuild; 
-            Queue<ICompilationUnit> workQueue = new LinkedList<ICompilationUnit>(inBuild);
+	
+        ResourceVisitor rv = new ResourceVisitor();
+        getProject().accept(rv);
+        Set<ICompilationUnit> inBuild = rv.inBuild; 
+        Queue<ICompilationUnit> workQueue = new LinkedList<ICompilationUnit>(inBuild);
             
-            while (!workQueue.isEmpty()) {
-                ICompilationUnit current = workQueue.remove();
-                // for full build, ignore dependency-induced build requests --
-                // we should have everything
-                checkAndUpdateProblems(current);
-            }
+        monitor.beginTask("Joe-E full build", workQueue.size());
             
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}
+        while (!workQueue.isEmpty()) {
+            ICompilationUnit current = workQueue.remove();
+            // for full build, ignore dependency-induced build requests --
+            // everything should already be included.
+            checkAndUpdateProblems(current);
+            monitor.worked(1);
+        }
+        
+        monitor.done();       
 	}
     
     /**
-     * Used by full build
+     * Visitor that extracts the set of all ICompilationUnits from an 
+     * IResourceDelta.  Iterates through the resources in the project, 
+     * converting all Java source file resources into compilation units.
      */
     class ResourceVisitor implements IResourceVisitor {
         Set<ICompilationUnit> inBuild = new HashSet<ICompilationUnit>();
         
+        /**
+         * Visit method to add compilation units for Java files encountered.
+         * @param resource
+         *          The resource to visit
+         * @return
+         *          true in order to visit children of this resource
+         */
         public boolean visit(IResource resource) {
             if (resource instanceof IFile) {
                 IFile file = (IFile) resource;
@@ -167,48 +234,78 @@ public class Builder extends IncrementalProjectBuilder {
         }
     }
     
-    
+    /**
+     * Rebuild all compilation units in the specified delta, as well as files 
+     * determined to need rebuilding after these compilation units are built.
+     * Currently does not support cancellation of the build.  
+     * 
+     * @param delta
+     *          The delta specifying which compilation units have changed or
+     *          are newly created and require verification.
+     * @param monitor
+     *          progress monitor to report progress of the build.
+     * @throws CoreException
+     *          when an error occurs that prevents invocation of the verifier
+     *          or a problem is discovered for which a Marker cannot be
+     *          created.
+     */
 	protected void incrementalBuild(IResourceDelta delta, IProgressMonitor monitor)
-		throws CoreException {
- 
-        try {           
-            DeltaVisitor dv = new DeltaVisitor();
-            delta.accept(dv);
-            Set<ICompilationUnit> inBuild = dv.inBuild; 
-            Queue<ICompilationUnit> workQueue = new LinkedList<ICompilationUnit>(inBuild);
+        throws CoreException {     
+        DeltaVisitor dv = new DeltaVisitor();
+        delta.accept(dv);
+        Set<ICompilationUnit> inBuild = dv.inBuild;
+        Queue<ICompilationUnit> workQueue = new LinkedList<ICompilationUnit>(inBuild);
             
-            while (!workQueue.isEmpty()) {
-                ICompilationUnit current = workQueue.remove();
-                // additional units to build
-                Collection<ICompilationUnit> additional = checkAndUpdateProblems(current);
-                for (ICompilationUnit i : additional) {
-                    // add to build and to work queue if it's not already part of the build
-                    if (inBuild.add(i)) {
-                        workQueue.add(i);
-                    }
+        int fewestTasksRemaining = inBuild.size();
+        monitor.beginTask("Joe-E incremental build", fewestTasksRemaining);
+            
+        while (!workQueue.isEmpty()) {
+            ICompilationUnit current = workQueue.remove();
+            // additional units to build
+            Collection<ICompilationUnit> additional = checkAndUpdateProblems(current);
+            for (ICompilationUnit i : additional) {
+                // add to build and to work queue if it's not already part of the build
+                if (inBuild.add(i)) {
+                    workQueue.add(i);
                 }
-            } 
-        } catch (CoreException e) {
-            e.printStackTrace();
-        }		
+            }
+            // Report progress if we reach a new low-water-mark of
+            // compilation units remaining to check.  (This will always be
+            // a decrease of 1).  Could be made more accurate; incremental
+            // builds are likely to be fast anyway, though.
+            if (workQueue.size() < fewestTasksRemaining) {
+                monitor.worked(1);
+                --fewestTasksRemaining;
+            }
+        } 
+        monitor.done();		
 	}
     
     /**
-     * Visitor that extracts a set of changed ICompilationUnits from 
-     * an IResourceDelta
+     * Visitor that extracts the set of changed ICompilationUnits from an 
+     * IResourceDelta.  Iterates through the resources in the delta, converting
+     * Java source file resources into compilation units.
      */
     class DeltaVisitor implements IResourceDeltaVisitor {
         final Set<ICompilationUnit> inBuild = new HashSet<ICompilationUnit>();
               
+        /**
+         * Visit method to add compilation units for Java files encountered.
+         * @param delta
+         *          The delta to visit
+         * @return
+         *          true in order to visit children of this delta
+         */
         public boolean visit(IResourceDelta delta) throws CoreException {
             System.out.println("Delta! " + delta.toString());
             IResource resource = delta.getResource();
             
             if (delta.getKind() == IResourceDelta.REMOVED) {
                 // handle removed resource
-                // TODO: need to remove markers?? apparently not?
-                // NOT reverifying if an interesting class has been removed; 
-            	//  compilation will fail anyway
+                // TODO: I'm assuming there is no reason to remove existing
+                //    markers here.  This could conceivably be a memory leak.
+                // NOT reverifying anything if an interesting class has been
+                //    removed; compilation will fail anyway
             } else {  // ADDED or CHANGED 
                 if (resource instanceof IFile) {
                     IFile file = (IFile) resource;
@@ -226,8 +323,8 @@ public class Builder extends IncrementalProjectBuilder {
     
     
 	/**
-	 * Computes line numbers for all characters in a file.  Lines are numbered
-	 * starting with 1.
+	 * Class for computing line numbers for all characters in a file.  Lines
+     * are numbered starting with 1.
 	 */
 	private class SourceLocationConverter{
 		Integer[] lineStarts; 
@@ -252,6 +349,7 @@ public class Builder extends IncrementalProjectBuilder {
 					nextByte = contents.read();
 				}
 			} catch (Exception e) {
+                //TODO: how to handle this: consider safety
 				e.printStackTrace();
 			}
 			

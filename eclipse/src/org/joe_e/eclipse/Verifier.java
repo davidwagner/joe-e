@@ -17,48 +17,52 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.HashSet;
 
+/**
+ * This class contains the actual checks performed by the Joe-E verifier.
+ * The builder creates an instance of this class and gives it references to
+ * a Java project and the associated build state and taming database.
+ * It then invokes the checkICU() method of this class, specifying a
+ * compilation unit to be checked.
+ *
+ * A new instance of this class is created on a clean build, in order to
+ * associate it with a new build state.
+ */
 public class Verifier {
     final IJavaProject project;
     final Taming taming;
     final BuildState state;
     
-    
+    /**
+     * Create a new verifier object associated with a specific project.  The
+     * verifier does not maintain persistent state of its own aside from 
+     * pointers to other state objects.
+     * 
+     * @param project 
+     *              the Java project for the verifier to operate on
+     * @param state 
+     *              the build state for the specified project
+     * @param taming
+     *              the taming database to use
+     * @throws JavaModelException
+     */
     Verifier(IJavaProject project, BuildState state, Taming taming) throws JavaModelException {
         this.state = state;
         this.project = project;
         this.taming = taming;
     }
-    
-	/*
-	 * Run the Joe-E verifier on an IFile
-	 * 
-	 * @param icu
-	 *            ICompilationUnit on which to run the verifier
-	 * @return a List of Problems (Joe-E verification errors) encountered
-	 *
-	static List<Problem> checkJavaFile(IFile resource) {
-		try {
-			System.out.println("Joe-E Verifier examining " + resource.getName());
-			IJavaElement element = JavaCore.create(resource);
-			
-			return checkICU((ICompilationUnit) element);
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-			// TODO: fail to verify here - an error has occured!
-			return new LinkedList<Problem>();
-		}	
-	}		
-	*/
+  
 
 	/**
-	 * Run the Joe-E verifier on an ICompilationUnit
+	 * Run the Joe-E verifier on an ICompilationUnit.  Problems encountered are
+     * appended to the supplied list of problems.
 	 * 
 	 * @param icu
 	 *            ICompilationUnit on which to run the verifier
-	 * @return a List of Problems (Joe-E verification errors) encountered
-	 */
+     * @param problems
+     *            A List of Problems (Joe-E verification errors) to which to 
+     *            append Problems encountered
+	 * @return a Collection of ICompilationUnits referenced by icu
+   	 */
 	Collection<ICompilationUnit> checkICU(ICompilationUnit icu, List<Problem> problems)
 	{
            
@@ -111,17 +115,26 @@ public class Verifier {
 			VerifierASTVisitor vav = new VerifierASTVisitor(icu, problems);
 			parse.accept(vav);
 		}	
-		catch (Exception e)
+		catch (Exception e) // TODO: !!!
 		{
 			e.printStackTrace();
 		}
 		
-		System.out.println(problems);
+		System.out.println(problems); // TODO: fix ugly debug
 		return dependents;
 	}
 
-	/*
+	/**
+     * Verify an IType, updating the list of dependents and problems.
      * 
+     * @param type
+     *          the type to verify
+     * @param dependents
+     *          a set of dependent ICompilationUnits to update with additional 
+     *          dependencies discovered while traversing this type
+     * @param problems
+     *          a set of Problems (verification errors) to update with additional
+     *          problems discovered while traversing this type
 	 */
 	void checkIType(IType type, Set<ICompilationUnit> dependents,
                     List<Problem> problems)
@@ -264,8 +277,10 @@ public class Verifier {
 	 * Find the set of classes all of whose fields must satisfy a given marker interface
 	 * Classes already declared to implement the marker interface are not returned.
 	 * 
-	 * @param type the type at which to start
-	 * @param mi the marker interface whose implementors to skip
+	 * @param type 
+     *              the type at which to start
+	 * @param mi 
+     *              the marker interface whose implementors to skip
 	 * @return the set of classes found
 	 * @throws JavaModelException
 	 */
@@ -314,10 +329,14 @@ public class Verifier {
 	 * Verify that a class's explicit instance fields are final and honorarily implement the
 	 * specified marker interface
 	 * 
-	 * @param type the type whose instance fields to check
-	 * @param mi the marker interface to check implementation of
-	 * @param candidate the type for which to report Problems
-	 * @param problems the list to which to append problems
+	 * @param type 
+     *              the type whose instance fields to check
+	 * @param mi 
+     *              the marker interface to check implementation of
+	 * @param candidate 
+     *              the type for which to report Problems
+	 * @param problems 
+     *              the list to which to append problems
 	 * @throws JavaModelException
 	 */
 	void verifyFieldsAre(IType type, IType mi, IType candidate,
@@ -403,7 +422,16 @@ public class Verifier {
 		final List<Problem> problems; 
         final Queue<BodyDeclaration> codeContext;
         
-       
+        /**
+         * Create a visitor for a specified compilation unit that appends Joe-E
+         * verification errors to a specified list of problems.
+         * 
+         * @param icu
+         *              the compilation unit to analyze
+         * @param problems
+         *              a list of problems to append Joe-E verification errors
+         *              to
+         */
         VerifierASTVisitor(ICompilationUnit icu, List<Problem> problems)
 		{
 			// System.out.println("VAV init");
@@ -412,15 +440,33 @@ public class Verifier {
             this.codeContext = new LinkedList<BodyDeclaration>();
 		}
         
-   
-		
+        /**
+         * Check a field access.  Ensure that the field being accessed is
+         * either present in source code, or permitted by the taming database.
+         * 
+         * @param fa
+         *              the field access to check
+         * @return
+         *              true to visit children of this node
+         */
         public boolean visit(FieldAccess fa) {
             IVariableBinding ivb = fa.resolveFieldBinding();
-            checkFieldBinding(fa, ivb);
+            checkFieldBinding(ivb, fa);
             return true;
         }
         
-        private void checkFieldBinding(ASTNode source, IVariableBinding fieldBinding) {
+        /**
+         * Helper method to check a field binding, resolved from a field access
+         * expression or a qualified name.  Ensure that the field is either 
+         * present in source code or permitted by the taming database.
+         * 
+         * @param fieldBinding
+         *              the field binding to check
+         * @param source
+         *              the AST node in the program source that resolves to
+         *              this binding
+         */
+        private void checkFieldBinding(IVariableBinding fieldBinding, ASTNode source) {
             ITypeBinding classBinding = fieldBinding.getDeclaringClass();
             // "The field length of an array type has no declaring class."
             // It appears to return null.  It needs to be special-cased here; 
@@ -446,19 +492,40 @@ public class Verifier {
             }
         }
         
+        /** 
+         * Check a qualified name.  If the name corresponds to a field, ensure
+         * that the field being accessed is either present in source code, or
+         * permitted by the taming database.
+         * 
+         * @param qn
+         *              the qualified name to check
+         * @return
+         *              true to visit children of this node
+         */
         public boolean visit(QualifiedName qn) {
             IBinding ib = qn.resolveBinding();
             if (ib instanceof IVariableBinding)
             {
                 IVariableBinding ivb = (IVariableBinding) ib;
                 assert(ivb.isField());
-                checkFieldBinding(qn, ivb);
+                checkFieldBinding(ivb, qn);
             } else {
                 assert (ib instanceof ITypeBinding || ib instanceof IPackageBinding);
             }
             return true;
         }
         
+        /**
+         * Check a class instance creation.  If we are in a constructor context
+         * (see inConstructorContext()), then if the object being constructed
+         * is of a (transitively) inner class of the current class, flag an
+         * error: it may be able to see this class' partially initialized state.
+         * 
+         * @param cic
+         *              the ClassInstanceCreation to check
+         * @return
+         *              true to visit children of this node
+         */        
         public boolean visit(ClassInstanceCreation cic) {
             IMethodBinding imb = cic.resolveConstructorBinding();
             
@@ -486,6 +553,15 @@ public class Verifier {
             return true;
         }
         
+        /**
+         * Check a method invocation.  Ensure that the method being called is
+         * either present in source code, or permitted by the taming database.
+         * 
+         * @param mi
+         *              the method invocation to check
+         * @return
+         *              true to visit children of this node
+         */
         public boolean visit(MethodInvocation mi) {
             IMethodBinding imb = mi.resolveMethodBinding();
             ITypeBinding classBinding = imb.getDeclaringClass();
@@ -502,37 +578,63 @@ public class Verifier {
                 
                 if (!taming.isAllowed((IMethod) imb.getJavaElement())) {
                     problems.add(
-                        new Problem("Disabled method " + imb.getName() + " from class "
-                                    + classType.getElementName() + " called.",
+                        new Problem("Disabled method " + imb.getName() +
+                                    " from class " + classType.getElementName()
+                                    + " called.", 
                                     mi.getStartPosition(), mi.getLength()));
                     return true;
                 }
             } 
-            // If we are in constructor or instance initializer, forbid local methods.
+            // If we are in constructor or instance initializer, forbid local
+            // methods.
             IType currentClass = getConstructorContext();
                      
             // check non-static methods called in construction contexts
             if (currentClass != null && !Flags.isStatic(imb.getModifiers())) {
-                // if the method is invoked on the current object (no explicit target
-                // given, this is bad.
+                // if the method is invoked on the current object (no explicit
+                // target given, this is bad.
                 if (mi.getExpression() == null) {
-                    problems.add(new Problem("Called local non-static method " + imb.getName() +
-                                             " during instance initialization.",
-                                             mi.getStartPosition(), mi.getLength()));
+                    problems.add(
+                        new Problem("Called local non-static method "
+                                    + imb.getName() 
+                                    + " during instance initialization.",
+                                    mi.getStartPosition(), mi.getLength()));
                 }
             }
             return true;
         }
         
+        /**
+         * If in a constructor context, i.e. at a program point in which the
+         * current object may be incompletelly initialized, get the current
+         * class.
+         * 
+         * @return
+         *              null if not in a constructor context, the type of the
+         *              current class if in a constructor context
+         */
         IType getConstructorContext() {
             if (inConstructorContext()) {
                 BodyDeclaration bd = codeContext.peek();
-                return (IType) ((AbstractTypeDeclaration) bd.getParent()).resolveBinding().getJavaElement();
+                return (IType) 
+                    ((AbstractTypeDeclaration) bd.getParent()).resolveBinding().getJavaElement();
             } else {
                 return null;
             }
         }
         
+        /**
+         * Test whether we are in a constructor context, i.e. at a program
+         * point at which the current object may be incompletelly initialized.
+         * This occurs during the traversal of instance initializers,
+         * constructors, and field declarations.  This makes use of the
+         * codeContext information updated when such nodes are entered and
+         * exited during traversal.
+         *
+         * @return
+         *          true if the traversal is currently within a constructor
+         *          context.
+         */
         boolean inConstructorContext() {
             BodyDeclaration bd = codeContext.peek();
             if (bd instanceof Initializer) {
@@ -550,17 +652,42 @@ public class Verifier {
             }
         }
         
+        /**
+         * Record in the codeContext when we visit an initializer.
+         * 
+         * @param init
+         *              the initializer being traversed
+         * @return
+         *              true to visit children of this node
+         */
         public boolean visit(Initializer init) {
             codeContext.add(init);
             return true;
         }
         
+        /**
+         * Record in the codeContext when we visit a field declaration.
+         * 
+         * @param fd
+         *              the field declaration being traversed
+         * @return
+         *              true to visit children of this node
+         */
         public boolean visit(FieldDeclaration fd) {
             //System.out.println("visit(FieldDeclaration fd) of <" + fd + ">");
             codeContext.add(fd);
             return true;
         }
         
+        /**
+         * Check a method declaration.  Ensure that the method is not native.
+         * Also, record the visiting of the method in the codeContext.
+         * 
+         * @param md
+         *              the method declaration being traversed
+         * @return
+         *              true to visit children of this node
+         */
 		public boolean visit(MethodDeclaration md) {
             //System.out.println("visit(MethodDeclaration bd) of <" + md + ">");
             codeContext.add(md);
@@ -600,9 +727,9 @@ public class Verifier {
         /*
          * endVisit
          * 
-         * If any of these assertions fail, try .equals() instead of ==
-         * I don't see why we'd be given two different versions of the same
-         * object, here, however.
+         * If any of these assertions fail, see if .equals() is required here
+         * instead of ==.  I doubt this will be necessary, as I don't see why
+         * we'd be given two different versions of the same object here.
          */
         public void endVisit(Initializer init) {
             assert(codeContext.peek() == init);
@@ -637,6 +764,16 @@ public class Verifier {
             codeContext.remove();
         }
 
+
+        /**
+         * Check usage of the keyword 'this'.  If we are in a constructor
+         * context, bare use of the 'this' keyword is prohibited.
+         * 
+         * @param te
+         *              the this expression to check
+         * @return
+         *              true to visit children of this node
+         */
         public boolean visit(ThisExpression te) {
             if (inConstructorContext()) {
                 problems.add(new Problem("Possible escapement of 'this' not allowed in "+
@@ -646,6 +783,16 @@ public class Verifier {
             return true;
         }
                 
+        /**
+         * Check an infix expression.  If the expression is an object identity
+         * comparison (== or !=), then ensure that at least one of the operands
+         * is Equatable.
+         * 
+         * @param te
+         *              the infix expression to check
+         * @return
+         *              true to visit children of this node
+         */
         public boolean visit(InfixExpression ie) {
 			if (ie.getOperator() == InfixExpression.Operator.EQUALS ||
 				ie.getOperator() == InfixExpression.Operator.NOT_EQUALS) {
@@ -833,8 +980,6 @@ public class Verifier {
                             + name + ".", fd.getStartPosition(), fd.getLength()));          
                 }
             }
-            
         */  
-  
     }
 }

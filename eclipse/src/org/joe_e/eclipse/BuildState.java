@@ -41,7 +41,7 @@ class BuildState {
 	/**
 	 * Resets all outgoing dependencies for a compilation unit, and assigns a new
 	 * ICUState to the unit.  Called before calculating a new set of dependencies
-	 * for a new build.conventions java libraries
+	 * for a new build.
 	 */
 	void prebuild(ICompilationUnit toRebuild) {
 		ICUState oldState = icuStates.get(toRebuild);
@@ -104,7 +104,20 @@ class BuildState {
 		}
 	}	
 	
-	Collection<ICompilationUnit> updateTags(IType type, int newFlags) {
+    /**
+     * Compute the set of compilation units that must be rebuilt given a new
+     * set of tags for a newly-rebuilt type.
+     * 
+     * @param type
+     *              the type that has just been rebuilt.
+     * @param newTags
+     *              the tags that have been computed for the type, reflecting
+     *              its new version
+     * @return
+     *              the set of compilation units that must be rebuilt in
+     *              response to the new tags
+     */
+	Collection<ICompilationUnit> updateTags(IType type, int newTags) {
 		ITypeState typeState = classStates.get(type);
 
 		// if state node doesn't already exist, create a new one with flags
@@ -114,8 +127,8 @@ class BuildState {
 		}
 		
 		int oldTags = typeState.tags;
-		typeState.tags = newFlags;
-		if (oldTags < 0 || newFlags == oldTags) { // Flags unchanged
+		typeState.tags = newTags;
+		if (oldTags < 0 || newTags == oldTags) { // Flags unchanged
 			// Only rebuild deep dependents
 			return typeState.deepDependents;
 		} else { 
