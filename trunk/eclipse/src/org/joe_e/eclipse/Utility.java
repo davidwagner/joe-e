@@ -60,14 +60,15 @@ public class Utility {
 	    return context.getJavaProject().findType(typePaths[0][0], typePaths[0][1]);
 	}
 	
-	static String stripGenerics(String typeName) 
-	{
-		int loc = typeName.indexOf("<");
-		if (loc < 0) {
-			return typeName;
-		} else {
-			return typeName.substring(0, loc);
-		}
-	}
-
+    /*
+    static String stripGenerics(String typeName) 
+    {
+        int loc = typeName.indexOf("<");
+        if (loc < 0) {
+            return typeName;
+        } else {
+            return typeName.substring(0, loc);
+        }
+    }
+    */
 }

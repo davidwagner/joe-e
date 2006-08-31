@@ -36,7 +36,7 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 					project = (IProject) element;
 				} else if (element instanceof IAdaptable) {
 					project = (IProject) ((IAdaptable) element)
-							.getAdapter(IProject.class);
+                                         .getAdapter(IProject.class);
 				}
 				if (project != null) {
 					toggleNature(project);

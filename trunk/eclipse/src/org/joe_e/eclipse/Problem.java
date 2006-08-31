@@ -37,6 +37,7 @@ public class Problem {
 	public int getSeverity() {
 		return severity;
 	}
+    
 	public int getStart() {
 		return start;
 	}
