@@ -70,7 +70,8 @@ public class Builder extends IncrementalProjectBuilder {
      *          used for reporting on the progress of the build
      * 
      * @return  always null for now
-     *          (TODO: should return project of any out-of-project dependencies)         
+     *          (TODO: should return projects for any out-of-project
+     *                 dependencies)
      *          
      * @throws CoreException
      *          if a problem arises during the build that cannot be indicated
@@ -103,25 +104,30 @@ public class Builder extends IncrementalProjectBuilder {
 		
 		default:
 			// this should never happen: all values enumerated above
-			throw new IllegalArgumentException("Invalid kind of build: " + kind);
+			throw new IllegalArgumentException("Invalid kind of build: "
+                                               + kind);
 		}
 		
 		return null;
 	}
 
 	/**
-	 * Invoke the Joe-E verifier on a compilation unit and update the markers for Joe-E problems.
-	 * (First removes old problems, then runs verifier to generate new problems.)
-	 * @param icu the compilation unit to check
-     * @return additional ICompilationUnits that must be re-verified due to changes in this
-     *  compilation unit
+	 * Invoke the Joe-E verifier on a compilation unit and update the markers
+     * for Joe-E problems. (First removes old problems, then runs verifier to
+     * generate new problems.)
+	 * @param icu 
+     *          the compilation unit to check
+     * @return          
+     *          additional ICompilationUnits that must be re-verified due
+     *          to changes in this compilation unit
 	 */
-	private Collection<ICompilationUnit> checkAndUpdateProblems(ICompilationUnit icu) 
-            throws CoreException {
+	private Collection<ICompilationUnit> 
+            checkAndUpdateProblems(ICompilationUnit icu) throws CoreException {
 		IFile file = (IFile) icu.getCorrespondingResource();
 		deleteMarkers(file);
 		List<Problem> problems = new LinkedList<Problem>();
-        Collection<ICompilationUnit> recheck = verifier.checkICU(icu, problems);
+        Collection<ICompilationUnit> recheck = 
+            verifier.checkICU(icu, problems);
 		System.out.println("checkAndAddProblems: " + problems);
 		//TODO: use CompilationUnit's built-in line number finder?
 		SourceLocationConverter slc = new SourceLocationConverter(file);
@@ -145,13 +151,14 @@ public class Builder extends IncrementalProjectBuilder {
      *          a converter from byte offsets to line numbers that has been
      *          initialized for the given file
      */
-	private void addMarker(IFile file, Problem problem, SourceLocationConverter slc) 
-        throws CoreException {
+	private void addMarker(IFile file, Problem problem, 
+                           SourceLocationConverter slc) throws CoreException {
 		IMarker marker = file.createMarker(MARKER_TYPE);
 		marker.setAttribute(IMarker.MESSAGE, problem.getMessage());
 		marker.setAttribute(IMarker.SEVERITY, problem.getSeverity());
 		marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_NORMAL);
-		marker.setAttribute(IMarker.LINE_NUMBER, slc.getLine(problem.getStart()));
+		marker.setAttribute(IMarker.LINE_NUMBER, 
+                            slc.getLine(problem.getStart()));
 		marker.setAttribute(IMarker.CHAR_START, problem.getStart());
 		marker.setAttribute(IMarker.CHAR_END, problem.getEnd());
 		// System.out.println("added marker " + marker.toString());
@@ -190,7 +197,8 @@ public class Builder extends IncrementalProjectBuilder {
         ResourceVisitor rv = new ResourceVisitor();
         getProject().accept(rv);
         Set<ICompilationUnit> inBuild = rv.inBuild; 
-        Queue<ICompilationUnit> workQueue = new LinkedList<ICompilationUnit>(inBuild);
+        Queue<ICompilationUnit> workQueue = 
+            new LinkedList<ICompilationUnit>(inBuild);
             
         monitor.beginTask("Joe-E full build", workQueue.size());
             
@@ -224,7 +232,8 @@ public class Builder extends IncrementalProjectBuilder {
             if (resource instanceof IFile) {
                 IFile file = (IFile) resource;
                 if (file.getName().endsWith(".java")) {
-                    ICompilationUnit icu = (ICompilationUnit) JavaCore.create(file);
+                    ICompilationUnit icu = 
+                        (ICompilationUnit) JavaCore.create(file);
                     inBuild.add(icu);
                 }
             }
@@ -249,12 +258,14 @@ public class Builder extends IncrementalProjectBuilder {
      *          or a problem is discovered for which a Marker cannot be
      *          created.
      */
-	protected void incrementalBuild(IResourceDelta delta, IProgressMonitor monitor)
+	protected void incrementalBuild(IResourceDelta delta, 
+                                    IProgressMonitor monitor)
         throws CoreException {     
         DeltaVisitor dv = new DeltaVisitor();
         delta.accept(dv);
         Set<ICompilationUnit> inBuild = dv.inBuild;
-        Queue<ICompilationUnit> workQueue = new LinkedList<ICompilationUnit>(inBuild);
+        Queue<ICompilationUnit> workQueue = 
+            new LinkedList<ICompilationUnit>(inBuild);
             
         int fewestTasksRemaining = inBuild.size();
         monitor.beginTask("Joe-E incremental build", fewestTasksRemaining);
@@ -262,9 +273,11 @@ public class Builder extends IncrementalProjectBuilder {
         while (!workQueue.isEmpty()) {
             ICompilationUnit current = workQueue.remove();
             // additional units to build
-            Collection<ICompilationUnit> additional = checkAndUpdateProblems(current);
+            Collection<ICompilationUnit> additional = 
+                checkAndUpdateProblems(current);
             for (ICompilationUnit i : additional) {
-                // add to build and to work queue if it's not already part of the build
+                // add to build and to work queue if it's not already part of
+                // the build
                 if (inBuild.add(i)) {
                     workQueue.add(i);
                 }
@@ -278,7 +291,7 @@ public class Builder extends IncrementalProjectBuilder {
                 --fewestTasksRemaining;
             }
         } 
-        monitor.done();		
+        monitor.done();
 	}
     
     /**
@@ -310,7 +323,8 @@ public class Builder extends IncrementalProjectBuilder {
                 if (resource instanceof IFile) {
                     IFile file = (IFile) resource;
                     if (file.getName().endsWith(".java")) {
-                        ICompilationUnit icu = (ICompilationUnit) JavaCore.create(file);
+                        ICompilationUnit icu = 
+                            (ICompilationUnit) JavaCore.create(file);
                         inBuild.add(icu);
                     }
                 }
@@ -322,37 +336,39 @@ public class Builder extends IncrementalProjectBuilder {
     }
     
     
-	/**
-	 * Class for computing line numbers for all characters in a file.  Lines
-     * are numbered starting with 1.
-	 */
-	private class SourceLocationConverter{
-		Integer[] lineStarts; 
+    /**
+     * Class for computing line numbers for all characters in a file.  Lines
+	 * are numbered starting with 1.
+     */
+    private class SourceLocationConverter{
+	    Integer[] lineStarts; 
 		
 		/**
 		 * Create a source location converter for the specified file.  The
 		 * constructor reads the file and records the location of newlines
 		 * to make calls to newLine() fast.
-		 * 
-		 * @param file the file for which to compute line numbers
-		 */
-		SourceLocationConverter(IFile file) {
-			List<Integer> newLines = new LinkedList<Integer>();
-			newLines.add(0);
-			try {
-				java.io.InputStream contents = file.getContents();
-				
-				int nextByte = contents.read();
-				for (int i = 0; nextByte >= 0; ++i) {
-					if (nextByte == '\n')
-						newLines.add(i);
+         * 
+         * @param file the file for which to compute line numbers
+         */
+		SourceLocationConverter(IFile file) throws CoreException {
+		    List<Integer> newLines = new LinkedList<Integer>();
+		    newLines.add(0);
+		    try {
+		        java.io.InputStream contents = file.getContents();
+		        
+		        int nextByte = contents.read();
+		        for (int i = 0; nextByte >= 0; ++i) {
+		            if (nextByte == '\n') {
+		                newLines.add(i);
+		            }
 					nextByte = contents.read();
 				}
-			} catch (Exception e) {
-                //TODO: how to handle this: consider safety
-				e.printStackTrace();
+			} catch (java.io.IOException e) {
+                // Wrap the IOException in a CoreException.
+                throw new JavaModelException
+                             (e, IJavaModelStatusConstants.IO_EXCEPTION);
 			}
-			
+
 			lineStarts = newLines.toArray(new Integer[]{});
 		}
 		
