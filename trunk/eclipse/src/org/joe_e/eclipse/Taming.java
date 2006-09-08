@@ -28,6 +28,7 @@ public class Taming {
     final IType SELFLESS;
     final IType IMMUTABLE;
     final IType POWERLESS;
+    final IType EQUATABLE;
     final IType TOKEN;
     final IType ENUM;
          
@@ -36,6 +37,8 @@ public class Taming {
         final Set<IField> allowedFields;
         final Set<IType> deemings;
         final Set<IType> honoraries;
+        
+        // TODO: static file-contents based approach, rather than reading in a config file here?
         
         Entry(IType type, File f) {
             allowedMethods = new HashSet<IMethod>();
@@ -91,18 +94,17 @@ public class Taming {
         
         void parseMarkerInterfaces (String[] line, Set<IType> dest) {
             for (String s : line) {
-                if (s.equals(SELFLESS.getElementName())) {
-                    dest.add(SELFLESS);
-                } else if (s.equals(IMMUTABLE.getElementName())) {
+                if (s.equals(IMMUTABLE.getElementName())) {
                     dest.add(IMMUTABLE);
                 } else if (s.equals(POWERLESS.getElementName())) {
                     dest.add(POWERLESS);
+                } else if (s.equals(EQUATABLE.getElementName())) {
+                    dest.add(EQUATABLE);
                 } else {
                     System.out.println("PARSE ERROR! Unrecognized marker interface " + s);
                 }
             }
-        }
-        
+        }      
     }
     
     Taming(File persistentDB, IJavaProject project) throws JavaModelException {
@@ -112,6 +114,7 @@ public class Taming {
         SELFLESS = project.findType("org.joe_e.Selfless");
         IMMUTABLE = project.findType("org.joe_e.Immutable");
         POWERLESS = project.findType("org.joe_e.Powerless");
+        EQUATABLE = project.findType("org.joe_e.Equatable");
         TOKEN = project.findType("org.joe_e.Token");
         ENUM = project.findType("java.lang.Enum");  
         

@@ -47,7 +47,8 @@ public class Utility {
 				return null; // this shouldn't happen
 				
 			} else { // For now just return the FIRST declared type bound, if any
-					 // TODO: THIS IS WRONG, FIX!
+					 // TODO: THIS IS WRONG (not because we want to handle multiple
+                     // type bounds, but because bounds can't be trusted!).  FIX!
 				String[] bounds = itp.getBounds();
 				if (bounds.length == 0) {
 					typePaths = context.resolveType("java.lang.Object");

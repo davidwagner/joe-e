@@ -70,8 +70,10 @@ public class Verifier {
 		state.prebuild(icu);
         Set<ICompilationUnit> dependents = new HashSet<ICompilationUnit>();
 		
-        try {
-			// Check for package membership
+        /*
+         * Checks to ensure org.joe_e package is not used in source files.
+         * Disabled for now.
+         *
 			IPackageDeclaration[] pkg = icu.getPackageDeclarations();
 			if (pkg.length > 1) {
 				// File shouldn't compile anyway...
@@ -93,9 +95,17 @@ public class Verifier {
 				problems.add(new Problem("Bad package name.  Nice try.",
 										 pkg[0].getSourceRange()));
 			}
+            
+        */
 			
-			// Types defined in this file
-			IType[] itypes = icu.getAllTypes();
+			
+        try {
+            // Types defined in this file
+			IType[] itypes = icu.getAllTypes();  // throws JavaModelException
+			
+            // TODO: lack of local types (see doc of icu.getAllTypes()):
+            // possibly a big soundness hole!!
+            
 			System.out.println("Found " + itypes.length + " types.");
 			for(int i = 0; i < itypes.length; ++i)
 			{
@@ -104,6 +114,9 @@ public class Verifier {
 				System.out.println("Analyzing " + type.getFullyQualifiedName() + ".");
 			
 				checkIType(type, dependents, problems);
+                
+                
+                System.out.println("Done with " + type.getFullyQualifiedName() + ".");
 			}
 			
 			// checks that require ugly DOM hacking directly
@@ -114,13 +127,18 @@ public class Verifier {
 			ASTNode parse = parser.createAST(null);
 			VerifierASTVisitor vav = new VerifierASTVisitor(icu, problems);
 			parse.accept(vav);
-		}	
-		catch (Exception e) // TODO: !!!
-		{
-			e.printStackTrace();
+		} catch (JavaModelException jme) { 
+            jme.printStackTrace();  // TODO: Fix ugly debug.
+			problems.add(new Problem("Analysis of file failed due to bug or " +
+                                     "I/O error. (Unhandled exception)", 0, 0));
+        } catch (Exception e) {
+            System.out.println("UNEXPECTED EXCEPTION ??!!!");
+            e.printStackTrace();
+            problems.add(new Problem("Analysis of file failed due to bug or " +
+                    "I/O error. (unexpected exception)", 0, 0));
 		}
 		
-		System.out.println(problems); // TODO: fix ugly debug
+		//System.out.println(problems); 
 		return dependents;
 	}
 
@@ -137,116 +155,111 @@ public class Verifier {
      *          problems discovered while traversing this type
 	 */
 	void checkIType(IType type, Set<ICompilationUnit> dependents,
-                    List<Problem> problems)
+                    List<Problem> problems) throws JavaModelException
 	{	
-        try {
-            //TODO: use progress monitor?
+        //TODO: use progress monitor?
         
-            ITypeHierarchy sth = type.newSupertypeHierarchy(null);
+        ITypeHierarchy sth = type.newSupertypeHierarchy(null);
         
-            // Marker interfaces here = implements in BASE type system
-            boolean isSelfless = sth.contains(taming.SELFLESS);
-            boolean isImmutable = sth.contains(taming.IMMUTABLE);
-            boolean isPowerless = sth.contains(taming.POWERLESS);
-            boolean isEquatable = sth.contains(taming.ENUM) ||
-                sth.contains(taming.TOKEN); //TODO: change if MI is added for this
+        // Marker interfaces here = implements in BASE type system
+        // boolean isSelfless = sth.contains(taming.SELFLESS);
+        boolean isImmutable = sth.contains(taming.IMMUTABLE);
+        boolean isPowerless = sth.contains(taming.POWERLESS);
+        boolean isEquatable = sth.contains(taming.EQUATABLE);
+        // TODO: special handling for enums to avoid needing to declare
+        // implements Powerless, Equatable for all of them?
         
-            int tags = isSelfless ? BuildState.IMPL_SELFLESS  : 0;
-            tags |=   isImmutable ? BuildState.IMPL_IMMUTABLE : 0;
-            tags |=   isPowerless ? BuildState.IMPL_POWERLESS : 0;
-            tags |=   isEquatable ? BuildState.IS_EQUATABLE   : 0;    
+        // int tags = isSelfless ? BuildState.IMPL_SELFLESS  : 0;
+        int tags = isImmutable ? BuildState.IMPL_IMMUTABLE : 0;
+        tags |=   isPowerless ? BuildState.IMPL_POWERLESS : 0;
+        tags |=   isEquatable ? BuildState.IS_EQUATABLE   : 0;    
         
-            // update flags and add dependents
-            dependents.addAll(state.updateTags(type, tags));
+        // update flags and add dependents
+        dependents.addAll(state.updateTags(type, tags));
         
-            // I don't think these need special handling here. Should test.
-			// Annotations are a special case of interfaces with (I believe)
-			// no additional abilities.
-			// Enumerations are final classes without run-time constructors
-			// in which the enumeration values are implicitly static,
-			// implicitly final fields.
-			
-			// if (type.isAnnotation() || type.isEnum()) {
-			// }
-			
-			// Restrictions on fields.
-			IField[] fields = type.getFields();
-			
-			for (int i = 0; i < fields.length; ++i) {
-				String name = fields[i].getElementName();
-				// System.out.println("Field " + name + ":");
-				int flags = fields[i].getFlags();
-				if (Flags.isStatic(flags)) { 
-					if (Flags.isFinal(flags)) {
-						String fieldTypeSig = fields[i].getTypeSignature();
-						// must be Powerless
-
+        // I don't think these need special handling here. Should test.
+		// Annotations are a special case of interfaces with (I believe)
+		// no additional abilities.
+		// Enumerations are final classes without run-time constructors
+		// in which the enumeration values are implicitly static,
+		// implicitly final fields.
+		
+		// if (type.isAnnotation() || type.isEnum()) {
+		// }
+		
+		// Restrictions on fields.
+		IField[] fields = type.getFields();
+		
+		for (int i = 0; i < fields.length; ++i) {
+			String name = fields[i].getElementName();
+			// System.out.println("Field " + name + ":");
+			int flags = fields[i].getFlags();
+			if (Flags.isStatic(flags)) { 
+				if (Flags.isFinal(flags)) {
+					String fieldTypeSig = fields[i].getTypeSignature();
+					// must be Powerless
 						if (Utility.signatureIsClass(fieldTypeSig)) {
-							IType fieldType = Utility.lookupType(fieldTypeSig, type);
-							state.addFlagDependency(type.getCompilationUnit(), fieldType);
-						}
-						
-						if (taming.implementsOverlay(fieldTypeSig, taming.POWERLESS, type)) {
-							// OKAY
-						} else {
-							problems.add(new Problem("Non-powerless static field " 
-													 + name + ".", 
-													 fields[i].getNameRange()));					
-						}
-					} else {
-						problems.add(new Problem("Non-final static field " + name + ".",
-									 fields[i].getNameRange()));
+						IType fieldType = Utility.lookupType(fieldTypeSig, type);
+						state.addFlagDependency(type.getCompilationUnit(), fieldType);
 					}
-				} 
-			}
-			
-			if (type.isInterface()) {
-				// Nothing more to check. All fields are static final and have
-				// already been verified to be immutable.
-				
-				return;
-			}
-
-			//
-			// Otherwise, it is a "real" class.
-			//
-			
-			String superclass = type.getSuperclassTypeSignature();
-			
-			if (superclass != null) {
-				System.out.println("Superclass " + superclass);
-
-				// See what honoraries superclass has; make sure that all are
-				// implemented by this class.
-				
-				IType supertype = Utility.lookupType(superclass, type);
-                Set<IType> unimp = taming.unimplementedHonoraries(sth);
-                for (IType i : unimp) {
-               		problems.add(
-						new Problem("Honorary interface " + i.getElementName() + 
-							"not inherited from " + supertype.getElementName(), 
-							type.getNameRange()));
+					
+					if (taming.implementsOverlay(fieldTypeSig, taming.POWERLESS, type)) {
+						// OKAY
+					} else {
+						problems.add(new Problem("Non-powerless static field " 
+												 + name + ".", 
+												 fields[i].getNameRange()));					
+					}
+				} else {
+					problems.add(new Problem("Non-final static field " + name + ".",
+								 fields[i].getNameRange()));
 				}
+			} 
+		}
+		
+		if (type.isInterface()) {
+			// Nothing more to check. All fields are static final and have
+			// already been verified to be immutable.
+			
+			return;
+		}
+		//
+		// Otherwise, it is a "real" class.
+		//
+			
+		String superclass = type.getSuperclassTypeSignature();
+		
+		if (superclass != null) {
+			System.out.println("Superclass " + superclass);
+
+			// See what honoraries superclass has; make sure that all are
+			// implemented by this class.
+				
+			IType supertype = Utility.lookupType(superclass, type);
+               Set<IType> unimp = taming.unimplementedHonoraries(sth);
+               for (IType i : unimp) {
+              		problems.add(
+					new Problem("Honorary interface " + i.getElementName() + 
+						"not inherited from " + supertype.getElementName(), 
+						type.getNameRange()));
+			}
+		}
+		
+		if (isPowerless	&& !taming.isDeemed(type, taming.POWERLESS)) {
+			if (sth.contains(taming.TOKEN)) {
+				problems.add(new Problem("Powerless type " + type.getElementName() + 
+						     			 " can't extend Token.", 
+						     			 type.getNameRange()));
 			}
 			
-			if (isPowerless	&& !taming.isDeemed(type, taming.POWERLESS)) {
-				if (sth.contains(taming.TOKEN)) {
-					problems.add(new Problem("Powerless type " + type.getElementName() + 
-							     			 " can't extend Token.", 
-							     			 type.getNameRange()));
-				}
-				
-				verifyFieldsAre(type, taming.POWERLESS, problems);
-				
-			} else if (isImmutable && !taming.isDeemed(type, taming.IMMUTABLE)) {
-				
-				verifyFieldsAre(type, taming.IMMUTABLE, problems);
-			}
-		} catch (JavaModelException jme) {
-			jme.printStackTrace();
+			verifyFieldsAre(type, taming.POWERLESS, problems);
+			
+		} else if (isImmutable && !taming.isDeemed(type, taming.IMMUTABLE)) {
+			
+			verifyFieldsAre(type, taming.IMMUTABLE, problems);
 		}
 	}
-
+    
 	/**
 	 * Verify that all fields (declared, inherited, and lexically visible) of a type are 
 	 * final and implement the specified marker interface in the overlay type system.
@@ -537,12 +550,20 @@ public class Verifier {
                 IJavaElement enclosingType = classType;
                 try {
                     while (enclosingType instanceof IType && !enclosingType.equals(currentClass) 
-                           && !Flags.isStatic(((IType) enclosingType).getFlags())) {                       
+                            && !Flags.isStatic(((IType) enclosingType).getFlags())) {                       
                         enclosingType = enclosingType.getParent();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (JavaModelException jme) {
+                    jme.printStackTrace();  // TODO: Fix ugly debug.
+                    problems.add(
+                        new Problem("Analysis of file incomplete: bug or I/O " +
+                                    "error (unhandled exception) encountered " +
+                                    "analyzing class instance creation " +
+                                    "expression.", cic.getStartPosition(),
+                                    cic.getLength()));
+                    return true;
                 }
+                                
                 if (enclosingType.equals(currentClass)) {
                     problems.add(new Problem("Construction of non-static member class " + 
                                              imb.getName() + " during instance initialization.",
@@ -775,7 +796,7 @@ public class Verifier {
          *              true to visit children of this node
          */
         public boolean visit(ThisExpression te) {
-            if (inConstructorContext()) {
+            if (inConstructorContext() && !(te.getParent() instanceof FieldAccess)) {
                 problems.add(new Problem("Possible escapement of 'this' not allowed in "+
                                          "instance initialization.",
                                          te.getStartPosition(), te.getLength()));
@@ -875,8 +896,13 @@ public class Verifier {
                     state.addFlagDependency(icu, leftType);              
 				}
 				catch (JavaModelException jme) {
-					jme.printStackTrace();
-				}
+                    jme.printStackTrace(); // TODO: prettier debug
+                    problems.add(
+                            new Problem("Analysis of file incomplete: bug or I/O " +
+                                        "error (unhandled exception) encountered " +
+                                        "analyzing infix expression.",
+                                        ie.getStartPosition(), ie.getLength()));
+                }	
 			}
 			return true;
 		}
