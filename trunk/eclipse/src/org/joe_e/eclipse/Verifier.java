@@ -192,7 +192,7 @@ public class Verifier {
 		
 		for (int i = 0; i < fields.length; ++i) {
 			String name = fields[i].getElementName();
-			// System.out.println("Field " + name + ":");
+			System.out.println("Field " + name + ":");
 			int flags = fields[i].getFlags();
 			if (Flags.isStatic(flags)) { 
 				if (Flags.isFinal(flags)) {
@@ -522,8 +522,34 @@ public class Verifier {
                 IVariableBinding ivb = (IVariableBinding) ib;
                 assert(ivb.isField());
                 checkFieldBinding(ivb, qn);
-            } else {
-                assert (ib instanceof ITypeBinding || ib instanceof IPackageBinding);
+            } else if (ib instanceof ITypeBinding) {
+                ITypeBinding itb = (ITypeBinding) ib;
+                // TODO: temporary debugging cruft.
+                if (!itb.isClass()) {
+                    System.out.print("not a class");
+                    if (!itb.isInterface()) {
+                        System.out.print(", not an interface");
+                        if (!itb.isEnum()) {
+                            System.out.print(", not an enum");
+                            assert(itb.isAnnotation());
+                        }
+                    }
+                    System.out.println(".");
+                }
+                
+                if (!itb.isFromSource()) {
+                    IType classType = (IType) itb.getJavaElement();
+                    
+                    // check in taming database  
+                    if (!taming.isTamed(classType)) {
+                        problems.add(
+                            new Problem("Reference to untamed class "
+                                        + classType.getElementName() + ".",
+                                        qn.getStartPosition(), qn.getLength()));
+                    }
+                }                
+            } else {         
+                assert (ib instanceof IPackageBinding);
             }
             return true;
         }
@@ -540,11 +566,30 @@ public class Verifier {
          *              true to visit children of this node
          */        
         public boolean visit(ClassInstanceCreation cic) {
-            IMethodBinding imb = cic.resolveConstructorBinding();
+            IMethodBinding imb = cic.resolveConstructorBinding();    
+            ITypeBinding classBinding = imb.getDeclaringClass();            
+            IType classType = (IType) classBinding.getJavaElement();
+            
+            if (!classBinding.isFromSource()) {
+                // check in taming database  
+                if (!taming.isTamed(classType)) {
+                    problems.add(
+                        new Problem("Creation of instance of untamed class "
+                                    + classType.getElementName() + ".",
+                                    cic.getStartPosition(), cic.getLength()));
+                    return true;
+                }
+                
+                if (!taming.isAllowed((IMethod) imb.getJavaElement())) {
+                    problems.add(
+                        new Problem("Disabled constructor from class " 
+                                    + classType.getElementName() + " called.", 
+                                    cic.getStartPosition(), cic.getLength()));
+                    return true;
+                }
+            }
             
             IType currentClass = getConstructorContext();
-            ITypeBinding classBinding = imb.getDeclaringClass();
-            IType classType = (IType) classBinding.getJavaElement();
             
             if (currentClass != null) {
                 IJavaElement enclosingType = classType;
@@ -819,8 +864,10 @@ public class Verifier {
 				ie.getOperator() == InfixExpression.Operator.NOT_EQUALS) {
 				ITypeBinding leftTB = ie.getLeftOperand().resolveTypeBinding();
 				if (leftTB == null) {
-					System.out.println("ERROR: Left type binding unresolvable: "
-                                       + ie.getLeftOperand().toString());
+                    problems.add(
+                        new Problem("Analysis error: left type binding " + 
+                                    "unresolvable.",
+                                    ie.getStartPosition(), ie.getLength()));
 					return true;
 				}
 				
@@ -831,8 +878,10 @@ public class Verifier {
                 				
 				ITypeBinding rightTB = ie.getRightOperand().resolveTypeBinding();
 				if (rightTB == null) {
-					System.out.println("ERROR: Right type binding unresolvable: "
-                                       + ie.getRightOperand().toString());
+                    problems.add(
+                        new Problem("Analysis error: right type binding " + 
+                                    "unresolvable.",
+                                    ie.getStartPosition(), ie.getLength()));
 					return true;
 				}
 				
@@ -858,8 +907,11 @@ public class Verifier {
 					// Evaluate left type binding
                     IType leftType = (IType) leftTB.getJavaElement();
                     if (leftType == null) {
-                        System.out.println("ERROR: Couldn't find type \"" + leftTB.getQualifiedName()
-                                           + "\" for type binding " + leftTB);
+                        problems.add(
+                            new Problem("Analysis error: couldn't find type " + 
+                                        leftTB.getQualifiedName() + ".",
+                                        ie.getStartPosition(), 
+                                        ie.getLength()));
                         return true;
                     }
                     ITypeHierarchy leftSTH = leftType.newSupertypeHierarchy(null);
@@ -874,14 +926,17 @@ public class Verifier {
                     // Otherwise, evaluate right type binding
 					IType rightType = (IType) rightTB.getJavaElement();
 					if (rightType == null) {
-						System.out.println("ERROR: Couldn't find type \"" + rightTB.getQualifiedName()
-                                           + "\" for type binding " + rightTB); 
-						return true;
+                        problems.add(
+                                new Problem("Analysis error: couldn't find type " + 
+                                            rightTB.getQualifiedName() + ".",
+                                            ie.getStartPosition(), 
+                                            ie.getLength()));
+                        return true;
 					}
 
 					ITypeHierarchy rightSTH = rightType.newSupertypeHierarchy(null);
                     // OK if right side is Equatable
-                    if (leftSTH.contains(taming.ENUM) || leftSTH.contains(taming.TOKEN)) {
+                    if (rightSTH.contains(taming.ENUM) || rightSTH.contains(taming.TOKEN)) {
                         // need to recheck if right side becomes un-equatable
                         state.addFlagDependency(icu, rightType);
                         return true;
