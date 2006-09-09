@@ -34,8 +34,16 @@ public class Utility {
 	 */
 	static IType lookupType(String n1, IType context) throws JavaModelException
 	{
-	    String sourceType = n1.substring(1, n1.length() - 1);
-		// resolveType seems to just ignore type parameters and succeed correctly.
+        int typeEnd = n1.indexOf("<");
+        if (typeEnd < 0) {
+            typeEnd = n1.indexOf(";");
+        }
+        assert (typeEnd > 0);
+        
+        // The type in the source, with any generic type specifier(s) removed
+        String sourceType = n1.substring(1, typeEnd);
+        
+        // resolveType seems to just ignore type parameters and succeed correctly.
 		// Warning: this appears to be undocumented and thus may be brittle!
 		String[][] typePaths = context.resolveType(sourceType);
 		if (typePaths == null) {
