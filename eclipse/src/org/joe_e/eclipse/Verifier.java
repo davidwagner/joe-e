@@ -129,12 +129,12 @@ public class Verifier {
 			parse.accept(vav);
 		} catch (JavaModelException jme) { 
             jme.printStackTrace();  // TODO: Fix ugly debug.
-			problems.add(new Problem("Analysis of file failed due to bug or " +
+			problems.add(new Problem("Analysis of file failed due to BUG IN VERIFIER or " +
                                      "I/O error. (Unhandled exception)", 0, 0));
         } catch (Exception e) {
             System.out.println("UNEXPECTED EXCEPTION ??!!!");
             e.printStackTrace();
-            problems.add(new Problem("Analysis of file failed due to bug or " +
+            problems.add(new Problem("Analysis of file failed due to BUG IN VERIFIER or " +
                     "I/O error. (unexpected exception)", 0, 0));
 		}
 		
@@ -601,11 +601,11 @@ public class Verifier {
                 } catch (JavaModelException jme) {
                     jme.printStackTrace();  // TODO: Fix ugly debug.
                     problems.add(
-                        new Problem("Analysis of file incomplete: bug or I/O " +
-                                    "error (unhandled exception) encountered " +
-                                    "analyzing class instance creation " +
-                                    "expression.", cic.getStartPosition(),
-                                    cic.getLength()));
+                        new Problem("Analysis of file incomplete: BUG IN " + 
+                                    "VERIFIER or I/O error (unhandled " + 
+                                    "exception) encountered analyzing class" +
+                                    "instance creation expression.", 
+                                    cic.getStartPosition(), cic.getLength()));
                     return true;
                 }
                                 
@@ -682,6 +682,7 @@ public class Verifier {
         IType getConstructorContext() {
             if (inConstructorContext()) {
                 BodyDeclaration bd = codeContext.peek();
+                // FIXME: Does not work for constructors of anonymous classes!!!
                 return (IType) 
                     ((AbstractTypeDeclaration) bd.getParent()).resolveBinding().getJavaElement();
             } else {
@@ -953,9 +954,10 @@ public class Verifier {
 				catch (JavaModelException jme) {
                     jme.printStackTrace(); // TODO: prettier debug
                     problems.add(
-                            new Problem("Analysis of file incomplete: bug or I/O " +
-                                        "error (unhandled exception) encountered " +
-                                        "analyzing infix expression.",
+                            new Problem("Analysis of file incomplete: BUG IN " 
+                                        +"VERIFER or I/O error (unhandled " +
+                                        "exception) encountered analyzing " +
+                                        "infix expression.",
                                         ie.getStartPosition(), ie.getLength()));
                 }	
 			}
