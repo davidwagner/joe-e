@@ -7,13 +7,16 @@
 package org.joe_e;
 
 import java.util.Arrays;
-import java.util.Iterator;
 
 /**
  * An immutable array containing elements of an arbitrary type.
+ *
+ * Note: this class implements Serializable in order to avoid preventing
+ * trusted (non-Joe-E) code from serializing it.  The Java Serialization API
+ * is tamed away as unsafe, and thus is not available to Joe-E code.
  */
-public class RecordArray<E> implements Record, Iterable<E> {
-	private final E[] arr;
+public class ConstArray<E> implements Record, Iterable<E>, java.io.Serializable {
+    private final E[] arr;
     
     /**
      * Construct an immutable array with a copy of an existing array as
@@ -21,19 +24,9 @@ public class RecordArray<E> implements Record, Iterable<E> {
      * 
      * @param arr the array to make an unmodifiable duplicate of
      */
-	public RecordArray (E... arr) {
+	public ConstArray (E... arr) {
 		this.arr = arr.clone();
 	}
-    
-    /**
-     * Package-scope back-door constructor for use by subclasses that
-     * override all methods that make use of the field arr.  Nullity of arr is
-     * used to distinguish between instances with which this class must interact
-     * by using the public interface rather than through their arr field.
-     */
-    RecordArray() {
-        arr = null;
-    }
     
     /**
      * Return the element located at a specified position
@@ -72,34 +65,19 @@ public class RecordArray<E> implements Record, Iterable<E> {
      * 
      * @return the iterator over the array
      */
-	public Iterator<E> iterator() {
+	public ArrayIterator<E> iterator() {
 		return new ArrayIterator<E>(this);
 	}
        
     /**
      * Test for equality with another object
      * 
-     * @return true if the other object is a RecordArray with the same
+     * @return true if the other object is a SelflessArray with the same
      * contents as this array
      */
     public boolean equals(Object other) {
-        if (!(other instanceof RecordArray)) {
-            return false;
-        }
-        RecordArray otherArray = (RecordArray) other;
-        if (otherArray.arr == null) {
-            if (arr.length != otherArray.length()) {
-                return false;
-            }
-            for (int i = 0; i < arr.length; ++i) {
-                if (!arr[i].equals(otherArray.get(i))) {
-                    return false;
-                }
-            }
-            return true;
-        } else {
-            return Arrays.equals(arr, otherArray.arr);
-        }
+        return (other instanceof ConstArray &&
+                Arrays.equals(arr, ((ConstArray) other).arr));
     }
 
     /**
@@ -111,24 +89,24 @@ public class RecordArray<E> implements Record, Iterable<E> {
         return Arrays.hashCode(arr);
     }
         
-    /*
-     * Example of an additional method to allow use as an abstraction for sets
-     * or lists . . . should be added to subclasses too, if we want it; otherwise
-     * adding a new element would downgrade them to a RecordArray.
+	/*
+	 * Example of an additional method to allow use as an abstraction for sets
+	 * or lists . . . should be added to subclasses too, if we want it; otherwise
+	 * adding a new element would downgrade them to a ConstArray.
      *  
      * NOT PART OF AN ENDORSED STABLE INTERFACE! ... (yet)
      *  
-     * Return a new RecordArray containing a specified additional element
+     * Return a new SelflessArray containing a specified additional element
      * 
-     * @return a new RecordArray containing a specified additional element
+     * @return a new SelflessArray containing a specified additional element
      */
-	public RecordArray<E> with(E newt) {
+	public ConstArray<E> with(E newt) {
 		Class componentType = arr.getClass().getComponentType();
 		// The following line generates a type-soundness warning.
 		E[] newArr = (E[]) 
 			java.lang.reflect.Array.newInstance(componentType, arr.length + 1);
 		System.arraycopy(arr, 0, newArr, 0, arr.length);
 		newArr[arr.length] = newt;
-		return new RecordArray<E>(newArr);
+		return new ConstArray<E>(newArr);
 	}
 }

@@ -90,8 +90,8 @@ public class CharArray extends DataArray<Character> {
         if (other instanceof CharArray) {
             CharArray otherCharArray = (CharArray) other;
             return Arrays.equals(charArr, otherCharArray.charArr);
-        } else if (other instanceof RecordArray) {
-            RecordArray otherArray = (RecordArray) other;
+        } else if (other instanceof ConstArray) {
+            ConstArray otherArray = (ConstArray) other;
             if (otherArray.length() != charArr.length) {
                 return false;
             }

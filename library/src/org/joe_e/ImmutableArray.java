@@ -10,7 +10,7 @@ package org.joe_e;
  * 
  * @param <E> the element type of objects contained in the array
  */
-public class ImmutableArray<E> extends RecordArray<E> implements Immutable {	
+public class ImmutableArray<E> extends ConstArray<E> implements Immutable {	
     
     /**
      * Construct an immutable array with a copy of an existing array with
