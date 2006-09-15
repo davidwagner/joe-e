@@ -16,7 +16,7 @@ import java.util.Arrays;
  * is tamed away as unsafe, and thus is not available to Joe-E code.
  */
 public class ConstArray<E> implements Record, Iterable<E>, java.io.Serializable {
-    private final E[] arr;
+    final E[] arr;
     
     /**
      * Construct an immutable array with a copy of an existing array as
@@ -88,15 +88,18 @@ public class ConstArray<E> implements Record, Iterable<E>, java.io.Serializable 
     public int hashCode() {
         return Arrays.hashCode(arr);
     }
+    
+    /**
+     * Return a string representation of the array
+     * 
+     * @return a string representation of this array
+     */    
+    public String toString() {
+        return Arrays.toString(arr);
+    }
         
-	/*
-	 * Example of an additional method to allow use as an abstraction for sets
-	 * or lists . . . should be added to subclasses too, if we want it; otherwise
-	 * adding a new element would downgrade them to a ConstArray.
-     *  
-     * NOT PART OF AN ENDORSED STABLE INTERFACE! ... (yet)
-     *  
-     * Return a new SelflessArray containing a specified additional element
+	/**
+	 * Return a new SelflessArray containing a specified additional element
      * 
      * @return a new SelflessArray containing a specified additional element
      */
