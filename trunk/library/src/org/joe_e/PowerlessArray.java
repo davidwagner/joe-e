@@ -40,4 +40,19 @@ public class PowerlessArray<E> extends ImmutableArray<E> implements Powerless {
     PowerlessArray() {
         super();
     }
+    
+    /**
+     * Return a new PowerlessArray containing a specified additional element
+     * 
+     * @return a new PowerlessArray containing a specified additional element
+     */
+    public PowerlessArray<E> with(E newt) {
+        Class componentType = arr.getClass().getComponentType();
+        // The following line generates a type-soundness warning.
+        E[] newArr = (E[]) 
+            java.lang.reflect.Array.newInstance(componentType, arr.length + 1);
+        System.arraycopy(arr, 0, newArr, 0, arr.length);
+        newArr[arr.length] = newt;
+        return new PowerlessArray<E>(newArr);
+    }
 }

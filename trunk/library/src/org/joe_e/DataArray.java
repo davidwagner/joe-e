@@ -40,4 +40,19 @@ public class DataArray<E> extends PowerlessArray<E> implements Data {
     DataArray() {
         super();
     }
+    
+    /**
+     * Return a new DataArray containing a specified additional element
+     * 
+     * @return a new DataArray containing a specified additional element
+     */
+    public DataArray<E> with(E newt) {
+        Class componentType = arr.getClass().getComponentType();
+        // The following line generates a type-soundness warning.
+        E[] newArr = (E[]) 
+            java.lang.reflect.Array.newInstance(componentType, arr.length + 1);
+        System.arraycopy(arr, 0, newArr, 0, arr.length);
+        newArr[arr.length] = newt;
+        return new DataArray<E>(newArr);
+    }
 }

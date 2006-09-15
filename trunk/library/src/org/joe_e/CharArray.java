@@ -121,6 +121,15 @@ public class CharArray extends DataArray<Character> {
     }
     
     /**
+     * Return a string representation of the array
+     * 
+     * @return a string representation of this array
+     */    
+    public String toString() {
+        return Arrays.toString(charArr);
+    }
+    
+    /**
      * Return a mutable Character array copy of the char array
      * 
      * @return a mutable Character array copy of the array
