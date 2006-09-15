@@ -16,7 +16,7 @@ import java.util.NoSuchElementException;
  * @param <E> the element type of the RecordArray being iterated
  */
 class ArrayIterator<E> implements Iterator<E> {
-	private final RecordArray<E> arr;
+	private final ConstArray<E> arr;
 	private int pos;     // the next position to return the contents of
 	private final int length;
 	
@@ -24,7 +24,7 @@ class ArrayIterator<E> implements Iterator<E> {
      * Create an ArrayIterator to iterate over the specified RecordArray
      * @param arr the array to iterate over
      */
-	public ArrayIterator(RecordArray<E> arr) {
+	public ArrayIterator(ConstArray<E> arr) {
 		this.arr = arr;
 		this.pos = 0; 
 		this.length = arr.length();
