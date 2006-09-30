@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 
 public class Taming {
     private final HashMap<IType, Entry> db;
@@ -133,41 +134,32 @@ public class Taming {
     }
 
     /*
-     * Returns whether the class with signature sig implements the marker
+     * Returns whether the type specified by itb implements the marker
      * interface mi.
      * For now assumes that base types implement all marker interfaces
      * and arrays implement none!
-     * @param n1 An Eclipse Signature type
-     * @param mi A marker interface
-     * @param context the context in which to evaluate bindings
+     * @param itb   type binding to check 
+     * @param mi    A marker interface
      * @return true if n1 implements mi in the overlay type system
      */
-    boolean implementsOverlay(String n1, IType mi, IType context)
+    boolean implementsOverlay(ITypeBinding itb, IType mi)
+        throws JavaModelException
     {
-        if (n1.length() == 1) {
+        if (itb.isPrimitive()) {
             return true;
-        } else if (n1.charAt(0) == '[') {
+        } else if (itb.isArray()) {
             return false;
-        } else if (n1.charAt(0) == 'Q') {
-            System.out.println("is called on type " + n1);
-            try {
-                IType t1 = Utility.lookupType(n1, context);
-                if (t1 == null) {
-                    System.out.println("type not found (shouldn't happen -- BUG)");
-                    return false;
-                } else {
-                    return (implementsOverlay(t1, mi));
-                }
-            } catch (JavaModelException jme) {
-                jme.printStackTrace();
-                return false;
-            }
+        } else if (itb.isClass() || itb.isInterface()) {
+            // System.out.println("is called on type " + n1);
+            IType type = (IType) itb.getJavaElement();
+            
+            return implementsOverlay(type, mi);
+        } else if (itb.isTypeVariable()) {
+            return false;
         } else {
-            System.out.println("unknown type kind: " + n1);
-            return false;
+            throw new IllegalArgumentException("unhandled binding type!");
         }
     }
-    
     
     boolean implementsOverlay(IType subtype, IType mi) throws JavaModelException {
         ITypeHierarchy sth = subtype.newSupertypeHierarchy(null);

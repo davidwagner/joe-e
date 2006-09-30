@@ -126,9 +126,12 @@ public class Builder extends IncrementalProjectBuilder {
 		IFile file = (IFile) icu.getCorrespondingResource();
 		deleteMarkers(file);
 		List<Problem> problems = new LinkedList<Problem>();
+        System.out.println("Checking ICompilationUnit " + icu.getElementName());
+        
         Collection<ICompilationUnit> recheck = 
             verifier.checkICU(icu, problems);
-		System.out.println("checkAndAddProblems: " + problems);
+		
+        System.out.println("Problems found: " + problems);
 		//TODO: use CompilationUnit's built-in line number finder?
 		SourceLocationConverter slc = new SourceLocationConverter(file);
 		ListIterator<Problem> i = problems.listIterator();
