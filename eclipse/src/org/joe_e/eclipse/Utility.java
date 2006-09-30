@@ -22,7 +22,7 @@ public class Utility {
 		return sig.charAt(0) == 'Q';
 	}
 	
-	/**
+	/*
 	 * Looks up the IType for a source type
 	 * 
 	 * @param n1 An eclipse Signature string indicating an object type, possibly
@@ -31,7 +31,8 @@ public class Utility {
 	 * @return the type specified by n1, or null if it can't be found.  This can
 	 * 		   occur, for example, if n1 is a generic type specifier
 	 * @throws JavaModelException
-	 */
+	 * @deprecated doesn't work with a local type as context.
+     */
 	static IType lookupType(String n1, IType context) throws JavaModelException
 	{
         int typeEnd = n1.indexOf("<");
@@ -43,9 +44,7 @@ public class Utility {
         // The type in the source, with any generic type specifier(s) removed
         String sourceType = n1.substring(1, typeEnd);
         
-        // resolveType seems to just ignore type parameters and succeed correctly.
-		// Warning: this appears to be undocumented and thus may be brittle!
-		String[][] typePaths = context.resolveType(sourceType);
+  		String[][] typePaths = context.resolveType(sourceType);
 		if (typePaths == null) {
 			// Probably a parameterized type
 			// TODO: This does not correctly handle type parameters that shadow real
@@ -68,7 +67,7 @@ public class Utility {
 
 	    return context.getJavaProject().findType(typePaths[0][0], typePaths[0][1]);
 	}
-	
+    
     /*
     static String stripGenerics(String typeName) 
     {
