@@ -44,7 +44,7 @@
    </extension>
    <extension
          id="JoeEProblem"
-         name="Joe-E Problem Marker"
+         name="Joe-E Problem"
          point="org.eclipse.core.resources.markers">
       <super
             type="org.eclipse.jdt.core.problem">
@@ -68,6 +68,17 @@
             markerSeverity="2"
             markerType="JoeEProblem"
             name="JoeEError"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="org.joe_e.eclipse.Preferences"
+            id="org.joe_e.eclipse.Preferences"
+            name="Joe-E"/>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="org.joe_e.eclipse.PreferenceInitializer"/>
    </extension>
 
 </plugin>
