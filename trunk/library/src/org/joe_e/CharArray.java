@@ -11,6 +11,8 @@ import java.util.Arrays;
  * An immutable array of char.
  */
 public class CharArray extends DataArray<Character> {
+    static final long serialVersionUID = -4016604734433045551L;   
+    
 	private final char[] charArr;
 
 	/**
@@ -143,9 +145,7 @@ public class CharArray extends DataArray<Character> {
 	}  
     
     
-    /*
-     * NOT PART OF AN ENDORSED STABLE INTERFACE! ... (yet)
-     * 
+    /** 
      * Return a new CharArray containing a specified additional char
      * 
      * @return a new CharArray containing a specified additional char
@@ -157,9 +157,7 @@ public class CharArray extends DataArray<Character> {
         return new CharArray(newArr);
     }
     
-    /*
-     * NOT PART OF AN ENDORSED STABLE INTERFACE! ... (yet)
-     * 
+    /**
      * Return a new CharArray containing a specified additional Character
      * 
      * @return a new CharArray containing a specified additional Character

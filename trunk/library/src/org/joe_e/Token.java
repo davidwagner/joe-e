@@ -14,5 +14,5 @@ package org.joe_e;
  * is tamed away as unsafe, and thus is not available to Joe-E code.
  */
 public class Token implements Immutable, Equatable, java.io.Serializable {
-
+    static final long serialVersionUID = -3123734691011752900L;    
 }

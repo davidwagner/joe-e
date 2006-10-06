@@ -11,7 +11,8 @@ package org.joe_e;
  * @param <E> the element type of objects contained in the array
  */
 public class DataArray<E> extends PowerlessArray<E> implements Data {
-
+    static final long serialVersionUID = 7586004987745699549L;
+    
     /**
      * Construct an immutable array with a copy of an existing array with
      * Data element type as backing store.

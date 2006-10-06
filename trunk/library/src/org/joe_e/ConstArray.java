@@ -16,6 +16,8 @@ import java.util.Arrays;
  * is tamed away as unsafe, and thus is not available to Joe-E code.
  */
 public class ConstArray<E> implements Record, Iterable<E>, java.io.Serializable {
+    static final long serialVersionUID = 624781170963430746L;
+    
     final E[] arr;
     
     /**

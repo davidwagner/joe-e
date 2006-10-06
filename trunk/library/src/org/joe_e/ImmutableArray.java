@@ -11,6 +11,7 @@ package org.joe_e;
  * @param <E> the element type of objects contained in the array
  */
 public class ImmutableArray<E> extends ConstArray<E> implements Immutable {	
+    static final long serialVersionUID = -8520643788034479676L;
     
     /**
      * Construct an immutable array with a copy of an existing array with

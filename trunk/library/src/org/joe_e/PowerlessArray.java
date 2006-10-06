@@ -11,6 +11,7 @@ package org.joe_e;
  * @param <E> the element type of objects contained in the array
  */
 public class PowerlessArray<E> extends ImmutableArray<E> implements Powerless {
+    static final long serialVersionUID = -4811836371690594589L;
 
     /**
      * Construct an immutable array with a copy of an existing array with
