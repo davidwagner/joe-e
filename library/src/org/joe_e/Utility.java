@@ -35,7 +35,7 @@ public class Utility {
      * @return true if the first argument is a subtype of the second in the
      *  overlay type system
      */
-    // BUG: Doesn't trace transitive relationships in overlay type system
+    // NOT A BUG: Doesn't trace transitive relationships in overlay type system
     static public boolean isSubtypeOf(Class<?> c1, Class<?> c2) {
         if (c2.isAssignableFrom(c1)) {
             return true;
