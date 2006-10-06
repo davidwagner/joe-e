@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.HashMap;
@@ -19,6 +20,8 @@ import java.util.LinkedList;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.IMethodBinding;
 
 public class Taming {
     private final HashMap<IType, Entry> db;
@@ -26,25 +29,48 @@ public class Taming {
     
     /* Important types used by multiple modules
      */
-    final IType SELFLESS;
     final IType IMMUTABLE;
     final IType POWERLESS;
+    final IType RECORD;
+    final IType DATA;
     final IType EQUATABLE;
     final IType TOKEN;
-    final IType ENUM;
-         
+    // final IType ENUM;
+    
     class Entry {
-        final Set<IMethod> allowedMethods;
-        final Set<IField> allowedFields;
-        final Set<IType> deemings;
         final Set<IType> honoraries;
+        // final Set<IType> deemings;
+        final Set<IField> allowedFields;
+        final Set<IMethod> allowedMethods;
         
         // TODO: static file-contents based approach, rather than reading in a config file here?
+        
+        Entry(Set<IMethod> allowedMethods, Set<IField> allowedFields, 
+              Set<IType> deemings, Set<IType> honoraries) {
+            this.honoraries = honoraries;
+            // this.deemings = deemings;
+            this.allowedFields = allowedFields;
+            this.allowedMethods = allowedMethods;
+        }
+        
+        /*
+        Entry(IMethod[] allowedMethods, IField[] allowedFields, 
+              IType[] deemings, IType[] honoraries) {
+            this.honoraries = new HashSet<IType>();
+            this.honoraries.addAll(Arrays.asList(honoraries));
+            this.allowedFields = new HashSet<IField>();
+            this.allowedFields.addAll(Arrays.asList(allowedFields));
+            this.allowedMethods = new HashSet<IMethod>();
+            this.allowedMethods.addAll(Arrays.asList(allowedMethods));            
+            // this.deemings = new HashSet<IType>();
+            // this.deemings.addAll(Arrays.asList(deemings));
+        }
+        */
         
         Entry(IType type, File f) {
             allowedMethods = new HashSet<IMethod>();
             allowedFields  = new HashSet<IField>();
-            deemings       = new HashSet<IType>();
+            // deemings       = new HashSet<IType>();
             honoraries     = new HashSet<IType>();
             
             try {    
@@ -54,15 +80,20 @@ public class Taming {
                 String[] firstLine = br.readLine().split(" ");
                 parseMarkerInterfaces(firstLine, honoraries);
                 
-                String[] secondLine = br.readLine().split(" ");
-                parseMarkerInterfaces(secondLine, deemings);
+                // String[] secondLine = br.readLine().split(" ");
+                // parseMarkerInterfaces(secondLine, deemings);
                 
                 String nextLine = br.readLine();
                 while (nextLine != null && !nextLine.contains("(")) {
                     // TODO: what happens if this isn't a real field??
                     IField field = type.getField(nextLine);
-                    allowedFields.add(field);
-                    System.out.println("added field " + field);
+                    if (field.exists()) {
+                        // System.out.println("   f " + nextLine);
+                        allowedFields.add(field);
+                    } else {
+                        System.out.println("*PARSE ERROR! Unrecognized field " + nextLine);
+                    }
+                    // System.out.println("added field " + field);
                 }
                 
                 IMethod[] methods = type.getMethods();
@@ -73,15 +104,16 @@ public class Taming {
                     // no space found results in start = 0, just what we want
                     int start = imToString.lastIndexOf(" ", lparen) + 1;
                     imToString = imToString.substring(start, imToString.indexOf(")") + 1);
-                    System.out.println(imToString);
+                    // System.out.println(imToString);
                     stringsToMethods.put(imToString, im);
                 }
                 
                 while (nextLine != null) {
                     IMethod allowed = stringsToMethods.get(nextLine);
                     if (allowed == null) {
-                        System.out.println("PARSE ERROR! Unrecognized method " + nextLine);
+                        System.out.println("*PARSE ERROR! Unrecognized method " + nextLine);
                     } else {
+                        // System.out.println("   m " + nextLine);
                         allowedMethods.add(allowed);
                     }
                     
@@ -98,41 +130,64 @@ public class Taming {
                 if (s.equals(IMMUTABLE.getElementName())) {
                     dest.add(IMMUTABLE);
                 } else if (s.equals(POWERLESS.getElementName())) {
+                    dest.add(IMMUTABLE);
                     dest.add(POWERLESS);
+                } else if (s.equals(RECORD.getElementName())) {
+                    dest.add(RECORD);
+                } else if (s.equals(DATA.getElementName())) {
+                    dest.add(IMMUTABLE);
+                    dest.add(POWERLESS);
+                    dest.add(RECORD);
+                    dest.add(DATA);
                 } else if (s.equals(EQUATABLE.getElementName())) {
                     dest.add(EQUATABLE);
-                } else {
-                    System.out.println("PARSE ERROR! Unrecognized marker interface " + s);
+                } else if (s.length() > 0) {
+                    System.out.println("* PARSE ERROR! Unrecognized marker interface " + s);
                 }
             }
         }      
     }
     
     Taming(File persistentDB, IJavaProject project) throws JavaModelException {
-        this.db = new HashMap<IType, Entry>();
         this.project = project;
         
-        SELFLESS = project.findType("org.joe_e.Selfless");
+        // SELFLESS = project.findType("org.joe_e.Selfless");
         IMMUTABLE = project.findType("org.joe_e.Immutable");
         POWERLESS = project.findType("org.joe_e.Powerless");
+        RECORD = project.findType("org.joe_e.Record");
+        DATA = project.findType("org.joe_e.Data");
         EQUATABLE = project.findType("org.joe_e.Equatable");
+            
         TOKEN = project.findType("org.joe_e.Token");
-        ENUM = project.findType("java.lang.Enum");  
+        // ENUM = project.findType("java.lang.Enum"); 
+    
+        this.db = new HashMap<IType, Entry>();
         
-        
-        if (persistentDB != null && persistentDB.isDirectory()) {
-            File[] files = persistentDB.listFiles();
-            for (File f : files) {
-                String name = f.getName();
-                if (name.endsWith(".taming")) {
-                    IType type = project.findType(
-                        name.substring(0, name.length() - ".taming".length()));
-                    db.put(type, new Entry(type, f)); 
+        if (persistentDB == null || !persistentDB.isDirectory()) {
+            System.out.println("ERROR: Taming DB path " + persistentDB + 
+                                   " does not exist or is not a directory.");
+        }
+            
+        File[] files = persistentDB.listFiles();
+        for (File f : files) {
+            String name = f.getName();
+            if (name.endsWith(".taming")) {
+                String typeName = name.substring(0, name.length() 
+                                                    - ".taming".length());
+                IType type = project.findType(typeName);
+                if (type == null) {
+                    System.out.println("ERROR: Type " + typeName +
+                                       " not found!");
+                } else {
+                    // System.out.println("Reading taming data for type "
+                    //        + typeName);
+                    db.put(type, new Entry(type, f));
+                    System.out.println("Done with taming data for type " + typeName);
                 }
             }
-        }
-    }
-
+        } 
+    }  
+    
     /*
      * Returns whether the type specified by itb implements the marker
      * interface mi.
@@ -149,7 +204,7 @@ public class Taming {
             return true;
         } else if (itb.isArray()) {
             return false;
-        } else if (itb.isClass() || itb.isInterface()) {
+        } else if (itb.isClass() || itb.isInterface() || itb.isEnum()) {
             // System.out.println("is called on type " + n1);
             IType type = (IType) itb.getJavaElement();
             
@@ -183,6 +238,29 @@ public class Taming {
         } else {
             return e.honoraries;
         }
+        /*
+        int honoraries = Bob.getHonoraries(type.getFullyQualifiedName());
+        
+        LinkedList<IType> honTypes = new LinkedList<IType>();
+        
+        if ((honoraries & Honoraries.IMPL_IMMUTABLE) != 0) {
+            honTypes.add(IMMUTABLE);
+        }
+        if ((honoraries & Honoraries.IMPL_POWERLESS) != 0) {
+            honTypes.add(POWERLESS);
+        }        
+        if ((honoraries & Honoraries.IMPL_RECORD) != 0) {
+            honTypes.add(RECORD);
+        }
+        if ((honoraries & Honoraries.IMPL_DATA) != 0) {
+            honTypes.add(DATA);
+        }
+        if ((honoraries & Honoraries.IMPL_EQUATABLE) != 0) {
+            honTypes.add(EQUATABLE);
+        }
+        
+        return honTypes;
+        */
     }
     
     Set<IType> unimplementedHonoraries(ITypeHierarchy sth) {
@@ -200,38 +278,51 @@ public class Taming {
         return result;
     }
     
-    boolean isTamed(IType type) {
-        return db.containsKey(type);
-    }
-    
-    boolean isAllowed(IMethod method) {
-        if (method.getDeclaringType().isBinary()) {
-            Entry e = db.get(method.getDeclaringType());
-            if (e == null) {
-                return false;
-            } else {
-                return e.allowedMethods.contains(method);
-            }       
+    boolean isTamed(ITypeBinding itb) {
+        if (Preferences.isTamingEnabled()) {
+            return db.containsKey((IType) itb.getJavaElement());
         } else {
             return true;
         }
     }
-    
-    boolean isAllowed(IField field) {
-        if (field.getDeclaringType().isBinary()) {
-            Entry e = db.get(field.getDeclaringType());
-            if (e == null) {
-                return false;
-            } else {
-                return e.allowedFields.contains(field);
-            }       
+
+    boolean isAllowed(ITypeBinding classBinding, IVariableBinding fieldBinding) {
+        /*
+        HashSet<String> allowed = Bob.getAllowedFields(classBinding.getQualifiedName());
+        String fieldName = fieldBinding.getName();
+        return (allowed.contains(fieldName));
+        */
+        if (Preferences.isTamingEnabled()) {
+            Entry e = db.get((IType) classBinding.getJavaElement());
+            IField field = (IField) fieldBinding.getJavaElement();
+            return ((e != null) && e.allowedFields.contains(field));
         } else {
             return true;
         }
     }
+
+    boolean isAllowed(ITypeBinding classBinding, IMethodBinding methodBinding) {
+        /*
+        HashSet<String> allowed = Bob.getAllowedMethods(classBinding.getQualifiedName());
+        IMethod im = (IMethod) methodBinding.getJavaElement();
+        String methodString = im.toString();
+        int lparen = methodString.indexOf("(");
+        // no space found results in start = 0, just what we want
+        int start = methodString.lastIndexOf(" ", lparen) + 1;
+        methodString = methodString.substring(start, methodString.indexOf(")") + 1);
+        
+        return (allowed.contains(methodString));
+        */
+        if (Preferences.isTamingEnabled()) {
+            Entry e = db.get((IType) classBinding.getJavaElement());
+            IMethod method = (IMethod) methodBinding.getJavaElement();
+            return ((e != null) && e.allowedMethods.contains(method));
+        } else {
+            return true;
+        }    
+    }
     
-    
-    /**
+    /*
      * Returns true if the specified type is deemed to satisfy the specified interface.
      * At present, does not handle transitive case (I don't think it needs to?)
      * @param type
@@ -239,7 +330,8 @@ public class Taming {
      * @param mi
      *            the marker interface
      * @return
-     */
+     *
+    
     boolean isDeemed(IType type, IType mi) {
         Entry e = db.get(type);
         if (e == null) {
@@ -248,7 +340,7 @@ public class Taming {
             return e.deemings.contains(mi);
         }
     }
-    
+    */
     
 
 	

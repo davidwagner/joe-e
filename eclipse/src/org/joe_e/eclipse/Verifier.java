@@ -134,15 +134,15 @@ public class Verifier {
             jme.printStackTrace();  // TODO: Fix ugly debug.
 			problems.add(new Problem("Analysis of file failed due to BUG IN VERIFIER or " +
                                      "I/O error. (Unhandled exception)", 0, 0));
-        } */ catch (Exception e) {
+        } */ catch (Throwable e) {
             System.out.println("UNEXPECTED EXCEPTION ??!!!");
             e.printStackTrace();
             problems.add(new Problem("Analysis of file failed due to BUG IN VERIFIER or " +
                     "I/O error. (unexpected exception)", 0, 0));
 		}
 		
-		//System.out.println(problems); 
-		return dependents;
+		System.out.println(problems);
+        return dependents;
 	}
 
 
@@ -219,19 +219,17 @@ public class Verifier {
             // It appears to return null.  It needs to be special-cased here; 
             // we allow it.
             if (classBinding != null && !classBinding.isFromSource()) {
-                IType classType = (IType) classBinding.getJavaElement();
-                
                 // check in taming database  
-                if (!taming.isTamed(classType)) {
+                if (!taming.isTamed(classBinding)) {
                     addProblem("Field from untamed class " + 
-                               classType.getElementName() + " accessed.", 
+                               classBinding.getName() + " accessed.", 
                                source);
                     return;
                 }
                 
-                if (!taming.isAllowed((IField) fieldBinding.getJavaElement())) {
+                if (!taming.isAllowed(classBinding, fieldBinding)) {
                     addProblem("Disabled field " + fieldBinding.getName() + 
-                               " from class " + classType.getElementName() + 
+                               " from class " + classBinding.getName() + 
                                " accessed.", source);
                 }
             }
@@ -247,13 +245,14 @@ public class Verifier {
          * @return
          *              true to visit children of this node
          */
-        public boolean visit(QualifiedName qn) {
-            IBinding ib = qn.resolveBinding();
+        public boolean visit(SimpleName sn) {
+            IBinding ib = sn.resolveBinding();
             if (ib instanceof IVariableBinding)
             {
                 IVariableBinding ivb = (IVariableBinding) ib;
-                assert(ivb.isField());
-                checkFieldBinding(ivb, qn);
+                if (ivb.isField()) {
+                    checkFieldBinding(ivb, sn);
+                }
             } else if (ib instanceof ITypeBinding) {
                 ITypeBinding itb = (ITypeBinding) ib;
                 // TODO: temporary debugging cruft.
@@ -267,12 +266,10 @@ public class Verifier {
                 }
                 
                 if (!itb.isFromSource()) {
-                    IType classType = (IType) itb.getJavaElement();
-                    
                     // check in taming database  
-                    if (!taming.isTamed(classType)) {
+                    if (!taming.isTamed(itb)) {
                         addProblem("Reference to untamed class " + 
-                                   classType.getElementName() + ".", qn);
+                                   itb.getName() + ".", sn);
                     }
                 }                
             } else {         
@@ -303,16 +300,16 @@ public class Verifier {
             // Check if taming is violated for non-source types.
             if (!classBinding.isFromSource()) {
                 // check in taming database  
-                if (!taming.isTamed(classType)) {
+                if (!taming.isTamed(classBinding)) {
                     addProblem("Construction of untamed class "
-                               + classType.getElementName() + ".", 
+                               + classBinding.getName() + ".", 
                                cic.getType());
                     return true;
                 }
                 
-                if (!taming.isAllowed((IMethod) imb.getJavaElement())) {
+                if (!taming.isAllowed(classBinding, imb)) {
                     addProblem("Disabled constructor from class " 
-                               + classType.getElementName() + " called.", 
+                               + classBinding.getName() + " called.", 
                                cic.getType());
                     return true;
                 }
@@ -370,16 +367,16 @@ public class Verifier {
             IType classType = (IType) classBinding.getJavaElement();
             if (!classBinding.isFromSource()) {
                 // check in taming database  
-                if (!taming.isTamed(classType)) {
+                if (!taming.isTamed(classBinding)) {
                     addProblem("Method from untamed class "
-                               + classType.getElementName() + " called.", 
+                               + classBinding.getName() + " called.", 
                                mi.getName());
                     return true;
                 }
                 
-                if (!taming.isAllowed((IMethod) imb.getJavaElement())) {
+                if (!taming.isAllowed(classBinding, imb)) {
                     addProblem("Disabled method " + imb.getName() + 
-                               " from class " + classType.getElementName() +
+                               " from class " + classBinding.getName() +
                                " called.", mi.getName());
                     return true;
                 }
@@ -558,6 +555,7 @@ public class Verifier {
          */
         void checkType(ITypeBinding itb)
         {   
+            System.out.println("Checking IType " + itb.getName());
             IType type = (IType) itb.getJavaElement();
             try {
                 ITypeHierarchy sth = type.newSupertypeHierarchy(null);
@@ -626,17 +624,17 @@ public class Verifier {
                     // See what honoraries superclass has; make sure that all are
                     // implemented by this class.
                     
-                    IType supertype = (IType) itb.getJavaElement();
+                    IType supertype = (IType) superTB.getJavaElement();
                     Set<IType> unimp = taming.unimplementedHonoraries(sth);
                     for (IType i : unimp) {
                         problems.add(
                           new Problem("Honorary interface " + i.getElementName() + 
-                              "not inherited from " + supertype.getElementName(), 
+                              " not inherited from " + supertype.getElementName(), 
                               type.getNameRange()));
                     }
                 }
             
-                if (isPowerless && !taming.isDeemed(type, taming.POWERLESS)) {
+                if (isPowerless /* && !taming.isDeemed(type, taming.POWERLESS) */) {
                     if (sth.contains(taming.TOKEN)) {
                         problems.add(new Problem("Powerless type " + type.getElementName() + 
                                                  " can't extend Token.", 
@@ -645,7 +643,7 @@ public class Verifier {
                 
                     verifyAllFieldsAre(itb, taming.POWERLESS);
                 
-                } else if (isImmutable && !taming.isDeemed(type, taming.IMMUTABLE)) {
+                } else if (isImmutable /* !taming.isDeemed(type, taming.IMMUTABLE)*/) {
                 
                     verifyAllFieldsAre(itb, taming.IMMUTABLE);
                 }
@@ -655,6 +653,12 @@ public class Verifier {
                                         "or I/O error (unhandled exception) " +
                                         "encountered analyzing type " + 
                                         type.getElementName() + ".", 0, 0));
+            } catch (Throwable e) {
+                e.printStackTrace(); // TODO: prettier debug
+                problems.add(new Problem("Analysis of file incomplete: BUG IN VERIFER " +
+                                         "or I/O error (unexpected exception) " +
+                                         "encountered analyzing type " + 
+                                         type.getElementName() + ".", 0, 0));  
             }
         }
         
@@ -912,10 +916,9 @@ public class Verifier {
                                    ie.getLeftOperand());
                         return true;
                     }
-                    ITypeHierarchy leftSTH = leftType.newSupertypeHierarchy(null);
-                    
+                                        
                     // OK if left side is Equatable
-                    if (leftSTH.contains(taming.ENUM) || leftSTH.contains(taming.TOKEN)) {
+                    if (taming.implementsOverlay(leftType, taming.EQUATABLE)) {
                         // need to recheck if left side becomes un-equatable
                         state.addFlagDependency(icu, leftType);
                         return true;
@@ -928,11 +931,10 @@ public class Verifier {
                                    rightTB.getQualifiedName() + ".",
                                    ie.getRightOperand());
                         return true;
-					}
-
-					ITypeHierarchy rightSTH = rightType.newSupertypeHierarchy(null);
+                    }
+                    
                     // OK if right side is Equatable
-                    if (rightSTH.contains(taming.EQUATABLE)) {
+                    if (taming.implementsOverlay(rightType, taming.EQUATABLE)) {
                         // need to recheck if right side becomes un-equatable
                         state.addFlagDependency(icu, rightType);
                         return true;

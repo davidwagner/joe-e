@@ -126,7 +126,6 @@ public class Builder extends IncrementalProjectBuilder {
 		IFile file = (IFile) icu.getCorrespondingResource();
 		deleteMarkers(file);
 		List<Problem> problems = new LinkedList<Problem>();
-        System.out.println("Checking ICompilationUnit " + icu.getElementName());
         
         Collection<ICompilationUnit> recheck = 
             verifier.checkICU(icu, problems);
@@ -194,7 +193,8 @@ public class Builder extends IncrementalProjectBuilder {
 		state = new BuildState(); // clear build state
         IJavaProject jp = JavaCore.create(getProject());
         
-        taming = new Taming(new java.io.File("/home/adrian/taming"), jp);
+        taming = new Taming(new java.io.File(Preferences.getTamingPath()), jp);
+        
         verifier = new Verifier(jp, state, taming);
 	
         ResourceVisitor rv = new ResourceVisitor();
