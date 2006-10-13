@@ -61,23 +61,13 @@ public class Honoraries {
      * <CODE>implementor</CODE> is listed as honorarily implementing the
      * interface <CODE>mi</CODE>.
      * 
-     * <P>Note: For most purposes, you probably want to use
+     * <P>Note: In most cases, it makes more sense to use
      * {@link Utility#isSubtypeOf(java.lang.Class, java.lang.Class) Utility.instanceOf()},
-     * which correctly traces the transitive implications of facts about
-     * honorary interfaces.  For instance, if class C honorarily implements
-     * interface I, and class D is a subclass of C, and D is not a class
-     * from the Java library, then
-     * <CODE>Honoraries.honorarilyImplements(D.class, I.class)</CODE> returns
-     * <CODE>false</CODE> (which may be counter to intuition), while
-     * <CODE>Utility.isSubtypeOf(D.class, I.class)</CODE> returns
-     * <CODE>true</CODE> (as expected).
-     * If D is known (through out-of-band means) to be a class from the
-     * Java library, then
-     * <CODE>Honoraries.honorarilyImplements(D.class, I.class)</CODE>
-     * is reasonable and appropriate, since the Joe-E implementation
-     * guarantees that if C honorarily implements interface I and D is
-     * a subclass of C from the Java library, then D also honorarily
-     * implements interface I.
+     * which returns true if <CODE>implementor</CODE> implements
+     * <CODE>mi</CODE> either honorarily or in the Java type system.
+     * (It is rare that one wants to treat objects that honorarily
+     * implement a marker interface from objects that directly implement
+     * it.)
      * 
      * @param implementor the class to test for implementation of the interface
      * @param mi the marker interface
