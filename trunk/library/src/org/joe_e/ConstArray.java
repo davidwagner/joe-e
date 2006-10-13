@@ -11,7 +11,7 @@ import java.util.Arrays;
 /**
  * An immutable array containing elements of an arbitrary type.
  *
- * Note: this class implements Serializable in order to avoid preventing
+ * <P>Note: this class implements Serializable in order to avoid preventing
  * trusted (non-Joe-E) code from serializing it.  The Java Serialization API
  * is tamed away as unsafe, and thus is not available to Joe-E code.
  */
