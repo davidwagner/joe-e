@@ -10,7 +10,7 @@ import java.util.Arrays;
 /**
  * An immutable array of char.
  */
-public class CharArray extends DataArray<Character> {
+public class CharArray extends PowerlessArray<Character> {
     static final long serialVersionUID = -4016604734433045551L;   
     
 	private final char[] charArr;

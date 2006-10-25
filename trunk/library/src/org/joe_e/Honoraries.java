@@ -13,15 +13,17 @@ import java.util.HashMap;
 public class Honoraries {
     public static final int IMPL_IMMUTABLE = 0x0001;
     public static final int IMPL_POWERLESS = 0x0002; 
-    public static final int IMPL_RECORD    = 0x0004;
-    public static final int IMPL_DATA      = 0x0008;
+    public static final int IMPL_SELFLESS    = 0x0004;
+    // public static final int IMPL_DATA      = 0x0008;
     public static final int IMPL_EQUATABLE = 0x0100;
     
     static final int MAKE_IMMUTABLE = IMPL_IMMUTABLE;
     static final int MAKE_POWERLESS = IMPL_IMMUTABLE | IMPL_POWERLESS;
-    static final int MAKE_RECORD    = IMPL_RECORD;
+    static final int MAKE_SELFLESS = IMPL_SELFLESS;
+
+    // For now MAKE_DATA just means Powerless + Selfless
     static final int MAKE_DATA      = IMPL_IMMUTABLE | IMPL_POWERLESS
-                                      | IMPL_RECORD | IMPL_DATA;
+                                      | IMPL_SELFLESS;
     static final int MAKE_EQUATABLE = IMPL_EQUATABLE;
     
     private static final Map<Class<?>, Integer> entries;
@@ -65,9 +67,10 @@ public class Honoraries {
      * {@link Utility#isSubtypeOf(java.lang.Class, java.lang.Class) Utility.instanceOf()},
      * which returns true if <CODE>implementor</CODE> implements
      * <CODE>mi</CODE> either honorarily or in the Java type system.
-     * (It is rare that one wants to treat objects that honorarily
-     * implement a marker interface from objects that directly implement
-     * it.)
+     * (It is rare that one would want to treat objects that honorarily
+     * implement a marker interface differently from objects that directly
+     * implement it.  This method is primarily for internal use and may be
+     * excluded from a finalized API.)
      * 
      * @param implementor the class to test for implementation of the interface
      * @param mi the marker interface
@@ -82,10 +85,10 @@ public class Honoraries {
             return ((honoraries & IMPL_IMMUTABLE) != 0);                
         } else if (mi == Powerless.class) {
             return ((honoraries & IMPL_POWERLESS) != 0);
-        } else if (mi == Record.class) {
-            return ((honoraries & IMPL_RECORD) != 0);
-        } else if (mi == Data.class) {
-            return ((honoraries & IMPL_DATA) != 0);
+        } else if (mi == Selfless.class) {
+            return ((honoraries & IMPL_SELFLESS) != 0);
+        // } else if (mi == Data.class) {
+        //    return ((honoraries & IMPL_DATA) != 0);
         } else if (mi == Equatable.class) {
             return ((honoraries & IMPL_EQUATABLE) != 0);
         } else {

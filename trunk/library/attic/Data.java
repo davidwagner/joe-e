@@ -14,8 +14,8 @@ package org.joe_e;
  * 
  * <P>This interface has no members.
  * 
- * @see Record
+ * @see Selfless
  */
-public interface Data extends Record, Powerless {
+public interface Data extends Selfless, Powerless {
 
 }
