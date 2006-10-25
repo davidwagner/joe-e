@@ -16,7 +16,7 @@ package org.joe_e;
  * 
  * <P>This interface has no members.
  * 
- * @see Record
+ * @see Selfless
  */
 
 

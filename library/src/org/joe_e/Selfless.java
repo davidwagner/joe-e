@@ -32,7 +32,7 @@ package org.joe_e;
  * 
  * @see Equatable
  */
-public interface Record {
+public interface Selfless {
     /* doesn't matter whether these are here or not
     int hashCode();
     boolean equals(Object obj);

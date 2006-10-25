@@ -15,7 +15,7 @@ import java.util.Arrays;
  * trusted (non-Joe-E) code from serializing it.  The Java Serialization API
  * is tamed away as unsafe, and thus is not available to Joe-E code.
  */
-public class ConstArray<E> implements Record, Iterable<E>, java.io.Serializable {
+public class ConstArray<E> implements Selfless, Iterable<E>, java.io.Serializable {
     static final long serialVersionUID = 624781170963430746L;
     
     final E[] arr;
