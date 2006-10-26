@@ -24,6 +24,9 @@ package org.joe_e;
  *       and doesn't call <CODE>super.hashCode()</CODE> or <CODE>super.equals()</CODE>. 
  *   </OL>
  * </OL>
+ * 
+ * <P>The Joe-E verifier ensures that Joe-E code cannot distinguish a
+ * shallow copy of a Selfless object from the original object.
  *  
  * <P>This interface contains no members.
  * 
