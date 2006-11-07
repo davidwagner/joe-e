@@ -1,4 +1,4 @@
-package test;
+ package test;
 
 import org.joe_e.Immutable;
 import org.joe_e.Token;

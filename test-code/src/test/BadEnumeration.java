@@ -2,7 +2,7 @@ package test;
 
 import org.joe_e.Powerless;
 
-public  enum BadEnumeration implements Powerless {
+public enum BadEnumeration implements Powerless {
 	foo(0, 1), barr(0, 2), baz(1, 3);
 	
 	final int q;
@@ -27,7 +27,7 @@ public  enum BadEnumeration implements Powerless {
 		
 		return j;
 	}
-	
+    
 	// Unless we ensure they are incapable, we can 
 	// modify the enumeration's "constants"!  Fields of enumeration members
 	// (or their contents) can convey authority.  Ouch!
