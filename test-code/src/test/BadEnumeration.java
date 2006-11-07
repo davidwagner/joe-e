@@ -2,12 +2,16 @@ package test;
 
 import org.joe_e.Powerless;
 
+<<<<<<< BadEnumeration.java
+public enum BadEnumeration {
+=======
 public enum BadEnumeration implements Powerless {
+>>>>>>> 1.5
 	foo(0, 1), barr(0, 2), baz(1, 3);
 	
 	final int q;
-	int z;
-	final java.io.File capability;
+	int z; // non-final field
+	final java.io.File capability; // non-powerless field 
 	
 	BadEnumeration(int q, int z) {
 		this.q = q;
