@@ -46,7 +46,6 @@ public class EqualsEqualsTester {
 		// How to handle these? It should be safe because we can always
 		// rewrite a == b (a is Token, b is Object) as
 		// b instanceof Token ? false : a == (Token) b
-		// *** Current codebase disallows it
 		if (new Token() == new Object());
 		if (new Object() == new Token());
 		if (new ExtendsToken(23) == new Object());

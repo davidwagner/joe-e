@@ -5,15 +5,14 @@ import org.joe_e.Immutable;
 import org.joe_e.Token;
 
 public class BadDeepFrozen implements Immutable {
-	Powerless foo;
-	final Powerless foo2;
+	static Powerless foo;
 	final String qzar;
 	final Token fooTok;
 	final ExtendsToken barTok;
+	final int[] foop = {1, 2, 3};
 	
 	BadDeepFrozen(Powerless foo2, String qzar, ExtendsToken et) {
-		this.foo2 = foo2;
-		this.qzar = qzar;
-		fooTok = barTok = et;
+	   this.qzar = qzar;
+	   fooTok = barTok = et;
 	}
 }
