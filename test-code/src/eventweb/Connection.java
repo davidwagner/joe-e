@@ -16,7 +16,7 @@ public class Connection {
 	SocketChannel sc;
 	PrintStream debugOut;
 	
-	enum State {
+	enum State implements org.joe_e.Powerless, org.joe_e.Equatable {
 		NEW;
 	}
 	
