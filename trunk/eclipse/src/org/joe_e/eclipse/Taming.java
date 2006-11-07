@@ -29,13 +29,14 @@ public class Taming {
     
     /* Important types used by multiple modules
      */
+    final IType SELFLESS;
     final IType IMMUTABLE;
     final IType POWERLESS;
-    final IType RECORD;
-    final IType DATA;
+    // final IType DATA;
     final IType EQUATABLE;
     final IType TOKEN;
     // final IType ENUM;
+    final IType STRING;
     
     class Entry {
         final Set<IType> honoraries;
@@ -94,6 +95,8 @@ public class Taming {
                         System.out.println("*PARSE ERROR! Unrecognized field " + nextLine);
                     }
                     // System.out.println("added field " + field);
+                    
+                    nextLine = br.readLine();
                 }
                 
                 IMethod[] methods = type.getMethods();
@@ -132,13 +135,13 @@ public class Taming {
                 } else if (s.equals(POWERLESS.getElementName())) {
                     dest.add(IMMUTABLE);
                     dest.add(POWERLESS);
-                } else if (s.equals(RECORD.getElementName())) {
-                    dest.add(RECORD);
-                } else if (s.equals(DATA.getElementName())) {
-                    dest.add(IMMUTABLE);
-                    dest.add(POWERLESS);
-                    dest.add(RECORD);
-                    dest.add(DATA);
+                } else if (s.equals(SELFLESS.getElementName())) {
+                    dest.add(SELFLESS);
+                // } else if (s.equals(DATA.getElementName())) {
+                //    dest.add(IMMUTABLE);
+                //    dest.add(POWERLESS);
+                //    dest.add(SELFLESS);
+                //    dest.add(DATA);
                 } else if (s.equals(EQUATABLE.getElementName())) {
                     dest.add(EQUATABLE);
                 } else if (s.length() > 0) {
@@ -151,16 +154,17 @@ public class Taming {
     Taming(File persistentDB, IJavaProject project) throws JavaModelException {
         this.project = project;
         
-        // SELFLESS = project.findType("org.joe_e.Selfless");
+        SELFLESS = project.findType("org.joe_e.Selfless");
         IMMUTABLE = project.findType("org.joe_e.Immutable");
         POWERLESS = project.findType("org.joe_e.Powerless");
-        RECORD = project.findType("org.joe_e.Record");
-        DATA = project.findType("org.joe_e.Data");
+        // RECORD = project.findType("org.joe_e.Record");
+        // DATA = project.findType("org.joe_e.Data");
         EQUATABLE = project.findType("org.joe_e.Equatable");
             
         TOKEN = project.findType("org.joe_e.Token");
         // ENUM = project.findType("java.lang.Enum"); 
-    
+        STRING = project.findType("java.lang.String");
+        
         this.db = new HashMap<IType, Entry>();
         
         if (persistentDB == null || !persistentDB.isDirectory()) {
@@ -200,9 +204,9 @@ public class Taming {
     boolean implementsOverlay(ITypeBinding itb, IType mi)
         throws JavaModelException
     {
-        if (itb.isPrimitive()) {
+        if (itb.isPrimitive() || itb.isNullType()) {
             return true;
-        } else if (itb.isArray()) {
+        } else if (itb.isArray() || itb.isGenericType()) {
             return false;
         } else if (itb.isClass() || itb.isInterface() || itb.isEnum()) {
             // System.out.println("is called on type " + n1);
@@ -221,12 +225,18 @@ public class Taming {
         if (sth.contains(mi)) {
             return true;
         } else {
+            Collection<IType> h = getHonorariesFor(subtype);
+            if (h.contains(mi)) {
+                return true;
+            }
+            /*
             for (IType t : sth.getAllClasses()) {
                 Collection<IType> h = getHonorariesFor(t);
                 if (h.contains(mi)) {
                     return true;
                 }
             }
+            */
         }
         return false;
     }
@@ -238,29 +248,6 @@ public class Taming {
         } else {
             return e.honoraries;
         }
-        /*
-        int honoraries = Bob.getHonoraries(type.getFullyQualifiedName());
-        
-        LinkedList<IType> honTypes = new LinkedList<IType>();
-        
-        if ((honoraries & Honoraries.IMPL_IMMUTABLE) != 0) {
-            honTypes.add(IMMUTABLE);
-        }
-        if ((honoraries & Honoraries.IMPL_POWERLESS) != 0) {
-            honTypes.add(POWERLESS);
-        }        
-        if ((honoraries & Honoraries.IMPL_RECORD) != 0) {
-            honTypes.add(RECORD);
-        }
-        if ((honoraries & Honoraries.IMPL_DATA) != 0) {
-            honTypes.add(DATA);
-        }
-        if ((honoraries & Honoraries.IMPL_EQUATABLE) != 0) {
-            honTypes.add(EQUATABLE);
-        }
-        
-        return honTypes;
-        */
     }
     
     Set<IType> unimplementedHonoraries(ITypeHierarchy sth) {
@@ -313,7 +300,7 @@ public class Taming {
         
         return (allowed.contains(methodString));
         */
-        if (Preferences.isTamingEnabled()) {
+        if (Preferences.isTamingEnabled() /* && classBinding.isFromSource() */) {
             Entry e = db.get((IType) classBinding.getJavaElement());
             IMethod method = (IMethod) methodBinding.getJavaElement();
             return ((e != null) && e.allowedMethods.contains(method));

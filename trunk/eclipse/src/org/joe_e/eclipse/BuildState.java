@@ -5,17 +5,10 @@
  */
 package org.joe_e.eclipse;
 
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ISourceRange;
-import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Collection;
-import java.util.List;
-import java.util.LinkedList;
+import java.util.*;
 
 class BuildState {
     static final int IMPL_SELFLESS =   0x0001;
@@ -65,7 +58,7 @@ class BuildState {
 	 * 
 	 * @param current the compilation unit to which to add the dependency
 	 * @param dependedOn the class depended on to implement some marker interface
-	 */
+	 *
 	void addFlagDependency(ICompilationUnit current, IType dependedOn) {
 		if (!dependedOn.isBinary()) {
 			ITypeState dependedState = classStates.get(dependedOn);
@@ -80,7 +73,24 @@ class BuildState {
 			currentState.references.add(dependedOn);
 		}
 	}
-	
+	*/
+    
+    void addFlagDependency(ICompilationUnit current, ITypeBinding dependedOn) {
+        if (dependedOn.isFromSource() && !dependedOn.isTypeVariable()) {
+            IType type = (IType) dependedOn.getJavaElement();
+            ITypeState dependedState = classStates.get(dependedOn);
+            if (dependedState == null) {
+                // create a node with an unitialized flags state
+                dependedState = new ITypeState();
+                classStates.put(type, dependedState);
+            }
+            dependedState.addFlagDependent(current);
+            
+            ICUState currentState = icuStates.get(current);
+            currentState.references.add(type);
+        }
+    }
+    
 	/**
 	 * Adds a deep (source based) dependency.  Such a dependency causes
 	 * recompilation whenever the source is reverified.  Assumes that there is
@@ -90,17 +100,18 @@ class BuildState {
 	 * @param current the compilation unit to which to add the dependency
 	 * @param dependedOn the class depended on to have some property
 	 */
-	void addDeepDependency(ICompilationUnit current, IType dependedOn) {
-		if (!dependedOn.isBinary()) {
+	void addDeepDependency(ICompilationUnit current, ITypeBinding dependedOn) {
+		if (!dependedOn.isFromSource()) {
+            IType type = (IType) dependedOn.getJavaElement();
 			ITypeState dependedState = classStates.get(dependedOn);
 			if (dependedState == null) {
 				dependedState = new ITypeState();
-				classStates.put(dependedOn, dependedState);
+				classStates.put(type, dependedState);
 			}
 			dependedState.addDeepDependent(current);
 			
 			ICUState currentState = icuStates.get(current);
-			currentState.references.add(dependedOn);
+			currentState.references.add(type);
 		}
 	}	
 	
