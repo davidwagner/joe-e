@@ -9,11 +9,11 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * An iterator for RecordArrays. Needed in order for RecordArray and its
+ * An iterator for ConstArrays. Needed in order for ConstArray and its
  * subclasses to support the Iterable interface and be usable with the new 
  * for-loop syntax.
  *
- * @param <E> the element type of the RecordArray being iterated
+ * @param <E> the element type of the ConstArray being iterated
  */
 class ArrayIterator<E> implements Iterator<E> {
 	private final ConstArray<E> arr;
@@ -21,7 +21,7 @@ class ArrayIterator<E> implements Iterator<E> {
 	private final int length;
 	
     /**
-     * Create an ArrayIterator to iterate over the specified RecordArray
+     * Create an ArrayIterator to iterate over the specified ConstArray
      * @param arr the array to iterate over
      */
 	public ArrayIterator(ConstArray<E> arr) {

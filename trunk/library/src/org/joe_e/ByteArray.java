@@ -23,7 +23,7 @@ public class ByteArray extends PowerlessArray<Byte> {
 	 */
 	public ByteArray(byte... byteArr) {
 		// Use back door constructor that sets backing store to null.
-        // This lets RecordArray's methods know not to use the backing
+        // This lets ConstArray's methods know not to use the backing
         // store for accessing this object.
 	    super();
         
@@ -54,7 +54,7 @@ public class ByteArray extends PowerlessArray<Byte> {
 	}
 
 	/*
-	 *  Methods that must be overriden, as the implementation in RecordArray
+	 *  Methods that must be overriden, as the implementation in ConstArray
      *  would try to use arr, which is null.
 	 */
 	
@@ -85,7 +85,7 @@ public class ByteArray extends PowerlessArray<Byte> {
     /**
      * Test for equality with another object
      * 
-     * @return true if the other object is a RecordArray with the same
+     * @return true if the other object is a ConstArray with the same
      * contents as this array
      */
     public boolean equals(Object other) {
@@ -118,7 +118,7 @@ public class ByteArray extends PowerlessArray<Byte> {
     public int hashCode() {
         // Because wrappers for primitive types return the same hashCode as 
         // their primitive values, a ByteArray has the same hashCode as a
-        // RecordArray<Byte>.
+        // ConstArray<Byte>.
         return Arrays.hashCode(byteArr);
     }
     

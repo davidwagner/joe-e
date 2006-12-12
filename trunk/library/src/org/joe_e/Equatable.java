@@ -12,7 +12,7 @@ package org.joe_e;
  * object identity.  Objects that do not implement Equatable are prohibited
  * (by Joe-E) from using these comparison operators.
  * 
- * <P>A class that implements Equatable must not implement Record.
+ * <P>A class that implements Equatable must not implement Selfless.
  * 
  * <P>This interface has no members.
  * 
