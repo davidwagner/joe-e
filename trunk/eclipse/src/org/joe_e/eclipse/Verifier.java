@@ -5,7 +5,6 @@
  */
 package org.joe_e.eclipse;
 
-// import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.core.*;
 
 import org.eclipse.jdt.core.dom.*;
@@ -74,40 +73,54 @@ public class Verifier {
         /*
          * Checks to ensure org.joe_e package is not used in source files.
          * Disabled for now.
-         * 
-         * IPackageDeclaration[] pkg = icu.getPackageDeclarations(); if
-         * (pkg.length > 1) { // File shouldn't compile anyway...
-         * problems.add(new Problem("More than one package! I'm confused.",
-         * pkg[1].getSourceRange())); } String pkgName = ""; if (pkg.length > 0) {
-         * pkgName = pkg[0].getElementName();
-         * 
-         * System.out.println("Package " + pkgName); } else {
-         * System.out.println("Default (null) package"); }
-         * 
-         * if (pkgName.startsWith("org.joe_e.")) { problems.add(new Problem("Bad
-         * package name. Nice try.", pkg[0].getSourceRange())); }
-         * 
-         */
+         *
+			IPackageDeclaration[] pkg = icu.getPackageDeclarations();
+			if (pkg.length > 1) {
+				// File shouldn't compile anyway...
+				problems.add(new Problem("More than one package! I'm confused.", 
+										 pkg[1].getSourceRange()));
+			}
+			String pkgName = "";
+			if (pkg.length > 0) {
+				pkgName = pkg[0].getElementName();
+				
+				System.out.println("Package " + pkgName);
+			}
+			else {
+				System.out.println("Default (null) package");
+			}
+					
+			if (pkgName.equals("org.joe_e" || pkgName.startsWith("org.joe_e."))
+			{
+				problems.add(new Problem("Bad package name.  Nice try.",
+										 pkg[0].getSourceRange()));
+			}
+            
+        */
 
         try {
             /*
-             * // Types defined in this file IType[] itypes = icu.getAllTypes(); //
-             * throws JavaModelException
-             *  // TODO: lack of local types (see doc of icu.getAllTypes()): //
-             * possibly a big soundness hole!!
-             * 
-             * System.out.println("Found " + itypes.length + " types."); for(int
-             * i = 0; i < itypes.length; ++i) { // Analyze each type. IType type =
-             * itypes[i]; System.out.println("Analyzing " +
-             * type.getFullyQualifiedName() + ".");
-             * 
-             * checkIType(type, dependents, problems);
-             * 
-             * 
-             * System.out.println("Done with " + type.getFullyQualifiedName() +
-             * "."); }
-             *  // checks that require ugly DOM hacking directly
-             */
+            // Types defined in this file
+			IType[] itypes = icu.getAllTypes();  // throws JavaModelException
+			
+            // TODO: lack of local types (see doc of icu.getAllTypes()):
+            // possibly a big soundness hole!!
+            
+			System.out.println("Found " + itypes.length + " types.");
+			for(int i = 0; i < itypes.length; ++i)
+			{
+				// Analyze each type.
+				IType type = itypes[i];
+				System.out.println("Analyzing " + type.getFullyQualifiedName() + ".");
+			
+				checkIType(type, dependents, problems);
+                
+                
+                System.out.println("Done with " + type.getFullyQualifiedName() + ".");
+			}
+			
+			// checks that require ugly DOM hacking directly
+			*/
 
             ASTParser parser = ASTParser.newParser(AST.JLS3);
             parser.setSource(icu);
@@ -116,13 +129,16 @@ public class Verifier {
             VerifierASTVisitor vav = new VerifierASTVisitor(icu, dependents,
                     problems);
             parse.accept(vav);
-            /*
-             * JavaModelException *CANNOT* be thrown here, thus this special
-             * casing is not necessary. } catch (JavaModelException jme) {
-             * jme.printStackTrace(); // TODO: Fix ugly debug. problems.add(new
-             * Problem("Analysis of file failed due to BUG IN VERIFIER or " +
-             * "I/O error. (Unhandled exception)", 0, 0));
-             */
+        
+        /*
+         * JavaModelException *CANNOT* be thrown here, thus this special
+         * casing is not necessary. 
+			
+	    } catch (JavaModelException jme) { 
+            jme.printStackTrace();  // TODO: Fix ugly debug.
+			problems.add(new Problem("Analysis of file failed due to BUG IN VERIFIER or " +
+                                     "I/O error. (Unhandled exception)", 0, 0));   
+		*/
         } catch (Throwable e) {
             System.out.println("Abort due to Undeclared Throwable!" + e);
             e.printStackTrace();
@@ -666,11 +682,12 @@ public class Verifier {
             // that does.
             // deep dependency on superclass, if one exists
             /*
-             * String = type.getSuperclassTypeSignature(); if (superclassSig !=
-             * null) { IType superclass = Utility.lookupType(superclassSig,
-             * type); state.addDeepDependency(type.getCompilationUnit(),
-             * superclass); }
-             */
+            String  = type.getSuperclassTypeSignature();
+            if (superclassSig != null) {
+                IType superclass = Utility.lookupType(superclassSig, type);
+                state.addDeepDependency(type.getCompilationUnit(), superclass);
+            }
+            */
 
             Set<ITypeBinding> needCheck = findClasses(itb, mi);
             for (ITypeBinding i : needCheck) {
@@ -810,14 +827,21 @@ public class Verifier {
             }
 
             /*
-             * now handled by findClasses // // Check inherited instance fields
-             * also implement mi // String superclass =
-             * type.getSuperclassTypeSignature(); if (superclass != null) {
-             * IType supertype = Utility.lookupType(superclass, type); if
-             * (MarkerInterface.is(supertype, mi)) { // everything should be
-             * fine; verifier has already verified // it } else {
-             * verifyFieldsAre(supertype, mi, candidate, problems); } }
-             */
+			 * now handled by findClasses
+            //
+            // Check inherited instance fields also implement mi
+            //
+            String superclass = type.getSuperclassTypeSignature();
+            if (superclass != null) {
+                IType supertype = Utility.lookupType(superclass, type);
+                if (MarkerInterface.is(supertype, mi)) {
+                    // everything should be fine; verifier has already verified
+                    // it
+                } else {
+                    verifyFieldsAre(supertype, mi, candidate, problems);
+                }
+            }
+            */
 
         }
 
@@ -1115,66 +1139,6 @@ public class Verifier {
             assert (codeContext.pop() == ecd);
         }
 
-        /*
-         * 
-         * Alternate method: use the ASTVisitor for more stuff. Not necessary.
-         * (?)
-         * 
-         * 
-         * public boolean visit(EnumDeclaration ed)
-         * 
-         * 
-         * public boolean visit(TypeDeclaration td) { if (td.isInterface()) { //
-         * Nothing more to check. All fields are static final. Whether inherited
-         * or not, // they will be verified immutable. } else { // // Otherwise,
-         * it is a "real" class. // try { // get supertype hierarchy, we'll need
-         * it. ITypeHierarchy sth = type.newSupertypeHierarchy(null); String
-         * superclass = type.getSuperclassTypeSignature();
-         * 
-         * if (superclass != null) { System.out.println("Superclass " +
-         * superclass);
-         *  // See what honoraries superclass has, make sure that all are //
-         * implemented by this class.
-         * 
-         * IType supertype = Utility.lookupType(superclass, type); String[] sh =
-         * MarkerInterface.getHonoraries(supertype); for (int i = 0; i <
-         * sh.length; ++i) { if (!MarkerInterface.is(type, sh[i])) {
-         * problems.add( new Problem("Honorary interface " + sh[i] + "not
-         * inherited from " + supertype.getElementName(), type.getNameRange())); } } }
-         * 
-         * if (MarkerInterface.is(type, "Powerless") &&
-         * !MarkerInterface.isDeemed(type, "Powerless")) {
-         * 
-         * IType tokenType = type.getJavaProject().findType("org.joe_e.Token");
-         * if (sth.contains(tokenType)) { problems.add(new Problem("Powerless
-         * type " + type.getElementName() + " can't extend Token.",
-         * type.getNameRange())); }
-         * 
-         * verifyFieldsAre(type, "Powerless", problems);
-         *  } else if (MarkerInterface.is(type, "DeepFrozen") &&
-         * !MarkerInterface.isDeemed(type, "DeepFrozen")) {
-         * 
-         * verifyFieldsAre(type, "DeepFrozen", problems); } } catch
-         * (JavaModelException jme) { jme.printStackTrace(); } } return true; }
-         * 
-         * public boolean visit(FieldDeclaration fd) { int flags =
-         * fd.getModifiers(); List frags = fd.fragments(); // element type: //
-         * VariableDeclarationFragment Type baseType = fd.getType();rameter if
-         * (Flags.isStatic(flags)) { if (Flags.isFinal(flags)) { if
-         * (MarkerInterface.is(baseType, "Powerless")) { for (Object o: frags) {
-         * VariableDeclarationFragment vdf = (VariableDeclarationFragment) o; if
-         * (vdf.getExtraDimensions() > 0) { // sneaky sneaky... String name =
-         * vdf.getName().getFullyQualifiedName(); problems.add(new
-         * Problem("Non-powerless static field " + name + ".",
-         * vdf.getStartPosition(), vdf.getLength())); } } } else { String name =
-         * ""; for (Object o: frags) { name += (VariableDeclarationFragment)
-         * o.getName().getFullyQualifiedName() + " "; } problems.add(new Problem
-         * ("Non-powerless static field(s) " + name + ".",
-         * fd.getStartPosition(), fd.getLength())); } } else { String name = "";
-         * for (Object o: frags) { name += (VariableDeclarationFragment)
-         * o.getName().getFullyQualifiedName() + " "; } problems.add(new Problem
-         * ("Non-final static field(s) " + name + ".", fd.getStartPosition(),
-         * fd.getLength())); } }
-         */
+
     }
 }
