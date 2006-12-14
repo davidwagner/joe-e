@@ -1,7 +1,7 @@
 package test;
 
 public class UpdateTest2 extends UpdateTest1 {
-<<<<<<< UpdateTest2.java
+
 	final int bar;
 	
 	UpdateTest2() {
@@ -20,11 +20,4 @@ public class UpdateTest2 extends UpdateTest1 {
 			return UpdateTest2.this;
 		}
 	}
-=======
-	final static int bar = foof;
-    
-    void foo(Object blah) {
-        
-    }
->>>>>>> 1.2
 }

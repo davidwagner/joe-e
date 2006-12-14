@@ -2,7 +2,7 @@ package test;
 
 import org.joe_e.Powerless;
 
-public class Bad {
+public class Bad extends Thread {
     static int foo; // field non-final
 	static int[] foofoo; // non-final field of capable type
 
@@ -12,6 +12,8 @@ public class Bad {
 	static String weebl;  // field non-final
 	
 	static final int[] arr = new int[] {1, 2, 3}; // type capable
+    int crashy = arr.length;
+	
 	static final Bad badd = new Bad(); // type capable, construction of Bad OK
 	
     final int g;
@@ -19,7 +21,6 @@ public class Bad {
 	int f; // OK
 	String str; // OK
 	int[] foof; // OK
-<<<<<<< Bad.java
 	
 	Bad() {
 		System.out.println(this);
@@ -29,10 +30,11 @@ public class Bad {
 		Object o = new Object();
 		Thread t = new Thread();
 		o.getClass();
+		
+		g = 3;
 	}
-=======
     
-    Bad() {
+    Bad(int ignored) {
        Powerless p = new Powerless () {
 
            int foo() {
@@ -44,5 +46,4 @@ public class Bad {
        
        g = 5;
     }
->>>>>>> 1.2
 }

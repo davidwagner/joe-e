@@ -4,7 +4,7 @@ import org.joe_e.*;
 import java.util.Arrays;
 
 public class ArrayTests {
-    
+
     public static void main(String[] args) {
         Object[] array1 = new Object[]{1, 2, 3, -6000};
         Integer[] array2 = new Integer[]{1, 2, 3, -6000};
