@@ -4,9 +4,9 @@ import org.joe_e.*;
 import java.util.Arrays;
 
 public class Scratch {
-<<<<<<< Scratch.java
-
     public static void main(String args[]) {
+        assert (false);
+        
         // ArrayTest.test();
         // ConstArray<Character> sa = new CharArray('a', 'b', 'c');
         int[] arr = {1, 2, 3, 4, 5, 6};
@@ -25,10 +25,4 @@ public class Scratch {
         
         //return 0;
     }
-=======
-    
-    public static void main(String[] args) {
-        // for scratch tests.
-    }
->>>>>>> 1.2
 }
