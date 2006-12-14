@@ -124,13 +124,17 @@ public class Builder extends IncrementalProjectBuilder {
 	private Collection<ICompilationUnit> 
             checkAndUpdateProblems(ICompilationUnit icu) throws CoreException {
 		IFile file = (IFile) icu.getCorrespondingResource();
-		deleteMarkers(file);
-		List<Problem> problems = new LinkedList<Problem>();
+       
+        System.out.println("Checking file " + file.getFullPath() + ":");
         
+        deleteMarkers(file);
+		List<Problem> problems = new LinkedList<Problem>();
+       
         Collection<ICompilationUnit> recheck = 
             verifier.checkICU(icu, problems);
 		
-        System.out.println("Problems found: " + problems);
+        System.out.println("... found " + problems.size() + " problem" 
+                           + (problems.size() == 1 ? "." : "s."));
 		//TODO: use CompilationUnit's built-in line number finder?
 		SourceLocationConverter slc = new SourceLocationConverter(file);
 		ListIterator<Problem> i = problems.listIterator();

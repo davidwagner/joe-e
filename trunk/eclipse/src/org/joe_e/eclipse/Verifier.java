@@ -140,14 +140,13 @@ public class Verifier {
                                      "I/O error. (Unhandled exception)", 0, 0));   
 		*/
         } catch (Throwable e) {
-            System.out.println("Abort due to Undeclared Throwable!" + e);
+            System.out.println("Abort due to undeclared Throwable! " + e);
             e.printStackTrace();
             problems.add(new Problem(
                     "Analysis of file failed due to BUG IN VERIFIER or "
                             + "I/O error. (unexpected exception)", 0, 0));
         }
 
-        System.out.println(problems);
         return dependents;
     }
 
@@ -218,8 +217,8 @@ public class Verifier {
                 ASTNode source) {
             ITypeBinding classBinding = fieldBinding.getDeclaringClass();
             // "The field length of an array type has no declaring class."
-            // It appears to return null. It needs to be special-cased here;
-            // we allow it.
+            // getDeclaringClass returns null in this case. It needs to be
+            // special-cased here; we allow it.
             if (classBinding != null && !classBinding.isFromSource()) {
                 // check in taming database
                 if (!taming.isTamed(classBinding)) {
@@ -237,12 +236,12 @@ public class Verifier {
         }
 
         /**
-         * Check a qualified name. If the name corresponds to a field, ensure
+         * Check a simple name. If the name corresponds to a field, ensure
          * that the field being accessed is either present in source code, or
          * permitted by the taming database.
          * 
-         * @param qn
-         *            the qualified name to check
+         * @param sn
+         *            the simple name to check
          * @return true to visit children of this node
          */
         public boolean visit(SimpleName sn) {
@@ -256,12 +255,13 @@ public class Verifier {
                 ITypeBinding itb = (ITypeBinding) ib;
                 // TODO: temporary debugging cruft.
                 if (!itb.isClass() && !itb.isInterface()) {
-                    System.out.print("not a class or interface");
+                    // System.out.print("not a class or interface");
                     if (!itb.isEnum()) {
-                        System.out.print(", not an enum");
-                        assert (itb.isAnnotation());
+                        // System.out.print(", not an enum");
+                        assert (itb.isAnnotation() || itb.isWildcardType()
+                                || itb.isTypeVariable());
                     }
-                    System.out.println(".");
+                    // System.out.println(".");
                 }
 
                 if (!itb.isFromSource()) {
@@ -272,7 +272,7 @@ public class Verifier {
                     }
                 }
             } else {
-                assert (ib instanceof IPackageBinding);
+                assert (ib instanceof IPackageBinding || ib instanceof IMethodBinding);
             }
             return true;
         }
@@ -293,7 +293,9 @@ public class Verifier {
         public boolean visit(ClassInstanceCreation cic) {
             IMethodBinding imb = cic.resolveConstructorBinding();
             ITypeBinding classBinding = imb.getDeclaringClass();
-            IType classType = (IType) classBinding.getJavaElement();
+            IType classType;
+            // the following line can trigger a bug in Eclipse 3.1
+            classType = (IType) classBinding.getJavaElement();
 
             // Check if taming is violated for non-source types.
             if (!classBinding.isFromSource()) {
@@ -362,7 +364,11 @@ public class Verifier {
         public boolean visit(MethodInvocation mi) {
             IMethodBinding imb = mi.resolveMethodBinding();
             ITypeBinding classBinding = imb.getDeclaringClass();
-            IType classType = (IType) classBinding.getJavaElement();
+            // Unlike for a field, getDeclaringClass on a method binding will 
+            // never return null.  It returns java.lang.Object for methods
+            // invoked on arrays.
+            
+            // TODO: better detection of when taming is necessary.
             if (!classBinding.isFromSource()) {
                 // check in taming database
                 if (!taming.isTamed(classBinding)) {
@@ -546,7 +552,7 @@ public class Verifier {
          *            the type to verify
          */
         void checkType(ITypeBinding itb) {
-            System.out.println("Checking IType " + itb.getName());
+            System.out.println(". type " + itb.getName());
             IType type = (IType) itb.getJavaElement();
             try {
                 ITypeHierarchy sth = type.newSupertypeHierarchy(null);
@@ -572,7 +578,7 @@ public class Verifier {
 
                 for (IVariableBinding fb : fields) {
                     String name = fb.getName();
-                    System.out.println("Field " + name + ":");
+                    // System.out.println("Field " + name + ":");
                     int modifiers = fb.getModifiers();
                     if (Modifier.isStatic(modifiers)) {
                         if (Modifier.isFinal(modifiers)) {
@@ -612,8 +618,8 @@ public class Verifier {
                 ITypeBinding superTB = itb.getSuperclass();
 
                 if (superTB != null) {
-                    System.out.println("Superclass "
-                            + superTB.getQualifiedName());
+                    // System.out.println("Superclass "
+                    //         + superTB.getQualifiedName());
 
                     // See what honoraries superclass has; make sure that all
                     // are
@@ -923,7 +929,7 @@ public class Verifier {
                             Expression e = (Expression) o;
                             ITypeBinding extendedTB = e.resolveTypeBinding();
                             if (!safeToString(extendedTB, ast)) {
-                                addProblem("Untamed implicit call to toString*", e);
+                                addProblem("Untamed implicit call to toString", e);
                             }
                         }
                     }
