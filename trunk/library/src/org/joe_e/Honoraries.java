@@ -79,10 +79,12 @@ public class Honoraries {
      *  interface
      */
     public static boolean honorarilyImplements(Class<?> implementor, Class<?> mi) {
-        // BUG: See Markm's "NullPointerException bug in auto-unboxing"
-        int honoraries = entries.get(implementor);
-        
-        if (mi == Immutable.class) {
+        Integer honoraries = entries.get(implementor);
+       
+        if (honoraries == null) {
+            // implementor does not honorarily implement any interfaces
+            return false;
+        } else if (mi == Immutable.class) {
             return ((honoraries & IMPL_IMMUTABLE) != 0);                
         } else if (mi == Powerless.class) {
             return ((honoraries & IMPL_POWERLESS) != 0);
