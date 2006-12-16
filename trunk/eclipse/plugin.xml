@@ -30,15 +30,17 @@
          point="org.eclipse.ui.popupMenus">
       <objectContribution
             adaptable="true"
-            objectClass="org.eclipse.core.resources.IProject"
+            objectClass="org.eclipse.jdt.core.IJavaProject"
             nameFilter="*"
             id="Joe_E.toggleNature">
          <action
-               label="Enable/Disable Joe-E Verifier"
                class="org.joe_e.eclipse.ToggleNatureAction"
-               menubarPath="additions"
                enablesFor="+"
-               id="Joe_E.toggleNatureAction">
+               id="Joe_E.toggleNatureAction"
+               label="Enable Joe-E Verifier"
+               menubarPath="additions"
+               state="false"
+               style="toggle">
          </action>
       </objectContribution>
    </extension>

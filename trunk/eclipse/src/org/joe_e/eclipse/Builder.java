@@ -83,7 +83,6 @@ public class Builder extends IncrementalProjectBuilder {
 		System.out.println("Build request issued.");
 		
 		switch (kind) {
-		case CLEAN_BUILD:
 		case FULL_BUILD:
 			fullBuild(monitor);
 			break;
@@ -103,7 +102,8 @@ public class Builder extends IncrementalProjectBuilder {
 			break;
 		
 		default:
-			// this should never happen: all values enumerated above
+			// this should never happen: all values enumerated above except
+            // for CLEAN_BUILD, which instead invokes clean().
 			throw new IllegalArgumentException("Invalid kind of build: "
                                                + kind);
 		}
@@ -111,6 +111,16 @@ public class Builder extends IncrementalProjectBuilder {
 		return null;
 	}
 
+    /**
+     * Clean up all build state. Should *not* trigger a rebuild, should just
+     * clean everything up (like "build clean" in make).
+     */
+    protected void clean(IProgressMonitor monitor) throws CoreException {
+        state = null;
+        getProject().deleteMarkers("Joe_E.JoeEProblem", 
+                true, IResource.DEPTH_INFINITE);
+    }
+        
 	/**
 	 * Invoke the Joe-E verifier on a compilation unit and update the markers
      * for Joe-E problems. (First removes old problems, then runs verifier to
@@ -123,7 +133,7 @@ public class Builder extends IncrementalProjectBuilder {
 	 */
 	private Collection<ICompilationUnit> 
             checkAndUpdateProblems(ICompilationUnit icu) throws CoreException {
-		IFile file = (IFile) icu.getCorrespondingResource();
+        IFile file = (IFile) icu.getCorrespondingResource();
        
         System.out.println("Checking file " + file.getFullPath() + ":");
         
@@ -213,6 +223,7 @@ public class Builder extends IncrementalProjectBuilder {
             ICompilationUnit current = workQueue.remove();
             // for full build, ignore dependency-induced build requests --
             // everything should already be included.
+            monitor.subTask("Running Verifier on " + current.getElementName());
             checkAndUpdateProblems(current);
             monitor.worked(1);
         }
@@ -241,7 +252,10 @@ public class Builder extends IncrementalProjectBuilder {
                 if (file.getName().endsWith(".java")) {
                     ICompilationUnit icu = 
                         (ICompilationUnit) JavaCore.create(file);
-                    inBuild.add(icu);
+                    if (icu.exists()) {
+                        // .java files in weird locations don't exist
+                        inBuild.add(icu);
+                    }
                 }
             }
             
@@ -279,6 +293,7 @@ public class Builder extends IncrementalProjectBuilder {
             
         while (!workQueue.isEmpty()) {
             ICompilationUnit current = workQueue.remove();
+            monitor.subTask("Running Verifier on " + current.getElementName());
             // additional units to build
             Collection<ICompilationUnit> additional = 
                 checkAndUpdateProblems(current);
@@ -332,7 +347,9 @@ public class Builder extends IncrementalProjectBuilder {
                     if (file.getName().endsWith(".java")) {
                         ICompilationUnit icu = 
                             (ICompilationUnit) JavaCore.create(file);
-                        inBuild.add(icu);
+                        if (icu != null) {
+                            inBuild.add(icu);
+                        }
                     }
                 }
             }

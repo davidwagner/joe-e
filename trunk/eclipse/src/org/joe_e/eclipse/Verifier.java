@@ -272,7 +272,7 @@ public class Verifier {
                     }
                 }
             } else {
-                assert (ib instanceof IPackageBinding || ib instanceof IMethodBinding);
+                assert (ib == null || ib instanceof IPackageBinding || ib instanceof IMethodBinding);
             }
             return true;
         }
@@ -635,7 +635,9 @@ public class Verifier {
                     }
                 }
 
-                if (isPowerless /* && !taming.isDeemed(type, taming.POWERLESS) */) {
+                // Checks on fields
+                if (isPowerless 
+                    /* && !taming.isDeemed(type, taming.POWERLESS) */) {
                     if (sth.contains(taming.TOKEN)) {
                         problems.add(new Problem("Powerless type "
                                 + type.getElementName()
@@ -644,13 +646,23 @@ public class Verifier {
 
                     verifyAllFieldsAre(itb, taming.POWERLESS);
 
-                } else if (isImmutable /*
-                                         * !taming.isDeemed(type,
-                                         * taming.IMMUTABLE)
-                                         */) {
+                } else if (isImmutable 
+                           /* && !taming.isDeemed(type, taming.IMMUTABLE) */) {
 
                     verifyAllFieldsAre(itb, taming.IMMUTABLE);
+                } else if (isSelfless
+                           /* && !taming.isDeemed(type, taming.SELFLESS) */) {
+                    verifyAllFieldsAre(itb, taming.SELFLESS);
                 }
+                
+                // Additional checks for selfless
+                if (isSelfless) {
+                    // TODO: check doesn't implement equatable
+                    
+                    // TODO: extends a Selfless class or
+                    // overrides equals() and hashCode() 
+                }
+                
             } catch (JavaModelException jme) {
                 jme.printStackTrace(); // TODO: prettier debug
                 problems.add(new Problem(
@@ -683,9 +695,8 @@ public class Verifier {
                 throws JavaModelException {
 
             // FIXME: needs to depend on entire super class hierarchy that isn't
-            // guaranteed to
-            // implement interface. has flag dependency on first one (if any)
-            // that does.
+            // guaranteed to implement interface. has flag dependency on first 
+            // one (if any) that does.
             // deep dependency on superclass, if one exists
             /*
             String  = type.getSuperclassTypeSignature();
@@ -764,7 +775,8 @@ public class Verifier {
 
         /**
          * Verify that a class's explicit instance fields are final and
-         * honorarily implement the specified marker interface
+         * honorarily implement the specified marker interface.  Exception:
+         * Selfless is special-cased so that its fields need only be final.
          * 
          * @param type
          *            the type whose instance fields to check
@@ -803,19 +815,20 @@ public class Verifier {
                         // add dependency on type of field
                         state.addFlagDependency(icu, fieldTB);
 
-                        if (taming.implementsOverlay(fieldTB, mi)) {
+                        if (taming.implementsOverlay(fieldTB, mi)
+                            || mi == taming.SELFLESS) {
                             // OKAY
                         } else if (itb.equals(candidate)) {
-                            problems.add(new Problem(String.format(
-                                    "Non-%s field %s in %s %s", miName,
-                                    fieldName, miName, candName), ((IField) fb
-                                    .getJavaElement()).getNameRange()));
+                            problems.add(new Problem(
+                                String.format("Non-%s field %s in %s %s", 
+                                    miName, fieldName, miName, candName), 
+                                ((IField) fb.getJavaElement()).getNameRange()));
                         } else { // type != candidate
-                            problems.add(new Problem(String.format(
-                                    "Non-%s field %s from %s in %s %s", miName,
-                                    fieldName, typeName, miName, candName),
-                                    ((IType) candidate.getJavaElement())
-                                            .getNameRange()));
+                            problems.add(new Problem(
+                               String.format("Non-%s field %s from %s in %s %s",
+                                 miName, fieldName, typeName, miName, candName),
+                               ((IType) candidate.getJavaElement())
+                                   .getNameRange()));
                         }
                     } else if (itb.equals(candidate)) {
                         problems.add(new Problem(String.format(
@@ -871,7 +884,10 @@ public class Verifier {
         /**
          * Check an infix expression. If the expression is an object identity
          * comparison (== or !=), then ensure that at least one of the operands
-         * is Equatable.
+         * is Equatable.  If it is an addition or string concatenation 
+         * operation (+), ensure that the second and succesive arguments are
+         * safe to call toString() on.  This assumes that all types that unbox
+         * to primitives have their toString() method enabled.
          * 
          * @param te
          *            the infix expression to check
@@ -912,180 +928,52 @@ public class Verifier {
                 AST ast = ie.getAST(); // needed for resolveWellKnown type
                 
                 //try {
-                    ITypeBinding leftTB = ie.getLeftOperand().resolveTypeBinding();
-                    if (!safeToString(leftTB, ast)) {
-                        addProblem("Untamed implicit call to toString",
-                                   ie.getLeftOperand());
-                    }
+                    // left operand always statically a string (or boxed primitive)
+                    // checkToString(ie.getLeftOperand());
+                    checkToString(ie.getRightOperand());
                     
-                    ITypeBinding rightTB = ie.getRightOperand().resolveTypeBinding();
-                    if (!safeToString(rightTB, ast)) {
-                        addProblem("Untamed implicit call to toString", 
-                                   ie.getRightOperand());
-                    }
-                                        
                     if (ie.hasExtendedOperands()) {
                         for (Object o : ie.extendedOperands()) {
                             Expression e = (Expression) o;
-                            ITypeBinding extendedTB = e.resolveTypeBinding();
-                            if (!safeToString(extendedTB, ast)) {
-                                addProblem("Untamed implicit call to toString", e);
-                            }
+                            checkToString(e);
                         }
                     }
-                //} catch {
+                // } catch {}
             }
             
             return true;
-            
-            
-            /*
-            ITypeBinding leftTB = ie.getLeftOperand().resolveTypeBinding(); 
-            if (leftTB == null) {
-                addProblem("Analysis error: left type binding " +
-                           "unresolvable.", ie.getLeftOperand()); return true; 
-            }
-            
-            // cases where we don't need to look at right hand type 
-            if (leftTB.isPrimitive() || leftTB.isNullType()) { 
-                return true; 
-            }
-                 
-            ITypeBinding rightTB = ie.getRightOperand().resolveTypeBinding(); 
-            if (rightTB == null) {
-                addProblem("Analysis error: right type binding " +
-                           "unresolvable.", ie.getRightOperand()); return true; 
-            }
-            
-            // (otherwise redundant isPrimitive check required for auto-unboxing) 
-            if (rightTB.isNullType() || rightTB.isPrimitive()) {
-                 return true; 
-            }
-                 
-            InfixExpression.Operator EQUALS = InfixExpression.Operator.EQUALS; 
-            InfixExpression.Operator NOT_EQUALS = InfixExpression.Operator.NOT_EQUALS;
-            InfixExpression.Operator PLUS = InfixExpression.Operator.PLUS;
-                  
-            // Arrays bad for both equality tests and toString() 
-            if (leftTB.isArray() || rightTB.isArray()) { 
-                if (op == EQUALS) {
-                    addProblem("== used to compare arrays", ie); 
-                } else if (op == NOT_EQUALS) { 
-                    addProblem("!= used to compare arrays", ie); 
-                } else { // PLUS 
-                    addProblem("toString() implicitly called on an array", ie); 
-                } 
-                return true; 
-            }
-            
-            // Generic types are not typesafe, thus bad for both equality 
-            // and toString() 
-            else if (leftTB.isTypeVariable() || rightTB.isTypeVariable()) { 
-                if (op == EQUALS) {
-                    addProblem("== used to compare objects of generic"
-                               + "type", ie); 
-                } else if (op == NOT_EQUALS) { 
-                    addProblem("!= used to compare objects of generic"
-                               + "type", ie); 
-                } else { // PLUS
-                    addProblem("toString() implicitly called on object of" +
-                               "generic type.", ie); } return true;
-                }
-                // At this point, should have dealt with any funny stuff.
-                assert((leftTB.isClass() || leftTB.isInterface()) &&
-                       (rightTB.isClass() || rightTB.isInterface()));
-                  
-                try { // Evaluate left type binding 
-                    IType leftType = (IType)
-                    leftTB.getJavaElement(); 
-                    if (leftType == null) {
-                         addProblem("Analysis error: couldn't find type " +
-                                    leftTB.getQualifiedName() + ".", 
-                                    ie.getLeftOperand()); 
-                         return true;
-                    }
-                    // String concatenation 
-                    if (op == PLUS) { 
-                        if (leftType.equals(taming.STRING)) { 
-                            // only need to check right type 
-                            IType rightType = (IType) rightTB.getJavaElement(); 
-                            if (rightType == null) {
-                                addProblem("Analysis error: couldn't find type " +
-                                           rightTB.getQualifiedName() + ".", 
-                                           ie.getRightOperand());
-                                return true;
-                            }
-                            // ensure Object's toString method not called ...
-                 
-                  
-                  
-                  if (taming.implementsOverlay(rightType, taming.EQUATABLE)) { 
-                      // need to recheck if right side becomes un-equatable
-                      state.addFlagDependency(icu, rightType); 
-                      return true; 
-                  }
-                  
-                  // Otherwise, we have a problem 
-                  addProblem("Pointer equality test on non-Equatable types", ie);
-                  
-                  // need to recheck if either type becomes equatable
-                  state.addFlagDependency(icu, rightType);
-                  state.addFlagDependency(icu, leftType);
-              } else { 
-                  // only need to check left type
-              }
-            }
-                  
-            // Otherwise, equality test.
-            // OK if left side is Equatable 
-            if (taming.implementsOverlay(leftType, taming.EQUATABLE)) {
-                // need to recheck if left side becomes un-equatable
-                state.addFlagDependency(icu, leftType); 
-                return true; 
-            }
-            
-            // Otherwise, evaluate right type binding 
-            IType rightType = (IType) rightTB.getJavaElement(); 
-            if (rightType == null) {
-                addProblem("Analysis error: couldn't find type " +
-                rightTB.getQualifiedName() + ".", ie.getRightOperand());
-                return true; 
-            }
-            
-            // OK if right side is Equatable
-            if (taming.implementsOverlay(rightType, taming.EQUATABLE)) {
-                // need to recheck if right side becomes un-equatable
-                state.addFlagDependency(icu, rightType); 
-                return true; 
-            }
-             
-            // Otherwise, we have a problem 
-            addProblem("Pointer equality test on non-Equatable types", ie);
-            // need to recheck if either type becomes equatable
-            state.addFlagDependency(icu, rightType);
-            state.addFlagDependency(icu, leftType);
-            } catch (JavaModelException jme) { 
-                jme.printStackTrace(); 
-                // TODO: prettier debug 
-                addProblem("Analysis of file incomplete: BUG IN VERIFER " 
-                           + "or I/O error (unhandled exception) " +
-                           "encountered analyzing infix expression.", ie); 
-            } 
-        }
-        */
-        
         }
 
+        /**
+         * Check an assignment. If the expression is a string append operation,
+         * (+=), then ensure that the right hand side is safe to call toString
+         * on.  This assumes that all types that unbox to primitives have their
+         * toString() method enabled.
+         * 
+         * @param te
+         *            the infix expression to check
+         * @return true to visit children of this node
+         */      
+        public boolean visit(Assignment a) {
+            if (a.getOperator() == Assignment.Operator.PLUS_ASSIGN) {
+                checkToString(a.getRightHandSide());
+            }
+            
+            return true;
+        }
+        
         /*
-         * returns true if invoking toString() on an object of
-         * type itb is guaranteed to be safe (allowed by the taming
-         * database).
+         * Checks if invoking toString() on expression e violates taming
+         * decisions.  Adds problems if so.
          */
-        boolean safeToString(ITypeBinding itb, AST ast) {
+        void checkToString(Expression e) {
+            ITypeBinding itb  = e.resolveTypeBinding();
+            
             if (itb.isPrimitive()) {
-                return true;
+                // not a problem
             } else if (itb.isArray() || itb.isGenericType()) { 
-                return false;
+                addProblem("Taming-prohibited implicit call to " 
+                           + itb.getName() + ".toString()", e);
             } else { // no funny stuff, itb should be in the class hierarchy
                 while (itb != null) {
                     IMethodBinding[] imbs = itb.getDeclaredMethods();
@@ -1093,14 +981,22 @@ public class Verifier {
                         // Most specific statically resolvable toString method
                         if (imb.getName().equals("toString")
                                 && imb.getParameterTypes().length == 0) {
-                            return (itb.isFromSource() ||
-                                    (taming.isTamed(itb) &&
-                                     taming.isAllowed(itb, imb)));
+                            if (itb.isFromSource() || 
+                                (taming.isTamed(itb) &&
+                                 taming.isAllowed(itb, imb))) {
+                                return;
+                            } else {
+                                addProblem("Taming-prohibited implicit call to " +
+                                           itb.getName() + ".toString()", e);
+                                return;
+                            }
                         }      
                     }
                     itb = itb.getSuperclass();
                 }
-                return false;
+                
+                addProblem("VERIFIER BUG: unable to resolve toString() for "
+                           + e, e);
             }
         }
 
@@ -1112,15 +1008,18 @@ public class Verifier {
          * we'd be given two different versions of the same object here.
          */
         public void endVisit(Initializer init) {
-            assert (codeContext.pop() == init);
+            assert (codeContext.peek() == init);
+            codeContext.pop();
         }
 
         public void endVisit(FieldDeclaration fd) {
-            assert (codeContext.pop() == fd);
+            assert (codeContext.peek() == fd);
+            codeContext.pop();
         }
 
         public void endVisit(MethodDeclaration md) {
-            assert (codeContext.pop() == md);
+            assert (codeContext.peek() == md);
+            codeContext.pop();
         }
 
         public void endVisit(AnnotationTypeDeclaration atd) {
@@ -1137,12 +1036,14 @@ public class Verifier {
 
         public void endVisit(AnnotationTypeMemberDeclaration atmd) {
             // System.out.println("End visit of <" + bd + ">");
-            assert (codeContext.pop() == atmd);
+            assert (codeContext.peek() == atmd);
+            codeContext.pop();
         }
 
         public void endVisit(EnumConstantDeclaration ecd) {
             // System.out.println("End visit of <" + bd + ">");
-            assert (codeContext.pop() == ecd);
+            assert (codeContext.peek() == ecd);
+            codeContext.pop();
         }
 
 
