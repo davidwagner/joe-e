@@ -15,5 +15,12 @@ class ICUState {
 	ICUState() {
 		this.references = new HashSet<IType>();
 	}
-	
+
+    public String toString() {
+        StringBuilder b = new StringBuilder("references: [ ");
+        for (IType type : references) {
+            b.append(type.getFullyQualifiedName() + " ");
+        }
+        return b.append("]\n").toString();
+    }
 }

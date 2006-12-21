@@ -3,7 +3,6 @@ package org.joe_e.eclipse;
 import java.util.Set;
 import java.util.HashSet;
 
-//import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ICompilationUnit;
 
 /**
@@ -131,4 +130,16 @@ class ITypeState {
 		deepDependents.remove(dependent);
 		allDependents.remove(dependent);
 	}
+    
+    public String toString() {
+        StringBuilder b = new StringBuilder("deepDeps: [ ");
+        for (ICompilationUnit icu : deepDependents) {
+            b.append(icu.getElementName() + " ");
+        }
+        b.append("]\n  allDeps: [ ");
+        for (ICompilationUnit icu : allDependents) {
+            b.append(icu.getElementName() + " ");
+        }
+        return b.append("]\n  Tags: " + tags + "\n").toString();
+    }
 }

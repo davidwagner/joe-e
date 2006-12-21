@@ -8,13 +8,14 @@ package org.joe_e.eclipse;
 import org.eclipse.ui.plugin.*;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.osgi.framework.BundleContext;
-import org.eclipse.jdt.core.JavaCore;
 
 /**
  * The main plugin class to be used in the desktop.
  */
 public class Plugin extends AbstractUIPlugin {
 
+    static final String PLUGIN_ID = "Joe_E";
+    
 	//The shared instance.
 	private static Plugin plugin;
 	

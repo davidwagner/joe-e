@@ -106,7 +106,6 @@ public class ToggleNatureAction implements IObjectActionDelegate {
                     return true;
                 }
             }
-            
             return false;
         } catch (CoreException ce) {
             System.err.println("Unhandled CoreException! Shouldn't happen.");
@@ -183,41 +182,4 @@ public class ToggleNatureAction implements IObjectActionDelegate {
                 ce.printStackTrace(System.err);
         }
     }
-    
-    /*
-	 * Toggles sample nature on a project
-	 * 
-	 * @param project
-	 *            to have sample nature added or removed
-	 *
-	private void toggleNature(IProject project) {
-		try {
-			IProjectDescription description = project.getDescription();
-			String[] natures = description.getNatureIds();
-
-			for (int i = 0; i < natures.length; ++i) {
-				if (Nature.NATURE_ID.equals(natures[i])) {
-					System.out.println("Disabling Joe-E Verifier.");
-					// Remove the nature
-					String[] newNatures = new String[natures.length - 1];
-					System.arraycopy(natures, 0, newNatures, 0, i);
-					System.arraycopy(natures, i + 1, newNatures, i,
-							natures.length - i - 1);
-					description.setNatureIds(newNatures);
-					project.setDescription(description, null);
-					return;
-				}
-			}
-
-			System.out.println("Enabling the Joe-E Verifier.");
-			// Add the nature
-			String[] newNatures = new String[natures.length + 1];
-			System.arraycopy(natures, 0, newNatures, 0, natures.length);
-			newNatures[natures.length] = Nature.NATURE_ID;
-			description.setNatureIds(newNatures);
-			project.setDescription(description, null);
-		} catch (CoreException e) {
-		}
-	}
-    */
 }
