@@ -118,7 +118,7 @@ public class CharArray extends PowerlessArray<Character> {
     public int hashCode() {
         // Because wrappers for primitive types return the same hashCode as 
         // their primitive values, a CharArray has the same hashCode as a
-        // ConstArray<Character>.
+        // ConstArray<Character> with the same contents.
         return Arrays.hashCode(charArr);
     }
     

@@ -64,7 +64,7 @@ public class Honoraries {
      * interface <CODE>mi</CODE>.
      * 
      * <P>Note: In most cases, it makes more sense to use
-     * {@link Utility#isSubtypeOf(java.lang.Class, java.lang.Class) Utility.instanceOf()},
+     * {@link Utility#isSubtypeOf(java.lang.Class, java.lang.Class) Utility.isSubtypeOf()},
      * which returns true if <CODE>implementor</CODE> implements
      * <CODE>mi</CODE> either honorarily or in the Java type system.
      * (It is rare that one would want to treat objects that honorarily
