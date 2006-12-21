@@ -17,7 +17,7 @@ public class Nature implements IProjectNature {
 	 * ID of this project nature
 	 */
 	public static final String NATURE_ID = "Joe_E.JoeENature";
-
+	
 	private IProject project;
 
 	/*

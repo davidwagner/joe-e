@@ -23,11 +23,11 @@ class BuildState {
     static final int VERIFY_POWERLESS =  0x0400;
     */
     
-    final Map<IType, ITypeState> classStates;
+    final Map<IType, ITypeState> typeStates;
     final Map<ICompilationUnit, ICUState> icuStates;
     
 	BuildState() {
-		classStates = new HashMap<IType, ITypeState>();
+		typeStates = new HashMap<IType, ITypeState>();
 		icuStates = new HashMap<ICompilationUnit, ICUState>();
 	}
 	
@@ -42,7 +42,7 @@ class BuildState {
 			Set<IType> typesReferenced = oldState.references;
 			
 			for (IType i : typesReferenced) {
-				ITypeState referencedState = classStates.get(i);
+				ITypeState referencedState = typeStates.get(i);
 				referencedState.resetDependencies(toRebuild);
 			}
 		}
@@ -78,11 +78,11 @@ class BuildState {
     void addFlagDependency(ICompilationUnit current, ITypeBinding dependedOn) {
         if (dependedOn.isFromSource() && !dependedOn.isTypeVariable()) {
             IType type = (IType) dependedOn.getJavaElement();
-            ITypeState dependedState = classStates.get(dependedOn);
+            ITypeState dependedState = typeStates.get(type);
             if (dependedState == null) {
                 // create a node with an unitialized flags state
                 dependedState = new ITypeState();
-                classStates.put(type, dependedState);
+                typeStates.put(type, dependedState);
             }
             dependedState.addFlagDependent(current);
             
@@ -101,12 +101,12 @@ class BuildState {
 	 * @param dependedOn the class depended on to have some property
 	 */
 	void addDeepDependency(ICompilationUnit current, ITypeBinding dependedOn) {
-		if (!dependedOn.isFromSource()) {
+		if (dependedOn.isFromSource() && !dependedOn.isTypeVariable()) {
             IType type = (IType) dependedOn.getJavaElement();
-			ITypeState dependedState = classStates.get(dependedOn);
+			ITypeState dependedState = typeStates.get(type);
 			if (dependedState == null) {
 				dependedState = new ITypeState();
-				classStates.put(type, dependedState);
+				typeStates.put(type, dependedState);
 			}
 			dependedState.addDeepDependent(current);
 			
@@ -129,16 +129,18 @@ class BuildState {
      *              response to the new tags
      */
 	Collection<ICompilationUnit> updateTags(IType type, int newTags) {
-		ITypeState typeState = classStates.get(type);
-
+		ITypeState typeState = typeStates.get(type);
+        
 		// if state node doesn't already exist, create a new one with flags
 		// initialized
-		if (typeState == null) {
+        if (typeState == null) {
 			typeState = new ITypeState();
-		}
+			typeStates.put(type, typeState);
+        }
 		
 		int oldTags = typeState.tags;
 		typeState.tags = newTags;
+
 		if (oldTags < 0 || newTags == oldTags) { // Flags unchanged
 			// Only rebuild deep dependents
 			return typeState.deepDependents;
@@ -214,4 +216,18 @@ class BuildState {
 		INIT, REF;
 	}
 	*/
+    
+    public String toString() {
+       StringBuilder b = new StringBuilder("typeStates:\n");
+       for (IType type: typeStates.keySet()) {
+           b.append("  " + type.getFullyQualifiedName() + " " 
+                    + typeStates.get(type));
+       }
+       b.append("icuStates:\n");
+       for (ICompilationUnit icu: icuStates.keySet()) {
+           b.append("  " + icu.getElementName() + " " 
+                    + icuStates.get(icu));
+       }
+       return b.toString();
+    }
 }

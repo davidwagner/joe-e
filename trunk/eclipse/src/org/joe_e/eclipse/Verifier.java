@@ -27,8 +27,6 @@ import java.util.HashSet;
  * associate it with a new build state.
  */
 public class Verifier {
-    final IJavaProject project;
-
     final Taming taming;
 
     final BuildState state;
@@ -46,10 +44,9 @@ public class Verifier {
      *            the taming database to use
      * @throws JavaModelException
      */
-    Verifier(IJavaProject project, BuildState state, Taming taming)
+    Verifier(BuildState state, Taming taming)
             throws JavaModelException {
         this.state = state;
-        this.project = project;
         this.taming = taming;
     }
 
@@ -62,7 +59,8 @@ public class Verifier {
      * @param problems
      *            A List of Problems (Joe-E verification errors) to which to
      *            append Problems encountered
-     * @return a Collection of ICompilationUnits referenced by icu
+     * @return a Collection of ICompilationUnits that must be rechecked due to
+     *         changes made to icu since it was last built
      */
     Collection<ICompilationUnit> checkICU(ICompilationUnit icu,
             List<Problem> problems) {
@@ -99,52 +97,29 @@ public class Verifier {
         */
 
         try {
-            /*
-            // Types defined in this file
-			IType[] itypes = icu.getAllTypes();  // throws JavaModelException
-			
-            // TODO: lack of local types (see doc of icu.getAllTypes()):
-            // possibly a big soundness hole!!
-            
-			System.out.println("Found " + itypes.length + " types.");
-			for(int i = 0; i < itypes.length; ++i)
-			{
-				// Analyze each type.
-				IType type = itypes[i];
-				System.out.println("Analyzing " + type.getFullyQualifiedName() + ".");
-			
-				checkIType(type, dependents, problems);
-                
-                
-                System.out.println("Done with " + type.getFullyQualifiedName() + ".");
-			}
-			
-			// checks that require ugly DOM hacking directly
-			*/
-
             ASTParser parser = ASTParser.newParser(AST.JLS3);
             parser.setSource(icu);
             parser.setResolveBindings(true);
             ASTNode parse = parser.createAST(null);
             VerifierASTVisitor vav = new VerifierASTVisitor(icu, dependents,
                     problems);
-            parse.accept(vav);
-        
+            parse.accept(vav);      
         /*
          * JavaModelException *CANNOT* be thrown here, thus this special
          * casing is not necessary. 
 			
 	    } catch (JavaModelException jme) { 
             jme.printStackTrace();  // TODO: Fix ugly debug.
-			problems.add(new Problem("Analysis of file failed due to BUG IN VERIFIER or " +
-                                     "I/O error. (Unhandled exception)", 0, 0));   
+			problems.add(new Problem("Analysis of file failed due to BUG IN " +
+                                     "VERIFIER or I/O error. (Unhandled " +
+                                     "exception)", 0, 0));   
 		*/
         } catch (Throwable e) {
             System.out.println("Abort due to undeclared Throwable! " + e);
             e.printStackTrace();
-            problems.add(new Problem(
-                    "Analysis of file failed due to BUG IN VERIFIER or "
-                            + "I/O error. (unexpected exception)", 0, 0));
+            problems.add(new Problem("Analysis of file failed due to BUG IN " +
+                                     "VERIFIER or I/O error. (unexpected " +
+                                     "exception)", 0, 0));
         }
 
         return dependents;
@@ -181,60 +156,25 @@ public class Verifier {
         }
 
         /*
-         * Convenience method to add problems.
+         * Convenience methods to add problems.
          */
         private void addProblem(String description, ASTNode source) {
             problems.add(new Problem(description, source.getStartPosition(),
-                    source.getLength()));
+                                     source.getLength()));
         }
 
-        /**
-         * Check a field access. Ensure that the field being accessed is either
-         * present in source code, or permitted by the taming database.
-         * 
-         * @param fa
-         *            the field access to check
-         * @return true to visit children of this node
+        private void addProblem(String description, int start, int length) {
+            problems.add(new Problem(description, start, length));
+        }        
+        
+        private void addProblem(String description, ISourceRange source) {
+            problems.add(new Problem(description, source));
+        }
+
+        /* 
+         * No need to check FieldAccess or SuperFieldAccess expressions,
+         * as they are handled by SimpleName.
          */
-        public boolean visit(FieldAccess fa) {
-            IVariableBinding ivb = fa.resolveFieldBinding();
-            checkFieldBinding(ivb, fa);
-            return true;
-        }
-
-        /**
-         * Helper method to check a field binding, resolved from a field access
-         * expression or a qualified name. Ensure that the field is either
-         * present in source code or permitted by the taming database.
-         * 
-         * @param fieldBinding
-         *            the field binding to check
-         * @param source
-         *            the AST node in the program source that resolves to this
-         *            binding
-         */
-        private void checkFieldBinding(IVariableBinding fieldBinding,
-                ASTNode source) {
-            ITypeBinding classBinding = fieldBinding.getDeclaringClass();
-            // "The field length of an array type has no declaring class."
-            // getDeclaringClass returns null in this case. It needs to be
-            // special-cased here; we allow it.
-            if (classBinding != null && !classBinding.isFromSource()) {
-                // check in taming database
-                if (!taming.isTamed(classBinding)) {
-                    addProblem("Field from untamed class "
-                            + classBinding.getName() + " accessed.", source);
-                    return;
-                }
-
-                if (!taming.isAllowed(classBinding, fieldBinding)) {
-                    addProblem("Disabled field " + fieldBinding.getName()
-                            + " from class " + classBinding.getName()
-                            + " accessed.", source);
-                }
-            }
-        }
-
         /**
          * Check a simple name. If the name corresponds to a field, ensure
          * that the field being accessed is either present in source code, or
@@ -267,16 +207,55 @@ public class Verifier {
                 if (!itb.isFromSource()) {
                     // check in taming database
                     if (!taming.isTamed(itb)) {
-                        addProblem("Reference to untamed class "
-                                + itb.getName() + ".", sn);
+                        addProblem("Reference to untamed class " +
+                                   itb.getName() + ".", sn);
                     }
                 }
             } else {
-                assert (ib == null || ib instanceof IPackageBinding || ib instanceof IMethodBinding);
+                assert (ib == null || ib instanceof IPackageBinding || 
+                        ib instanceof IMethodBinding);
             }
             return true;
         }
 
+        /**
+         * Helper method to check a field binding, resolved from a field access
+         * expression or a simple name. Ensure that the field is either
+         * present in source code or permitted by the taming database.
+         * 
+         * @param fieldBinding
+         *            the field binding to check
+         * @param source
+         *            the AST node in the program source that resolves to this
+         *            binding
+         */
+        private void checkFieldBinding(IVariableBinding fieldBinding,
+                ASTNode source) {
+            ITypeBinding classBinding = fieldBinding.getDeclaringClass();
+            // "The field length of an array type has no declaring class."
+            // getDeclaringClass returns null in this case. It needs to be
+            // special-cased here; we allow it.
+            if (classBinding == null) {
+                return;
+            } else if (classBinding.isFromSource()) {
+                // add a dependency on the field existing
+                state.addFlagDependency(icu, classBinding);
+            } else {
+                // check in taming database
+                if (!taming.isTamed(classBinding)) {
+                    addProblem("Field from untamed class " +
+                               classBinding.getName() + " accessed.", source);
+                    return;
+                }
+
+                if (!taming.isAllowed(classBinding, fieldBinding)) {
+                    addProblem("Disabled field " + fieldBinding.getName() +
+                               " from class " + classBinding.getName() +
+                               " accessed.", source);
+                }
+            } 
+        }
+        
         /**
          * Check a class instance creation. Look up the constructor called in
          * the taming database for non-source types. Otherwise, if we are in a
@@ -293,69 +272,80 @@ public class Verifier {
         public boolean visit(ClassInstanceCreation cic) {
             IMethodBinding imb = cic.resolveConstructorBinding();
             ITypeBinding classBinding = imb.getDeclaringClass();
-            IType classType;
-            // the following line can trigger a bug in Eclipse 3.1
-            classType = (IType) classBinding.getJavaElement();
 
             // Check if taming is violated for non-source types.
             if (!classBinding.isFromSource()) {
                 // check in taming database
                 if (!taming.isTamed(classBinding)) {
-                    addProblem("Construction of untamed class "
-                            + classBinding.getName() + ".", cic.getType());
+                    addProblem("Construction of untamed class " +
+                               classBinding.getName() + ".", cic.getType());
                     return true;
                 }
 
                 if (!taming.isAllowed(classBinding, imb)) {
-                    addProblem("Disabled constructor from class "
-                            + classBinding.getName() + " called.", cic
-                            .getType());
+                    addProblem("Disabled constructor from class " +
+                               classBinding.getName() + " called.", 
+                               cic.getType());
                     return true;
                 }
             }
 
             // Otherwise, if we are in a constructor context, make sure that it
             // isn't an anonymous type or a non-static inner type.
-            IType currentClass = getConstructorContext();
+            if (inConstructorContext()) {
+                ITypeBinding currentClass = getContext();
+                if (classBinding.isAnonymous()) {
+                    addProblem("Construction of anonymous class during " +
+                               "instance initialization.", cic.getType());
+                    return true;
+                }
 
-            if (currentClass != null) {
-                try {
-                    if (classType.isAnonymous()) {
-                        addProblem("Construction of anonymous class "
-                                + "during instance initialization.", cic
-                                .getType());
+                ITypeBinding ancestor = classBinding.getDeclaringClass();
+                while (ancestor != null 
+                       && Flags.isStatic(ancestor.getModifiers())) {
+                    if (ancestor.equals(currentClass)) {
+                        addProblem("Construction of non-static member " + 
+                                   "class " + imb.getName() + 
+                                   "during instance initialization.", 
+                                   cic.getType());
                         return true;
                     }
-
-                    IJavaElement ancestor = classType;
-                    while (ancestor instanceof IType
-                            && !Flags.isStatic(((IType) ancestor).getFlags())) {
-                        ancestor = ancestor.getParent();
-
-                        if (ancestor.equals(currentClass)) {
-                            addProblem(
-                                    "Construction of non-static member class "
-                                            + imb.getName()
-                                            + " during instance "
-                                            + "initialization.", cic.getType());
-                            return true;
-                        }
-                    }
-                } catch (JavaModelException jme) {
-                    jme.printStackTrace(); // TODO: Fix ugly debug.
-                    addProblem("Analysis of file incomplete: BUG IN VERIFIER"
-                            + " or I/O error (unhandled exception) "
-                            + "encountered analyzing class instance "
-                            + "creation expression.", cic.getType());
+                    ancestor = ancestor.getDeclaringClass();
                 }
             }
 
             return true;
         }
+        
+        /**
+         * Check a superconstructor invocation. Look up the constructor called
+         * in the taming database for non-source types. 
+         * 
+         * @param sci 
+         *            the SuperConstructorInvocation to check
+         * @return true to visit children of this node
+         */
+        public boolean visit(SuperConstructorInvocation sci) {
+            IMethodBinding imb = sci.resolveConstructorBinding();
+            ITypeBinding classBinding = imb.getDeclaringClass();
 
+            // Check if taming is violated for non-source types.
+            // If the superclass is an untamed class, we have already flagged
+            // it. No dependency needed here; we assume that the superclass
+            // can't change from being from source to being part of the library.
+            if (!classBinding.isFromSource() && taming.isTamed(classBinding)
+                && !taming.isAllowed(classBinding, imb)) {
+                addProblem("Disabled superconstructor called.", sci);
+            }
+            
+            return true;
+        }
+        
         /**
          * Check a method invocation. Ensure that the method being called is
          * either present in source code, or permitted by the taming database.
+         * Additionally, if we are in a constructor context, forbid calling
+         * local non-static methods.
          * 
          * @param mi
          *            the method invocation to check
@@ -369,67 +359,111 @@ public class Verifier {
             // invoked on arrays.
             
             // TODO: better detection of when taming is necessary.
-            if (!classBinding.isFromSource()) {
+            if (classBinding.isFromSource()) {
+                // add deep dependency on method existing
+                state.addDeepDependency(icu, classBinding);
+            } else {
                 // check in taming database
                 if (!taming.isTamed(classBinding)) {
-                    addProblem("Method from untamed class "
-                            + classBinding.getName() + " called.", mi.getName());
+                    addProblem("Method from untamed class " +
+                               classBinding.getName() + " called.", 
+                               mi.getName());
                     return true;
                 }
 
                 if (!taming.isAllowed(classBinding, imb)) {
-                    addProblem("Disabled method " + imb.getName()
-                            + " from class " + classBinding.getName()
-                            + " called.", mi.getName());
+                    addProblem("Disabled method " + imb.getName() +
+                               " from class " + classBinding.getName() +
+                               " called.", mi.getName());
                     return true;
                 }
             }
-            // If we are in constructor or instance initializer, forbid local
-            // methods.
-            IType currentClass = getConstructorContext();
+            // If we are in constructor or instance initializer, forbid 
+            // non-static local method calls.  These are calls with no explicit
+            // target object expression; calls using "this" are flagged in the
+            // checks on ThisExpression nodes.
+            if (inConstructorContext() && !Flags.isStatic(imb.getModifiers())
+                && mi.getExpression() == null) {
+                addProblem("Called local non-static method " + 
+                           imb.getName() + " during instance " +
+                           "initialization.", mi.getName());
+            }
+            return true;
+        }
 
-            // check non-static methods called in construction contexts
-            if (currentClass != null && !Flags.isStatic(imb.getModifiers())) {
-                // if the method is invoked on the current object (no explicit
-                // target given, this is bad.
-                if (mi.getExpression() == null) {
-                    addProblem("Called local non-static method "
-                            + imb.getName() + " during instance "
-                            + "initialization.", mi.getName());
+        /**
+         * Check a supermethod invocation.  If we are in a constructor context,
+         * forbid all non-static supermethods.  Otherwise, ensure that the
+         * method being called is either present in source code, or permitted
+         * by the taming database.
+         * 
+         * @param mi
+         *            the method invocation to check
+         * @return true to visit children of this node
+         */
+        public boolean visit(SuperMethodInvocation smi) {
+            IMethodBinding imb = smi.resolveMethodBinding();
+            if (inConstructorContext() && smi.getQualifier() == null
+                && Flags.isStatic(imb.getModifiers())) {
+                addProblem("Called non-static local supermethod " + 
+                           imb.getName() + " during instance initialization.",
+                           smi.getName());                
+            }
+            
+            ITypeBinding classBinding = imb.getDeclaringClass();
+            
+            // Check if taming is violated for non-source types.  If the 
+            // superclass is an untamed class, we have already flagged it.
+            if (classBinding.isFromSource()) {
+                // we depend on the method existing
+                state.addDeepDependency(icu, classBinding);
+            } else if (taming.isTamed(classBinding)
+                     && !taming.isAllowed(classBinding, imb)) {
+                addProblem("Disabled method " + imb.getName() +
+                           " from superclass called.", smi);
+            } else {
+                try {
+                    ITypeBinding superTB = getContext().getSuperclass();
+                    if (taming.implementsOverlay(getContext(), taming.SELFLESS)
+                        && (superTB == null 
+                            || superTB.getJavaElement() == taming.OBJECT)
+                        && imb.getName().equals("equals")) {
+                        addProblem("Can't call super.equals() from a Selfless "
+                                   + "class with superclass java.lang.Object.",
+                                   smi.getName());
+                    }
+                } catch (JavaModelException jme) {
+                    addProblem("Analysis incomplete: BUG IN VERIFIER or I/O " +
+                               "error (JavaModelException) encountered " +
+                               "analyzing supermethod invocation.",
+                               smi.getName());
                 }
             }
             return true;
         }
 
         /**
-         * If in a constructor context, i.e. at a program point in which the
-         * current object may be incompletelly initialized, get the current
-         * class.
+         * Get the current class by looking in the code context.
          * 
-         * @return null if not in a constructor context, the type of the current
-         *         class if in a constructor context
+         * @return the type binding of the current class
+         * @throws NullPointerException if not in a code context.
          */
-        IType getConstructorContext() {
-            if (inConstructorContext()) {
-                BodyDeclaration bd = codeContext.peek();
-                // FIXME: Does not work for constructors of anonymous classes!!!
-                ASTNode bdParent = bd.getParent();
-                if (bdParent instanceof AbstractTypeDeclaration) {
-                    return (IType) ((AbstractTypeDeclaration) bdParent)
-                            .resolveBinding().getJavaElement();
-                } else {
-                    assert (bdParent instanceof AnonymousClassDeclaration);
-                    return (IType) ((AnonymousClassDeclaration) bdParent)
-                            .resolveBinding().getJavaElement();
-                }
+        ITypeBinding getContext() {
+            BodyDeclaration bd = codeContext.peek();
+            ASTNode bdParent = bd.getParent();
+            
+            // Two possibilities: either bdParent is an AbstractTypeDeclaration
+            // or it is an AnonymousClassDeclaration.
+            if (bdParent instanceof AbstractTypeDeclaration) {
+                return ((AbstractTypeDeclaration) bdParent).resolveBinding();
             } else {
-                return null;
+                return ((AnonymousClassDeclaration) bdParent).resolveBinding();
             }
         }
 
         /**
          * Test whether we are in a constructor context, i.e. at a program point
-         * at which the current object may be incompletelly initialized. This
+         * at which the current object may be incompletely initialized.  This
          * occurs during the traversal of instance initializers, constructors,
          * and non-static field declarations. This makes use of the codeContext
          * information updated when such nodes are entered and exited during
@@ -443,7 +477,7 @@ public class Verifier {
             if (bd instanceof Initializer) {
                 Initializer init = (Initializer) bd;
                 // Non-static initalizers are essentially part of every
-                // constructor.
+                // constructor in the corresponding class.
                 return !Flags.isStatic(init.getModifiers());
             } else if (bd instanceof MethodDeclaration) {
                 MethodDeclaration md = (MethodDeclaration) bd;
@@ -451,13 +485,14 @@ public class Verifier {
             } else if (bd instanceof FieldDeclaration) {
                 FieldDeclaration fd = (FieldDeclaration) bd;
                 // Non-static field declarations are essentially part of every
-                // constructor.
-                return !Flags.isStatic(fd.getFlags());
+                // constructor in the corresponding class.
+                return !Flags.isStatic(fd.getModifiers());
             } else {
                 return false;
                 // FIXME: Include appropriate handling (or reasoning why not
                 // necessary) for cases not handled above:
-                // AbstractTypeDeclaration, AnnotationTypeMemberDeclaration,
+                // AbstractTypeDeclaration: 
+                // AnnotationTypeMemberDeclaration,
                 // EnumConstantDeclaration.
             }
         }
@@ -499,9 +534,53 @@ public class Verifier {
             // ">");
             codeContext.push(md);
             String name = md.getName().toString();
+                      
             if (Modifier.isNative(md.getModifiers())) {
-                addProblem("Native method " + name, md);
+                addProblem("Native method " + name + ".", md.getName());
             }
+            
+            /*
+            // TODO: Check implicit superconstructor invocation. 
+            if (md.isConstructor()) {
+                List statements = md.getBody().statements();
+                
+                Statement first = null;
+                boolean isEmpty = statements.isEmpty();
+                if (!isEmpty) {
+                    first = (Statement) statements.get(0);
+                }
+                
+                if (isEmpty || !(first instanceof SuperConstructorInvocation)) {
+                    ITypeBinding sc = md.resolveBinding()
+                                        .getDeclaringClass().getSuperclass();
+                     
+                    if (!sc.isFromSource() && taming.isTamed(sc)) {
+                        IMethodBinding[] methods = sc.getDeclaredMethods();
+                        for (IMethodBinding imb : methods) {
+                            if (imb.isConstructor() && 
+                                imb.getParameterTypes().length == 0) {
+                                if (!taming.isAllowed(sc, imb)) {
+                                    addProblem("Implicit call to disabled " +
+                                               "constructor.", 
+                                               md.getName()); 
+                                }
+                                return true;
+                            }
+                            // TODO: YUCK!!! What if we dispatch incorrectly?
+                            // (this is possible in the face of varargs...)
+                            // Is there a way to add a super() and see what it
+                            // maps to?  Alternately, should we have the
+                            // invariant that the zero-ary constructor must 
+                            // always be allowed for any tamed class?
+                            // Also consider *implicit* default constructor!
+                        }
+                        addProblem("BUG: Could not find constructor " + 
+                                   "implicitly invoked for this method.",
+                                   md.getName());
+                    }
+                }
+            }
+            */
             return true;
         }
 
@@ -553,10 +632,21 @@ public class Verifier {
          */
         void checkType(ITypeBinding itb) {
             System.out.println(". type " + itb.getName());
+            
+            // Add a flag dependency on all immediate supertypes as a change to
+            // their flags would affect this type's flags. 
+            ITypeBinding superTB = itb.getSuperclass();
+            if (superTB != null) {
+                state.addFlagDependency(icu, superTB);    
+            }
+            for (ITypeBinding i : itb.getInterfaces()) {
+                state.addFlagDependency(icu, i);
+            }
+            
             IType type = (IType) itb.getJavaElement();
             try {
                 ITypeHierarchy sth = type.newSupertypeHierarchy(null);
-
+                                
                 // Marker interfaces here = implements in BASE type system
                 boolean isSelfless = sth.contains(taming.SELFLESS);
                 boolean isImmutable = sth.contains(taming.IMMUTABLE);
@@ -589,21 +679,24 @@ public class Verifier {
 
                             if (!taming.implementsOverlay(fieldTB,
                                     taming.POWERLESS)) {
-                                problems.add(new Problem(
-                                        "Non-powerless static field " + name
-                                                + ".", ((IField) fb
-                                                .getJavaElement())
-                                                .getNameRange()));
+                                addProblem("Non-powerless static field " + name
+                                           + ".", ((IField) fb.getJavaElement())
+                                                      .getNameRange());
                             }
                         } else {
-                            problems.add(new Problem("Non-final static field "
-                                    + name + ".",
-                                    ((IField) fb.getJavaElement())
-                                            .getNameRange()));
+                            addProblem("Non-final static field " + name + ".",
+                                       ((IField) fb.getJavaElement())
+                                           .getNameRange());
                         }
                     }
                 }
 
+                // 4.4b: Selfless classes and interfaces cannot be equatable.
+                if (isEquatable && isSelfless) {
+                    addProblem("A type cannot be both Selfless and Equatable.",
+                               type.getNameRange());
+                }
+                
                 if (type.isInterface()) {
                     // Nothing more to check. All fields are static final and
                     // have
@@ -615,8 +708,7 @@ public class Verifier {
                 // Otherwise, it is a "real" class.
                 //
 
-                ITypeBinding superTB = itb.getSuperclass();
-
+                IType supertype = null;
                 if (superTB != null) {
                     // System.out.println("Superclass "
                     //         + superTB.getQualifiedName());
@@ -625,23 +717,55 @@ public class Verifier {
                     // are
                     // implemented by this class.
 
-                    IType supertype = (IType) superTB.getJavaElement();
+                    supertype = (IType) superTB.getJavaElement();
                     Set<IType> unimp = taming.unimplementedHonoraries(sth);
                     for (IType i : unimp) {
-                        problems.add(new Problem("Honorary interface "
-                                + i.getElementName() + " not inherited from "
-                                + supertype.getElementName(), type
-                                .getNameRange()));
+                        addProblem("Honorary interface " + i.getElementName() +
+                                   " not inherited from " + 
+                                   supertype.getElementName(), 
+                                   type.getNameRange());
                     }
                 }
 
+                // 4.4c: Object identity must not be visible
+                if (isSelfless) {
+                    boolean superTypeSelfless = false;
+                    if (supertype != null) {
+                        // We depend on whether or not superclass is selfless
+                        state.addFlagDependency(icu, superTB);
+                        
+                        ITypeHierarchy ssth = 
+                            supertype.newSupertypeHierarchy(null);
+                        if (ssth.contains(taming.SELFLESS)) {
+                            superTypeSelfless = true;
+                        }
+                    }
+                    
+                    if (!superTypeSelfless) {
+                        if (supertype != null && supertype != taming.OBJECT) {
+                            addProblem("Selfless class extends non-Selfless " +
+                                       "class other than java.lang.Object.",
+                                       type.getNameRange());
+                        }
+                        
+                        IMethod equalsMethod = 
+                            type.getMethod("equals", new String[]{"QObject;"});
+                        IMethod hashMethod = 
+                            type.getMethod("hashCode", new String[]{});
+                        if (!equalsMethod.exists() || !hashMethod.exists()) {
+                            addProblem("Selfless class does not override " +
+                                       "equals(Object) and hashCode().",
+                                       type.getNameRange());
+                        }
+                    }
+                }
+                
                 // Checks on fields
                 if (isPowerless 
                     /* && !taming.isDeemed(type, taming.POWERLESS) */) {
                     if (sth.contains(taming.TOKEN)) {
-                        problems.add(new Problem("Powerless type "
-                                + type.getElementName()
-                                + " can't extend Token.", type.getNameRange()));
+                        addProblem("Powerless type " + type.getElementName() +
+                                   " can't extend Token.", type.getNameRange());
                     }
 
                     verifyAllFieldsAre(itb, taming.POWERLESS);
@@ -654,30 +778,19 @@ public class Verifier {
                            /* && !taming.isDeemed(type, taming.SELFLESS) */) {
                     verifyAllFieldsAre(itb, taming.SELFLESS);
                 }
-                
-                // Additional checks for selfless
-                if (isSelfless) {
-                    // TODO: check doesn't implement equatable
-                    
-                    // TODO: extends a Selfless class or
-                    // overrides equals() and hashCode() 
-                }
-                
             } catch (JavaModelException jme) {
                 jme.printStackTrace(); // TODO: prettier debug
-                problems.add(new Problem(
-                        "Analysis of file incomplete: BUG IN VERIFER "
-                                + "or I/O error (unhandled exception) "
-                                + "encountered analyzing type "
-                                + type.getElementName() + ".", 0, 0));
+                addProblem("Analysis incomplete: BUG IN VERIFIER or I/O " +
+                           "error (unhandled exception) encountered " +
+                           "analyzing type" + type.getElementName() + ".",
+                           0, 0);
             } catch (Throwable e) {
                 e.printStackTrace(); // TODO: prettier debug
-                problems.add(new Problem(
-                        "Analysis of file incomplete: BUG IN VERIFER "
-                                + "or I/O error (unexpected exception) "
-                                + "encountered analyzing type "
-                                + type.getElementName() + ".", 0, 0));
-            }
+                addProblem("Analysis incomplete: BUG IN VERIFIER or I/O " +
+                           "error (unhandled exception) encountered " +
+                           "analyzing type" + type.getElementName() + ".",
+                           0, 0);
+           }
         }
 
         /**
@@ -693,19 +806,6 @@ public class Verifier {
          */
         void verifyAllFieldsAre(ITypeBinding itb, IType mi)
                 throws JavaModelException {
-
-            // FIXME: needs to depend on entire super class hierarchy that isn't
-            // guaranteed to implement interface. has flag dependency on first 
-            // one (if any) that does.
-            // deep dependency on superclass, if one exists
-            /*
-            String  = type.getSuperclassTypeSignature();
-            if (superclassSig != null) {
-                IType superclass = Utility.lookupType(superclassSig, type);
-                state.addDeepDependency(type.getCompilationUnit(), superclass);
-            }
-            */
-
             Set<ITypeBinding> needCheck = findClasses(itb, mi);
             for (ITypeBinding i : needCheck) {
                 verifyFieldsAre(i, mi, itb);
@@ -716,7 +816,7 @@ public class Verifier {
          * Find the set of classes all of whose fields must satisfy a given
          * marker interface. This requires traversal of supertypes and enclosing
          * types. Classes already declared to implement the marker interface are
-         * not returned.
+         * not returned.  This method updates dependencies during the traversal.
          * 
          * @param type
          *            the type at which to start
@@ -736,7 +836,8 @@ public class Verifier {
                 ITypeBinding next = left.removeFirst();
                 // non-static member classes get access to variables in their
                 // containing class
-                if (next.isMember() && !Modifier.isStatic(next.getModifiers())) {
+                if (next.isMember() 
+                    && !Modifier.isStatic(next.getModifiers())) {
                     ITypeBinding enclosingTB = next.getDeclaringClass();
                     // if following line fails, fix for local types
 
@@ -819,28 +920,28 @@ public class Verifier {
                             || mi == taming.SELFLESS) {
                             // OKAY
                         } else if (itb.equals(candidate)) {
-                            problems.add(new Problem(
+                            addProblem(
                                 String.format("Non-%s field %s in %s %s", 
                                     miName, fieldName, miName, candName), 
-                                ((IField) fb.getJavaElement()).getNameRange()));
+                                ((IField) fb.getJavaElement()).getNameRange());
                         } else { // type != candidate
-                            problems.add(new Problem(
+                            addProblem(
                                String.format("Non-%s field %s from %s in %s %s",
                                  miName, fieldName, typeName, miName, candName),
                                ((IType) candidate.getJavaElement())
-                                   .getNameRange()));
+                                   .getNameRange());
                         }
                     } else if (itb.equals(candidate)) {
-                        problems.add(new Problem(String.format(
-                                "Non-final field %s in %s %s", fieldName,
-                                miName, candName), ((IField) fb
-                                .getJavaElement()).getNameRange()));
+                        addProblem(String.format("Non-final field %s in %s %s", 
+                                                 fieldName,miName, candName), 
+                                   ((IField) fb.getJavaElement())
+                                       .getNameRange());
                     } else { // type != candidate
-                        problems.add(new Problem(String.format(
-                                "Non-final field %s from %s in %s %s",
+                        addProblem(
+                            String.format("Non-final field %s from %s in %s %s",
                                 fieldName, typeName, miName, candName),
-                                ((IType) candidate.getJavaElement())
-                                        .getNameRange()));
+                            ((IType) candidate.getJavaElement())
+                                .getNameRange());
                     }
                 }
             }
@@ -874,7 +975,7 @@ public class Verifier {
          */
         public boolean visit(ThisExpression te) {
             if (inConstructorContext()
-                    && !(te.getParent() instanceof FieldAccess)) {
+                && !(te.getParent() instanceof FieldAccess)) {
                 addProblem("Possible escapement of 'this' not allowed in "
                         + "instance initialization.", te);
             }
@@ -899,20 +1000,24 @@ public class Verifier {
 				op == InfixExpression.Operator.NOT_EQUALS) {
                 // Test for Equatability
                 try {
-                    ITypeBinding leftTB = ie.getLeftOperand().resolveTypeBinding();
+                    ITypeBinding leftTB = 
+                        ie.getLeftOperand().resolveTypeBinding();
                     if (taming.implementsOverlay(leftTB, taming.EQUATABLE)) {
                         // need to recheck if left type becomes un-Equatable
                         state.addFlagDependency(icu, leftTB);
                         return true;
                     } else {
-                        ITypeBinding rightTB = ie.getRightOperand().resolveTypeBinding();
-                        if (taming.implementsOverlay(rightTB, taming.EQUATABLE)) {
+                        ITypeBinding rightTB = 
+                            ie.getRightOperand().resolveTypeBinding();
+                        if (taming.implementsOverlay(rightTB, 
+                                                     taming.EQUATABLE)) {
                             // need to recheck if right type becomes
                             // un-Equatable
                             state.addFlagDependency(icu, rightTB);
                             return true;
                         } else {
-                            addProblem("Pointer equality test on non-Equatable types", ie);
+                            addProblem("Pointer equality test on non-Equatable "
+                                       + "types", ie);
                             // need to recheck if either type becomes Equatable
                             state.addFlagDependency(icu, rightTB);
                             state.addFlagDependency(icu, leftTB);       
@@ -928,7 +1033,8 @@ public class Verifier {
                 AST ast = ie.getAST(); // needed for resolveWellKnown type
                 
                 //try {
-                    // left operand always statically a string (or boxed primitive)
+                    // left operand always statically a string (or boxed 
+                    // primitive)
                     // checkToString(ie.getLeftOperand());
                     checkToString(ie.getRightOperand());
                     
@@ -981,13 +1087,16 @@ public class Verifier {
                         // Most specific statically resolvable toString method
                         if (imb.getName().equals("toString")
                                 && imb.getParameterTypes().length == 0) {
-                            if (itb.isFromSource() || 
-                                (taming.isTamed(itb) &&
-                                 taming.isAllowed(itb, imb))) {
+                            if (itb.isFromSource()) {
+                                // add dependency on toString() existing
+                                state.addDeepDependency(icu, itb);
+                                return;
+                            } else if (taming.isTamed(itb) &&
+                                       taming.isAllowed(itb, imb)) {
                                 return;
                             } else {
-                                addProblem("Taming-prohibited implicit call to " +
-                                           itb.getName() + ".toString()", e);
+                                addProblem("Taming-prohibited implicit call to "
+                                           + itb.getName() + ".toString()", e);
                                 return;
                             }
                         }      
@@ -1045,7 +1154,5 @@ public class Verifier {
             assert (codeContext.peek() == ecd);
             codeContext.pop();
         }
-
-
     }
 }

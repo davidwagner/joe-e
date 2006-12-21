@@ -145,6 +145,9 @@ public class Builder extends IncrementalProjectBuilder {
 		
         System.out.println("... found " + problems.size() + " problem" 
                            + (problems.size() == 1 ? "." : "s."));
+        
+        // System.out.println(state);
+        
 		//TODO: use CompilationUnit's built-in line number finder?
 		SourceLocationConverter slc = new SourceLocationConverter(file);
 		ListIterator<Problem> i = problems.listIterator();
@@ -209,7 +212,7 @@ public class Builder extends IncrementalProjectBuilder {
         
         taming = new Taming(new java.io.File(Preferences.getTamingPath()), jp);
         
-        verifier = new Verifier(jp, state, taming);
+        verifier = new Verifier(state, taming);
 	
         ResourceVisitor rv = new ResourceVisitor();
         getProject().accept(rv);
@@ -347,7 +350,7 @@ public class Builder extends IncrementalProjectBuilder {
                     if (file.getName().endsWith(".java")) {
                         ICompilationUnit icu = 
                             (ICompilationUnit) JavaCore.create(file);
-                        if (icu != null) {
+                        if (icu.exists()) {
                             inBuild.add(icu);
                         }
                     }
