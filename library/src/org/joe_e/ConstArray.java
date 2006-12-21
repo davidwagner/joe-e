@@ -8,6 +8,10 @@ package org.joe_e;
 
 import java.util.Arrays;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 /**
  * An immutable array containing elements of an arbitrary type.
  *
@@ -18,7 +22,9 @@ import java.util.Arrays;
 public class ConstArray<E> implements Selfless, Iterable<E>, java.io.Serializable {
     static final long serialVersionUID = 624781170963430746L;
     
-    final E[] arr;
+    // Marked transient to hide from serialization; see comment below constructor.
+    // This field is really final, I swear.
+    transient E[] arr;
     
     /**
      * Construct an immutable array with a copy of an existing array as
@@ -29,7 +35,37 @@ public class ConstArray<E> implements Selfless, Iterable<E>, java.io.Serializabl
 	public ConstArray (E... arr) {
 		this.arr = arr.clone();
 	}
-    
+
+    /*
+     * Serialization hacks to prevent the contents from being serialized as
+     * a mutable array.  This improves efficiency for projects that serialize
+     * Joe-E objects using Java's serialization API to avoid treating immutable
+     * state as mutable.  They can otherwise be ignored.
+     */
+    private void
+    writeObject(final ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+
+        out.writeObject(arr.getClass().getComponentType());
+        out.writeInt(arr.length);
+        for (final Object x : arr) {
+            out.writeObject(x);
+        }
+    }
+
+    private void
+    readObject(final ObjectInputStream in) throws IOException,
+                                                  ClassNotFoundException {
+        in.defaultReadObject();
+
+        final Class component_type = (Class)in.readObject();
+        final int length = in.readInt();
+        arr = (E[])java.lang.reflect.Array.newInstance(component_type, length);
+        for (int i = 0; i != length; ++i) {
+            arr[i] = (E)in.readObject();
+        }
+    }
+      
     /**
      * Return the element located at a specified position
      * 
@@ -88,7 +124,17 @@ public class ConstArray<E> implements Selfless, Iterable<E>, java.io.Serializabl
      * @return a hash code based on the contents of this array
      */
     public int hashCode() {
-        return Arrays.hashCode(arr);
+        int hashCode = 1;
+        for (E i : arr) {
+            if (i == null || Utility.instanceOf(i, Selfless.class)) {
+                hashCode = 31 * hashCode + (i == null ? 0 : i.hashCode());
+            } else {
+                return arr.length * 31337;
+            }
+        }
+        
+        assert (hashCode == Arrays.hashCode(arr));
+        return hashCode;
     }
     
     /**
