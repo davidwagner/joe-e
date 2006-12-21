@@ -15,6 +15,7 @@ import java.util.Stack;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Arrays;
 
 /**
  * This class contains the actual checks performed by the Joe-E verifier. The
@@ -104,17 +105,8 @@ public class Verifier {
             VerifierASTVisitor vav = new VerifierASTVisitor(icu, dependents,
                     problems);
             parse.accept(vav);      
-        /*
-         * JavaModelException *CANNOT* be thrown here, thus this special
-         * casing is not necessary. 
-			
-	    } catch (JavaModelException jme) { 
-            jme.printStackTrace();  // TODO: Fix ugly debug.
-			problems.add(new Problem("Analysis of file failed due to BUG IN " +
-                                     "VERIFIER or I/O error. (Unhandled " +
-                                     "exception)", 0, 0));   
-		*/
         } catch (Throwable e) {
+            // Catch any unexpected exceptions or errors during verification
             System.out.println("Abort due to undeclared Throwable! " + e);
             e.printStackTrace();
             problems.add(new Problem("Analysis of file failed due to BUG IN " +
@@ -193,17 +185,11 @@ public class Verifier {
                 }
             } else if (ib instanceof ITypeBinding) {
                 ITypeBinding itb = (ITypeBinding) ib;
-                // TODO: temporary debugging cruft.
-                if (!itb.isClass() && !itb.isInterface()) {
-                    // System.out.print("not a class or interface");
-                    if (!itb.isEnum()) {
-                        // System.out.print(", not an enum");
-                        assert (itb.isAnnotation() || itb.isWildcardType()
-                                || itb.isTypeVariable());
-                    }
-                    // System.out.println(".");
-                }
-
+                
+                assert (itb.isClass() || itb.isInterface() || itb.isEnum()
+                        || itb.isAnnotation() || itb.isWildcardType()
+                        || itb.isTypeVariable());
+                
                 if (!itb.isFromSource()) {
                     // check in taming database
                     if (!taming.isTamed(itb)) {
@@ -219,9 +205,9 @@ public class Verifier {
         }
 
         /**
-         * Helper method to check a field binding, resolved from a field access
-         * expression or a simple name. Ensure that the field is either
-         * present in source code or permitted by the taming database.
+         * Helper method to check a field binding, resolved from a simple name.
+         * Ensure that the field is either present in source code or permitted
+         * by the taming database.
          * 
          * @param fieldBinding
          *            the field binding to check
@@ -489,11 +475,14 @@ public class Verifier {
                 return !Flags.isStatic(fd.getModifiers());
             } else {
                 return false;
-                // FIXME: Include appropriate handling (or reasoning why not
-                // necessary) for cases not handled above:
-                // AbstractTypeDeclaration: 
-                // AnnotationTypeMemberDeclaration,
-                // EnumConstantDeclaration.
+                // Why other cases are never constructor contexts:
+                // AbstractTypeDeclaration (AnnotationTypeDeclaration, 
+                //   EnumDeclaration, TypeDeclaration) are never added to
+                //   codeContext as they don't directly contain code.
+                // AnnotationTypeMemberDeclaration: 
+                //   no instance fields in an annotation
+                // EnumConstantDeclaration: 
+                //   essentially, static field declarations
             }
         }
 
@@ -530,8 +519,6 @@ public class Verifier {
          * @return true to visit children of this node
          */
         public boolean visit(MethodDeclaration md) {
-            // System.out.println("visit(MethodDeclaration bd) of <" + md +
-            // ">");
             codeContext.push(md);
             String name = md.getName().toString();
                       
@@ -540,7 +527,7 @@ public class Verifier {
             }
             
             /*
-            // TODO: Check implicit superconstructor invocation. 
+            // TODO? Check implicit superconstructor invocation. 
             if (md.isConstructor()) {
                 List statements = md.getBody().statements();
                 
@@ -601,6 +588,11 @@ public class Verifier {
             return true;
         }
 
+        /*
+         * ClassDeclarations and InterfaceDeclarations have different production
+         * rules in the Java grammar, but are represented by the same node type
+         * in Eclipse.
+         */
         public boolean visit(TypeDeclaration td) {
             checkType((ITypeBinding) td.resolveBinding());
             // codeContext.push(td);
@@ -662,7 +654,7 @@ public class Verifier {
 
                 // update flags and add dependents
                 dependents.addAll(state.updateTags(type, tags));
-
+                
                 // Restrictions on static fields.
                 IVariableBinding[] fields = itb.getDeclaredFields();
 
@@ -708,21 +700,18 @@ public class Verifier {
                 // Otherwise, it is a "real" class.
                 //
 
-                IType supertype = null;
                 if (superTB != null) {
                     // System.out.println("Superclass "
                     //         + superTB.getQualifiedName());
 
                     // See what honoraries superclass has; make sure that all
-                    // are
-                    // implemented by this class.
+                    // are implemented by this class.
 
-                    supertype = (IType) superTB.getJavaElement();
                     Set<IType> unimp = taming.unimplementedHonoraries(sth);
                     for (IType i : unimp) {
                         addProblem("Honorary interface " + i.getElementName() +
                                    " not inherited from " + 
-                                   supertype.getElementName(), 
+                                   superTB.getName(), 
                                    type.getNameRange());
                     }
                 }
@@ -730,7 +719,10 @@ public class Verifier {
                 // 4.4c: Object identity must not be visible
                 if (isSelfless) {
                     boolean superTypeSelfless = false;
-                    if (supertype != null) {
+                    IType supertype = null;
+                    if (superTB != null) {
+                        supertype = (IType) superTB.getJavaElement();
+                        
                         // We depend on whether or not superclass is selfless
                         state.addFlagDependency(icu, superTB);
                         
@@ -750,11 +742,9 @@ public class Verifier {
                         
                         IMethod equalsMethod = 
                             type.getMethod("equals", new String[]{"QObject;"});
-                        IMethod hashMethod = 
-                            type.getMethod("hashCode", new String[]{});
-                        if (!equalsMethod.exists() || !hashMethod.exists()) {
+                        if (!equalsMethod.exists()) {
                             addProblem("Selfless class does not override " +
-                                       "equals(Object) and hashCode().",
+                                       "equals(Object).",
                                        type.getNameRange());
                         }
                     }
@@ -777,6 +767,60 @@ public class Verifier {
                 } else if (isSelfless
                            /* && !taming.isDeemed(type, taming.SELFLESS) */) {
                     verifyAllFieldsAre(itb, taming.SELFLESS);
+                }
+                
+                // Check for methods implemented
+                LinkedList<ITypeBinding> ifQueue =
+                    new LinkedList<ITypeBinding>();
+                LinkedList<IMethodBinding> methodsNeeded = 
+                    new LinkedList<IMethodBinding>();
+                
+                for (ITypeBinding i : itb.getInterfaces()) {
+                    ifQueue.add(i);
+                }
+                while (!ifQueue.isEmpty()) {
+                    ITypeBinding current = ifQueue.remove();
+                    for (ITypeBinding i : current.getInterfaces()) {
+                        ifQueue.add(i);
+                    }
+                    for (IMethodBinding i : current.getDeclaredMethods()) {
+                        methodsNeeded.add(i);
+                    }
+                }
+
+                ITypeBinding current = itb;               
+                while (current != null && !methodsNeeded.isEmpty()) {
+                    IMethodBinding dm[] = current.getDeclaredMethods();
+                    LinkedList<IMethodBinding> newNeeds = 
+                        new LinkedList<IMethodBinding>();
+                    for (IMethodBinding need : methodsNeeded) {
+                        boolean needFilled = false;
+                        for (IMethodBinding have : dm) {
+                            if (have.getName().equals(need.getName())
+                                && Arrays.equals(have.getParameterTypes(),
+                                                 need.getParameterTypes())) { // Probably wrong
+                                needFilled = true;
+                                if (taming.isTamed(current) &&
+                                    !taming.isAllowed(current, have)) {
+                                    addProblem("Method " + need.getName() +
+                                               " required by interface " +
+                                               "satisfied by banned method.",
+                                               type.getNameRange());
+                                }
+                                break;
+                            } 
+                        }
+                        if (!needFilled) {
+                            newNeeds.add(need);
+                        }
+                    }
+                    methodsNeeded = newNeeds;
+                    current = current.getSuperclass();
+                }
+                if (!methodsNeeded.isEmpty()) {
+                    addProblem("VERIFIER ERROR: Couldn't find implementation " +
+                               "for these methods mandated by interfaces: " +
+                               methodsNeeded,  type.getNameRange());                    
                 }
             } catch (JavaModelException jme) {
                 jme.printStackTrace(); // TODO: prettier debug
