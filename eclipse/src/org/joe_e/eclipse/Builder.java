@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.List;
 import java.util.LinkedList;
-import java.util.ListIterator;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -41,11 +40,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * the database anyway.
  */
 public class Builder extends IncrementalProjectBuilder {
-	public static final String BUILDER_ID = "Joe_E.JoeEBuilder";
-	private static final String MARKER_TYPE = "Joe_E.JoeEProblem";
+    public static final String BUILDER_ID = "Joe_E.JoeEBuilder";
+    private static final String MARKER_TYPE = "Joe_E.JoeEProblem";
 	
     private BuildState state = null;	// empty until first full build
-	private Taming taming = null;
+    private Taming taming = null;
     private Verifier verifier = null;
 
     /**
@@ -80,36 +79,68 @@ public class Builder extends IncrementalProjectBuilder {
     protected IProject[] build(int kind, Map args, IProgressMonitor monitor) 
         throws CoreException {
         //TODO: more disciplined debugging?
-		System.out.println("Build request issued.");
-		
-		switch (kind) {
-		case FULL_BUILD:
-			fullBuild(monitor);
-			break;
-			
-		case INCREMENTAL_BUILD:
-		case AUTO_BUILD:
-			if (state == null) {
-				fullBuild(monitor);
-			} else {
-				IResourceDelta delta = getDelta(getProject());
-				if (delta == null) {
-					fullBuild(monitor);
-				} else {
-					incrementalBuild(delta, monitor);
-				}
-			}
-			break;
-		
-		default:
-			// this should never happen: all values enumerated above except
-            // for CLEAN_BUILD, which instead invokes clean().
-			throw new IllegalArgumentException("Invalid kind of build: "
-                                               + kind);
-		}
-		
-		return null;
+	System.out.println("Build request issued.");
+        
+	// Check if the Java compiler posted an error indicating that it wasn't run.
+	// If so, we shouldn't run either.
+	IProject project = getProject();
+	project.deleteMarkers(MARKER_TYPE, true, IResource.DEPTH_ZERO);
+	IMarker[] buildProblemMarkers = 
+            project.findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, 
+        		        IResource.DEPTH_ZERO);
+	boolean buildProblems = false;
+	for (IMarker marker : buildProblemMarkers) {
+            Integer severity = (Integer) marker.getAttribute(IMarker.SEVERITY);
+            if (severity == IMarker.SEVERITY_ERROR) {
+        	buildProblems = true;
+        	break;
+            }	    
 	}
+	if (buildProblems) {
+	    // Clear all markers and require a full rebuild next time.
+	    clean(null);
+	    
+	    // Note that build isn't happening.
+	    IMarker marker = project.createMarker(MARKER_TYPE);
+	    marker.setAttribute(IMarker.MESSAGE, "Joe-E verifier not run on " +
+		                "this project because Java builder failed.");
+	    marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_INFO);
+	    marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_NORMAL);
+	
+	    System.out.println("Joe-E build not performed because Java " +
+		    	       "builder failed.");
+	    return null;
+	}
+	
+	// OK to proceed.
+	switch (kind) {
+	case FULL_BUILD:
+	    fullBuild(monitor);
+	    break;
+			
+	case INCREMENTAL_BUILD:
+	case AUTO_BUILD:
+	    if (state == null) {
+		fullBuild(monitor);
+	    } else {
+		IResourceDelta delta = getDelta(getProject());
+		if (delta == null) {
+		    fullBuild(monitor);
+		} else {
+		    incrementalBuild(delta, monitor);
+		}
+	    }
+	    break;
+		
+	default:
+	    // this should never happen: all values enumerated above except
+            // for CLEAN_BUILD, which instead invokes clean().
+ 	    throw new IllegalArgumentException("Invalid kind of build: "
+                                               + kind);
+	}
+		
+	return null;
+    }
 
     /**
      * Clean up all build state. Should *not* trigger a rebuild, should just
@@ -117,46 +148,67 @@ public class Builder extends IncrementalProjectBuilder {
      */
     protected void clean(IProgressMonitor monitor) throws CoreException {
         state = null;
-        getProject().deleteMarkers("Joe_E.JoeEProblem", 
+        getProject().deleteMarkers(MARKER_TYPE, 
                 true, IResource.DEPTH_INFINITE);
     }
         
-	/**
-	 * Invoke the Joe-E verifier on a compilation unit and update the markers
+    /**
+     * Invoke the Joe-E verifier on a compilation unit and update the markers
      * for Joe-E problems. (First removes old problems, then runs verifier to
      * generate new problems.)
-	 * @param icu 
+     * @param icu 
      *          the compilation unit to check
      * @return          
      *          additional ICompilationUnits that must be re-verified due
      *          to changes in this compilation unit
-	 */
-	private Collection<ICompilationUnit> 
-            checkAndUpdateProblems(ICompilationUnit icu) throws CoreException {
+     */
+    private Collection<ICompilationUnit> 
+        checkAndUpdateProblems(ICompilationUnit icu) throws CoreException {
         IFile file = (IFile) icu.getCorrespondingResource();
        
         System.out.println("Checking file " + file.getFullPath() + ":");
         
         deleteMarkers(file);
-		List<Problem> problems = new LinkedList<Problem>();
+        
+        IMarker[] jdtMarkers = 
+            file.findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, 
+        		     IResource.DEPTH_ZERO);
+        boolean jdtErrors = false;
+        for (IMarker marker : jdtMarkers) {
+            Integer severity = (Integer) marker.getAttribute(IMarker.SEVERITY);
+            if (severity == IMarker.SEVERITY_ERROR) {
+        	jdtErrors = true;
+        	break;
+            }
+        }
+
+	SourceLocationConverter slc = new SourceLocationConverter(file);
+        if (jdtErrors) {
+            addMarker(file, new Problem("Joe-E verifier not run on this " +
+        	    	                "file due to compilation errors.",
+        	    	                IMarker.SEVERITY_INFO), slc);
+            System.out.println("... file skipped due to Java compilation " +
+        	    	       "errors");
+            return new LinkedList<ICompilationUnit>();
+        } else {
+            List<Problem> problems = new LinkedList<Problem>();
        
-        Collection<ICompilationUnit> recheck = 
-            verifier.checkICU(icu, problems);
+            Collection<ICompilationUnit> recheck = 
+        	verifier.checkICU(icu, problems);
 		
-        System.out.println("... found " + problems.size() + " problem" 
-                           + (problems.size() == 1 ? "." : "s."));
+            System.out.println("... found " + problems.size() + " problem" 
+                               + (problems.size() == 1 ? "." : "s."));
         
-        // System.out.println(state);
+            // System.out.println(state);
         
-		//TODO: use CompilationUnit's built-in line number finder?
-		SourceLocationConverter slc = new SourceLocationConverter(file);
-		ListIterator<Problem> i = problems.listIterator();
-		while(i.hasNext()) {
-			addMarker(file, i.next(), slc);
-		}
+
+            for (Problem problem : problems) {
+        	addMarker(file, problem, slc);
+            }
         
-        return recheck;
-	}
+            return recheck;
+        }
+    }
 	
     /**
      * Adds a Problem as a warning or error marker for a file in Eclipse's 
@@ -170,18 +222,18 @@ public class Builder extends IncrementalProjectBuilder {
      *          a converter from byte offsets to line numbers that has been
      *          initialized for the given file
      */
-	private void addMarker(IFile file, Problem problem, 
+    private void addMarker(IFile file, Problem problem, 
                            SourceLocationConverter slc) throws CoreException {
-		IMarker marker = file.createMarker(MARKER_TYPE);
-		marker.setAttribute(IMarker.MESSAGE, problem.getMessage());
-		marker.setAttribute(IMarker.SEVERITY, problem.getSeverity());
-		marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_NORMAL);
-		marker.setAttribute(IMarker.LINE_NUMBER, 
+	IMarker marker = file.createMarker(MARKER_TYPE);
+	marker.setAttribute(IMarker.MESSAGE, problem.getMessage());
+	marker.setAttribute(IMarker.SEVERITY, problem.getSeverity());
+	marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_NORMAL);
+	marker.setAttribute(IMarker.LINE_NUMBER, 
                             slc.getLine(problem.getStart()));
-		marker.setAttribute(IMarker.CHAR_START, problem.getStart());
-		marker.setAttribute(IMarker.CHAR_END, problem.getEnd());
-		// System.out.println("added marker " + marker.toString());
-	}
+	marker.setAttribute(IMarker.CHAR_START, problem.getStart());
+	marker.setAttribute(IMarker.CHAR_END, problem.getEnd());
+	// System.out.println("added marker " + marker.toString());
+    }
 
     /**
      * Removes all Joe-E created markers from a file
@@ -189,25 +241,25 @@ public class Builder extends IncrementalProjectBuilder {
      * @param file
      *          the file from which to remove markers
      */
-	private void deleteMarkers(IFile file) {
-		try {
-			file.deleteMarkers(MARKER_TYPE, false, IResource.DEPTH_ZERO);
-		} catch (CoreException ce) {
+    private void deleteMarkers(IFile file) {
+	try {
+	    file.deleteMarkers(MARKER_TYPE, false, IResource.DEPTH_ZERO);
+	} catch (CoreException ce) {
             ce.printStackTrace(); // TODO: classier debug here
             // No need to rethrow an exception here: failure to delete a marker
             // can never result in an invalid build proceeding without error.
-		}
 	}
+    }
 
-	/**
-	 * Rebuild everything in the project.  Currently does not support 
+    /**
+     * Rebuild everything in the project.  Currently does not support 
      * cancellation of the build.  
      * 
      * @param monitor
      *          progress monitor to report progress of the build.
-	 */
-	protected void fullBuild(IProgressMonitor monitor) throws CoreException {
-		state = new BuildState(); // clear build state
+     */
+    void fullBuild(IProgressMonitor monitor) throws CoreException {
+	state = new BuildState(); // clear build state
         IJavaProject jp = JavaCore.create(getProject());
         
         taming = new Taming(new java.io.File(Preferences.getTamingPath()), jp);
@@ -232,7 +284,7 @@ public class Builder extends IncrementalProjectBuilder {
         }
         
         monitor.done();       
-	}
+    }
     
     /**
      * Visitor that extracts the set of all ICompilationUnits from an 
@@ -282,9 +334,8 @@ public class Builder extends IncrementalProjectBuilder {
      *          or a problem is discovered for which a Marker cannot be
      *          created.
      */
-	protected void incrementalBuild(IResourceDelta delta, 
-                                    IProgressMonitor monitor)
-        throws CoreException {     
+    void incrementalBuild(IResourceDelta delta, IProgressMonitor monitor) 
+    	throws CoreException {     
         DeltaVisitor dv = new DeltaVisitor();
         delta.accept(dv);
         Set<ICompilationUnit> inBuild = dv.inBuild;
@@ -365,64 +416,64 @@ public class Builder extends IncrementalProjectBuilder {
     
     /**
      * Class for computing line numbers for all characters in a file.  Lines
-	 * are numbered starting with 1.
+     * are numbered starting with 1.
      */
     private class SourceLocationConverter{
-	    Integer[] lineStarts; 
+	Integer[] lineStarts; 
 		
-		/**
-		 * Create a source location converter for the specified file.  The
-		 * constructor reads the file and records the location of newlines
-		 * to make calls to newLine() fast.
+	/**
+	 * Create a source location converter for the specified file.  The
+	 * constructor reads the file and records the location of newlines
+	 * to make calls to newLine() fast.
          * 
          * @param file the file for which to compute line numbers
          */
-		SourceLocationConverter(IFile file) throws CoreException {
-		    List<Integer> newLines = new LinkedList<Integer>();
-		    newLines.add(0);
-		    try {
-		        java.io.InputStream contents = file.getContents();
-		        
-		        int nextByte = contents.read();
-		        for (int i = 0; nextByte >= 0; ++i) {
-		            if (nextByte == '\n') {
-		                newLines.add(i);
-		            }
-					nextByte = contents.read();
-				}
-			} catch (java.io.IOException e) {
+	SourceLocationConverter(IFile file) throws CoreException {
+	    List<Integer> newLines = new LinkedList<Integer>();
+	    newLines.add(0);
+	    try {
+	        java.io.InputStream contents = file.getContents();
+	       
+	        int nextByte = contents.read();
+	        for (int i = 0; nextByte >= 0; ++i) {
+	            if (nextByte == '\n') {
+	                newLines.add(i);
+	            }
+	   	    nextByte = contents.read();
+		}
+	    } catch (java.io.IOException e) {
                 // Wrap the IOException in a CoreException.
                 throw new JavaModelException
-                             (e, IJavaModelStatusConstants.IO_EXCEPTION);
-			}
-
-			lineStarts = newLines.toArray(new Integer[]{});
-		}
-		
-		/**
-		 * Get the line number for the specified character in the file
-		 * associated with this SourceLocationConverter instance.
-		 * 
-		 * @param charNumber the position in the file for which to search
-		 * @return the number of the line containing this character, starting
-		 * 		   with line 1
-		 */
-		int getLine(int charNumber) {
-			int low = 1;
-			int hi = lineStarts.length;
-			
-			// invariant: low <= answer <= hi
-			while (low < hi) {
-				//System.out.println("hi " + hi + ", low " + low);
-				int mid = (low + hi) / 2;
-				if (charNumber < lineStarts[mid]) {
-					hi = mid;
-				} else { 
-				    low = mid + 1;
-				}
-			}
-			
-			return hi;
-		}
+                    (e, IJavaModelStatusConstants.IO_EXCEPTION);
+	    }
+	    
+	    lineStarts = newLines.toArray(new Integer[]{});
 	}
+		
+	/**
+	 * Get the line number for the specified character in the file
+	 * associated with this SourceLocationConverter instance.
+	 * 
+	 * @param charNumber the position in the file for which to search
+	 * @return the number of the line containing this character, starting
+	 * 		   with line 1
+	 */
+	int getLine(int charNumber) {
+	    int low = 1;
+	    int hi = lineStarts.length;
+			
+	    // invariant: low <= answer <= hi
+	    while (low < hi) {
+		//System.out.println("hi " + hi + ", low " + low);
+		int mid = (low + hi) / 2;
+		if (charNumber < lineStarts[mid]) {
+		    hi = mid;
+		} else { 
+		    low = mid + 1;
+		}
+	    }
+			
+  	    return hi;
+	}
+    }
 }

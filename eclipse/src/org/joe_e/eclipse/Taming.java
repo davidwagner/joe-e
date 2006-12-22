@@ -32,7 +32,7 @@ public class Taming {
     /*
      *  Types with significance to the verifier.
      */
-    final IType OBJECT;
+    // final IType OBJECT;
     // final IType ENUM;
 
     final IType SELFLESS;
@@ -46,7 +46,7 @@ public class Taming {
         this.project = project;
 
         // These are in the Java library and should always be findable.
-        OBJECT = project.findType("java.lang.Object");
+        // OBJECT = project.findType("java.lang.Object");
         // ENUM = project.findType("java.lang.Enum"); 
         
         // The following may not be found if the Joe-E library is not reachable.
@@ -296,7 +296,7 @@ public class Taming {
                 while (nextLine != null) {
                     IMethod allowed = stringsToMethods.get(nextLine);
                     if (allowed == null) {
-                        System.out.println("*WARNING: Nonexistent method \" +" +
+                        System.out.println("*WARNING: Nonexistent method \"" +
                                            nextLine + "\" skipped.");
                     } else {
                         // System.out.println("   m " + nextLine);
@@ -320,11 +320,10 @@ public class Taming {
                     dest.add(POWERLESS);
                 } else if (s.equals(SELFLESS.getElementName())) {
                     dest.add(SELFLESS);
-                // } else if (s.equals(DATA.getElementName())) {
-                //    dest.add(IMMUTABLE);
-                //    dest.add(POWERLESS);
-                //    dest.add(SELFLESS);
-                //    dest.add(DATA);
+                } else if (s.equals("Data")) {
+                    dest.add(IMMUTABLE);
+                    dest.add(POWERLESS);
+                    dest.add(SELFLESS);
                 } else if (s.equals(EQUATABLE.getElementName())) {
                     dest.add(EQUATABLE);
                 } else if (s.length() > 0) {

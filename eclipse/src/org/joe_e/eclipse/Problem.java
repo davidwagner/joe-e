@@ -9,40 +9,54 @@ import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.core.resources.IMarker;
 
 public class Problem {
-	private final String message;
-	private final int start;
-	private final int length;
-	private final int severity;	// uses IMarker severity levels
+    private final String message;
+    private final int start;
+    private final int length;
+    private final int severity;	// uses IMarker severity levels
 	
-	public Problem(String message, ISourceRange location)
-	{
-		this.message = message;
-		this.start = location.getOffset();
-		this.length = location.getLength();
-		this.severity = IMarker.SEVERITY_ERROR;
-	}
+    public Problem(String message) {
+	this.message = message;
+	this.start = 0;
+	this.length = 0;
+	this.severity = IMarker.SEVERITY_ERROR;
+    }
 	
-	public Problem(String message, int start, int length)
-	{
-		this.message = message;
-		this.start = start;
-		this.length = length;
-		this.severity = IMarker.SEVERITY_ERROR;
-	}
+    public Problem(String message, int severity) {
+	this.message = message;
+	this.start = 0;
+	this.length = 0;
+	this.severity = severity;
+    }
 	
-	public String getMessage() {
-		return message;
-	}
+    public Problem(String message, ISourceRange location)
+    {
+	this.message = message;
+	this.start = location.getOffset();
+	this.length = location.getLength();
+	this.severity = IMarker.SEVERITY_ERROR;
+    }
 	
-	public int getSeverity() {
-		return severity;
-	}
+    public Problem(String message, int start, int length)
+    {
+	this.message = message;
+	this.start = start;
+	this.length = length;
+	this.severity = IMarker.SEVERITY_ERROR;
+    }
+	
+    public String getMessage() {
+	return message;
+    }
+	
+    public int getSeverity() {
+	return severity;
+    }
     
-	public int getStart() {
-		return start;
-	}
+    public int getStart() {
+	return start;
+    }
 	
-	public int getEnd() {
-		return start + length;
-	}
+    public int getEnd() {
+	return start + length;
+    }
 }
