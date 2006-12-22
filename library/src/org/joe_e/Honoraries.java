@@ -10,7 +10,7 @@ import java.util.HashMap;
  * Comments?
  */
 
-public class Honoraries {
+public final class Honoraries {
     public static final int IMPL_IMMUTABLE = 0x0001;
     public static final int IMPL_POWERLESS = 0x0002; 
     public static final int IMPL_SELFLESS    = 0x0004;

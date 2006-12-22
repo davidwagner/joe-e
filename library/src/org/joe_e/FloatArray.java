@@ -5,31 +5,61 @@
  */
 package org.joe_e;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Arrays;
 
 /**
  * An immutable array of float.
  */
 public class FloatArray extends PowerlessArray<Float> {
-    static final long serialVersionUID = 5430882612581040334L;   
+    static final long serialVersionUID = 20061222;   
     
-	private final float[] floatArr;
+    private transient float[] floatArr;
 
-	/**
-	 * Construct an immutable float array with a copy of an existing float array as
-	 * backing store.
-	 * 
-	 * @param floatArr the array to make an unmodifiable duplicate of
-	 */
-	public FloatArray(float... floatArr) {
-		// Use back door constructor that sets backing store to null.
+    /**
+     * Construct an immutable float array with a copy of an existing float array as
+     * backing store.
+     * 
+     * @param floatArr the array to make an unmodifiable duplicate of
+     */
+    public FloatArray(float... floatArr) {
+	// Use back door constructor that sets backing store to null.
         // This lets ConstArray's methods know not to use the backing
         // store for accessing this object.
-	    super();
+	super();
         
         this.floatArr = floatArr.clone();
-   	}
+    }
     
+    /*
+     * Serialization hacks to prevent the contents from being serialized as
+     * a mutable array.  This improves efficiency for projects that serialize
+     * Joe-E objects using Java's serialization API to avoid treating immutable
+     * state as mutable.  These methods can otherwise be ignored.
+     */
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+
+        out.writeInt(floatArr.length);
+        for (float x : floatArr) {
+            out.writeFloat(x);
+        }
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, 
+    						      ClassNotFoundException {
+        in.defaultReadObject();
+
+        int length = in.readInt();
+        floatArr = (float[]) 
+                  java.lang.reflect.Array.newInstance(Float.class, length);
+        for (int i = 0; i < length; ++i) {
+            floatArr[i] = in.readFloat();
+        }
+    }
+        
     /**
      * Return the float located at a specified position
      * 
@@ -40,23 +70,23 @@ public class FloatArray extends PowerlessArray<Float> {
      * @throws ArrayIndexOutOfBoundsException if the specified position is
      * out of bounds.
      */
-	public float getFloat(int pos) {
-		return floatArr[pos];
-	}
+    public float getFloat(int pos) {
+	return floatArr[pos];
+    }
 
     /**
      * Return a mutable copy of the float array
      * 
      * @return a mutable copy of the array
      */
-	public float[] toFloatArray() {
-		return floatArr.clone();
-	}
+    public float[] toFloatArray() {
+	return floatArr.clone();
+    }
 
-	/*
-	 *  Methods that must be overriden, as the implementation in ConstArray
+    /*
+     *  Methods that must be overriden, as the implementation in ConstArray
      *  would try to use arr, which is null.
-	 */
+     */
 	
     /**
      * Return the length of the array
@@ -78,9 +108,9 @@ public class FloatArray extends PowerlessArray<Float> {
      * @throws ArrayIndexOutOfBoundsException if the specified position is
      * out of bounds.
      */
-	public Float get(int pos) {
-		return floatArr[pos];
-	}
+    public Float get(int pos) {
+	return floatArr[pos];
+    }
 	
     /**
      * Test for equality with another object
@@ -90,13 +120,17 @@ public class FloatArray extends PowerlessArray<Float> {
      */
     public boolean equals(Object other) {
         if (other instanceof FloatArray) {
+            // Simple case: just compare floatArr fields
             FloatArray otherFloatArray = (FloatArray) other;
             return Arrays.equals(floatArr, otherFloatArray.floatArr);
         } else if (other instanceof ConstArray) {
+	    // Other array does not have contents in floatArr:
+	    // check that length matches, and then compare elements one-by-one
             ConstArray otherArray = (ConstArray) other;
             if (otherArray.length() != floatArr.length) {
                 return false;
             }
+            
             for (int i = 0; i < floatArr.length; ++i) {
                 Object otherElement = otherArray.get(i);
                 if (!(otherElement instanceof Float) ||
@@ -104,8 +138,10 @@ public class FloatArray extends PowerlessArray<Float> {
                     return false;
                 }
             }
+            
             return true;
         } else {
+            // Only ConstArrays can be equal to a FloatArray
             return false;
         }
     }
@@ -118,7 +154,7 @@ public class FloatArray extends PowerlessArray<Float> {
     public int hashCode() {
         // Because wrappers for primitive types return the same hashCode as 
         // their primitive values, a FloatArray has the same hashCode as a
-        // ConstArray<Float>.
+        // ConstArray<Float> with the same contents.
         return Arrays.hashCode(floatArr);
     }
     
@@ -136,13 +172,13 @@ public class FloatArray extends PowerlessArray<Float> {
      * 
      * @return a mutable Float array copy of the array
      */
-	public Float[] toArray() {
-		Float[] boxedArray = new Float[floatArr.length];
-		for (int i = 0; i < floatArr.length; ++i) {
-			boxedArray[i] = floatArr[i];
-		}
-		return boxedArray;
-	}  
+    public Float[] toArray() {
+	Float[] boxedArray = new Float[floatArr.length];
+	for (int i = 0; i < floatArr.length; ++i) {
+	    boxedArray[i] = floatArr[i];
+	}
+	return boxedArray;
+    }  
     
     
     /** 
@@ -162,7 +198,7 @@ public class FloatArray extends PowerlessArray<Float> {
      * 
      * @return a new FloatArray containing a specified additional Float
      */
-	public FloatArray with(Float newFloat) {
-		return with(newFloat.floatValue());
-	}
+    public FloatArray with(Float newFloat) {
+	return with(newFloat.floatValue());
+    }
 }

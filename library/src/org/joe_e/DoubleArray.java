@@ -5,31 +5,61 @@
  */
 package org.joe_e;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Arrays;
 
 /**
  * An immutable array of double.
  */
 public class DoubleArray extends PowerlessArray<Double> {
-    static final long serialVersionUID = -9084610698309158874L;   
+    static final long serialVersionUID = 20061222;   
     
-	private final double[] doubleArr;
+    private transient double[] doubleArr;
 
-	/**
-	 * Construct an immutable double array with a copy of an existing double array as
-	 * backing store.
-	 * 
-	 * @param doubleArr the array to make an unmodifiable duplicate of
-	 */
-	public DoubleArray(double... doubleArr) {
-		// Use back door constructor that sets backing store to null.
+    /**
+     * Construct an immutable double array with a copy of an existing double array as
+     * backing store.
+     * 
+     * @param doubleArr the array to make an unmodifiable duplicate of
+     */
+    public DoubleArray(double... doubleArr) {
+	// Use back door constructor that sets backing store to null.
         // This lets ConstArray's methods know not to use the backing
         // store for accessing this object.
-	    super();
+	super();
         
         this.doubleArr = doubleArr.clone();
-   	}
+    }
     
+    /*
+     * Serialization hacks to prevent the contents from being serialized as
+     * a mutable array.  This improves efficiency for projects that serialize
+     * Joe-E objects using Java's serialization API to avoid treating immutable
+     * state as mutable.  These methods can otherwise be ignored.
+     */
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+
+        out.writeInt(doubleArr.length);
+        for (double x : doubleArr) {
+            out.writeDouble(x);
+        }
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, 
+    						      ClassNotFoundException {
+        in.defaultReadObject();
+
+        int length = in.readInt();
+        doubleArr = (double[]) 
+                  java.lang.reflect.Array.newInstance(Double.class, length);
+        for (int i = 0; i < length; ++i) {
+            doubleArr[i] = in.readDouble();
+        }
+    }
+        
     /**
      * Return the double located at a specified position
      * 
@@ -40,23 +70,23 @@ public class DoubleArray extends PowerlessArray<Double> {
      * @throws ArrayIndexOutOfBoundsException if the specified position is
      * out of bounds.
      */
-	public double getDouble(int pos) {
-		return doubleArr[pos];
-	}
+    public double getDouble(int pos) {
+	return doubleArr[pos];
+    }
 
     /**
      * Return a mutable copy of the double array
      * 
      * @return a mutable copy of the array
      */
-	public double[] toDoubleArray() {
-		return doubleArr.clone();
-	}
+    public double[] toDoubleArray() {
+	return doubleArr.clone();
+    }
 
-	/*
-	 *  Methods that must be overriden, as the implementation in ConstArray
+    /*
+     *  Methods that must be overriden, as the implementation in ConstArray
      *  would try to use arr, which is null.
-	 */
+     */
 	
     /**
      * Return the length of the array
@@ -78,9 +108,9 @@ public class DoubleArray extends PowerlessArray<Double> {
      * @throws ArrayIndexOutOfBoundsException if the specified position is
      * out of bounds.
      */
-	public Double get(int pos) {
-		return doubleArr[pos];
-	}
+    public Double get(int pos) {
+	return doubleArr[pos];
+    }
 	
     /**
      * Test for equality with another object
@@ -90,13 +120,17 @@ public class DoubleArray extends PowerlessArray<Double> {
      */
     public boolean equals(Object other) {
         if (other instanceof DoubleArray) {
+            // Simple case: just compare doubleArr fields
             DoubleArray otherDoubleArray = (DoubleArray) other;
             return Arrays.equals(doubleArr, otherDoubleArray.doubleArr);
         } else if (other instanceof ConstArray) {
+	    // Other array does not have contents in doubleArr:
+	    // check that length matches, and then compare elements one-by-one
             ConstArray otherArray = (ConstArray) other;
             if (otherArray.length() != doubleArr.length) {
                 return false;
             }
+            
             for (int i = 0; i < doubleArr.length; ++i) {
                 Object otherElement = otherArray.get(i);
                 if (!(otherElement instanceof Double) ||
@@ -104,8 +138,10 @@ public class DoubleArray extends PowerlessArray<Double> {
                     return false;
                 }
             }
+            
             return true;
         } else {
+            // Only ConstArrays can be equal to a DoubleArray
             return false;
         }
     }
@@ -118,7 +154,7 @@ public class DoubleArray extends PowerlessArray<Double> {
     public int hashCode() {
         // Because wrappers for primitive types return the same hashCode as 
         // their primitive values, a DoubleArray has the same hashCode as a
-        // ConstArray<Double>.
+        // ConstArray<Double> with the same contents.
         return Arrays.hashCode(doubleArr);
     }
     
@@ -136,13 +172,13 @@ public class DoubleArray extends PowerlessArray<Double> {
      * 
      * @return a mutable Double array copy of the array
      */
-	public Double[] toArray() {
-		Double[] boxedArray = new Double[doubleArr.length];
-		for (int i = 0; i < doubleArr.length; ++i) {
-			boxedArray[i] = doubleArr[i];
-		}
-		return boxedArray;
-	}  
+    public Double[] toArray() {
+	Double[] boxedArray = new Double[doubleArr.length];
+	for (int i = 0; i < doubleArr.length; ++i) {
+	    boxedArray[i] = doubleArr[i];
+	}
+	return boxedArray;
+    }  
     
     
     /** 
@@ -162,7 +198,7 @@ public class DoubleArray extends PowerlessArray<Double> {
      * 
      * @return a new DoubleArray containing a specified additional Double
      */
-	public DoubleArray with(Double newDouble) {
-		return with(newDouble.doubleValue());
-	}
+    public DoubleArray with(Double newDouble) {
+	return with(newDouble.doubleValue());
+    }
 }

@@ -56,5 +56,4 @@ public class Utility {
             return Honoraries.honorarilyImplements(c1, c2);
         }
    }
-
 }

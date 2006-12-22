@@ -5,31 +5,61 @@
  */
 package org.joe_e;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Arrays;
 
 /**
  * An immutable array of char.
  */
 public class CharArray extends PowerlessArray<Character> {
-    static final long serialVersionUID = -4016604734433045551L;   
+    static final long serialVersionUID = 20061222;   
     
-	private final char[] charArr;
+    private transient char[] charArr;
 
-	/**
-	 * Construct an immutable char array with a copy of an existing char array as
-	 * backing store.
-	 * 
-	 * @param charArr the array to make an unmodifiable duplicate of
-	 */
-	public CharArray(char... charArr) {
-		// Use back door constructor that sets backing store to null.
+    /**
+     * Construct an immutable char array with a copy of an existing char array as
+     * backing store.
+     * 
+     * @param charArr the array to make an unmodifiable duplicate of
+     */
+    public CharArray(char... charArr) {
+	// Use back door constructor that sets backing store to null.
         // This lets ConstArray's methods know not to use the backing
         // store for accessing this object.
-	    super();
+	super();
         
         this.charArr = charArr.clone();
-   	}
+    }
     
+    /*
+     * Serialization hacks to prevent the contents from being serialized as
+     * a mutable array.  This improves efficiency for projects that serialize
+     * Joe-E objects using Java's serialization API to avoid treating immutable
+     * state as mutable.  These methods can otherwise be ignored.
+     */
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+
+        out.writeInt(charArr.length);
+        for (char x : charArr) {
+            out.writeChar(x);
+        }
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, 
+    						      ClassNotFoundException {
+        in.defaultReadObject();
+
+        int length = in.readInt();
+        charArr = (char[]) 
+                  java.lang.reflect.Array.newInstance(Character.class, length);
+        for (int i = 0; i < length; ++i) {
+            charArr[i] = in.readChar();
+        }
+    }
+        
     /**
      * Return the char located at a specified position
      * 
@@ -40,23 +70,23 @@ public class CharArray extends PowerlessArray<Character> {
      * @throws ArrayIndexOutOfBoundsException if the specified position is
      * out of bounds.
      */
-	public char getChar(int pos) {
-		return charArr[pos];
-	}
+    public char getChar(int pos) {
+	return charArr[pos];
+    }
 
     /**
      * Return a mutable copy of the char array
      * 
      * @return a mutable copy of the array
      */
-	public char[] toCharArray() {
-		return charArr.clone();
-	}
+    public char[] toCharArray() {
+	return charArr.clone();
+    }
 
-	/*
-	 *  Methods that must be overriden, as the implementation in ConstArray
+    /*
+     *  Methods that must be overriden, as the implementation in ConstArray
      *  would try to use arr, which is null.
-	 */
+     */
 	
     /**
      * Return the length of the array
@@ -78,9 +108,9 @@ public class CharArray extends PowerlessArray<Character> {
      * @throws ArrayIndexOutOfBoundsException if the specified position is
      * out of bounds.
      */
-	public Character get(int pos) {
-		return charArr[pos];
-	}
+    public Character get(int pos) {
+	return charArr[pos];
+    }
 	
     /**
      * Test for equality with another object
@@ -90,13 +120,17 @@ public class CharArray extends PowerlessArray<Character> {
      */
     public boolean equals(Object other) {
         if (other instanceof CharArray) {
+            // Simple case: just compare charArr fields
             CharArray otherCharArray = (CharArray) other;
             return Arrays.equals(charArr, otherCharArray.charArr);
         } else if (other instanceof ConstArray) {
+	    // Other array does not have contents in charArr:
+	    // check that length matches, and then compare elements one-by-one
             ConstArray otherArray = (ConstArray) other;
             if (otherArray.length() != charArr.length) {
                 return false;
             }
+            
             for (int i = 0; i < charArr.length; ++i) {
                 Object otherElement = otherArray.get(i);
                 if (!(otherElement instanceof Character) ||
@@ -104,8 +138,10 @@ public class CharArray extends PowerlessArray<Character> {
                     return false;
                 }
             }
+            
             return true;
         } else {
+            // Only ConstArrays can be equal to a CharArray
             return false;
         }
     }
@@ -136,13 +172,13 @@ public class CharArray extends PowerlessArray<Character> {
      * 
      * @return a mutable Character array copy of the array
      */
-	public Character[] toArray() {
-		Character[] boxedArray = new Character[charArr.length];
-		for (int i = 0; i < charArr.length; ++i) {
-			boxedArray[i] = charArr[i];
-		}
-		return boxedArray;
-	}  
+    public Character[] toArray() {
+	Character[] boxedArray = new Character[charArr.length];
+	for (int i = 0; i < charArr.length; ++i) {
+	    boxedArray[i] = charArr[i];
+	}
+	return boxedArray;
+    }  
     
     
     /** 
@@ -162,7 +198,7 @@ public class CharArray extends PowerlessArray<Character> {
      * 
      * @return a new CharArray containing a specified additional Character
      */
-	public CharArray with(Character newChar) {
-		return with(newChar.charValue());
-	}
+    public CharArray with(Character newChar) {
+	return with(newChar.charValue());
+    }
 }
