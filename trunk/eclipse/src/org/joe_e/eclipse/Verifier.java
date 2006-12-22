@@ -15,7 +15,6 @@ import java.util.Stack;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.HashSet;
-import java.util.Arrays;
 
 /**
  * This class contains the actual checks performed by the Joe-E verifier. The
@@ -111,7 +110,7 @@ public class Verifier {
             e.printStackTrace();
             problems.add(new Problem("Analysis of file failed due to BUG IN " +
                                      "VERIFIER or I/O error. (unexpected " +
-                                     "exception)", 0, 0));
+                                     "exception)"));
         }
 
         return dependents;
@@ -155,9 +154,9 @@ public class Verifier {
                                      source.getLength()));
         }
 
-        private void addProblem(String description, int start, int length) {
-            problems.add(new Problem(description, start, length));
-        }        
+        private void addProblem(String description) {
+            problems.add(new Problem(description));
+        }      
         
         private void addProblem(String description, ISourceRange source) {
             problems.add(new Problem(description, source));
@@ -286,9 +285,9 @@ public class Verifier {
                     return true;
                 }
 
-                ITypeBinding ancestor = classBinding.getDeclaringClass();
+                ITypeBinding ancestor = classBinding;
                 while (ancestor != null 
-                       && Flags.isStatic(ancestor.getModifiers())) {
+                       && !Flags.isStatic(ancestor.getDeclaredModifiers())) {
                     if (ancestor.equals(currentClass)) {
                         addProblem("Construction of non-static member " + 
                                    "class " + imb.getName() + 
@@ -412,7 +411,8 @@ public class Verifier {
                     ITypeBinding superTB = getContext().getSuperclass();
                     if (taming.implementsOverlay(getContext(), taming.SELFLESS)
                         && (superTB == null 
-                            || superTB.getJavaElement() == taming.OBJECT)
+                            || superTB.getQualifiedName()
+                            	    .equals("java.lang.Object"))
                         && imb.getName().equals("equals")) {
                         addProblem("Can't call super.equals() from a Selfless "
                                    + "class with superclass java.lang.Object.",
@@ -520,12 +520,16 @@ public class Verifier {
          */
         public boolean visit(MethodDeclaration md) {
             codeContext.push(md);
-            String name = md.getName().toString();
-                      
+            SimpleName name = md.getName();
+            
             if (Modifier.isNative(md.getModifiers())) {
-                addProblem("Native method " + name + ".", md.getName());
+                addProblem("Native method " + name + ".", name);
             }
             
+            // TODO: ban readObject and writeObject?
+            // They allow an instance to "know" that it is being serialized;
+            // determinism is then not fully guaranteed across machines?
+                   
             /*
             // TODO? Check implicit superconstructor invocation. 
             if (md.isConstructor()) {
@@ -706,7 +710,9 @@ public class Verifier {
 
                     // See what honoraries superclass has; make sure that all
                     // are implemented by this class.
-
+                    // TODO: If supertype is from source, we are already OK
+                    // -- except for honoraries from interfaces we implement.
+                    // refactor to avoid double-errors here.
                     Set<IType> unimp = taming.unimplementedHonoraries(sth);
                     for (IType i : unimp) {
                         addProblem("Honorary interface " + i.getElementName() +
@@ -734,15 +740,21 @@ public class Verifier {
                     }
                     
                     if (!superTypeSelfless) {
-                        if (supertype != null && supertype != taming.OBJECT) {
+                        if (superTB != null 
+                            && !superTB.getQualifiedName()	
+                            	    .equals("java.lang.Object")) {
                             addProblem("Selfless class extends non-Selfless " +
                                        "class other than java.lang.Object.",
                                        type.getNameRange());
                         }
                         
+                        // TODO: fix grody hack below.
                         IMethod equalsMethod = 
                             type.getMethod("equals", new String[]{"QObject;"});
-                        if (!equalsMethod.exists()) {
+                        IMethod otherEqualsMethod = type.getMethod("equals", 
+                        	           new String[]{"Qjava.lang.Object;"});
+                        if (!equalsMethod.exists() 
+                            && !otherEqualsMethod.exists()) {
                             addProblem("Selfless class does not override " +
                                        "equals(Object).",
                                        type.getNameRange());
@@ -768,16 +780,25 @@ public class Verifier {
                            /* && !taming.isDeemed(type, taming.SELFLESS) */) {
                     verifyAllFieldsAre(itb, taming.SELFLESS);
                 }
-                
+               
+                                
                 // Check for methods implemented
                 LinkedList<ITypeBinding> ifQueue =
                     new LinkedList<ITypeBinding>();
                 LinkedList<IMethodBinding> methodsNeeded = 
                     new LinkedList<IMethodBinding>();
                 
+                // Recursive descent into superclasses to find inherited 
+                // interfaces not necessary because any methods from 
+                // superclasses' interfaces that they fail to inherit are
+                // already errors.  So, need to include only interfaces
+                // reachable by interface-implementation relations.
+                // Start with interfaces directly implemented by this class.
                 for (ITypeBinding i : itb.getInterfaces()) {
                     ifQueue.add(i);
-                }
+                }                            
+                // Then find all methods needed, possibly required by interfaces
+                // that are transitively implemented.
                 while (!ifQueue.isEmpty()) {
                     ITypeBinding current = ifQueue.remove();
                     for (ITypeBinding i : current.getInterfaces()) {
@@ -788,17 +809,28 @@ public class Verifier {
                     }
                 }
 
+                // Check that all needed methods are implemented by methods
+                // that are not tamed away.
                 ITypeBinding current = itb;               
                 while (current != null && !methodsNeeded.isEmpty()) {
+                    // 'current' affects whether interface is fulfilled
+                    state.addDeepDependency(icu, current);
                     IMethodBinding dm[] = current.getDeclaredMethods();
                     LinkedList<IMethodBinding> newNeeds = 
                         new LinkedList<IMethodBinding>();
                     for (IMethodBinding need : methodsNeeded) {
                         boolean needFilled = false;
                         for (IMethodBinding have : dm) {
-                            if (have.getName().equals(need.getName())
+                            // See documentation for IBinding.equals().  The
+                            // ITypeBindings for 'have' and 'need' should be in
+                            // the same cluster, but if they aren't, it will 
+                            // cause a false positive or a verifier error below,
+                            // not a loss of soundness.
+                            if (have.isSubsignature(need) &&
+                        	need.isSubsignature(have)
+                        	 /*   have.getName().equals(need.getName())
                                 && Arrays.equals(have.getParameterTypes(),
-                                                 need.getParameterTypes())) { // Probably wrong
+                                                 need.getParameterTypes()) */ ) {
                                 needFilled = true;
                                 if (taming.isTamed(current) &&
                                     !taming.isAllowed(current, have)) {
@@ -826,14 +858,12 @@ public class Verifier {
                 jme.printStackTrace(); // TODO: prettier debug
                 addProblem("Analysis incomplete: BUG IN VERIFIER or I/O " +
                            "error (unhandled exception) encountered " +
-                           "analyzing type" + type.getElementName() + ".",
-                           0, 0);
+                           "analyzing type" + type.getElementName() + ".");
             } catch (Throwable e) {
                 e.printStackTrace(); // TODO: prettier debug
                 addProblem("Analysis incomplete: BUG IN VERIFIER or I/O " +
                            "error (unhandled exception) encountered " +
-                           "analyzing type" + type.getElementName() + ".",
-                           0, 0);
+                           "analyzing type" + type.getElementName() + ".");
            }
         }
 
@@ -881,7 +911,7 @@ public class Verifier {
                 // non-static member classes get access to variables in their
                 // containing class
                 if (next.isMember() 
-                    && !Modifier.isStatic(next.getModifiers())) {
+                    && !Modifier.isStatic(next.getDeclaredModifiers())) {
                     ITypeBinding enclosingTB = next.getDeclaringClass();
                     // if following line fails, fix for local types
 
@@ -953,7 +983,8 @@ public class Verifier {
                 // System.out.println("Field " + name + ":");
                 int modifiers = fb.getModifiers();
                 if (!Flags.isStatic(modifiers) && !Flags.isEnum(modifiers)) {
-                    if (Flags.isFinal(modifiers)) {
+                    if (Flags.isFinal(modifiers) && 
+                	  !Flags.isTransient(modifiers)) {
                         // Field must implement mi
                         ITypeBinding fieldTB = fb.getType();
 
@@ -976,14 +1007,18 @@ public class Verifier {
                                    .getNameRange());
                         }
                     } else if (itb.equals(candidate)) {
-                        addProblem(String.format("Non-final field %s in %s %s", 
-                                                 fieldName,miName, candName), 
+                	String bad = (Flags.isFinal(modifiers))
+                		         ? "Transient" : "Non-final";
+                        addProblem(String.format("%s field %s in %s %s", bad,
+                        			 fieldName, miName, candName),
                                    ((IField) fb.getJavaElement())
                                        .getNameRange());
                     } else { // type != candidate
+                	String bad = (Flags.isFinal(modifiers))
+		         ? "Transient" : "Non-final";
                         addProblem(
-                            String.format("Non-final field %s from %s in %s %s",
-                                fieldName, typeName, miName, candName),
+                            String.format("%s field %s from %s in %s %s",
+                                bad, fieldName, typeName, miName, candName),
                             ((IType) candidate.getJavaElement())
                                 .getNameRange());
                     }
@@ -1074,8 +1109,6 @@ public class Verifier {
                                 "encountered analyzing infix expression.", ie);
                 }             
             } else if (op == InfixExpression.Operator.PLUS) {
-                AST ast = ie.getAST(); // needed for resolveWellKnown type
-                
                 //try {
                     // left operand always statically a string (or boxed 
                     // primitive)
