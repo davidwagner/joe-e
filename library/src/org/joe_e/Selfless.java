@@ -16,25 +16,27 @@ package org.joe_e;
  * <OL>
  * <LI> All instance fields must be final.
  * <LI> The class cannot be equatable.
- * <LI> The object identity of instances of the class is not visible.  This
- *   can be satisfied by one of:
+ * <LI> The object identity of instances of the class is not visible  This can
+ *   be satisfied by either of:
  *   <OL>
  *   <LI> The superclass implements Selfless; or,
- *   <LI> The class overrides <CODE>hashCode()</CODE> and <CODE>equals()</CODE>,
- *       and doesn't call <CODE>super.hashCode()</CODE> or <CODE>super.equals()</CODE>. 
+ *   <LI> The class's superclass is java.lang.Object, the class overrides
+ *        <CODE>equals()</CODE>, and doesn't call <CODE>super.equals()</CODE>. 
  *   </OL>
+ * <LI> The object provides a determinstic hash code.  This requirement is
+ *   enforced by including hashCode() in this file.
  * </OL>
  * 
  * <P>The Joe-E verifier ensures that Joe-E code cannot distinguish a
  * shallow copy of a Selfless object from the original object.
  *  
- * <P>This interface contains no members.
+ * <P>This interface includes the method <CODE>hashCode()</CODE>.
  * 
  * @see Equatable
  */
 public interface Selfless {
-    /* doesn't matter whether these are here or not
     int hashCode();
+    /*
     boolean equals(Object obj);
     */
 }
