@@ -6,5 +6,5 @@ package test;
  */
 
 public class ExtendsInner extends HasInner.StaticInner {
-	int foo;  
+	int foo;  // not final
 }

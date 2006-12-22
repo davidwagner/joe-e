@@ -5,6 +5,7 @@ import org.joe_e.Immutable;
 import org.joe_e.Token;
 
 public class BadIncapable extends ExtendsToken implements Powerless {
+		// can't extend token
 	final Token t;	 // non-incapable
 	int foo;	 	 // non-final
 	final int foo2;  // OK
@@ -21,6 +22,6 @@ public class BadIncapable extends ExtendsToken implements Powerless {
 		this.st = st;
 		this.df = df;
 		this.ia = ia;
-		this.inc = this;
+		this.inc = this; // this escaping (actually no, but flagged anyway)
 	}	
 }

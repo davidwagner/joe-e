@@ -35,7 +35,7 @@ public class Bad extends Thread {
 	}
     
     Bad(int ignored) {
-       Powerless p = new Powerless () {
+       Powerless p = new Powerless () { // error
 
            int foo() {
                return g;

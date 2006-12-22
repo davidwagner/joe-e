@@ -3,13 +3,16 @@ package test;
 import org.joe_e.Powerless;
 
 public class BadAnonymous {
-	static int foo;
+	static int foo; // error: not final
 	
 	final int g;
 	
     BadAnonymous() {
        Leaker l = new Leaker();	// should be error
-    	
+       l.new StillLeaker();         // also an error
+       NotLeaker nl = new NotLeaker(); // OK: static
+       nl.new StillNotLeaker();        // OK
+       
        Powerless p = new Powerless () {   	   
     	   
            public String toString() {
@@ -68,6 +71,21 @@ public class BadAnonymous {
     class Leaker {
     	public int foo() {
     		return g;
+    	}
+    
+    	class StillLeaker {
+    		
+    	}
+    }
+    
+    static class NotLeaker {
+    	public int foo() {
+    		// can't see g
+    		return 6;
+    	}
+    	
+    	class StillNotLeaker {
+    		
     	}
     }
 }
