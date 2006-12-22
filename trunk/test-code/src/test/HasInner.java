@@ -13,6 +13,7 @@ public class HasInner {
     HasInner() {
         System.out.println("Hello from HasInner's constructor");
         new Inner();
+        new ExtendsInner();
     }
     
 	class Inner {
