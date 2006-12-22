@@ -5,31 +5,61 @@
  */
 package org.joe_e;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Arrays;
 
 /**
  * An immutable array of boolean.
  */
 public class BooleanArray extends PowerlessArray<Boolean> {
-    static final long serialVersionUID = -7541507816291995903L;   
+    static final long serialVersionUID = 20061222;   
     
-	private final boolean[] booleanArr;
+    private transient boolean[] booleanArr;
 
-	/**
-	 * Construct an immutable boolean array with a copy of an existing boolean array as
-	 * backing store.
-	 * 
-	 * @param booleanArr the array to make an unmodifiable duplicate of
-	 */
-	public BooleanArray(boolean... booleanArr) {
-		// Use back door constructor that sets backing store to null.
+    /**
+     * Construct an immutable boolean array with a copy of an existing boolean array as
+     * backing store.
+     * 
+     * @param booleanArr the array to make an unmodifiable duplicate of
+     */
+    public BooleanArray(boolean... booleanArr) {
+	// Use back door constructor that sets backing store to null.
         // This lets ConstArray's methods know not to use the backing
         // store for accessing this object.
-	    super();
+	super();
         
         this.booleanArr = booleanArr.clone();
-   	}
+    }
     
+    /*
+     * Serialization hacks to prevent the contents from being serialized as
+     * a mutable array.  This improves efficiency for projects that serialize
+     * Joe-E objects using Java's serialization API to avoid treating immutable
+     * state as mutable.  These methods can otherwise be ignored.
+     */
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+
+        out.writeInt(booleanArr.length);
+        for (boolean x : booleanArr) {
+            out.writeBoolean(x);
+        }
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, 
+    						      ClassNotFoundException {
+        in.defaultReadObject();
+
+        int length = in.readInt();
+        booleanArr = (boolean[]) 
+                  java.lang.reflect.Array.newInstance(Boolean.class, length);
+        for (int i = 0; i < length; ++i) {
+            booleanArr[i] = in.readBoolean();
+        }
+    }
+        
     /**
      * Return the boolean located at a specified position
      * 
@@ -40,23 +70,23 @@ public class BooleanArray extends PowerlessArray<Boolean> {
      * @throws ArrayIndexOutOfBoundsException if the specified position is
      * out of bounds.
      */
-	public boolean getBoolean(int pos) {
-		return booleanArr[pos];
-	}
+    public boolean getBoolean(int pos) {
+	return booleanArr[pos];
+    }
 
     /**
      * Return a mutable copy of the boolean array
      * 
      * @return a mutable copy of the array
      */
-	public boolean[] toBooleanArray() {
-		return booleanArr.clone();
-	}
+    public boolean[] toBooleanArray() {
+	return booleanArr.clone();
+    }
 
-	/*
-	 *  Methods that must be overriden, as the implementation in ConstArray
+    /*
+     *  Methods that must be overriden, as the implementation in ConstArray
      *  would try to use arr, which is null.
-	 */
+     */
 	
     /**
      * Return the length of the array
@@ -78,9 +108,9 @@ public class BooleanArray extends PowerlessArray<Boolean> {
      * @throws ArrayIndexOutOfBoundsException if the specified position is
      * out of bounds.
      */
-	public Boolean get(int pos) {
-		return booleanArr[pos];
-	}
+    public Boolean get(int pos) {
+	return booleanArr[pos];
+    }
 	
     /**
      * Test for equality with another object
@@ -90,13 +120,17 @@ public class BooleanArray extends PowerlessArray<Boolean> {
      */
     public boolean equals(Object other) {
         if (other instanceof BooleanArray) {
+            // Simple case: just compare booleanArr fields
             BooleanArray otherBooleanArray = (BooleanArray) other;
             return Arrays.equals(booleanArr, otherBooleanArray.booleanArr);
         } else if (other instanceof ConstArray) {
+	    // Other array does not have contents in booleanArr:
+	    // check that length matches, and then compare elements one-by-one
             ConstArray otherArray = (ConstArray) other;
             if (otherArray.length() != booleanArr.length) {
                 return false;
             }
+            
             for (int i = 0; i < booleanArr.length; ++i) {
                 Object otherElement = otherArray.get(i);
                 if (!(otherElement instanceof Boolean) ||
@@ -104,8 +138,10 @@ public class BooleanArray extends PowerlessArray<Boolean> {
                     return false;
                 }
             }
+            
             return true;
         } else {
+            // Only ConstArrays can be equal to a BooleanArray
             return false;
         }
     }
@@ -118,7 +154,7 @@ public class BooleanArray extends PowerlessArray<Boolean> {
     public int hashCode() {
         // Because wrappers for primitive types return the same hashCode as 
         // their primitive values, a BooleanArray has the same hashCode as a
-        // ConstArray<Boolean>.
+        // ConstArray<Boolean> with the same contents.
         return Arrays.hashCode(booleanArr);
     }
     
@@ -136,13 +172,13 @@ public class BooleanArray extends PowerlessArray<Boolean> {
      * 
      * @return a mutable Boolean array copy of the array
      */
-	public Boolean[] toArray() {
-		Boolean[] boxedArray = new Boolean[booleanArr.length];
-		for (int i = 0; i < booleanArr.length; ++i) {
-			boxedArray[i] = booleanArr[i];
-		}
-		return boxedArray;
-	}  
+    public Boolean[] toArray() {
+	Boolean[] boxedArray = new Boolean[booleanArr.length];
+	for (int i = 0; i < booleanArr.length; ++i) {
+	    boxedArray[i] = booleanArr[i];
+	}
+	return boxedArray;
+    }  
     
     
     /** 
@@ -162,7 +198,7 @@ public class BooleanArray extends PowerlessArray<Boolean> {
      * 
      * @return a new BooleanArray containing a specified additional Boolean
      */
-	public BooleanArray with(Boolean newBoolean) {
-		return with(newBoolean.booleanValue());
-	}
+    public BooleanArray with(Boolean newBoolean) {
+	return with(newBoolean.booleanValue());
+    }
 }

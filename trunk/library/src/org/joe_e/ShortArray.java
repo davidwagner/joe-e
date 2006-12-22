@@ -5,31 +5,61 @@
  */
 package org.joe_e;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Arrays;
 
 /**
  * An immutable array of short.
  */
 public class ShortArray extends PowerlessArray<Short> {
-    static final long serialVersionUID = 5184647170956085700L;   
+    static final long serialVersionUID = 20061222;   
     
-	private final short[] shortArr;
+    private transient short[] shortArr;
 
-	/**
-	 * Construct an immutable short array with a copy of an existing short array as
-	 * backing store.
-	 * 
-	 * @param shortArr the array to make an unmodifiable duplicate of
-	 */
-	public ShortArray(short... shortArr) {
-		// Use back door constructor that sets backing store to null.
+    /**
+     * Construct an immutable short array with a copy of an existing short array as
+     * backing store.
+     * 
+     * @param shortArr the array to make an unmodifiable duplicate of
+     */
+    public ShortArray(short... shortArr) {
+	// Use back door constructor that sets backing store to null.
         // This lets ConstArray's methods know not to use the backing
         // store for accessing this object.
-	    super();
+	super();
         
         this.shortArr = shortArr.clone();
-   	}
+    }
     
+    /*
+     * Serialization hacks to prevent the contents from being serialized as
+     * a mutable array.  This improves efficiency for projects that serialize
+     * Joe-E objects using Java's serialization API to avoid treating immutable
+     * state as mutable.  These methods can otherwise be ignored.
+     */
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+
+        out.writeInt(shortArr.length);
+        for (short x : shortArr) {
+            out.writeShort(x);
+        }
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, 
+    						      ClassNotFoundException {
+        in.defaultReadObject();
+
+        int length = in.readInt();
+        shortArr = (short[]) 
+                  java.lang.reflect.Array.newInstance(Short.class, length);
+        for (int i = 0; i < length; ++i) {
+            shortArr[i] = in.readShort();
+        }
+    }
+        
     /**
      * Return the short located at a specified position
      * 
@@ -40,23 +70,23 @@ public class ShortArray extends PowerlessArray<Short> {
      * @throws ArrayIndexOutOfBoundsException if the specified position is
      * out of bounds.
      */
-	public short getShort(int pos) {
-		return shortArr[pos];
-	}
+    public short getShort(int pos) {
+	return shortArr[pos];
+    }
 
     /**
      * Return a mutable copy of the short array
      * 
      * @return a mutable copy of the array
      */
-	public short[] toShortArray() {
-		return shortArr.clone();
-	}
+    public short[] toShortArray() {
+	return shortArr.clone();
+    }
 
-	/*
-	 *  Methods that must be overriden, as the implementation in ConstArray
+    /*
+     *  Methods that must be overriden, as the implementation in ConstArray
      *  would try to use arr, which is null.
-	 */
+     */
 	
     /**
      * Return the length of the array
@@ -78,9 +108,9 @@ public class ShortArray extends PowerlessArray<Short> {
      * @throws ArrayIndexOutOfBoundsException if the specified position is
      * out of bounds.
      */
-	public Short get(int pos) {
-		return shortArr[pos];
-	}
+    public Short get(int pos) {
+	return shortArr[pos];
+    }
 	
     /**
      * Test for equality with another object
@@ -90,13 +120,17 @@ public class ShortArray extends PowerlessArray<Short> {
      */
     public boolean equals(Object other) {
         if (other instanceof ShortArray) {
+            // Simple case: just compare shortArr fields
             ShortArray otherShortArray = (ShortArray) other;
             return Arrays.equals(shortArr, otherShortArray.shortArr);
         } else if (other instanceof ConstArray) {
+	    // Other array does not have contents in shortArr:
+	    // check that length matches, and then compare elements one-by-one
             ConstArray otherArray = (ConstArray) other;
             if (otherArray.length() != shortArr.length) {
                 return false;
             }
+            
             for (int i = 0; i < shortArr.length; ++i) {
                 Object otherElement = otherArray.get(i);
                 if (!(otherElement instanceof Short) ||
@@ -104,8 +138,10 @@ public class ShortArray extends PowerlessArray<Short> {
                     return false;
                 }
             }
+            
             return true;
         } else {
+            // Only ConstArrays can be equal to a ShortArray
             return false;
         }
     }
@@ -118,7 +154,7 @@ public class ShortArray extends PowerlessArray<Short> {
     public int hashCode() {
         // Because wrappers for primitive types return the same hashCode as 
         // their primitive values, a ShortArray has the same hashCode as a
-        // ConstArray<Short>.
+        // ConstArray<Short> with the same contents.
         return Arrays.hashCode(shortArr);
     }
     
@@ -136,13 +172,13 @@ public class ShortArray extends PowerlessArray<Short> {
      * 
      * @return a mutable Short array copy of the array
      */
-	public Short[] toArray() {
-		Short[] boxedArray = new Short[shortArr.length];
-		for (int i = 0; i < shortArr.length; ++i) {
-			boxedArray[i] = shortArr[i];
-		}
-		return boxedArray;
-	}  
+    public Short[] toArray() {
+	Short[] boxedArray = new Short[shortArr.length];
+	for (int i = 0; i < shortArr.length; ++i) {
+	    boxedArray[i] = shortArr[i];
+	}
+	return boxedArray;
+    }  
     
     
     /** 
@@ -162,7 +198,7 @@ public class ShortArray extends PowerlessArray<Short> {
      * 
      * @return a new ShortArray containing a specified additional Short
      */
-	public ShortArray with(Short newShort) {
-		return with(newShort.shortValue());
-	}
+    public ShortArray with(Short newShort) {
+	return with(newShort.shortValue());
+    }
 }

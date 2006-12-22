@@ -5,31 +5,61 @@
  */
 package org.joe_e;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Arrays;
 
 /**
  * An immutable array of int.
  */
 public class IntArray extends PowerlessArray<Integer> {
-    static final long serialVersionUID = 3554362412868687210L;   
+    static final long serialVersionUID = 20061222;   
     
-	private final int[] intArr;
+    private transient int[] intArr;
 
-	/**
-	 * Construct an immutable int array with a copy of an existing int array as
-	 * backing store.
-	 * 
-	 * @param intArr the array to make an unmodifiable duplicate of
-	 */
-	public IntArray(int... intArr) {
-		// Use back door constructor that sets backing store to null.
+    /**
+     * Construct an immutable int array with a copy of an existing int array as
+     * backing store.
+     * 
+     * @param intArr the array to make an unmodifiable duplicate of
+     */
+    public IntArray(int... intArr) {
+	// Use back door constructor that sets backing store to null.
         // This lets ConstArray's methods know not to use the backing
         // store for accessing this object.
-	    super();
+	super();
         
         this.intArr = intArr.clone();
-   	}
+    }
     
+    /*
+     * Serialization hacks to prevent the contents from being serialized as
+     * a mutable array.  This improves efficiency for projects that serialize
+     * Joe-E objects using Java's serialization API to avoid treating immutable
+     * state as mutable.  These methods can otherwise be ignored.
+     */
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+
+        out.writeInt(intArr.length);
+        for (int x : intArr) {
+            out.writeInt(x);
+        }
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, 
+    						      ClassNotFoundException {
+        in.defaultReadObject();
+
+        int length = in.readInt();
+        intArr = (int[]) 
+                  java.lang.reflect.Array.newInstance(Integer.class, length);
+        for (int i = 0; i < length; ++i) {
+            intArr[i] = in.readInt();
+        }
+    }
+        
     /**
      * Return the int located at a specified position
      * 
@@ -40,23 +70,23 @@ public class IntArray extends PowerlessArray<Integer> {
      * @throws ArrayIndexOutOfBoundsException if the specified position is
      * out of bounds.
      */
-	public int getInt(int pos) {
-		return intArr[pos];
-	}
+    public int getInt(int pos) {
+	return intArr[pos];
+    }
 
     /**
      * Return a mutable copy of the int array
      * 
      * @return a mutable copy of the array
      */
-	public int[] toIntArray() {
-		return intArr.clone();
-	}
+    public int[] toIntArray() {
+	return intArr.clone();
+    }
 
-	/*
-	 *  Methods that must be overriden, as the implementation in ConstArray
+    /*
+     *  Methods that must be overriden, as the implementation in ConstArray
      *  would try to use arr, which is null.
-	 */
+     */
 	
     /**
      * Return the length of the array
@@ -78,9 +108,9 @@ public class IntArray extends PowerlessArray<Integer> {
      * @throws ArrayIndexOutOfBoundsException if the specified position is
      * out of bounds.
      */
-	public Integer get(int pos) {
-		return intArr[pos];
-	}
+    public Integer get(int pos) {
+	return intArr[pos];
+    }
 	
     /**
      * Test for equality with another object
@@ -90,13 +120,17 @@ public class IntArray extends PowerlessArray<Integer> {
      */
     public boolean equals(Object other) {
         if (other instanceof IntArray) {
+            // Simple case: just compare intArr fields
             IntArray otherIntArray = (IntArray) other;
             return Arrays.equals(intArr, otherIntArray.intArr);
         } else if (other instanceof ConstArray) {
+	    // Other array does not have contents in intArr:
+	    // check that length matches, and then compare elements one-by-one
             ConstArray otherArray = (ConstArray) other;
             if (otherArray.length() != intArr.length) {
                 return false;
             }
+            
             for (int i = 0; i < intArr.length; ++i) {
                 Object otherElement = otherArray.get(i);
                 if (!(otherElement instanceof Integer) ||
@@ -104,8 +138,10 @@ public class IntArray extends PowerlessArray<Integer> {
                     return false;
                 }
             }
+            
             return true;
         } else {
+            // Only ConstArrays can be equal to a IntArray
             return false;
         }
     }
@@ -118,7 +154,7 @@ public class IntArray extends PowerlessArray<Integer> {
     public int hashCode() {
         // Because wrappers for primitive types return the same hashCode as 
         // their primitive values, a IntArray has the same hashCode as a
-        // ConstArray<Integer>.
+        // ConstArray<Integer> with the same contents.
         return Arrays.hashCode(intArr);
     }
     
@@ -136,13 +172,13 @@ public class IntArray extends PowerlessArray<Integer> {
      * 
      * @return a mutable Integer array copy of the array
      */
-	public Integer[] toArray() {
-		Integer[] boxedArray = new Integer[intArr.length];
-		for (int i = 0; i < intArr.length; ++i) {
-			boxedArray[i] = intArr[i];
-		}
-		return boxedArray;
-	}  
+    public Integer[] toArray() {
+	Integer[] boxedArray = new Integer[intArr.length];
+	for (int i = 0; i < intArr.length; ++i) {
+	    boxedArray[i] = intArr[i];
+	}
+	return boxedArray;
+    }  
     
     
     /** 
@@ -162,7 +198,7 @@ public class IntArray extends PowerlessArray<Integer> {
      * 
      * @return a new IntArray containing a specified additional Integer
      */
-	public IntArray with(Integer newInt) {
-		return with(newInt.intValue());
-	}
+    public IntArray with(Integer newInt) {
+	return with(newInt.intValue());
+    }
 }

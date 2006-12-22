@@ -32,10 +32,20 @@ public class ConstArray<E> implements Selfless, Iterable<E>, java.io.Serializabl
      * 
      * @param arr the array to make an unmodifiable duplicate of
      */
-	public ConstArray (E... arr) {
-		this.arr = arr.clone();
-	}
+    public ConstArray (E... arr) {
+	this.arr = arr.clone();
+    }
 
+    /**
+     * Package-scope back-door constructor for use by subclasses that
+     * override all methods that make use of the field arr.  Nullity of arr is
+     * used to distinguish between instances with which this class must interact
+     * by using the public interface rather than through their arr field.
+     */
+    ConstArray() {
+        arr = null;
+    }    
+    
     /*
      * Serialization hacks to prevent the contents from being serialized as
      * a mutable array.  This improves efficiency for projects that serialize
@@ -43,26 +53,26 @@ public class ConstArray<E> implements Selfless, Iterable<E>, java.io.Serializabl
      * state as mutable.  They can otherwise be ignored.
      */
     private void
-    writeObject(final ObjectOutputStream out) throws IOException {
+    writeObject(ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
 
         out.writeObject(arr.getClass().getComponentType());
         out.writeInt(arr.length);
-        for (final Object x : arr) {
+        for (Object x : arr) {
             out.writeObject(x);
         }
     }
 
     private void
-    readObject(final ObjectInputStream in) throws IOException,
+    readObject(ObjectInputStream in) throws IOException,
                                                   ClassNotFoundException {
         in.defaultReadObject();
 
-        final Class component_type = (Class)in.readObject();
-        final int length = in.readInt();
-        arr = (E[])java.lang.reflect.Array.newInstance(component_type, length);
-        for (int i = 0; i != length; ++i) {
-            arr[i] = (E)in.readObject();
+        Class component_type = (Class)in.readObject();
+        int length = in.readInt();
+        arr = (E[]) java.lang.reflect.Array.newInstance(component_type, length);
+        for (int i = 0; i < length; ++i) {
+            arr[i] = (E) in.readObject();
         }
     }
       
@@ -76,46 +86,69 @@ public class ConstArray<E> implements Selfless, Iterable<E>, java.io.Serializabl
      * @throws ArrayIndexOutOfBoundsException if the specified position is
      * out of bounds.
      */
-	public E get(int pos) {
-		return arr[pos];
-	}
+    public E get(int pos) {
+	return arr[pos];
+    }
      
     /**
      * Return the length of the array
      * 
      * @return the length of the array
      */
-	public int length() {
-		return arr.length;
-	}
+    public int length() {
+	return arr.length;
+    }
 
     /**
      * Return a mutable copy of the array
      * 
      * @return a mutable copy of the array
      */
-	public E[] toArray() {
-		return arr.clone();
-	}
+    public E[] toArray() {
+	return arr.clone();
+    }
 
     /**
      * Return a new iterator over the array
      * 
      * @return the iterator over the array
      */
-	public ArrayIterator<E> iterator() {
-		return new ArrayIterator<E>(this);
-	}
+    public ArrayIterator<E> iterator() {
+	return new ArrayIterator<E>(this);
+    }
        
     /**
-     * Test for equality with another object
+     * Test for equality with another object.
      * 
-     * @return true if the other object is a SelflessArray with the same
+     * @return true if the other object is a ConstArray with the same
      * contents as this array
-     */
+     */ 
     public boolean equals(Object other) {
-        return (other instanceof ConstArray &&
-                Arrays.equals(arr, ((ConstArray) other).arr));
+	// Can't be equal if not a ConstArray
+	if (!(other instanceof ConstArray)) {
+	    return false;
+	}
+	    
+	ConstArray otherArray = (ConstArray) other;
+	if (otherArray.arr == null) {
+	    // Other array does not store contents in arr:
+	    // check that length matches, and then compare elements one-by-one
+	    if (arr.length != otherArray.length()) {
+		return false;
+	    }
+	    
+	    for (int i = 0; i < arr.length; ++i) {
+	        if (!arr[i].equals(otherArray.get(i))) {
+		    return false;
+	        }
+	    }
+	    
+	    return true;
+	} else {
+	    // Other array stores contents in arr: just check for array
+	    // equality between the two arr fields 
+	    return (Arrays.equals(arr, otherArray.arr));
+	}
     }
 
     /**
@@ -140,24 +173,48 @@ public class ConstArray<E> implements Selfless, Iterable<E>, java.io.Serializabl
     /**
      * Return a string representation of the array
      * 
+     * TODO: Change this to support more types, either through
+     * the introduction of an interface for toString()able objects
+     * or through reflection.
+     * 
      * @return a string representation of this array
      */    
     public String toString() {
-        return Arrays.toString(arr);
+	StringBuilder stringRep = new StringBuilder("[");
+	for (int i = 0; i < arr.length; ++i) {
+	    if (arr[i] == null) {
+		stringRep.append("null");
+	    }
+	    if (arr[i] instanceof String || arr[i] instanceof ConstArray
+		|| arr[i] instanceof Boolean || arr[i] instanceof Byte	
+		|| arr[i] instanceof Character || arr[i] instanceof Double
+		|| arr[i] instanceof Float || arr[i] instanceof Integer
+		|| arr[i] instanceof Long || arr[i] instanceof Short) {
+		stringRep.append(arr[i].toString());
+	    } else {
+		stringRep.append("<unprintable>");
+	    }
+	    
+	    if (i + 1 < arr.length) {
+		stringRep.append(", ");
+	    }
+	}
+	
+	return stringRep.append("]").toString();
     }
         
-	/**
-	 * Return a new SelflessArray containing a specified additional element
+   /**
+     * Return a new SelflessArray containing a specified additional element
      * 
      * @return a new SelflessArray containing a specified additional element
      */
-	public ConstArray<E> with(E newt) {
-		Class componentType = arr.getClass().getComponentType();
-		// The following line generates a type-soundness warning.
-		E[] newArr = (E[]) 
-			java.lang.reflect.Array.newInstance(componentType, arr.length + 1);
-		System.arraycopy(arr, 0, newArr, 0, arr.length);
-		newArr[arr.length] = newt;
-		return new ConstArray<E>(newArr);
-	}
+    public ConstArray<E> with(E newt) {
+	Class componentType = arr.getClass().getComponentType();
+	// The following line generates a type-soundness warning.
+	E[] newArr = (E[]) 
+	    java.lang.reflect.Array.newInstance(componentType, arr.length + 1);
+	System.arraycopy(arr, 0, newArr, 0, arr.length);
+	newArr[arr.length] = newt;
+	return new ConstArray<E>(newArr);
+    }
 }

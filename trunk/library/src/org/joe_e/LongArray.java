@@ -5,31 +5,61 @@
  */
 package org.joe_e;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Arrays;
 
 /**
  * An immutable array of long.
  */
 public class LongArray extends PowerlessArray<Long> {
-    static final long serialVersionUID = 1915161630626766078L;   
+    static final long serialVersionUID = 20061222;   
     
-	private final long[] longArr;
+    private transient long[] longArr;
 
-	/**
-	 * Construct an immutable long array with a copy of an existing long array as
-	 * backing store.
-	 * 
-	 * @param longArr the array to make an unmodifiable duplicate of
-	 */
-	public LongArray(long... longArr) {
-		// Use back door constructor that sets backing store to null.
+    /**
+     * Construct an immutable long array with a copy of an existing long array as
+     * backing store.
+     * 
+     * @param longArr the array to make an unmodifiable duplicate of
+     */
+    public LongArray(long... longArr) {
+	// Use back door constructor that sets backing store to null.
         // This lets ConstArray's methods know not to use the backing
         // store for accessing this object.
-	    super();
+	super();
         
         this.longArr = longArr.clone();
-   	}
+    }
     
+    /*
+     * Serialization hacks to prevent the contents from being serialized as
+     * a mutable array.  This improves efficiency for projects that serialize
+     * Joe-E objects using Java's serialization API to avoid treating immutable
+     * state as mutable.  These methods can otherwise be ignored.
+     */
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+
+        out.writeInt(longArr.length);
+        for (long x : longArr) {
+            out.writeLong(x);
+        }
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, 
+    						      ClassNotFoundException {
+        in.defaultReadObject();
+
+        int length = in.readInt();
+        longArr = (long[]) 
+                  java.lang.reflect.Array.newInstance(Long.class, length);
+        for (int i = 0; i < length; ++i) {
+            longArr[i] = in.readLong();
+        }
+    }
+        
     /**
      * Return the long located at a specified position
      * 
@@ -40,23 +70,23 @@ public class LongArray extends PowerlessArray<Long> {
      * @throws ArrayIndexOutOfBoundsException if the specified position is
      * out of bounds.
      */
-	public long getLong(int pos) {
-		return longArr[pos];
-	}
+    public long getLong(int pos) {
+	return longArr[pos];
+    }
 
     /**
      * Return a mutable copy of the long array
      * 
      * @return a mutable copy of the array
      */
-	public long[] toLongArray() {
-		return longArr.clone();
-	}
+    public long[] toLongArray() {
+	return longArr.clone();
+    }
 
-	/*
-	 *  Methods that must be overriden, as the implementation in ConstArray
+    /*
+     *  Methods that must be overriden, as the implementation in ConstArray
      *  would try to use arr, which is null.
-	 */
+     */
 	
     /**
      * Return the length of the array
@@ -78,9 +108,9 @@ public class LongArray extends PowerlessArray<Long> {
      * @throws ArrayIndexOutOfBoundsException if the specified position is
      * out of bounds.
      */
-	public Long get(int pos) {
-		return longArr[pos];
-	}
+    public Long get(int pos) {
+	return longArr[pos];
+    }
 	
     /**
      * Test for equality with another object
@@ -90,13 +120,17 @@ public class LongArray extends PowerlessArray<Long> {
      */
     public boolean equals(Object other) {
         if (other instanceof LongArray) {
+            // Simple case: just compare longArr fields
             LongArray otherLongArray = (LongArray) other;
             return Arrays.equals(longArr, otherLongArray.longArr);
         } else if (other instanceof ConstArray) {
+	    // Other array does not have contents in longArr:
+	    // check that length matches, and then compare elements one-by-one
             ConstArray otherArray = (ConstArray) other;
             if (otherArray.length() != longArr.length) {
                 return false;
             }
+            
             for (int i = 0; i < longArr.length; ++i) {
                 Object otherElement = otherArray.get(i);
                 if (!(otherElement instanceof Long) ||
@@ -104,8 +138,10 @@ public class LongArray extends PowerlessArray<Long> {
                     return false;
                 }
             }
+            
             return true;
         } else {
+            // Only ConstArrays can be equal to a LongArray
             return false;
         }
     }
@@ -118,7 +154,7 @@ public class LongArray extends PowerlessArray<Long> {
     public int hashCode() {
         // Because wrappers for primitive types return the same hashCode as 
         // their primitive values, a LongArray has the same hashCode as a
-        // ConstArray<Long>.
+        // ConstArray<Long> with the same contents.
         return Arrays.hashCode(longArr);
     }
     
@@ -136,13 +172,13 @@ public class LongArray extends PowerlessArray<Long> {
      * 
      * @return a mutable Long array copy of the array
      */
-	public Long[] toArray() {
-		Long[] boxedArray = new Long[longArr.length];
-		for (int i = 0; i < longArr.length; ++i) {
-			boxedArray[i] = longArr[i];
-		}
-		return boxedArray;
-	}  
+    public Long[] toArray() {
+	Long[] boxedArray = new Long[longArr.length];
+	for (int i = 0; i < longArr.length; ++i) {
+	    boxedArray[i] = longArr[i];
+	}
+	return boxedArray;
+    }  
     
     
     /** 
@@ -162,7 +198,7 @@ public class LongArray extends PowerlessArray<Long> {
      * 
      * @return a new LongArray containing a specified additional Long
      */
-	public LongArray with(Long newLong) {
-		return with(newLong.longValue());
-	}
+    public LongArray with(Long newLong) {
+	return with(newLong.longValue());
+    }
 }

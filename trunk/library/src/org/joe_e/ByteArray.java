@@ -5,31 +5,61 @@
  */
 package org.joe_e;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Arrays;
 
 /**
  * An immutable array of byte.
  */
 public class ByteArray extends PowerlessArray<Byte> {
-    static final long serialVersionUID = -2523058214080487043L;   
+    static final long serialVersionUID = 20061222;   
     
-	private final byte[] byteArr;
+    private transient byte[] byteArr;
 
-	/**
-	 * Construct an immutable byte array with a copy of an existing byte array as
-	 * backing store.
-	 * 
-	 * @param byteArr the array to make an unmodifiable duplicate of
-	 */
-	public ByteArray(byte... byteArr) {
-		// Use back door constructor that sets backing store to null.
+    /**
+     * Construct an immutable byte array with a copy of an existing byte array as
+     * backing store.
+     * 
+     * @param byteArr the array to make an unmodifiable duplicate of
+     */
+    public ByteArray(byte... byteArr) {
+	// Use back door constructor that sets backing store to null.
         // This lets ConstArray's methods know not to use the backing
         // store for accessing this object.
-	    super();
+	super();
         
         this.byteArr = byteArr.clone();
-   	}
+    }
     
+    /*
+     * Serialization hacks to prevent the contents from being serialized as
+     * a mutable array.  This improves efficiency for projects that serialize
+     * Joe-E objects using Java's serialization API to avoid treating immutable
+     * state as mutable.  These methods can otherwise be ignored.
+     */
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+
+        out.writeInt(byteArr.length);
+        for (byte x : byteArr) {
+            out.writeByte(x);
+        }
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, 
+    						      ClassNotFoundException {
+        in.defaultReadObject();
+
+        int length = in.readInt();
+        byteArr = (byte[]) 
+                  java.lang.reflect.Array.newInstance(Byte.class, length);
+        for (int i = 0; i < length; ++i) {
+            byteArr[i] = in.readByte();
+        }
+    }
+        
     /**
      * Return the byte located at a specified position
      * 
@@ -40,23 +70,23 @@ public class ByteArray extends PowerlessArray<Byte> {
      * @throws ArrayIndexOutOfBoundsException if the specified position is
      * out of bounds.
      */
-	public byte getByte(int pos) {
-		return byteArr[pos];
-	}
+    public byte getByte(int pos) {
+	return byteArr[pos];
+    }
 
     /**
      * Return a mutable copy of the byte array
      * 
      * @return a mutable copy of the array
      */
-	public byte[] toByteArray() {
-		return byteArr.clone();
-	}
+    public byte[] toByteArray() {
+	return byteArr.clone();
+    }
 
-	/*
-	 *  Methods that must be overriden, as the implementation in ConstArray
+    /*
+     *  Methods that must be overriden, as the implementation in ConstArray
      *  would try to use arr, which is null.
-	 */
+     */
 	
     /**
      * Return the length of the array
@@ -78,9 +108,9 @@ public class ByteArray extends PowerlessArray<Byte> {
      * @throws ArrayIndexOutOfBoundsException if the specified position is
      * out of bounds.
      */
-	public Byte get(int pos) {
-		return byteArr[pos];
-	}
+    public Byte get(int pos) {
+	return byteArr[pos];
+    }
 	
     /**
      * Test for equality with another object
@@ -90,13 +120,17 @@ public class ByteArray extends PowerlessArray<Byte> {
      */
     public boolean equals(Object other) {
         if (other instanceof ByteArray) {
+            // Simple case: just compare byteArr fields
             ByteArray otherByteArray = (ByteArray) other;
             return Arrays.equals(byteArr, otherByteArray.byteArr);
         } else if (other instanceof ConstArray) {
+	    // Other array does not have contents in byteArr:
+	    // check that length matches, and then compare elements one-by-one
             ConstArray otherArray = (ConstArray) other;
             if (otherArray.length() != byteArr.length) {
                 return false;
             }
+            
             for (int i = 0; i < byteArr.length; ++i) {
                 Object otherElement = otherArray.get(i);
                 if (!(otherElement instanceof Byte) ||
@@ -104,8 +138,10 @@ public class ByteArray extends PowerlessArray<Byte> {
                     return false;
                 }
             }
+            
             return true;
         } else {
+            // Only ConstArrays can be equal to a ByteArray
             return false;
         }
     }
@@ -118,7 +154,7 @@ public class ByteArray extends PowerlessArray<Byte> {
     public int hashCode() {
         // Because wrappers for primitive types return the same hashCode as 
         // their primitive values, a ByteArray has the same hashCode as a
-        // ConstArray<Byte>.
+        // ConstArray<Byte> with the same contents.
         return Arrays.hashCode(byteArr);
     }
     
@@ -136,13 +172,13 @@ public class ByteArray extends PowerlessArray<Byte> {
      * 
      * @return a mutable Byte array copy of the array
      */
-	public Byte[] toArray() {
-		Byte[] boxedArray = new Byte[byteArr.length];
-		for (int i = 0; i < byteArr.length; ++i) {
-			boxedArray[i] = byteArr[i];
-		}
-		return boxedArray;
-	}  
+    public Byte[] toArray() {
+	Byte[] boxedArray = new Byte[byteArr.length];
+	for (int i = 0; i < byteArr.length; ++i) {
+	    boxedArray[i] = byteArr[i];
+	}
+	return boxedArray;
+    }  
     
     
     /** 
@@ -162,7 +198,7 @@ public class ByteArray extends PowerlessArray<Byte> {
      * 
      * @return a new ByteArray containing a specified additional Byte
      */
-	public ByteArray with(Byte newByte) {
-		return with(newByte.byteValue());
-	}
+    public ByteArray with(Byte newByte) {
+	return with(newByte.byteValue());
+    }
 }
