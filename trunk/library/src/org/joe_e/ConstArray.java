@@ -204,9 +204,9 @@ public class ConstArray<E> implements Selfless, Iterable<E>, java.io.Serializabl
     }
         
    /**
-     * Return a new SelflessArray containing a specified additional element
+     * Return a new ConstArray containing a specified additional element
      * 
-     * @return a new SelflessArray containing a specified additional element
+     * @return a new ConstArray containing a specified additional element
      */
     public ConstArray<E> with(E newt) {
 	Class componentType = arr.getClass().getComponentType();
