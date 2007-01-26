@@ -126,8 +126,15 @@ public class Verifier {
 
         final List<Problem> problems;
 
+        // Contains a stack of body declaration nodes that are ancestors of the
+        // current node.  The top element is the context in which the current
+        // node is executed.
         final Stack<BodyDeclaration> codeContext;
-
+        // Contains a stack of the tags (as per the constants in BuildState) for
+        // the classes that are ancestors of the current node.  The top element
+        // gives the flags for the current class.
+        final Stack<Integer> classTags;
+        
         /**
          * Create a visitor for a specified compilation unit that appends Joe-E
          * verification errors to a specified list of problems.
@@ -144,6 +151,7 @@ public class Verifier {
             this.dependents = dependents;
             this.problems = problems;
             this.codeContext = new Stack<BodyDeclaration>();
+            this.classTags = new Stack<Integer>();
         }
 
         /*
@@ -181,6 +189,29 @@ public class Verifier {
                 IVariableBinding ivb = (IVariableBinding) ib;
                 if (ivb.isField()) {
                     checkFieldBinding(ivb, sn);
+                } else if (inImmutableClass()) {
+                    IMethodBinding declaringMethod = ivb.getDeclaringMethod();
+                    if (declaringMethod != null && getCurrentClass() 
+                            != declaringMethod.getDeclaringClass()) {
+                        try {
+                            if (!taming.implementsOverlay(ivb.getType(),
+                                 inPowerlessClass() ? taming.POWERLESS
+                                                    : taming.IMMUTABLE)) {
+                                String mi = inPowerlessClass() ? "Powerless"
+                                                               : "Immutable";
+                                addProblem(String.format("Non-%s local " +
+                                           "variable %s from enclosing scope " +
+                                           "referenced in %s class.", 
+                                           mi, sn, mi), sn);
+                            }
+                        } catch (JavaModelException jme) {
+                            addProblem("Analysis incomplete: BUG IN VERIFIER " +
+                                       "or I/O error (JavaModelException) " +
+                                       "encountered analyzing outer method's " +
+                                       "local variable " + sn, sn);
+
+                        }
+                    }
                 }
             } else if (ib instanceof ITypeBinding) {
                 ITypeBinding itb = (ITypeBinding) ib;
@@ -258,9 +289,39 @@ public class Verifier {
             IMethodBinding imb = cic.resolveConstructorBinding();
             ITypeBinding classBinding = imb.getDeclaringClass();
 
-            // Check if taming is violated for non-source types.
-            if (!classBinding.isFromSource()) {
-                // check in taming database
+            if (classBinding.isFromSource()) {
+                if (inImmutableClass()) {
+                    ITypeBinding current = classBinding;
+                    boolean isLocal = false;
+                    while (current != null) {
+                        if (current.isLocal()) {
+                            isLocal = true;
+                            break;
+                        }
+                        current = current.getDeclaringClass();
+                    }
+                    
+                    try {
+                        if (isLocal && !taming.implementsOverlay(classBinding,
+                                 inPowerlessClass() ? taming.POWERLESS
+                                                    : taming.IMMUTABLE)) {
+                            String mi = inPowerlessClass() ? "Powerless"
+                                                           : "Immutable";
+                            addProblem(String.format("Non-%s local class " +
+                                       "%s constructed from within " +
+                                       "%s class.", mi, classBinding.getName(), 
+                                       mi), cic);
+                        }
+                    } catch (JavaModelException jme) {
+                        addProblem("Analysis incomplete: BUG IN VERIFIER " +
+                                   "or I/O error (JavaModelException) " +
+                                   "encountered analyzing instance creation " +
+                                   "of local class " + classBinding.getName(), 
+                                   cic);
+                    }                    
+                }
+            } else {
+                // Check if taming is violated for non-source types.                       
                 if (!taming.isTamed(classBinding)) {
                     addProblem("Construction of untamed class " +
                                classBinding.getName() + ".", cic.getType());
@@ -278,7 +339,7 @@ public class Verifier {
             // Otherwise, if we are in a constructor context, make sure that it
             // isn't an anonymous type or a non-static inner type.
             if (inConstructorContext()) {
-                ITypeBinding currentClass = getContext();
+                ITypeBinding currentClass = getCurrentClass();
                 if (classBinding.isAnonymous()) {
                     addProblem("Construction of anonymous class during " +
                                "instance initialization.", cic.getType());
@@ -291,7 +352,7 @@ public class Verifier {
                     if (ancestor.equals(currentClass)) {
                         addProblem("Construction of non-static member " + 
                                    "class " + imb.getName() + 
-                                   "during instance initialization.", 
+                                   " during instance initialization.", 
                                    cic.getType());
                         return true;
                     }
@@ -408,8 +469,9 @@ public class Verifier {
                            " from superclass called.", smi);
             } else {
                 try {
-                    ITypeBinding superTB = getContext().getSuperclass();
-                    if (taming.implementsOverlay(getContext(), taming.SELFLESS)
+                    ITypeBinding superTB = getCurrentClass().getSuperclass();
+                    if (taming.implementsOverlay(getCurrentClass(),
+                                                 taming.SELFLESS)
                         && (superTB == null 
                             || superTB.getQualifiedName()
                             	    .equals("java.lang.Object"))
@@ -434,7 +496,7 @@ public class Verifier {
          * @return the type binding of the current class
          * @throws NullPointerException if not in a code context.
          */
-        ITypeBinding getContext() {
+        ITypeBinding getCurrentClass() {
             BodyDeclaration bd = codeContext.peek();
             ASTNode bdParent = bd.getParent();
             
@@ -448,6 +510,24 @@ public class Verifier {
         }
 
         /**
+         * Check whether the current class is immutable
+         * 
+         * @return true if the current class is immutable according to its tags
+         */
+        boolean inImmutableClass() {
+            return BuildState.isImmutable(classTags.peek());
+        }
+        
+        /**
+         * Check whether the current class is powerless
+         * 
+         * @return true if the current class is powerless according to its tags
+         */
+        boolean inPowerlessClass() {
+            return BuildState.isPowerless(classTags.peek());
+        }
+        
+        /**
          * Test whether we are in a constructor context, i.e. at a program point
          * at which the current object may be incompletely initialized.  This
          * occurs during the traversal of instance initializers, constructors,
@@ -459,6 +539,10 @@ public class Verifier {
          *         context.
          */
         boolean inConstructorContext() {
+            if (codeContext.isEmpty()) {
+                return false;
+            }
+            
             BodyDeclaration bd = codeContext.peek();
             if (bd instanceof Initializer) {
                 Initializer init = (Initializer) bd;
@@ -575,11 +659,38 @@ public class Verifier {
             return true;
         }
 
-        /*
-         * Body declarations not specifically handled above:
-         * AnnotationTypeDeclaration, EnumDeclaration, TypeDeclaration,
-         * AnnotationTypeMemberDeclaration, EnumConstantDeclaration
+        /**
+         * Record in the codeContext when we visit an annotation type member
+         * declaration.
+         *
+         * @param atmd
+         *            the annotation type member declaration being traversed
+         * @return true to visit children of this node
          */
+        public boolean visit(AnnotationTypeMemberDeclaration atmd) {
+            // System.out.println("visit(BodyDeclaration bd) of <" + bd + ">");
+            codeContext.push(atmd);
+            return true;
+        }
+
+        /**
+         * Record in the codeContext when we visit an enum constant declaration.
+         *
+         * @param ecd
+         *            the enum constant declaration being traversed
+         * @return true to visit children of this node
+         */
+        public boolean visit(EnumConstantDeclaration ecd) {
+            // System.out.println("visit(BodyDeclaration bd) of <" + bd + ">");
+            codeContext.push(ecd);
+            return true;
+        }
+
+        /*
+         * Type declarations: call checkType(), which adds the type to
+         * classTags after determining what they are.
+         */
+        
         public boolean visit(AnnotationTypeDeclaration atd) {
             checkType((ITypeBinding) atd.resolveBinding());
             // codeContext.push(atd);
@@ -598,36 +709,35 @@ public class Verifier {
          * in Eclipse.
          */
         public boolean visit(TypeDeclaration td) {
-            checkType((ITypeBinding) td.resolveBinding());
+            // Bail out early in the case of a type defined in a constructor
+            // context.  These serve no purpose, and trigger an Eclipse bug when
+            // I ask for their javaElement (I get the initializer instead!!)
+            if (inConstructorContext()) {
+                addProblem("Definition of local type " + td.getName() + " not " +
+                            "allowed in a constructor or instance initializer.",
+                            td.getName());
+                return false; // avoid propagation of eclipse bugs
+            } else {
+                checkType((ITypeBinding) td.resolveBinding());
+                return true;
+            }
             // codeContext.push(td);
-            return true;
-        }
-
-        public boolean visit(AnnotationTypeMemberDeclaration atmd) {
-            // System.out.println("visit(BodyDeclaration bd) of <" + bd + ">");
-            codeContext.push(atmd);
-            return true;
-        }
-
-        public boolean visit(EnumConstantDeclaration ecd) {
-            // System.out.println("visit(BodyDeclaration bd) of <" + bd + ">");
-            codeContext.push(ecd);
-            return true;
         }
 
         public boolean visit(AnonymousClassDeclaration acd) {
             checkType((ITypeBinding) acd.resolveBinding());
             return true;
         }
-
+        
         /**
-         * Verify an IType, updating the list of dependents and problems.
+         * Verify an ITypeBinding, updating the list of dependents and problems.
          * 
          * @param type
          *            the type to verify
          */
         void checkType(ITypeBinding itb) {
             System.out.println(". type " + itb.getName());
+
             
             // Add a flag dependency on all immediate supertypes as a change to
             // their flags would affect this type's flags. 
@@ -656,6 +766,9 @@ public class Verifier {
                 tags |= isPowerless ? BuildState.IMPL_POWERLESS : 0;
                 tags |= isEquatable ? BuildState.IS_EQUATABLE : 0;
 
+                // put tags in classTags
+                classTags.add(tags);
+                
                 // update flags and add dependents
                 dependents.addAll(state.updateTags(type, tags));
                 
@@ -875,22 +988,68 @@ public class Verifier {
          * @param type
          *            the type whose fields to verify
          * @param mi
-         *            the marker interface, i.e. Immutable or Powerless
+         *            the marker interface, i.e. Selfless, Immutable, or
+         *            Powerless
          * @throws JavaModelException
          */
         void verifyAllFieldsAre(ITypeBinding itb, IType mi)
                 throws JavaModelException {
-            Set<ITypeBinding> needCheck = findClasses(itb, mi);
+            Set<ITypeBinding> needCheck = findClassesToCheck(itb, mi);
             for (ITypeBinding i : needCheck) {
                 verifyFieldsAre(i, mi, itb);
+            }
+            
+            ITypeBinding current = itb;
+            // local copy of tags for enclosing classes
+            Stack<Integer> outerTags = new Stack<Integer>();
+            outerTags.addAll(classTags);
+           
+            // No need to check outer classes for Selfless
+            if (mi == taming.SELFLESS) {
+                return;
+            }
+            
+            // Check that outer classes implement marker interface
+            while (true) {
+                IMethodBinding declaringMethod = current.getDeclaringMethod();
+                if (declaringMethod != null && 
+                    Flags.isStatic(declaringMethod.getModifiers())) {
+                    // next enclosing construct is a static method, we're done.
+                    break;
+                } else {
+                    // Next enclosing construct if any is a class
+                    ITypeBinding outer = current.getDeclaringClass();
+                    if (outer == null || 
+                        Flags.isStatic(outer.getDeclaredModifiers())) {
+                        // we're at top level, or next enclosing construct is
+                        // a static class, we're done
+                        break;
+                    } else {
+                        int tags = outerTags.pop();                    
+                        if ((mi == taming.POWERLESS) 
+                                ? !BuildState.isPowerless(tags)
+                                : !BuildState.isImmutable(tags)) {
+                            String miName = (mi == taming.POWERLESS) ?
+                                                    "Powerless" : "Immutable";
+                            addProblem(String.format("Non-%s enclosing class " +
+                                       "%s for %s inner class %s", miName, 
+                                       outer.getName(), miName, itb.getName()),
+                                       ((IType) itb.getJavaElement())
+                                           .getNameRange());
+                        }
+                        
+                        current = outer;
+                    }
+                }
             }
         }
 
         /**
-         * Find the set of classes all of whose fields must satisfy a given
-         * marker interface. This requires traversal of supertypes and enclosing
-         * types. Classes already declared to implement the marker interface are
-         * not returned.  This method updates dependencies during the traversal.
+         * Find the set of all classes that contribute instance fields to a 
+         * given class, including the class itself.  This will be the class
+         * and all of its superclasses.  Classes already declared to implement
+         * the marker interface are not returned.  This method updates 
+         * dependencies during the traversal.
          * 
          * @param type
          *            the type at which to start
@@ -899,49 +1058,23 @@ public class Verifier {
          * @return the set of classes found
          * @throws JavaModelException
          */
-        Set<ITypeBinding> findClasses(ITypeBinding itb, IType mi)
+        Set<ITypeBinding> findClassesToCheck(ITypeBinding itb, IType mi)
                 throws JavaModelException {
             Set<ITypeBinding> found = new HashSet<ITypeBinding>();
             found.add(itb);
-            LinkedList<ITypeBinding> left = new LinkedList<ITypeBinding>();
-            left.add(itb);
-
-            while (!left.isEmpty()) {
-                ITypeBinding next = left.removeFirst();
-                // non-static member classes get access to variables in their
-                // containing class
-                if (next.isMember() 
-                    && !Modifier.isStatic(next.getDeclaredModifiers())) {
-                    ITypeBinding enclosingTB = next.getDeclaringClass();
-                    // if following line fails, fix for local types
-
-                    if (taming.implementsOverlay(enclosingTB, mi)) {
-                        // System.out.println(enclosingType.getQualifiedName()
-                        // + " is " + mi.getElementName());
-                        state.addFlagDependency(icu, enclosingTB);
-                    } else {
-                        if (found.add(enclosingTB)) {
-                            state.addDeepDependency(icu, enclosingTB);
-                            left.add(enclosingTB); // only add if we haven't
-                                                    // traversed it yet
-                        }
-                    }
-                }
-
-                ITypeBinding superTB = next.getSuperclass();
-                if (superTB != null) {
-                    if (taming.implementsOverlay(superTB, mi)) {
-                        // System.out.println(supertype.getElementName()
-                        // + " is " + mi.getElementName());
-                        state.addFlagDependency(icu, superTB);
-                        // already verified
-                    } else {
-                        if (found.add(superTB)) {
-                            state.addDeepDependency(icu, superTB);
-                            left.add(superTB); // only add if we haven't
-                                                // traversed it yet
-                        }
-                    }
+            ITypeBinding current = itb.getSuperclass();
+            
+            while (current != null) {
+                if (taming.implementsOverlay(current, mi)) {
+                    // System.out.println(supertype.getElementName()
+                    // + " is " + mi.getElementName());
+                    state.addFlagDependency(icu, current);
+                    // already verified, exit loop
+                    break;
+                } else {
+                    found.add(current);
+                    state.addDeepDependency(icu, current);
+                    current = current.getSuperclass();
                 }
             }
 
@@ -992,7 +1125,7 @@ public class Verifier {
                         state.addFlagDependency(icu, fieldTB);
 
                         if (taming.implementsOverlay(fieldTB, mi)
-                            || mi == taming.SELFLESS) {
+                            || mi.equals(taming.SELFLESS)) {
                             // OKAY
                         } else if (itb.equals(candidate)) {
                             addProblem(
@@ -1187,7 +1320,7 @@ public class Verifier {
         }
 
         /*
-         * endVisit
+         * endVisit: clean-up context information
          * 
          * If any of these assertions fail, see if .equals() is required here
          * instead of ==. I doubt this will be necessary, as I don't see why
@@ -1208,18 +1341,6 @@ public class Verifier {
             codeContext.pop();
         }
 
-        public void endVisit(AnnotationTypeDeclaration atd) {
-            // assert(codeContext.pop() == atd);
-        }
-
-        public void endVisit(EnumDeclaration ed) {
-            // assert(codeContext.pop() == ed);
-        }
-
-        public void endVisit(TypeDeclaration td) {
-            // assert(codeContext.pop() == td);
-        }
-
         public void endVisit(AnnotationTypeMemberDeclaration atmd) {
             // System.out.println("End visit of <" + bd + ">");
             assert (codeContext.peek() == atmd);
@@ -1231,5 +1352,42 @@ public class Verifier {
             assert (codeContext.peek() == ecd);
             codeContext.pop();
         }
+
+        /*
+         * Remove class tag for current class when done traversing that class.
+         * There should be an endVisit here for every visit() method that
+         * calls checkType().
+         */
+        public void endVisit(AnnotationTypeDeclaration atd) {
+            classTags.pop();
+        }
+
+        public void endVisit(EnumDeclaration ed) {
+            classTags.pop();
+        }
+
+        public void endVisit(TypeDeclaration td) {
+            // Bail out early in the case of a type defined in a constructor
+            // context.  These serve no purpose, and trigger an Eclipse bug when
+            // I ask for their javaElement (I get the initializer instead!!)
+            if (!inConstructorContext()) {
+                classTags.pop();
+            }
+        }
+        
+        public void endVisit(AnonymousClassDeclaration acd) {
+            classTags.pop();
+        }
+        
+        /*
+         * Sanity check to ensure that codeContext and classTags are empty upon
+         * the completion of visiting a compilation unit (file).
+         */
+        public void endVisit(CompilationUnit cu) {
+            assert (codeContext.isEmpty());
+            assert (classTags.isEmpty());
+        }
+        
     }
+
 }
