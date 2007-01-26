@@ -215,7 +215,12 @@ public class Taming {
         */
         if (Preferences.isTamingEnabled() /* && classBinding.isFromSource() */) {
             Entry e = db.get((IType) classBinding.getJavaElement());
+            //System.out.println("binding key: " + methodBinding.getKey());
             IMethod method = (IMethod) methodBinding.getJavaElement();
+            //for (IMethod m : e.allowedMethods) {
+            //    System.out.println("itsakey: " + m.getKey());
+            //    System.out.println("equals? " + method.equals(m));
+            //}
             return ((e != null) && e.allowedMethods.contains(method));
         } else {
             return true;
@@ -284,13 +289,24 @@ public class Taming {
                 IMethod[] methods = type.getMethods();
                 Map<String, IMethod> stringsToMethods = new HashMap<String, IMethod>();
                 for (IMethod im : methods) {
-                    String imToString = im.toString();
-                    int lparen = imToString.indexOf("(");
-                    // no space found results in start = 0, just what we want
-                    int start = imToString.lastIndexOf(" ", lparen) + 1;
-                    imToString = imToString.substring(start, imToString.indexOf(")") + 1);
-                    // System.out.println(imToString);
-                    stringsToMethods.put(imToString, im);
+                    // Exclude synthetic methods; these can include extra
+                    // versions of methods with the same arguments but different
+                    // return types, which are not equal to the methods invoked.
+                    if (!Flags.isSynthetic(im.getFlags())) {
+                        // TODO: string representation is undocumented; this is
+                        // fragile.  Consider using stable interfaces instead.
+                        String imToString = im.toString();
+                        int lparen = imToString.indexOf("(");
+                        // no space found results in start = 0, just what we want
+                        int start = imToString.lastIndexOf(" ", lparen) + 1;
+                        int end = imToString.indexOf(")") + 1;
+                        imToString = imToString.substring(start, end);
+                    	//System.out.println(imToString);
+                    	stringsToMethods.put(imToString, im);
+                    } else {
+                        //System.out.println("Synthetic method " + im
+                        //                   + " ignored");
+                    }
                 }
                 
                 while (nextLine != null) {

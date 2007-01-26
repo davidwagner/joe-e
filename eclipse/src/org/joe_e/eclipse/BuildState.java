@@ -17,6 +17,16 @@ class BuildState {
 	
     static final int IS_EQUATABLE =    0x0010;
 
+    static boolean isSelfless(int tags) {
+        return ((tags & IMPL_SELFLESS) != 0);
+    }
+    static boolean isImmutable(int tags) {
+        return ((tags & IMPL_IMMUTABLE) != 0);
+    }
+    static boolean isPowerless(int tags) {
+        return ((tags & IMPL_POWERLESS) != 0);
+    }    
+    
     /*
     static final int VERIFY_SELFLESS =   0x0100;
     static final int VERIFY_IMMUTABLE =  0x0200;
