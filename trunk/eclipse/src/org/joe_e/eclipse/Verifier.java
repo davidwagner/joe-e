@@ -15,6 +15,8 @@ import java.util.Stack;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Queue;
 
 /**
  * This class contains the actual checks performed by the Joe-E verifier. The
@@ -50,6 +52,7 @@ public class Verifier {
         this.taming = taming;
     }
 
+    
     /**
      * Run the Joe-E verifier on an ICompilationUnit. Problems encountered are
      * appended to the supplied list of problems.
@@ -101,6 +104,7 @@ public class Verifier {
             parser.setSource(icu);
             parser.setResolveBindings(true);
             ASTNode parse = parser.createAST(null);
+        
             VerifierASTVisitor vav = new VerifierASTVisitor(icu, dependents,
                     problems);
             parse.accept(vav);      
@@ -115,7 +119,7 @@ public class Verifier {
 
         return dependents;
     }
-
+     
     /**
      * AST visitor class.
      */
@@ -134,6 +138,33 @@ public class Verifier {
         // the classes that are ancestors of the current node.  The top element
         // gives the flags for the current class.
         final Stack<Integer> classTags;
+        
+        class ClassInfo {
+            final int classTags; // tags on this class
+            int localReferenceTags; // tags on locals referenced by this class
+            final List<ClassInstanceCreation> constructorCalls; // calls to local 
+            						 // constructors
+            ClassInfo(int classTags) {
+        	this.classTags = classTags;
+        	// initially all references vacuously satisfy 
+        	// Immutable and Powerless
+        	localReferenceTags = BuildState.IMPL_IMMUTABLE | 
+        			     BuildState.IMPL_POWERLESS;
+        	constructorCalls = new LinkedList<ClassInstanceCreation>();
+            }
+            
+            void addRef(int newTags) {
+        	localReferenceTags &= newTags;
+            }
+            
+            void addCall(ClassInstanceCreation cic) {
+        	constructorCalls.add(cic);
+            }
+        }     
+
+        
+        final HashMap<ITypeBinding, ClassInfo> classInfo = 
+            	new HashMap<ITypeBinding, ClassInfo>();
         
         /**
          * Create a visitor for a specified compilation unit that appends Joe-E
@@ -189,27 +220,41 @@ public class Verifier {
                 IVariableBinding ivb = (IVariableBinding) ib;
                 if (ivb.isField()) {
                     checkFieldBinding(ivb, sn);
-                } else if (inImmutableClass()) {
+                } else {
                     IMethodBinding declaringMethod = ivb.getDeclaringMethod();
-                    if (declaringMethod != null && getCurrentClass() 
-                            != declaringMethod.getDeclaringClass()) {
-                        try {
-                            if (!taming.implementsOverlay(ivb.getType(),
-                                 inPowerlessClass() ? taming.POWERLESS
-                                                    : taming.IMMUTABLE)) {
-                                String mi = inPowerlessClass() ? "Powerless"
-                                                               : "Immutable";
-                                addProblem(String.format("Non-%s local " +
-                                           "variable %s from enclosing scope " +
-                                           "referenced in %s class.", 
-                                           mi, sn, mi), sn);
-                            }
+                    if (declaringMethod != null && getCurrentClass() !=
+                	declaringMethod.getDeclaringClass()) {
+                              	
+                	try {
+                	    int tags = taming.implementsOverlay(ivb.getType(),
+                		    	  		taming.IMMUTABLE) ? 
+                		    	      BuildState.IMPL_IMMUTABLE : 0;
+                	    tags |= taming.implementsOverlay(ivb.getType(),
+                		    			taming.POWERLESS) ?
+                		    	      BuildState.IMPL_POWERLESS : 0;
+                	    
+                	    if (inImmutableClass() && 
+                		!BuildState.isImmutable(tags)) {
+                		addProblem(String.format("Non-Immutable local "
+                                           + "variable %s from enclosing scope "
+                                           + "referenced in Immutable class.", 
+                                           sn), sn);
+                	    } else if (inPowerlessClass() &&
+                		       !BuildState.isPowerless(tags)) {
+                		addProblem(String.format("Non-Powerless local "
+                                        + "variable %s from enclosing scope "
+                                        + "referenced in Powerless class.", 
+                                        sn), sn);
+                	    } else {
+                    	    	// Record the reference; it may break a calling
+                		// class.
+                    	    	classInfo.get(getCurrentClass()).addRef(tags);
+                	    }
                         } catch (JavaModelException jme) {
                             addProblem("Analysis incomplete: BUG IN VERIFIER " +
                                        "or I/O error (JavaModelException) " +
                                        "encountered analyzing outer method's " +
                                        "local variable " + sn, sn);
-
                         }
                     }
                 }
@@ -290,7 +335,7 @@ public class Verifier {
             ITypeBinding classBinding = imb.getDeclaringClass();
 
             if (classBinding.isFromSource()) {
-                if (inImmutableClass()) {
+        	if (classBinding != getCurrentClass()) {
                     ITypeBinding current = classBinding;
                     boolean isLocal = false;
                     while (current != null) {
@@ -301,24 +346,10 @@ public class Verifier {
                         current = current.getDeclaringClass();
                     }
                     
-                    try {
-                        if (isLocal && !taming.implementsOverlay(classBinding,
-                                 inPowerlessClass() ? taming.POWERLESS
-                                                    : taming.IMMUTABLE)) {
-                            String mi = inPowerlessClass() ? "Powerless"
-                                                           : "Immutable";
-                            addProblem(String.format("Non-%s local class " +
-                                       "%s constructed from within " +
-                                       "%s class.", mi, classBinding.getName(), 
-                                       mi), cic);
-                        }
-                    } catch (JavaModelException jme) {
-                        addProblem("Analysis incomplete: BUG IN VERIFIER " +
-                                   "or I/O error (JavaModelException) " +
-                                   "encountered analyzing instance creation " +
-                                   "of local class " + classBinding.getName(), 
-                                   cic);
-                    }                    
+                    // Record construction of local classes
+                    if (isLocal) {
+                	classInfo.get(getCurrentClass()).addCall(cic);
+                    }
                 }
             } else {
                 // Check if taming is violated for non-source types.                       
@@ -816,7 +847,9 @@ public class Verifier {
                 //
                 // Otherwise, it is a "real" class.
                 //
-
+                classInfo.put(itb, new ClassInfo(tags));
+                
+                
                 if (superTB != null) {
                     // System.out.println("Superclass "
                     //         + superTB.getQualifiedName());
@@ -1017,10 +1050,13 @@ public class Verifier {
                     // next enclosing construct is a static method, we're done.
                     break;
                 } else {
+                    // TODO: I think the following does not work; I might
+                    // be off-by-one in determining where to stop with static
+                    // checks. [isStatic(current.getModifiers())?]
                     // Next enclosing construct if any is a class
                     ITypeBinding outer = current.getDeclaringClass();
                     if (outer == null || 
-                        Flags.isStatic(outer.getDeclaredModifiers())) {
+                        Flags.isStatic(outer.getModifiers())) {
                         // we're at top level, or next enclosing construct is
                         // a static class, we're done
                         break;
@@ -1381,13 +1417,65 @@ public class Verifier {
         
         /*
          * Sanity check to ensure that codeContext and classTags are empty upon
-         * the completion of visiting a compilation unit (file).
+         * the completion of visiting a compilation unit (file).  Also perform
+         * the global checks required for local classes.
          */
         public void endVisit(CompilationUnit cu) {
             assert (codeContext.isEmpty());
             assert (classTags.isEmpty());
-        }
-        
-    }
+            
+            // perform file-global checks: i.e. restrictions on construction of
+            // local classes.  Iterate over each class in the file
+            for (ITypeBinding itb : classInfo.keySet()) {
+        	ClassInfo entry = classInfo.get(itb);
+        	// check each constructor in the class
+        	
+        	// if class isn't immutable or powerless, don't bother
+        	if (!BuildState.isImmutable(entry.classTags)) {
+        	    continue;
+        	}
+        	
+                for (ClassInstanceCreation call : entry.constructorCalls) {
+                    int callTags = 
+                	BuildState.IMPL_IMMUTABLE | BuildState.IMPL_POWERLESS;
 
+                    HashSet<ITypeBinding> visited = new HashSet<ITypeBinding>();
+                    visited.add(itb);
+                    Queue<ITypeBinding> left = 
+                	new LinkedList<ITypeBinding>();
+                    ITypeBinding constructed = call.resolveConstructorBinding()
+                    	                           .getDeclaringClass();
+                    left.add(constructed);
+                    while (!left.isEmpty() && callTags > 0) {
+        	   	ITypeBinding current = left.remove();
+        	   	ClassInfo currentInfo = classInfo.get(current);
+        	   	callTags &= currentInfo.localReferenceTags;
+        	    	for (ClassInstanceCreation cic :
+        	    	     classInfo.get(current).constructorCalls) {
+        	    	    ITypeBinding referenced =
+        	    		cic.resolveConstructorBinding()
+        	    		   .getDeclaringClass();
+        	            if (visited.add(referenced)) {
+        	        	left.add(referenced);
+        	            }
+        	    	}
+                    }
+                    if (!BuildState.isImmutable(callTags)) {
+                	addProblem("Construction of class " + 
+                		   constructed.getName() + " may grant access "
+                		   + "to non-Immutable local state.", 
+                		   call.getType());
+                    } else if (BuildState.isPowerless(entry.classTags)
+                	       && !BuildState.isPowerless(callTags)) {
+                	addProblem("Construction of class " + 
+             		   	   constructed.getName() + " may grant access "
+             		   	   + "to non-Powerless local state.", 
+             		   	   call.getType());
+                    }
+                	 
+                }
+            }
+        }
+
+    }
 }
