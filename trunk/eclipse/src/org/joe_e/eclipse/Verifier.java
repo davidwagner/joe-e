@@ -30,7 +30,6 @@ import java.util.Queue;
  */
 public class Verifier {
     final Taming taming;
-
     final BuildState state;
 
     /**
@@ -145,20 +144,20 @@ public class Verifier {
             final List<ClassInstanceCreation> constructorCalls; // calls to local 
             						 // constructors
             ClassInfo(int classTags) {
-        	this.classTags = classTags;
-        	// initially all references vacuously satisfy 
-        	// Immutable and Powerless
-        	localReferenceTags = BuildState.IMPL_IMMUTABLE | 
+                this.classTags = classTags;
+                // initially all references vacuously satisfy 
+                // Immutable and Powerless
+                localReferenceTags = BuildState.IMPL_IMMUTABLE | 
         			     BuildState.IMPL_POWERLESS;
-        	constructorCalls = new LinkedList<ClassInstanceCreation>();
+                constructorCalls = new LinkedList<ClassInstanceCreation>();
             }
             
             void addRef(int newTags) {
-        	localReferenceTags &= newTags;
+                localReferenceTags &= newTags;
             }
             
             void addCall(ClassInstanceCreation cic) {
-        	constructorCalls.add(cic);
+                constructorCalls.add(cic);
             }
         }     
 
@@ -1425,57 +1424,66 @@ public class Verifier {
             assert (classTags.isEmpty());
             
             // perform file-global checks: i.e. restrictions on construction of
-            // local classes.  Iterate over each class in the file
+            // local classes.  
+            
+            //Iterate over each class in the file
             for (ITypeBinding itb : classInfo.keySet()) {
-        	ClassInfo entry = classInfo.get(itb);
-        	// check each constructor in the class
+                ClassInfo entry = classInfo.get(itb);
+                
+                // If class isn't immutable or powerless, skip it
+                if (!BuildState.isImmutable(entry.classTags)) {
+                    continue;
+                }
         	
-        	// if class isn't immutable or powerless, don't bother
-        	if (!BuildState.isImmutable(entry.classTags)) {
-        	    continue;
-        	}
-        	
+                // Otherwise, check each constructor in the class.
                 for (ClassInstanceCreation call : entry.constructorCalls) {
+                    // Initially, the locals reachable from the call are
+                    // (vacuously) all powerless
                     int callTags = 
-                	BuildState.IMPL_IMMUTABLE | BuildState.IMPL_POWERLESS;
+                        BuildState.IMPL_IMMUTABLE | BuildState.IMPL_POWERLESS;
 
+                    // Record classes visited: only need to traverse each
+                    // reachable class once.  Add itb to exclude anything
+                    // reachable only by going through the current class.
                     HashSet<ITypeBinding> visited = new HashSet<ITypeBinding>();
                     visited.add(itb);
-                    Queue<ITypeBinding> left = 
-                	new LinkedList<ITypeBinding>();
+                    
+                    // work queue of classes to process
+                    Queue<ITypeBinding> left = 	new LinkedList<ITypeBinding>();
                     ITypeBinding constructed = call.resolveConstructorBinding()
                     	                           .getDeclaringClass();
                     left.add(constructed);
+                    
+                    // Process reachable classes until exhausted or a
+                    // non-immutable local is found
                     while (!left.isEmpty() && callTags > 0) {
-        	   	ITypeBinding current = left.remove();
-        	   	ClassInfo currentInfo = classInfo.get(current);
-        	   	callTags &= currentInfo.localReferenceTags;
-        	    	for (ClassInstanceCreation cic :
-        	    	     classInfo.get(current).constructorCalls) {
-        	    	    ITypeBinding referenced =
-        	    		cic.resolveConstructorBinding()
-        	    		   .getDeclaringClass();
-        	            if (visited.add(referenced)) {
-        	        	left.add(referenced);
-        	            }
-        	    	}
+                        ITypeBinding current = left.remove();
+                        ClassInfo currentInfo = classInfo.get(current);
+                        callTags &= currentInfo.localReferenceTags;
+                        for (ClassInstanceCreation cic :
+                            classInfo.get(current).constructorCalls) {
+                            ITypeBinding referenced =
+                                cic.resolveConstructorBinding()
+                                .getDeclaringClass();
+                            if (visited.add(referenced)) {
+                                left.add(referenced);
+                            }
+                        }
                     }
                     if (!BuildState.isImmutable(callTags)) {
-                	addProblem("Construction of class " + 
-                		   constructed.getName() + " may grant access "
-                		   + "to non-Immutable local state.", 
-                		   call.getType());
+                        addProblem("Construction of class " + 
+                                   constructed.getName() + " may grant access "
+                                   + "to non-Immutable local state.", 
+                                   call.getType());
                     } else if (BuildState.isPowerless(entry.classTags)
                 	       && !BuildState.isPowerless(callTags)) {
-                	addProblem("Construction of class " + 
-             		   	   constructed.getName() + " may grant access "
-             		   	   + "to non-Powerless local state.", 
-             		   	   call.getType());
+                        addProblem("Construction of class " + 
+                                   constructed.getName() + " may grant access "
+                                   + "to non-Powerless local state.", 
+                                   call.getType());
                     }
-                	 
                 }
             }
         }
-
     }
 }
