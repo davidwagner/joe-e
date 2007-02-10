@@ -558,6 +558,17 @@ public class Verifier {
         }
         
         /**
+         * Test whether we are in an initializer.
+         * 
+         * @return true if the traversal is currently within an initializer
+         */
+        boolean inInitializer() {
+            return !codeContext.isEmpty() 
+                && codeContext.peek() instanceof Initializer;
+        }
+        
+        
+        /**
          * Test whether we are in a constructor context, i.e. at a program point
          * at which the current object may be incompletely initialized.  This
          * occurs during the traversal of instance initializers, constructors,
@@ -739,14 +750,14 @@ public class Verifier {
          * in Eclipse.
          */
         public boolean visit(TypeDeclaration td) {
-            // Bail out early in the case of a type defined in a constructor
-            // context.  These serve no purpose, and trigger an Eclipse bug when
-            // I ask for their javaElement (I get the initializer instead!!)
-            if (inConstructorContext()) {
+            // Bail out early in the case of a type defined in an initializer.
+            // These trigger an Eclipse bug when I ask for their JavaElement (I
+            // get the initializer instead!!)
+            if (inInitializer()) {
                 addProblem("Definition of local type " + td.getName() + " not " +
-                            "allowed in a constructor or instance initializer.",
+                            "allowed in an initializer (due to bug in Eclipse).",
                             td.getName());
-                return false; // avoid propagation of eclipse bugs
+                return false; // avoid encountering eclipse bugs
             } else {
                 checkType((ITypeBinding) td.resolveBinding());
                 return true;
@@ -1402,10 +1413,10 @@ public class Verifier {
         }
 
         public void endVisit(TypeDeclaration td) {
-            // Bail out early in the case of a type defined in a constructor
-            // context.  These serve no purpose, and trigger an Eclipse bug when
-            // I ask for their javaElement (I get the initializer instead!!)
-            if (!inConstructorContext()) {
+            // Bail out early in the case of a type defined in an initializer.
+            // These trigger an Eclipse bug when I ask for their JavaElement
+            // (I get the initializer instead!!)
+            if (!inInitializer()) {
                 classTags.pop();
             }
         }
@@ -1429,18 +1440,19 @@ public class Verifier {
             //Iterate over each class in the file
             for (ITypeBinding itb : classInfo.keySet()) {
                 ClassInfo entry = classInfo.get(itb);
+                int needed = entry.classTags;
                 
                 // If class isn't immutable or powerless, skip it
-                if (!BuildState.isImmutable(entry.classTags)) {
+                if (!BuildState.isImmutable(needed)) {
                     continue;
                 }
-        	
+                
                 // Otherwise, check each constructor in the class.
-                for (ClassInstanceCreation call : entry.constructorCalls) {
-                    // Initially, the locals reachable from the call are
-                    // (vacuously) all powerless
-                    int callTags = 
-                        BuildState.IMPL_IMMUTABLE | BuildState.IMPL_POWERLESS;
+                for (ClassInstanceCreation call : entry.constructorCalls) {                  
+                    // Initially, the locals reachable from the call
+                    // (vacuously) satisfy whatever tags are needed
+                    int callTags = needed &
+                        (BuildState.IMPL_IMMUTABLE | BuildState.IMPL_POWERLESS);
 
                     // Record classes visited: only need to traverse each
                     // reachable class once.  Add itb to exclude anything
@@ -1459,6 +1471,19 @@ public class Verifier {
                     while (!left.isEmpty() && callTags > 0) {
                         ITypeBinding current = left.remove();
                         ClassInfo currentInfo = classInfo.get(current);
+                        if (classInfo == null) {
+                            // should happen only if the class was skipped due 
+                            // to being defined in an initializer; this prior
+                            // error should already have been flagged.
+                            assert (!problems.isEmpty());
+                            continue;
+                        } else if ((callTags & currentInfo.classTags)
+                                    == callTags) {
+                            // believe declared tags; an error will be flagged
+                            // on the class if they are wrong.
+                            continue;
+                        }
+                        
                         callTags &= currentInfo.localReferenceTags;
                         for (ClassInstanceCreation cic :
                             classInfo.get(current).constructorCalls) {
@@ -1475,7 +1500,7 @@ public class Verifier {
                                    constructed.getName() + " may grant access "
                                    + "to non-Immutable local state.", 
                                    call.getType());
-                    } else if (BuildState.isPowerless(entry.classTags)
+                    } else if (BuildState.isPowerless(needed)
                 	       && !BuildState.isPowerless(callTags)) {
                         addProblem("Construction of class " + 
                                    constructed.getName() + " may grant access "
