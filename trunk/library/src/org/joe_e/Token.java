@@ -8,11 +8,11 @@ package org.joe_e;
 /**
  * Content-less class used solely for its unforgeable object identity.
  * Distinct categories of tokens can be created by subclassing this class.
- *
- * <P>Note: this class implements Serializable in order to avoid preventing
+ * <p>
+ * Note: this class implements Serializable in order to avoid preventing
  * trusted (non-Joe-E) code from serializing it.  The Java Serialization API
  * is tamed away as unsafe, and thus is not available to Joe-E code.
  */
 public class Token implements Immutable, Equatable, java.io.Serializable {
-    static final long serialVersionUID = -3123734691011752900L;    
+    static final long serialVersionUID = 1L;    
 }

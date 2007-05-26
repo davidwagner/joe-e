@@ -10,8 +10,8 @@ package org.joe_e;
  * mutable state.  Joe-E requires that classes that implement this interface
  * meet the obligation that all fields must be (1) final and (2) of a declared type
  * that implements this interface in the overlay type system.
- * 
- * <P>This interface contains no members.
+ * <p>
+ * This interface contains no members.
  */
 public interface Immutable {
 
