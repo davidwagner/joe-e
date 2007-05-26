@@ -6,15 +6,17 @@
 package org.joe_e;
 
 /**
- * NOT AN ENDORSED STABLE INTERFACE! (yet)
- * 
- * Comments?
+ * Joe-E core library functions.  These provide fundamental features, similar
+ * to the methods in <code>java.lang.System</code>, such as the interface to the
+ * overlay type system.
  */
-public class Utility {
+public class JoeE {
+    
+    private JoeE() {}
 
     /**
      * Tests whether the specified object belongs to the specified type in the
-     * overlay type system. The equivalent of the Java <CODE>instanceof</CODE>
+     * overlay type system. The equivalent of the Java <code>instanceof</code>
      * operator, for the overlay type system.  
      * 
      * @param obj  the object to test
@@ -55,5 +57,30 @@ public class Utility {
         } else {
             return Honoraries.honorarilyImplements(c1, c2);
         }
-   }
+    }
+    
+    /**
+     * This field holds the ErrorHandler to be invoked when 
+     * <code>abort()</code> is called.
+     * Trusted infrastructure (non­­-Joe-E) code may change the abort behavior 
+     * by using unsafe reflection to modify the value of this field.
+     */
+    static private ErrorHandler handler = new SystemExit();
+    
+    /**
+     * Aborts the current flow of control.  This method invokes the currently
+     * registered error handler, which should preclude continued execution of 
+     * Joe-E code.
+     * @param reason    reason for the abort
+     * @return an error to throw
+     */
+    static public Error abort(final Error reason) {
+        while (true) {
+            try {
+                return handler.handle(reason);
+            } catch (final Throwable e) {
+                // Keep trying...
+            }
+        }
+    }
 }
