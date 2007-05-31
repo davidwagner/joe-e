@@ -31,6 +31,8 @@ public class ImmutableArray<E> extends ConstArray<E> implements Immutable {
     /**
      * Constuct a {@link ImmutableArray}.
      * @param values    each value
+     * @throws ClassCastException if the runtime component type of 
+     *     <code>values</code> is not immutable in the overlay type system
      */
     static public <E> ImmutableArray<E> array(final E... values) {
         final Class e = values.getClass().getComponentType();
@@ -41,9 +43,11 @@ public class ImmutableArray<E> extends ConstArray<E> implements Immutable {
     }
     
     /**
-     * Return a new ImmutableArray containing a specified additional element
-     * 
-     * @return a new ImmutableArray containing a specified additional element
+     * Return a new <code>PowerlessArray</code> that contains the same elements
+     * as this one but with a new element added to the end.
+     * @param newE an element to add
+     * @return the new array
+     * @throws ClassCastException if <code>newE</code> is not immutable 
      */
     @SuppressWarnings("unchecked") 
     public ImmutableArray<E> with(final E newE) {

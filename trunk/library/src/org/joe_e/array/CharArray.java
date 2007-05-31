@@ -156,7 +156,9 @@ public final class CharArray extends PowerlessArray<Character> {
             prototype = (T[])Array.newInstance(t, len);
         }
         
-        System.arraycopy(chars, 0, prototype, 0, len);
+        for (int i = 0; i < len; ++i) {
+            prototype[i] = (T) (Character) chars[i];
+        }
         return prototype;
     }
     

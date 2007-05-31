@@ -31,6 +31,8 @@ public class PowerlessArray<E> extends ImmutableArray<E> implements Powerless {
     /**
      * Constuct a {@link PowerlessArray}.  The type will be 
      * @param values    each value, or an array of values
+     * @throws ClassCastException if the runtime component type of 
+     *     <code>values</code> is not powerless in the overlay type system
      */
     static public <E> PowerlessArray<E> array(final E... values) {
         final Class e = values.getClass().getComponentType();
@@ -45,6 +47,7 @@ public class PowerlessArray<E> extends ImmutableArray<E> implements Powerless {
      * as this one but with a new element added to the end.
      * @param newE an element to add
      * @return the new array
+     * @throws ClassCastException if <code>newE</code> is not powerless 
      */
     public PowerlessArray<E> with(E newE) {
         if (!JoeE.instanceOf(newE, Powerless.class)) {

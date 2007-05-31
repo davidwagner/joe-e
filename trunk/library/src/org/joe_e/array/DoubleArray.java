@@ -156,7 +156,9 @@ public final class DoubleArray extends PowerlessArray<Double> {
             prototype = (T[])Array.newInstance(t, len);
         }
         
-        System.arraycopy(doubles, 0, prototype, 0, len);
+        for (int i = 0; i < len; ++i) {
+            prototype[i] = (T) (Double) doubles[i];
+        }
         return prototype;
     }
     

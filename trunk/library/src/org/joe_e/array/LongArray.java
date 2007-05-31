@@ -156,7 +156,9 @@ public final class LongArray extends PowerlessArray<Long> {
             prototype = (T[])Array.newInstance(t, len);
         }
         
-        System.arraycopy(longs, 0, prototype, 0, len);
+        for (int i = 0; i < len; ++i) {
+            prototype[i] = (T) (Long) longs[i];
+        }
         return prototype;
     }
     

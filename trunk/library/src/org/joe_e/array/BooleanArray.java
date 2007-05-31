@@ -156,7 +156,9 @@ public final class BooleanArray extends PowerlessArray<Boolean> {
             prototype = (T[])Array.newInstance(t, len);
         }
         
-        System.arraycopy(booleans, 0, prototype, 0, len);
+        for (int i = 0; i < len; ++i) {
+            prototype[i] = (T) (Boolean) booleans[i];
+        }
         return prototype;
     }
     
