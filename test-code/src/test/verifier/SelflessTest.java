@@ -3,7 +3,13 @@ package test.verifier;
 import org.joe_e.Selfless;
 
 public class SelflessTest implements Selfless {
-   public boolean equals(java.lang.Object o) {
-	   return false;
-   }
+	int peep; // error
+	
+	public boolean equals(Object o) {
+		return false;
+	}
+	
+	//public int hashCode() {
+	//	return 5;
+	//}
 }
