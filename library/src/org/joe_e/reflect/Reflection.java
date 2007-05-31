@@ -224,8 +224,14 @@ public final class Reflection {
      * @return <code>true</code> if the member may be used by Joe-E code,
      *         else <code>false</code>
      */
+    /* 
+     * TODO: Current implementation is a temporary hack.  It is wildly
+     * over-conservative with library functions (can't call anything except a
+     * few special cases).  It is also potentially unsafe, in cases where
+     * any non-boot-classloader code is disallowed by taming.  The correct way
+     * to implement this requires runtime access to the taming database.
+     */
     static private boolean safe(final Member member) {
-        // TODO: Consult the taming database to enable.
         final Class declarer = member.getDeclaringClass();
         return declarer == Runnable.class 
             || (declarer == Object.class

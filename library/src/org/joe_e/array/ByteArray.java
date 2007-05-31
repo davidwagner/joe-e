@@ -156,7 +156,9 @@ public final class ByteArray extends PowerlessArray<Byte> {
             prototype = (T[])Array.newInstance(t, len);
         }
         
-        System.arraycopy(bytes, 0, prototype, 0, len);
+        for (int i = 0; i < len; ++i) {
+            prototype[i] = (T) (Byte) bytes[i];
+        }
         return prototype;
     }
     

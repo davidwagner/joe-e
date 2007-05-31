@@ -6,8 +6,6 @@
  */
 package org.joe_e.array;
 
-import java.util.Arrays;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -159,12 +157,13 @@ public class ConstArray<E> implements Selfless, Iterable<E>, Serializable {
      * string "&lt;unprintable&gt;".  The set of elements for which this is
      * the case is unspecified, and may change in future releases. 
      * 
+     * @return a string representation of this array
+     */
+    /*
      * TODO: Change this to support more types, either through
      * the introduction of an interface for toString()able objects
      * or through reflection.
-     * 
-     * @return a string representation of this array
-     */    
+     */
     public String toString() {
         StringBuilder text = new StringBuilder("[");
         boolean first = true;

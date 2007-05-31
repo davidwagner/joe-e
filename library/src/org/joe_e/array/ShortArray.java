@@ -156,7 +156,9 @@ public final class ShortArray extends PowerlessArray<Short> {
             prototype = (T[])Array.newInstance(t, len);
         }
         
-        System.arraycopy(shorts, 0, prototype, 0, len);
+        for (int i = 0; i < len; ++i) {
+            prototype[i] = (T) (Short) shorts[i];
+        }
         return prototype;
     }
     

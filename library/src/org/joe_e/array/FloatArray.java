@@ -156,7 +156,9 @@ public final class FloatArray extends PowerlessArray<Float> {
             prototype = (T[])Array.newInstance(t, len);
         }
         
-        System.arraycopy(floats, 0, prototype, 0, len);
+        for (int i = 0; i < len; ++i) {
+            prototype[i] = (T) (Float) floats[i];
+        }
         return prototype;
     }
     

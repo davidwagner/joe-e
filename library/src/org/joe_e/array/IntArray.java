@@ -156,7 +156,9 @@ public final class IntArray extends PowerlessArray<Integer> {
             prototype = (T[])Array.newInstance(t, len);
         }
         
-        System.arraycopy(ints, 0, prototype, 0, len);
+        for (int i = 0; i < len; ++i) {
+            prototype[i] = (T) (Integer) ints[i];
+        }
         return prototype;
     }
     
