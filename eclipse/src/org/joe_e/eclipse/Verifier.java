@@ -1289,9 +1289,10 @@ public class Verifier {
                 }             
             } else if (op == InfixExpression.Operator.PLUS) {
                 //try {
-                    // left operand always statically a string (or boxed 
-                    // primitive)
-                    // checkToString(ie.getLeftOperand());
+                    // left operand NOT always statically a string or boxed 
+                    // primitive... only one of the first two need be.
+                    // Just go ahead and check both.
+                    checkToString(ie.getLeftOperand());
                     checkToString(ie.getRightOperand());
                     
                     if (ie.hasExtendedOperands()) {
