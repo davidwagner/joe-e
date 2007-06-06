@@ -35,7 +35,7 @@ public final class Filesystem {
      * @param folder    containing folder
      * @param child     a single filename component, not a relative path
      * @return a capability for the requested file
-     * @throw IllegalArgumentException if <code>folder</code> is null or
+     * @throws IllegalArgumentException if <code>folder</code> is null or
      *     the empty path
      */
     static public File file(final File folder, final String child) 

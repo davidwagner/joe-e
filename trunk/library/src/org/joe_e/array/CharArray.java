@@ -47,7 +47,6 @@ public final class CharArray extends PowerlessArray<Character> {
     private void writeObject(final ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
 
-        final char[] chars = this.chars;
         out.writeInt(chars.length);
         for (char c : chars) {
             out.writeChar(c);
@@ -59,11 +58,10 @@ public final class CharArray extends PowerlessArray<Character> {
         in.defaultReadObject();
 
         final int length = in.readInt();
-        final char[] chars = new char[length];
+        chars = new char[length];
         for (int i = 0; i < length; ++i) {
             chars[i] = in.readChar();
         }
-        this.chars = chars;
     }
     
     /*

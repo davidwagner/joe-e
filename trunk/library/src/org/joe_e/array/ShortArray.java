@@ -47,7 +47,6 @@ public final class ShortArray extends PowerlessArray<Short> {
     private void writeObject(final ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
 
-        final short[] shorts = this.shorts;
         out.writeInt(shorts.length);
         for (short c : shorts) {
             out.writeShort(c);
@@ -59,11 +58,10 @@ public final class ShortArray extends PowerlessArray<Short> {
         in.defaultReadObject();
 
         final int length = in.readInt();
-        final short[] shorts = new short[length];
+        shorts = new short[length];
         for (int i = 0; i < length; ++i) {
             shorts[i] = in.readShort();
         }
-        this.shorts = shorts;
     }
     
     /*

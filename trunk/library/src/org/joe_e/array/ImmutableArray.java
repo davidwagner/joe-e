@@ -5,8 +5,6 @@
  */
 package org.joe_e.array;
 
-import java.lang.reflect.Array;
-
 import org.joe_e.Immutable;
 import org.joe_e.JoeE;
 
@@ -48,15 +46,17 @@ public class ImmutableArray<E> extends ConstArray<E> implements Immutable {
      * @param newE an element to add
      * @return the new array
      * @throws ClassCastException if <code>newE</code> is not immutable 
-     */
-    @SuppressWarnings("unchecked") 
+     */ 
     public ImmutableArray<E> with(final E newE) {
         if (!JoeE.instanceOf(newE, Immutable.class)) {
             throw new ClassCastException(newE.getClass().getName() + "is not Immutable");
         }
-        final Object[] newArr = (Object[])Array.newInstance(Object.class, arr.length + 1);
+        // We use a new Object array here, because we don't know the static type
+        // of E that was used; it may not match the dynamic component type of
+        // arr due to array covariance.
+        final Object[] newArr = new Object[arr.length + 1];
         System.arraycopy(arr, 0, newArr, 0, arr.length);
         newArr[arr.length] = newE;
-        return (ImmutableArray<E>) new ImmutableArray(newArr);
+        return new ImmutableArray<E>(newArr);
     }
 }

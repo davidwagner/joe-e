@@ -10,7 +10,7 @@ makeClass () {
 
 # primitive type, boxed type, capitalized primitive type
 makeClass boolean Boolean Boolean
-makeClass byte    Byte    Byte
+# makeClass byte    Byte    Byte # has custom serialization methods; change manually
 makeClass short   Short   Short
 makeClass int     Integer Int
 makeClass long    Long    Long

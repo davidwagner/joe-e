@@ -25,7 +25,7 @@ public final class UTF8 {
         try {
             return text.getBytes("UTF-8");
         } catch (final UnsupportedEncodingException e) {
-            // This should never happen, as US-ASCII is a required encoding
+            // This should never happen, as UTF-8 is a required encoding
             throw new AssertionError("UTF-8 encoding not supported");
         }
     }
@@ -38,7 +38,7 @@ public final class UTF8 {
         try {
             return new InputStreamReader(in, "UTF-8");
         } catch (final UnsupportedEncodingException e) {
-            // This should never happen, as US-ASCII is a required encoding
+            // This should never happen, as UTF-8 is a required encoding
             throw new AssertionError("UTF-8 encoding not supported");
         }
     }
@@ -51,7 +51,7 @@ public final class UTF8 {
         try {
             return new OutputStreamWriter(out, "UTF-8");
         } catch (final UnsupportedEncodingException e) {
-            // This should never happen, as US-ASCII is a required encoding
+            // This should never happen, as UTF-8 is a required encoding
             throw new AssertionError("UTF-8 encoding not supported");
         }
     }

@@ -47,7 +47,6 @@ public final class FloatArray extends PowerlessArray<Float> {
     private void writeObject(final ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
 
-        final float[] floats = this.floats;
         out.writeInt(floats.length);
         for (float c : floats) {
             out.writeFloat(c);
@@ -59,11 +58,10 @@ public final class FloatArray extends PowerlessArray<Float> {
         in.defaultReadObject();
 
         final int length = in.readInt();
-        final float[] floats = new float[length];
+        floats = new float[length];
         for (int i = 0; i < length; ++i) {
             floats[i] = in.readFloat();
         }
-        this.floats = floats;
     }
     
     /*

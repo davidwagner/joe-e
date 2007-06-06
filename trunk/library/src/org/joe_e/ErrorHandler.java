@@ -12,7 +12,7 @@ public interface ErrorHandler extends Powerless {
 
     /**
      * Handles an error.
-     * @param error error to handle
+     * @param err error to handle
      * @return error to throw
      */
     Error handle(Error err);

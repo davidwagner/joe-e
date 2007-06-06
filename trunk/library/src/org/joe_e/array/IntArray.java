@@ -47,7 +47,6 @@ public final class IntArray extends PowerlessArray<Integer> {
     private void writeObject(final ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
 
-        final int[] ints = this.ints;
         out.writeInt(ints.length);
         for (int c : ints) {
             out.writeInt(c);
@@ -59,11 +58,10 @@ public final class IntArray extends PowerlessArray<Integer> {
         in.defaultReadObject();
 
         final int length = in.readInt();
-        final int[] ints = new int[length];
+        ints = new int[length];
         for (int i = 0; i < length; ++i) {
             ints[i] = in.readInt();
         }
-        this.ints = ints;
     }
     
     /*
