@@ -47,7 +47,6 @@ public final class LongArray extends PowerlessArray<Long> {
     private void writeObject(final ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
 
-        final long[] longs = this.longs;
         out.writeInt(longs.length);
         for (long c : longs) {
             out.writeLong(c);
@@ -59,11 +58,10 @@ public final class LongArray extends PowerlessArray<Long> {
         in.defaultReadObject();
 
         final int length = in.readInt();
-        final long[] longs = new long[length];
+        longs = new long[length];
         for (int i = 0; i < length; ++i) {
             longs[i] = in.readLong();
         }
-        this.longs = longs;
     }
     
     /*

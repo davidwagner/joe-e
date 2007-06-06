@@ -5,8 +5,6 @@
  */
 package org.joe_e.array;
 
-import java.lang.reflect.Array;
-
 import org.joe_e.JoeE;
 import org.joe_e.Powerless;
 
@@ -39,7 +37,7 @@ public class PowerlessArray<E> extends ImmutableArray<E> implements Powerless {
         if (!JoeE.isSubtypeOf(e, Powerless.class)) {
             throw new ClassCastException(e.getName() + " is not Powerless");
         }
-        return new PowerlessArray<E>(values);
+        return new PowerlessArray<E>(values.clone());
     }
     
     /**
@@ -53,7 +51,10 @@ public class PowerlessArray<E> extends ImmutableArray<E> implements Powerless {
         if (!JoeE.instanceOf(newE, Powerless.class)) {
             throw new ClassCastException(newE.getClass().getName() + "is not Powerless");
         }
-        final Object[] newArr = (Object[])Array.newInstance(Object.class, arr.length + 1);
+        // We use a new Object array here, because we don't know the static type
+        // of E that was used; it may not match the dynamic component type of
+        // arr due to array covariance.
+        final Object[] newArr = new Object[arr.length + 1];
         System.arraycopy(arr, 0, newArr, 0, arr.length);
         newArr[arr.length] = newE;
         return new PowerlessArray<E>(newArr);

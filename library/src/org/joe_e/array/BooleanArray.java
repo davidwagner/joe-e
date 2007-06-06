@@ -47,7 +47,6 @@ public final class BooleanArray extends PowerlessArray<Boolean> {
     private void writeObject(final ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
 
-        final boolean[] booleans = this.booleans;
         out.writeInt(booleans.length);
         for (boolean c : booleans) {
             out.writeBoolean(c);
@@ -59,11 +58,10 @@ public final class BooleanArray extends PowerlessArray<Boolean> {
         in.defaultReadObject();
 
         final int length = in.readInt();
-        final boolean[] booleans = new boolean[length];
+        booleans = new boolean[length];
         for (int i = 0; i < length; ++i) {
             booleans[i] = in.readBoolean();
         }
-        this.booleans = booleans;
     }
     
     /*

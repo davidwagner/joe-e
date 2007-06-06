@@ -47,7 +47,6 @@ public final class DoubleArray extends PowerlessArray<Double> {
     private void writeObject(final ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
 
-        final double[] doubles = this.doubles;
         out.writeInt(doubles.length);
         for (double c : doubles) {
             out.writeDouble(c);
@@ -59,11 +58,10 @@ public final class DoubleArray extends PowerlessArray<Double> {
         in.defaultReadObject();
 
         final int length = in.readInt();
-        final double[] doubles = new double[length];
+        doubles = new double[length];
         for (int i = 0; i < length; ++i) {
             doubles[i] = in.readDouble();
         }
-        this.doubles = doubles;
     }
     
     /*

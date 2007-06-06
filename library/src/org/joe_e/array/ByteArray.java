@@ -43,15 +43,15 @@ public final class ByteArray extends PowerlessArray<Byte> {
      * mutable array.  This improves efficiency for projects that serialize
      * Joe-E objects using Java's serialization API by avoiding treatment of
      * immutable state as mutable.  These methods can otherwise be ignored.
+     *
+     * These use the byte array directly, for better performance than would
+     * be obtained by using the element-by-element versions from CharArray.
      */
     private void writeObject(final ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
 
-        final byte[] bytes = this.bytes;
         out.writeInt(bytes.length);
-        for (byte c : bytes) {
-            out.writeByte(c);
-        }
+        out.write(bytes);
     }
 
     private void readObject(final ObjectInputStream in) throws IOException, 
@@ -59,11 +59,8 @@ public final class ByteArray extends PowerlessArray<Byte> {
         in.defaultReadObject();
 
         final int length = in.readInt();
-        final byte[] bytes = new byte[length];
-        for (int i = 0; i < length; ++i) {
-            bytes[i] = in.readByte();
-        }
-        this.bytes = bytes;
+        bytes = new byte[length];
+        in.readFully(bytes);
     }
     
     /*

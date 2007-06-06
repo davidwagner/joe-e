@@ -1,4 +1,4 @@
-// Copyright 2006 Regents of the University of California.  May be used 
+// Copyright 2006-2007 Regents of the University of California.  May be used 
 // under the terms of the revised BSD license.  See LICENSING for details.
 /** 
  * 
@@ -109,24 +109,15 @@ public class ConstArray<E> implements Selfless, Iterable<E>, Serializable {
         if (arr.length != otherArray.length()) {
             return false;
         }        
-        // check elements one-by-one
-        if (otherArray.arr == null) {
-            // Other array does not store contents in arr
-            for (int i = 0; i < arr.length; ++i) {
-                if (!arr[i].equals(otherArray.get(i))) {
-                    return false;
-                }
+
+        // Compare elements, either both null or equals()
+        for (int i = 0; i < arr.length; ++i) {
+            if (arr[i] == null && otherArray.get(i) != null
+                || arr[i] != null && !arr[i].equals(otherArray.get(i))) {
+                return false;
             }
-            return true;
-        } else {
-            // other array uses arr
-            for (int i = 0; i < arr.length; ++i) {
-                if (!arr[i].equals(otherArray.arr[i])) {
-                    return false;
-                }
-            }
-            return true;
         }
+        return true;
     }
 
     /**
@@ -245,7 +236,10 @@ public class ConstArray<E> implements Selfless, Iterable<E>, Serializable {
      * @return the new array
      */
     public ConstArray<E> with(E newE) {
-        final Object[] newArr = (Object[]) Array.newInstance(Object.class, arr.length + 1);
+        // We use a new Object array here, because we don't know the static type
+        // of E that was used; it may not match the dynamic component type of
+        // arr due to array covariance.
+        final Object[] newArr = new Object[arr.length + 1];
         System.arraycopy(arr, 0, newArr, 0, arr.length);
         newArr[arr.length] = newE;
         return new ConstArray<E>(newArr);       
