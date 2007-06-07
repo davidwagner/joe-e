@@ -112,9 +112,9 @@ public class EqualsAndHashCode {
         System.out.println("IA2=IA2? " + ia2.equals(ia2));
         */
         
-        Object[] ao = {"hello", "good-bye", 2, 3, 3.14};
-        ConstArray<Object> cao = ConstArray.array((Object)"hello", "good-bye", 2, 3, 3.14);
-        ConstArray<Object> cao2 = ConstArray.array((Object)"hello", "good-bye", 2, 3, 3.14);
+        Object[] ao = {"hello", "good-bye", 2, null, 3, 3.14};
+        ConstArray<Object> cao = ConstArray.array((Object)"hello", "good-bye", 2, null, 3, 3.14);
+        ConstArray<Object> cao2 = ConstArray.array((Object)"hello", "good-bye", 2, null, 3, 3.14);
         assert(cao.equals(cao2));
         assert(cao2.equals(cao));
         assert(cao.hashCode() == cao2.hashCode());
