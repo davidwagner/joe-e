@@ -6,8 +6,8 @@ package test;
  * 
  * The JVM does not check for this kind of thing.
  *
- * I've filed an Eclipse bug on this.
- * https://bugs.eclipse.org/bugs/show_bug.cgi?id=190391
+ * This is eclipse bug #151787, which is supposed to be fixed in Eclipse 3.3.
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=151787
  */
 public class ShouldNotCompile {
 	final int contents;

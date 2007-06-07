@@ -13,7 +13,7 @@ public class RunTests {
             test.library.charset.RunTests.test();
             test.library.file.RunTests.test();
             test.library.reflect.RunTests.test();
-            //assert false;  // verify that assertions are enabled...
+            //assert false;  // uncomment to verify that assertions are enabled
         }
         
         catch (Error e) {
