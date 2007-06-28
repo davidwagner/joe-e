@@ -6,13 +6,38 @@ import java.util.Arrays;
 
 
 public class Scratch {
+    final transient int WTF = 6;
+    
+    enum Pie {
+        PECAN, KEY_LIME;
+        
+        static boolean fresh = true;
+        boolean isFresh() {
+            return fresh;
+        }
+       
+        void age() {
+            fresh = false;
+        }
+    }
+    
     static void printdir(java.io.File f) {
         System.out.print("contents of dir \"" + f.getPath() + "\": ");
         System.out.println(Arrays.toString(f.list()));
     }
     
+    static class MyThrowable extends Throwable {
+        final static int serialVersionUID = 1;
+        
+    }
+
+    public static void foob() throws MyThrowable {
+        throw new MyThrowable();
+    }
+    
+    
     public static void main(String args[]) {
-       
+
         
         // ArrayTest.test();
         // ConstArray<Character> sa = new CharArray('a', 'b', 'c');
