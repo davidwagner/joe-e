@@ -1,6 +1,7 @@
 package test;
 
 //import org.joe_e.*;
+import org.joe_e.array.ConstArray;
 import java.util.Arrays;
 
 
@@ -37,7 +38,14 @@ public class Scratch {
     
     
     public static void main(String args[]) {
-
+        
+        ConstArray<Object> c = ConstArray.array(1, 2, new Object());
+        ConstArray<Integer> liar = (ConstArray<Integer>) (ConstArray) c;
+        for (int i = 0; i < 3; ++i) {
+            System.out.println("" + (1 + liar.get(i)));
+        }
+        
+        
         
         // ArrayTest.test();
         // ConstArray<Character> sa = new CharArray('a', 'b', 'c');
