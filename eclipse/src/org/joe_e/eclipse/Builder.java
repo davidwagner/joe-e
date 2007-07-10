@@ -308,7 +308,8 @@ public class Builder extends IncrementalProjectBuilder {
                     ICompilationUnit icu = 
                         (ICompilationUnit) JavaCore.create(file);
                     if (icu.exists()) {
-                        // .java files in weird locations don't exist
+                        // .java files in weird locations don't have 
+                        // ICompilationUnits that exist
                         inBuild.add(icu);
                     }
                 }
