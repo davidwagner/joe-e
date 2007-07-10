@@ -115,19 +115,16 @@ public class Taming {
      * @return true if n1 implements mi in the overlay type system
      */
     boolean implementsOverlay(ITypeBinding itb, IType mi)
-        throws JavaModelException
-    {
+                                        throws JavaModelException {
         if (itb.isPrimitive() || itb.isNullType()) {
             return true;
-        } else if (itb.isArray() || itb.isGenericType()) {
+        } else if (itb.isArray()) {
             return false;
-        } else if (itb.isClass() || itb.isInterface() || itb.isEnum()) {
+        } else if (itb.isClass() || itb.isInterface() || itb.isEnum()
+                   || itb.isTypeVariable()) {
             // System.out.println("is called on type " + n1);
-            IType type = (IType) itb.getJavaElement();
-            
+            IType type = (IType) (itb.getErasure()).getJavaElement();
             return implementsOverlay(type, mi);
-        } else if (itb.isTypeVariable()) {
-            return false;
         } else {
             throw new IllegalArgumentException("unhandled binding type!");
         }
@@ -142,31 +139,14 @@ public class Taming {
             if (h.contains(mi)) {
                 return true;
             }
-            /*
-            for (IType t : sth.getAllClasses()) {
-                Collection<IType> h = getHonorariesFor(t);
-                if (h.contains(mi)) {
-                    return true;
-                }
-            }
-            */
         }
         return false;
     }
-    
-    Collection<IType> getHonorariesFor(IType type) {
-        Entry e = db.get(type);
-        if (e == null) {
-            return new LinkedList<IType>();
-        } else {
-            return e.honoraries;
-        }
-    }
-    
+       
     Set<IType> unimplementedHonoraries(ITypeHierarchy sth) {
         Set<IType> result = new HashSet<IType>();
         
-        for (IType t : sth.getAllClasses()) {
+        for (IType t : sth.getAllTypes()) {
             Collection<IType> h = getHonorariesFor(t); 
             for (IType ht : h) {
                 if (!sth.contains(ht)) {
@@ -178,6 +158,15 @@ public class Taming {
         return result;
     }
     
+    Collection<IType> getHonorariesFor(IType type) {
+        Entry e = db.get(type);
+        if (e == null) {
+            return new LinkedList<IType>();
+        } else {
+            return e.honoraries;
+        }
+    }
+    
     boolean isTamed(ITypeBinding itb) {
         if (Preferences.isTamingEnabled()) {
             return db.containsKey((IType) itb.getJavaElement());
@@ -187,11 +176,6 @@ public class Taming {
     }
 
     boolean isAllowed(ITypeBinding classBinding, IVariableBinding fieldBinding) {
-        /*
-        HashSet<String> allowed = Bob.getAllowedFields(classBinding.getQualifiedName());
-        String fieldName = fieldBinding.getName();
-        return (allowed.contains(fieldName));
-        */
         if (Preferences.isTamingEnabled()) {
             Entry e = db.get((IType) classBinding.getJavaElement());
             IField field = (IField) fieldBinding.getJavaElement();
@@ -202,18 +186,7 @@ public class Taming {
     }
 
     boolean isAllowed(ITypeBinding classBinding, IMethodBinding methodBinding) {
-        /*
-        HashSet<String> allowed = Bob.getAllowedMethods(classBinding.getQualifiedName());
-        IMethod im = (IMethod) methodBinding.getJavaElement();
-        String methodString = im.toString();
-        int lparen = methodString.indexOf("(");
-        // no space found results in start = 0, just what we want
-        int start = methodString.lastIndexOf(" ", lparen) + 1;
-        methodString = methodString.substring(start, methodString.indexOf(")") + 1);
-        
-        return (allowed.contains(methodString));
-        */
-        if (Preferences.isTamingEnabled() /* && classBinding.isFromSource() */) {
+        if (Preferences.isTamingEnabled()) {
             Entry e = db.get((IType) classBinding.getJavaElement());
             //System.out.println("binding key: " + methodBinding.getKey());
             IMethod method = (IMethod) methodBinding.getJavaElement();
@@ -349,121 +322,4 @@ public class Taming {
             }
         }      
     }
-    
-    /*
-     * Returns true if the specified type is deemed to satisfy the specified interface.
-     * At present, does not handle transitive case (I don't think it needs to?)
-     * @param type
-     *            the type to test 
-     * @param mi
-     *            the marker interface
-     * @return
-     *
-    
-    boolean isDeemed(IType type, IType mi) {
-        Entry e = db.get(type);
-        if (e == null) {
-            return false;
-        } else {
-            return e.deemings.contains(mi);
-        }
-    }
-    */
-    	
-	/*
-	 * Checks whether a type implements the marker interface specified.
-	 * The marker interface is prepended with "org.joe_e."
-	 *
-	static boolean is(IType t1, String mi)
-	{
-		try {
-			ITypeHierarchy sth = t1.newSupertypeHierarchy(null);
-			IType powerlessType = 
-				t1.getJavaProject().findType("org.joe_e." + mi);
-			if (powerlessType == null) {
-				System.out.println("Powerless type not found! org.joe_e.Powerless");
-				System.out.println("should be in the project or linked libraries.");
-				return false;
-			}
-			if (sth.contains(powerlessType)) {
-				return true;
-			} else { 
-				return isHonorarily(t1, mi);
-			}
-		} catch (JavaModelException jme) {
-			jme.printStackTrace();
-			return false;
-		}
-	}
-	*/
-    
-    
-	/*
-	 * Checks whether the type t1 honorarily implements the interface mi
-	 * 
-	 * TODO: will need rewriting once real deeming mechanism is in place
-	 *
-	static boolean isHonorarily(IType t1, String mi) throws JavaModelException
-	{
-		String[] record = getHonoraries(t1);
-		if (record == null) {
-			return false;
-		}
-		//
-		// check if interface is explicitly honorary
-		//
-		for (int i = 0; i < record.length; ++i) {
-			if (record[i].equals(mi)) {
-				return true;
-			}
-		}
-		//
-		// check if a subinterface is honorary
-		//
-		IType miType = t1.getJavaProject().findType("org.joe_e." + mi);
-		
-		for (int i = 0; i < record.length; ++i) {
-			ITypeHierarchy sth = 
-				t1.getJavaProject().findType("org.joe_e." + record[i])
-					.newSupertypeHierarchy(null);
-			if (sth.contains(miType)) {
-				return true;
-			}
-		}
-		
-		return false;
-	}
-	*/
-    
-	/*
-	 * Get the honorary interfaces implemented by a type
-	 * @param t1 the type to look up the honorary interfaces for
-	 * @return a (possibly empty) array of strings representing honorary interfaces
-	 *
-	static String[] getHonoraries(IType t1)
-	{
-		String[] t1Honoraries = honoraries.get(t1.getFullyQualifiedName());
-		if (t1Honoraries == null) {
-			return new String[]{};
-		} else {
-			return t1Honoraries;
-		}
-	}
-	
-	static boolean isDeemed(IType t1, String mi) throws JavaModelException
-	{
-		String[] record = deemings.get(t1.getFullyQualifiedName());
-		if (record == null) {
-			return false;
-		}
-		
-		for (int i = 0; i < record.length; ++i) {
-			if (record[i].equals(mi)) {
-				return true;
-			}
-		}
-		
-		return false;
-	}
-    */
 }
