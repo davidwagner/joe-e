@@ -5,14 +5,27 @@ import org.joe_e.Powerless;
 public class BadAnonymous {
 	static int foo; // error: not final
 	
-	final int g;
+	// final int g;
 	
     BadAnonymous() {
+       /*
        Leaker l = new Leaker();	// should be error
        l.new StillLeaker();         // also an error
        NotLeaker nl = new NotLeaker(); // OK: static
        nl.new StillNotLeaker();        // OK
+       */
+    	
+       new java.net.Socket();
        
+       super.equals(null);
+       
+       class ExtendsSomething extends java.io.File {
+    	   ExtendsSomething() {
+    		   super("f");
+    	   }
+       }
+       
+       /*
        Powerless p = new Powerless () {   	   
     	   
            public String toString() {
@@ -24,9 +37,10 @@ public class BadAnonymous {
        
        // Leak p somewhere
        
-       g = 5;
+       g = 5; */
     }
     
+    /*
     void badFunction() {
     	Powerless q = new Powerless() {
     		int notImmutable; // should be error (violates Powerless)
@@ -88,4 +102,5 @@ public class BadAnonymous {
     		
     	}
     }
+    */
 }

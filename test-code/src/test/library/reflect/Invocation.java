@@ -6,7 +6,6 @@ import java.lang.reflect.Method;
 
 import org.joe_e.Token;
 import org.joe_e.array.ConstArray;
-import org.joe_e.array.PowerlessArray;
 import org.joe_e.reflect.Reflection;
 
 public class Invocation {

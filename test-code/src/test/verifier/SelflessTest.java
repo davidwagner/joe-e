@@ -9,7 +9,7 @@ public class SelflessTest implements Selfless {
 		return false;
 	}
 	
-	//public int hashCode() {
-	//	return 5;
-	//}
+	public int hashCode() {
+		return 5;
+	}
 }
