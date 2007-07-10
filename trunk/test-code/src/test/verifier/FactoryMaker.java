@@ -12,8 +12,7 @@ interface Factory extends Immutable {
 }
 
 public class FactoryMaker {
-    static Factory
-    make(final Token brand) {
+    static Factory make(final Token brand) {
         class ProductX implements Product {
             private int value;
             public Token getBrand() { return brand; }

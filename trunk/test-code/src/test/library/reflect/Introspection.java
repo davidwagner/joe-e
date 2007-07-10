@@ -2,7 +2,6 @@ package test.library.reflect;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 import org.joe_e.Token;
 import org.joe_e.array.ConstArray;
@@ -19,16 +18,15 @@ public class Introspection {
     public static void test() {
         // field() and fields()
         try {
-            Field secret = 
-                Reflection.field(ConstArray.class, "arr");
+            Reflection.field(ConstArray.class, "arr");
             assert false;
         } catch (NoSuchFieldException nsme) {
             
         }
         
-        Field publicField = null;
+        
         try {
-            publicField = Reflection.field(Introspection.class, "dummy");
+            Reflection.field(Introspection.class, "dummy");
         } catch (NoSuchFieldException nsme) {
             assert false;
         }
@@ -44,24 +42,23 @@ public class Introspection {
         
         // constructor() and constructors()
         try {
-            Constructor secret = 
-                Reflection.constructor(ConstArray.class,
+            Reflection.constructor(ConstArray.class,
                                        new Class[] {Object[].class});
             assert false;
         } catch (NoSuchMethodException nsme) {
             
         }
         
-        Constructor publicCtor = null;
+        
         try {
-            publicCtor = Reflection.constructor(Token.class, new Class[]{});
+            Reflection.constructor(Token.class, new Class[]{});
         } catch (NoSuchMethodException nsme) {
             assert false;
         }
     
         PowerlessArray<Constructor> constArrayCtors = 
             Reflection.constructors(ConstArray.class);
-        assert constArrayFields.length() == 0;
+        assert constArrayCtors.length() == 0;
         
         PowerlessArray<Constructor> thisClassCtors = 
             Reflection.constructors(Introspection.class);
@@ -70,17 +67,15 @@ public class Introspection {
         
         // method() and methods()
         try {
-            Method secret =
-                Reflection.method(ConstArray.class, "readObject", 
+            Reflection.method(ConstArray.class, "readObject", 
                               new Class[] {java.io.ObjectInputStream.class});
             assert false;
         } catch (NoSuchMethodException nsme) {
             
         }
         
-        Method publicMethod = null;
         try {
-            publicMethod = Reflection.method(ConstArray.class, "length",
+            Reflection.method(ConstArray.class, "length",
                                              new Class[] {});
         } catch (NoSuchMethodException nsme) {
             assert false;

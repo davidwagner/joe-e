@@ -7,6 +7,8 @@ import java.util.Arrays;
 
 
 public class Scratch {
+	int f = new org.joe_e.testlib.Disabled().i;
+	
     final transient int WTF = 6;
     
     enum Pie {

@@ -35,6 +35,10 @@ public class LocalsPowerless1 {
 			}
 		}
 		
+		class ExtendsRevenge extends Revenge implements Powerless {
+			
+		}
+		
 		class Revenge2 implements Immutable {
 			{
 				new LeChuck2();

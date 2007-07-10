@@ -1,6 +1,6 @@
 package test.verifier;
 
-public class InnerTest {
+public class InnerTest implements org.joe_e.Powerless {
 	class Inner {
 		
 	}
@@ -9,7 +9,7 @@ public class InnerTest {
     	System.out.println();
     	
     	class Inner extends Object {
-    		class MoreInner extends Thread {
+    		class MoreInner {
     			
     		}
     	}
@@ -21,8 +21,5 @@ public class InnerTest {
     	}
     }
     
-    void bar () {
-    	class Inner extends InnerTest.Inner {
-    	}
-    }
+
 }
