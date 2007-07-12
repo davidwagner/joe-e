@@ -1686,18 +1686,31 @@ public class Verifier {
             }
         }
         
-        int reduceTags(int callTags, ITypeBinding start, ITypeBinding skip) {           
-            // Record classes visited: only need to traverse each
-            // reachable class once.  Add itb to exclude anything
-            // reachable by looping back through the current class.
+        /**
+         * Given an initial set of tags for immutable/powerless and a type 
+         * <code>start</code>to search from (corresponding to a supertype or 
+         * constructed class), return the set of tags that are still valid 
+         * for the class <code>candidate</code> once all synthetic fields
+         * corresponding to locals reachable from <code>start</code> have been
+         * factored in.
+         * @param callTags  the tags to test whether they still hold
+         * @param start     place to start searching for reachable locals
+         * @param candidate class to resolve found locals against.  Also, 
+         *                  treated as already visited by the search.
+         */
+        int reduceTags(int callTags, ITypeBinding start, 
+                       ITypeBinding candidate) {           
+            // Record classes visited: only need to traverse each reachable
+            // class once.  Add candidate to exclude anything reachable only
+            // by looping back through it.
             HashSet<ITypeBinding> visited = new HashSet<ITypeBinding>();
-            visited.add(skip);
+            visited.add(candidate);
                         
             Queue<ITypeBinding> left =  new LinkedList<ITypeBinding>();
             left.add(start);
             
-            // Process reachable classes until exhausted or a
-            // non-immutable local is found
+            // Process reachable classes until exhausted or a non-immutable
+            // local is found and thus results won't change with more searching
             while (!left.isEmpty() && callTags != 0) {
                 ITypeBinding current = left.remove();
                 ClassInfo currentInfo = classInfo.get(current);
@@ -1716,13 +1729,13 @@ public class Verifier {
 
                 // Update tags
                 for (IVariableBinding v : currentInfo.localVars) {
-                    if (v.getDeclaringMethod().getDeclaringClass() != skip) {
+                    if (definedOutside(v, candidate)) {
                         callTags = 0;
                     }
                 }              
                 if (BuildState.isPowerless(callTags)) {               
                     for (IVariableBinding v : currentInfo.immutableVars) {
-                        if (v.getDeclaringMethod().getDeclaringClass() != skip) {
+                        if (definedOutside(v, candidate)) {
                             callTags = BuildState.IMPL_IMMUTABLE;
                         }
                     }
@@ -1747,6 +1760,30 @@ public class Verifier {
             }
 
             return callTags;
+        }
+        
+        /**
+         * Returns true if the specified variable causes the specified class to
+         * have a synthetic field for holding its value.  This is true if the
+         * variable is defined outside the class, and false if it is defined 
+         * within the class.
+         * 
+         * @param v     a variable binding for a final local variable (including 
+         *              method arguments)
+         * @param itb   a class to check
+         * @return
+         */
+        boolean definedOutside (IVariableBinding v, ITypeBinding itb) {
+            ITypeBinding varClass = v.getDeclaringMethod().getDeclaringClass();
+            while (varClass != null) {
+                if (varClass == itb) {
+                    return false;
+                } else {
+                    varClass = varClass.getDeclaringClass();
+                }
+            }
+            
+            return true;
         }
     }
 }
