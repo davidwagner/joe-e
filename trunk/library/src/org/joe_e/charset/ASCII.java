@@ -2,18 +2,21 @@
 // under the terms of the revised BSD license.  See LICENSING for details.
 package org.joe_e.charset;
 
+import java.nio.charset.Charset;
+import java.nio.ByteBuffer;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 
 /**
  * ASCII I/O.
  */
 public final class ASCII {
+    private static final Charset charset = Charset.forName("US-ASCII");
+    
     private ASCII() {}
 
     /**
@@ -22,26 +25,26 @@ public final class ASCII {
      * @return The ASCII bytes.
      */
     static public byte[] encode(final String text) {
-        try {
-            return text.getBytes("US-ASCII");
-        } catch (final UnsupportedEncodingException e) {
-            // This should never happen, as US-ASCII is a required encoding
-            throw new AssertionError("US-ASCII encoding not supported");
-        }
+        return charset.encode(text).array();
     }
     
+    /**
+     * Decodes a US-ASCII string. Each byte not corresponding to a US-ASCII
+     * character decodes to the Unicode replacement character U+FFFD.
+     * @return The corresponding string
+     * @throws java.lang.IndexOutOfBoundsException
+     */
+    static public String decode(byte[] buffer, int off, int len) {
+        return charset.decode(ByteBuffer.wrap(buffer, off, len)).toString();
+    }
+        
     /**
      * Constructs an ASCII reader.
      * @param in    The binary input stream
      * @return The ASCII character reader.
      */
     static public Reader input(final InputStream in) {
-        try {
-            return new InputStreamReader(in, "US-ASCII");
-        } catch (final UnsupportedEncodingException e) {
-            // This should never happen, as US-ASCII is a required encoding
-            throw new AssertionError("US-ASCII encoding not supported");
-        }
+        return new InputStreamReader(in, charset);
     }
 
     /**
@@ -49,11 +52,6 @@ public final class ASCII {
      * @param out   The output stream.
      */
     static public Writer output(final OutputStream out) {
-        try {
-            return new OutputStreamWriter(out, "US-ASCII");
-        } catch (final UnsupportedEncodingException e) {
-            // This should never happen, as US-ASCII is a required encoding
-            throw new AssertionError("US-ASCII encoding not supported");
-        }
+        return new OutputStreamWriter(out, charset);
     }
 }

@@ -12,7 +12,7 @@ import java.util.HashMap;
  * Comments?
  */
 
-final class Honoraries {
+public final class Honoraries {
     static public final int IMPL_IMMUTABLE = 0x0001;
     static public final int IMPL_POWERLESS = 0x0002; 
     static public final int IMPL_SELFLESS    = 0x0004;
@@ -29,7 +29,36 @@ final class Honoraries {
     static final int MAKE_EQUATABLE = IMPL_EQUATABLE;
     
     static private final Map<Class<?>, Integer> entries;
-   
+
+    public static int getFlags(java.util.Collection<String> honoraries) 
+        throws IllegalArgumentException {
+        int honFlags = 0;
+        for (String s : honoraries) {
+            if (s.equals("org.joe_e.Immutable")) {
+                honFlags |= MAKE_IMMUTABLE;
+            } else if (s.equals("org.joe_e.Powerless")) {
+                honFlags |= MAKE_POWERLESS;
+            } else if (s.equals("org.joe_e.Selfless")) {
+                if ((honFlags & IMPL_EQUATABLE) != 0) {
+                    throw new IllegalArgumentException(
+                        "Can't be both equatable and powerless!");
+                }
+                honFlags |= MAKE_SELFLESS;
+            } else if (s.equals("org.joe_e.Equatable")) {
+                if ((honFlags & IMPL_SELFLESS) != 0) {
+                    throw new IllegalArgumentException(
+                        "Can't be both equatable and powerless!");
+                }
+                honFlags |= MAKE_EQUATABLE;
+            } else {
+                throw new IllegalArgumentException("Unknown marker interface " +
+                                                   s);
+            }
+        }
+        return honFlags;
+    }
+    
+    
     static {
         entries = new HashMap<Class<?>, Integer>();
 
