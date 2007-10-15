@@ -8,6 +8,9 @@ package org.joe_e.array;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.lang.reflect.Array;
 
@@ -198,4 +201,77 @@ public final class ByteArray extends PowerlessArray<Byte> {
         newBytes[bytes.length] = newByte;
         return new ByteArray(newBytes);
     }
+    
+    /**
+     * Views this array as an input stream.
+     */
+   public InputStream asInputStream() {
+       return new ByteArrayInputStream(bytes);
+   }
+   
+   /**
+    * A {@link ByteArray} factory.
+    */
+   static public final class Generator extends OutputStream {
+       private byte[] buffer;
+       private int size;
+
+       /**
+        * Construct an instance with the default internal array length.
+        */
+       public Generator() {
+           this(0);
+       }
+       
+       /**
+        * Construct an instance.
+        * @param estimate  estimated array length
+        */
+       public Generator(int estimate) {
+           buffer = new byte[estimate > 0 ? estimate : 32];
+           size = 0;
+       }
+
+       // java.io.OutputStream interface
+
+       public void write(final int b) {
+           if (size == buffer.length) {
+               System.arraycopy(buffer, 0, buffer = new byte[2 * size], 0,
+                                size);
+           }
+           buffer[size++] = (byte) b;
+       }
+
+       // provided so that people don't have to catch IOException
+       public void write(final byte[] b) {
+           write(b, 0, b.length);
+       }
+       
+       public void write(byte[] b, int off, int len) {
+           if (len < 0) {
+               throw new IllegalArgumentException("len is negative");
+           }
+           if (size + len > buffer.length) {
+               int newlength = Math.max(size + len, 2 * buffer.length);
+               System.arraycopy(buffer, 0, buffer = new byte[newlength], 0,
+                                size);
+           }
+           System.arraycopy(b, off, buffer, size, len);
+           size += len;
+       }
+       
+       /**
+        * Create a snapshot of the current content.
+        */
+       public ByteArray snapshot() {
+           final byte[] arr;
+           if (size == buffer.length) {
+               arr = buffer;
+           } else {
+               arr = new byte[size];
+               System.arraycopy(buffer, 0, arr, 0, size);
+           }
+           return new ByteArray(arr);
+       }
+   }
 }
