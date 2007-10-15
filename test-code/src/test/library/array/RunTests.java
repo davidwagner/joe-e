@@ -13,5 +13,6 @@ public class RunTests {
         EqualsAndHashCode.test();
         LengthGetAndToString.test();
         WithAndToArray.test();
+        ByteArrayGenerator.test();
     }
 }

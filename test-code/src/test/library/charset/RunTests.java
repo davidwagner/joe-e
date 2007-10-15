@@ -17,6 +17,12 @@ public class RunTests {
         output = UTF8.encode("hello");
         assert Arrays.equals(output, helloBytes);
         
+        String asciiDecode = ASCII.decode(helloBytes, 0, helloBytes.length);
+        assert "hello".equals(asciiDecode);
+
+        String utf8Decode = UTF8.decode(helloBytes, 0, helloBytes.length);
+        assert "hello".equals(utf8Decode);
+        
         // Reader: just make sure they can be called without
         // generating exceptions.
         Reader asciiReader = ASCII.input(System.in);
