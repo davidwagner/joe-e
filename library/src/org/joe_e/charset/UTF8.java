@@ -31,7 +31,23 @@ public final class UTF8 {
     /**
      * Decodes a UTF-8 string. Each byte not corresponding to a UTF-8
      * character decodes to the Unicode replacement character U+FFFD.
+     * Note that an initial byte-order mark is not stripped.  This method is
+     * equivalent to <code>decode(buffer, 0, buffer.length)</code>.
+     * @parameter buffer    the ASCII-encoded string to decode
+     * @return The corresponding string
+     * @throws java.lang.IndexOutOfBoundsException
+     */
+    static public String decode(byte[] buffer) {
+        return decode(buffer, 0, buffer.length);
+    }
+    
+    /**
+     * Decodes a UTF-8 string. Each byte not corresponding to a UTF-8
+     * character decodes to the Unicode replacement character U+FFFD.
      * Note that an initial byte-order mark is not stripped.
+     * @parameter buffer    the ASCII-encoded string to decode
+     * @parameter off       where to start decoding
+     * @parameter len       how many bytes to decode
      * @return The corresponding string
      * @throws java.lang.IndexOutOfBoundsException
      */
