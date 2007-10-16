@@ -245,19 +245,20 @@ public final class ByteArray extends PowerlessArray<Byte> {
        // provided so that people don't have to catch IOException
        public void write(final byte[] b) {
            write(b, 0, b.length);
-       }
+       }      
        
        public void write(byte[] b, int off, int len) {
-           if (len < 0) {
-               throw new IllegalArgumentException("len is negative");
+           int newSize = size + len;
+           if (len < 0 || newSize < 0) {
+               throw new IndexOutOfBoundsException();
            }
-           if (size + len > buffer.length) {
-               int newlength = Math.max(size + len, 2 * buffer.length);
-               System.arraycopy(buffer, 0, buffer = new byte[newlength], 0,
+           if (newSize > buffer.length) {
+               int newLength = Math.max(newSize, 2 * buffer.length);
+               System.arraycopy(buffer, 0, buffer = new byte[newLength], 0,
                                 size);
            }
            System.arraycopy(b, off, buffer, size, len);
-           size += len;
+           size = newSize;
        }
        
        /**

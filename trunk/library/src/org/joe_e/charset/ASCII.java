@@ -30,7 +30,22 @@ public final class ASCII {
     
     /**
      * Decodes a US-ASCII string. Each byte not corresponding to a US-ASCII
+     * character decodes to the Unicode replacement character U+FFFD.  This
+     * method is equivalent to <code>decode(buffer, 0, buffer.length)</code>.
+     * @parameter buffer    the ASCII-encoded string to decode
+     * @return The corresponding string
+     * @throws java.lang.IndexOutOfBoundsException
+     */
+    static public String decode(byte[] buffer) {
+        return decode(buffer, 0, buffer.length);
+    }
+    
+    /**
+     * Decodes a US-ASCII string. Each byte not corresponding to a US-ASCII
      * character decodes to the Unicode replacement character U+FFFD.
+     * @parameter buffer    the ASCII-encoded string to decode
+     * @parameter off       where to start decoding
+     * @parameter len       how many bytes to decode
      * @return The corresponding string
      * @throws java.lang.IndexOutOfBoundsException
      */
