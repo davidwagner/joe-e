@@ -185,7 +185,7 @@ public class Builder extends IncrementalProjectBuilder {
         SourceLocationConverter slc = new SourceLocationConverter(file);
         if (jdtErrors) {
             addMarker(file, new Problem("Joe-E verifier not run on this " +
-        	    	                "file due to compilation errors.",
+        	    	                "file due to compilation errors",
         	    	                IMarker.SEVERITY_INFO), slc);
             System.out.println("... file skipped due to Java compilation " +
         	    	       "errors");

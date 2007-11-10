@@ -43,6 +43,21 @@
                style="toggle">
          </action>
       </objectContribution>
+      <objectContribution
+            adaptable="true"
+            objectClass="org.eclipse.jdt.core.IPackageFragment"
+            nameFilter="*"
+            id="Joe_E.togglePackage">
+         <action
+               class="org.joe_e.eclipse.TogglePackageAction"
+               enablesFor="+"
+               id="Joe_E.togglePackageAction"
+               label="Enable Joe-E Verifier"
+               menubarPath="additions"
+               state="false"
+               style="toggle">
+         </action>
+      </objectContribution>
    </extension>
    <extension
          id="JoeEProblem"

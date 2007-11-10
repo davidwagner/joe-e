@@ -207,6 +207,43 @@ public class Verifier {
             problems.add(new Problem(description, source.getStartPosition(),
                                      source.getLength()));
         }
+        
+        private void addProblem(String description, ASTNode source, 
+                                ITypeBinding itb) {
+            String classComment = taming.getTamingComment(itb);
+            String fullDescription = description + 
+                (classComment == null ? "" : (": " + classComment));
+            problems.add(new Problem(fullDescription, source.getStartPosition(),
+                                     source.getLength()));
+        }       
+
+        private String describe(String description, ITypeBinding itb, 
+                                IVariableBinding field) {
+            String fieldComment = taming.getTamingComment(itb, field);
+            return description + 
+                (fieldComment == null ? ""  : (": " + fieldComment));
+        }
+        
+        private String describe(String description, ITypeBinding itb, 
+                                IMethodBinding method) {
+            String methodComment = taming.getTamingComment(itb, method);
+            return description + 
+                (methodComment == null ? "" : (": " + methodComment));
+        }
+
+        private void addProblem(String description, ASTNode source, 
+                                ITypeBinding itb, IVariableBinding field) {
+            problems.add(new Problem(describe(description, itb, field),
+                    source.getStartPosition(), 
+                    source.getLength()));
+        }
+
+        private void addProblem(String description, ASTNode source, 
+                                ITypeBinding itb, IMethodBinding method) {
+            problems.add(new Problem(describe(description, itb, method), 
+                                     source.getStartPosition(), 
+                                     source.getLength()));
+        }
 
         private void addProblem(String description) {
             problems.add(new Problem(description));
@@ -289,11 +326,11 @@ public class Verifier {
                             if (inImmutableClass() && !immutableVar) {
                                 addProblem("Non-Immutable local variable " + sn
                                            + " from enclosing scope referenced "
-                                           + "in Immutable class.", sn);
+                                           + "in Immutable class", sn);
                             } else if (inPowerlessClass()) {
                                 addProblem("Non-Powerless local variable " + sn
                                            + " from enclosing scope referenced "
-                                           + "in Powerless class.", sn);
+                                           + "in Powerless class", sn);
                             } else if (immutableVar) {
                                 // Record reference to immutable type
                                 classInfo.get(getCurrentClass())
@@ -321,7 +358,7 @@ public class Verifier {
                     // check in taming database
                     if (!taming.isTamed(itb)) {
                         addProblem("Reference to disabled class " +
-                                   itb.getName() + ".", sn);
+                                   itb.getName(), sn, itb);
                     }
                 }
             } else if (ib instanceof IMethodBinding) {
@@ -363,14 +400,14 @@ public class Verifier {
                 if (!taming.isTamed(classBinding)) {
                     addProblem("Field " + fieldBinding.getName() + " from " +
                                "disabled class " + classBinding.getName() + 
-                               " accessed.", source);
+                               " accessed", source, classBinding);
                     return;
                 }
 
                 if (!taming.isAllowed(classBinding, fieldBinding)) {
                     addProblem("Disabled field " + fieldBinding.getName() +
                                " from class " + classBinding.getName() +
-                               " accessed.", source);
+                               " accessed", source, classBinding, fieldBinding);
                 }
             } 
         }
@@ -388,8 +425,8 @@ public class Verifier {
          * @return true to visit children of this node
          */
         public boolean visit(ClassInstanceCreation cic) {
-            IMethodBinding actualConstructor = cic.resolveConstructorBinding();
-            ITypeBinding actualClass = actualConstructor.getDeclaringClass();
+            IMethodBinding actualCtor = cic.resolveConstructorBinding();
+            ITypeBinding actualClass = actualCtor.getDeclaringClass();
             ITypeBinding lexicalClass = cic.getType().resolveBinding();
             ITypeBinding currentClass = getCurrentClass();
 
@@ -404,7 +441,7 @@ public class Verifier {
                 if (!taming.isTamed(lexicalClass)) {
                     // Already flagged as an untamed SimpleName
                     //addProblem("Construction of disabled class " +
-                    //           lexicalClass.getName() + ".", cic.getType());
+                    //           lexicalClass.getName(), cic.getType());
                     return true;
                 }
 
@@ -412,25 +449,25 @@ public class Verifier {
                 // exactly match that of the implicit synthetic anonymous 
                 // constructor that is actually called (JLS3 15.9.5.1)
                 IMethodBinding[] methods = lexicalClass.getDeclaredMethods();
-                IMethodBinding lexicalConstructor = null;
+                IMethodBinding lexicalCtor = null;
                 for (IMethodBinding m : methods) {
                     if (m.isConstructor() 
                         && Arrays.equals(m.getParameterTypes(),
-                                         actualConstructor.getParameterTypes())) {
-                        lexicalConstructor = m;
+                                         actualCtor.getParameterTypes())) {
+                        lexicalCtor = m;
                         break;
                     }
                 }
                 
-                if (lexicalConstructor == null) {
+                if (lexicalCtor == null) {
                     addProblem("VERIFIER ERROR: Couldn't find constructor for" +
                                " class " + lexicalClass.getName(), 
                                cic.getType());
                     return true;
-                } else if (!taming.isAllowed(lexicalClass, lexicalConstructor)) {
+                } else if (!taming.isAllowed(lexicalClass, lexicalCtor)) {
                     addProblem("Disabled constructor from class " +
-                               lexicalClass.getName() + " called.", 
-                               cic.getType());
+                               lexicalClass.getName() + " called", 
+                               cic.getType(), lexicalClass, lexicalCtor);
                     return true;
                 }
             }
@@ -440,7 +477,7 @@ public class Verifier {
             if (inConstructorContext()) {
                 if (actualClass.isAnonymous()) {
                     addProblem("Construction of anonymous class during " +
-                               "initialization of enclosing object.", 
+                               "initialization of enclosing object", 
                                cic.getType());
                     return true;
                 }
@@ -452,7 +489,7 @@ public class Verifier {
                     if (ancestor == currentClass) {
                         addProblem("Construction of inner class " + 
                                    actualClass.getName() + " during " +
-                                   "initialization of enclosing object.",
+                                   "initialization of enclosing object",
                                    cic.getType());
                         return true;
                     }
@@ -486,16 +523,19 @@ public class Verifier {
          * @return true to visit children of this node
          */
         public boolean visit(SuperConstructorInvocation sci) {
-            IMethodBinding imb = sci.resolveConstructorBinding();
-            ITypeBinding classBinding = imb.getDeclaringClass();
+            IMethodBinding superCtor = sci.resolveConstructorBinding();
+            ITypeBinding classBinding = superCtor.getDeclaringClass();
 
             // Check if taming is violated for non-source types.
-            // If the superclass is an disabled class, we have already flagged
-            // it. No dependency needed here; we assume that the superclass
+            // If the superclass is a disabled class, we have already flagged
+            // it. 
+            // TODO: must fix this once we can customize whether something is checked.
+            // No dependency needed here; we assume that the superclass
             // can't change from being from source to being part of the library.
             if (!classBinding.isFromSource() && taming.isTamed(classBinding)
-                && !taming.isAllowed(classBinding, imb)) {
-                addProblem("Disabled superconstructor called.", sci);
+                && !taming.isAllowed(classBinding, superCtor)) {
+                addProblem("Disabled superconstructor called", sci, 
+                           classBinding, superCtor);
             }
             
             return true;
@@ -536,12 +576,12 @@ public class Verifier {
                 // check in taming database
                 if (!taming.isTamed(actualClass)) {
                     addProblem("Method from disabled class " +
-                               actualClass.getName() + " called.", 
-                               mi.getName());
+                               actualClass.getName() + " called", 
+                               mi.getName(), actualClass);
                 } else if (!taming.isAllowed(actualClass, imb)) {
                     addProblem("Disabled method " + imb.getName() +
                                " from class " + actualClass.getName() +
-                               " called.", mi.getName());
+                               " called", mi.getName(), actualClass, imb);
                 }
             }
             // If we are in constructor or instance initializer, forbid 
@@ -551,7 +591,7 @@ public class Verifier {
             if (inConstructorContext() && !Flags.isStatic(imb.getModifiers())
                 && expression == null) {
                 addProblem("Called non-static method " + imb.getName() + 
-                           " on object being initialized.", mi.getName());
+                           " on object being initialized", mi.getName());
             }
             return true;
         }
@@ -576,7 +616,7 @@ public class Verifier {
                 && !Flags.isStatic(imb.getModifiers())
                 && (target == getCurrentClass())) {
                 addProblem("Called non-static supermethod " + imb.getName() + 
-                           " on object being initialized.", smi.getName());                
+                           " on object being initialized", smi.getName());                
             }
             
             ITypeBinding classBinding = imb.getDeclaringClass();
@@ -588,14 +628,15 @@ public class Verifier {
             } else if (taming.isTamed(classBinding)
                        && !taming.isAllowed(classBinding, imb)) {
                 addProblem("Disabled supermethod " + imb.getName() + " from " +
-                           "class " + classBinding.getName() + " called.", smi);
+                           "class " + classBinding.getName() + " called", smi,
+                           classBinding, imb);
             } else if (BuildState.isSelfless(classInfo.get(target).classTags)) {
                 ITypeBinding superTB = target.getSuperclass();
                 if (superTB == OBJECT && imb.getName().equals("equals")
                     && Arrays.equals(imb.getParameterTypes(),
                                      new ITypeBinding[] {OBJECT})) {
                     addProblem("Can't call super.equals() for a Selfless " +
-                               "class with superclass java.lang.Object.",
+                               "class with superclass java.lang.Object",
                                smi.getName());
                 }
             }
@@ -741,12 +782,12 @@ public class Verifier {
             SimpleName name = md.getName();
             
             if (Modifier.isNative(md.getModifiers())) {
-                addProblem("Native method " + name + ".", name);
+                addProblem("Native method " + name, name);
             }
             
             if (name.getIdentifier().equals("finalize") 
                 && md.parameters().size() == 0) {
-                addProblem("Finalizers are not allowed.", name);
+                addProblem("Finalizers are not allowed", name);
             }
                                
             if (md.isConstructor()) {
@@ -780,16 +821,18 @@ public class Verifier {
             
             // If sc is not tamed, the "extends" clause will flag an error
             if (!sc.isFromSource() && taming.isTamed(sc)) {
+                // check zero-ary constructor
                 IMethodBinding[] methods = sc.getDeclaredMethods();
                 for (IMethodBinding imb : methods) {                            
                     if (imb.isConstructor()
                         && imb.getParameterTypes().length == 0
                         && canInvoke(cc, imb)) {
-                        if (!taming.isAllowed(sc, imb)) {
-                            return "Implicit call to disabled " +
-                                   "superconstructor.";
+                        if (taming.isAllowed(sc, imb)) {
+                            return null;
+                        } else {
+                            return describe("Implicit call to disabled " +
+                                            "superconstructor", sc, imb);
                         }
-                        return null;
                     }
                 }    
                     
@@ -813,10 +856,10 @@ public class Verifier {
                 
                 if (mostSpecific == null) {
                     return "VERIFIER BUG: Could not find superconstructor " +
-                           "implicitly invoked for this constructor.";
+                           "implicitly invoked for this constructor";
                 } else if (!taming.isAllowed(sc, mostSpecific)) {                          
-                    return "Implicit call to disabled varargs " +
-                           "superconstructor.";
+                    return describe("Implicit call to disabled varargs " +
+                                    "superconstructor", sc, mostSpecific);
                 }                       
             }
             return null;
@@ -891,7 +934,7 @@ public class Verifier {
             // get the initializer instead!!)
             if (inInitializer()) {
                 addProblem("Definition of local type " + td.getName() + " not " +
-                            "allowed in an initializer (due to bug in Eclipse).",
+                            "allowed in an initializer (due to bug in Eclipse)",
                             td.getName());
                 return false; // avoid encountering eclipse bugs
             } else {
@@ -929,7 +972,7 @@ public class Verifier {
          */
         void checkType(ITypeBinding itb) {
             System.out.println(". type " + itb.getName());
-            
+                        
             // Add a deep dependency on supertype as it can affect method call
             // resolution, which is important for taming.  Also a flag 
             // dependency on superinterfaces, in case marker interfaces change. 
@@ -943,7 +986,12 @@ public class Verifier {
             
             // TODO: is there a way to do this using just bindings?
             IType type = (IType) itb.getJavaElement();
+            
             try {
+                if (!Flags.isPrivate(type.getFlags())) {
+                    // add it to safej!
+                }
+                
                 ITypeHierarchy sth = type.newSupertypeHierarchy(null);
                                 
                 // Marker interfaces here = implements in BASE type system
@@ -982,19 +1030,18 @@ public class Verifier {
 
                             if (!taming.implementsOverlay(fieldTB,
                                     taming.POWERLESS)) {
-                                addProblem("Non-powerless static field " + name
-                                           + ".", fb);
+                                addProblem("Non-powerless static field " + name, 
+                                           fb);
                             }
                         } else {
-                            addProblem("Non-final static field " + name + ".",
-                                       fb);
+                            addProblem("Non-final static field " + name, fb);
                         }
                     }
                 }
 
                 // 4.4b: Selfless classes and interfaces cannot be equatable.
                 if (isEquatable && isSelfless) {
-                    addProblem("A type cannot be both Selfless and Equatable.",
+                    addProblem("A type cannot be both Selfless and Equatable",
                                type);
                 }
                 
@@ -1022,7 +1069,7 @@ public class Verifier {
                 for (IType i : unimp) {
                     addProblem("Honorary interface " + i.getElementName() +
                                " inherited from " + superTB.getName() + 
-                               " not explicitly implemented.", type);
+                               " not explicitly implemented", type);
                 }
                 
                 // If the class has no explicit constructors, verify that
@@ -1050,7 +1097,7 @@ public class Verifier {
                     if (!taming.implementsOverlay(superTB, taming.SELFLESS)) {
                         if (superTB != OBJECT) {
                             addProblem("Selfless class extends non-Selfless " +
-                                       "class other than java.lang.Object.",
+                                       "class other than java.lang.Object",
                                        type);
                         }
 
@@ -1066,7 +1113,7 @@ public class Verifier {
                         
                         if (!overridesEquals) {
                             addProblem("Selfless class does not override " +
-                                       "equals(Object).", type);
+                                       "equals(Object)", type);
                         }
                     }
                 }
@@ -1076,7 +1123,7 @@ public class Verifier {
                     /* && !taming.isDeemed(type, taming.POWERLESS) */) {
                     if (sth.contains(taming.TOKEN)) {
                         addProblem("Powerless class " + type.getElementName() +
-                                   " can't extend Token.", type);
+                                   " can't extend Token", type);
                     }
 
                     verifyAllFieldsAre(itb, taming.POWERLESS);
@@ -1129,16 +1176,21 @@ public class Verifier {
                         for (IMethodBinding have : dm) {
                             // the (symmetric) "subsignature" relation is used 
                             // to determine interface implementation: JLS3 8.4.2
+                            // TODO: **NOT** symmetric! oops! 
+                            // -- but is this a problem, i.e. can one override
+                            // both ways?
                             if (have.isSubsignature(need)) {
                                 needFilled = true;
                                 //System.out.println("have: " + have);
                                 //System.out.println("need: " + need);
                                 if (taming.isTamed(current) &&
                                     !taming.isAllowed(current, have)) {
-                                    addProblem("Method " + need.getName() +
-                                               " required by interface " +
-                                               "satisfied by disabled method.",
-                                               type);
+                                    String description =
+                                        describe("Method " + need.getName() +
+                                                 " required by interface " +
+                                                 "satisfied by disabled method",
+                                                 current, have);
+                                    addProblem(description, type);
                                 }
                                 break;
                             } 
@@ -1159,7 +1211,7 @@ public class Verifier {
                 e.printStackTrace(); // TODO: prettier debug
                 addProblem("Analysis incomplete: BUG IN VERIFIER or I/O " +
                            "error (unhandled exception) encountered " +
-                           "analyzing type" + type.getElementName() + ".");
+                           "analyzing type" + type.getElementName());
             }
         }
 
@@ -1268,7 +1320,7 @@ public class Verifier {
                         } else { // type != candidate
                             addProblem(
                                String.format("Non-%s field %s from %s in %s %s",
-                                             miName, fieldName, typeName, 
+                                             miName, fieldName, typeName,
                                              miName, candName), candidate);
                         }
                     } else if (type.equals(candidate)) {
@@ -1340,7 +1392,7 @@ public class Verifier {
                 && (te.getQualifier() == null ||
                     te.getQualifier().resolveBinding() == getCurrentClass())) {
                 addProblem("Possible escape of reference to 'this' during " +
-                           "its initialization.", te);
+                           "its initialization", te);
             }
             return true;
         }
@@ -1391,7 +1443,7 @@ public class Verifier {
                 } catch (JavaModelException jme) {
                     addProblem("Analysis of file incomplete: BUG IN VERIFER " +
                                 "or I/O error (unhandled exception) " +
-                                "encountered analyzing infix expression.", ie);
+                                "encountered analyzing infix expression", ie);
                 }             
             } else if (op == InfixExpression.Operator.PLUS) {
                 //try {
@@ -1442,7 +1494,7 @@ public class Verifier {
                 // not a problem
             } else if (itb.isArray()) { 
                 addProblem("Implicit call of disabled toString() method for " +
-                           "array type " + itb.getName() + ".", e);
+                           "array type " + itb.getName(), e);
             } else { // no funny stuff, itb should be in the class hierarchy
                 // add dependency on either toString existing, or what the
                 // superclass is
@@ -1462,12 +1514,13 @@ public class Verifier {
                             if (!current.isFromSource()
                                 && (!taming.isTamed(current) 
                                     || !taming.isAllowed(current, imb))) {
-                                addProblem("Implicit call of disabled " +
-                                           "toString() method for class " +
-                                           current.getName() + ".  Fields " +
-                                           "and return values of parameterized "
-                                           + "type may require explicit casts.", 
-                                           e);
+                                String description = 
+                                    describe("Implicit call of disabled " +
+                                             "toString() method for class " +
+                                             current.getName(), current, imb);
+                                addProblem(description + ".  Fields and return "
+                                           + "values of parameterized type " +
+                                           "may require explicit casts.", e);
                             }
                             return;
                         }      
@@ -1545,16 +1598,16 @@ public class Verifier {
                 CatchClause cc = (CatchClause) o;
                 ITypeBinding itb = cc.getException().getType().resolveBinding();
                 if (itb == THROWABLE) {
-                    addProblem("Catching type Throwable is not allowed.", 
+                    addProblem("Catching type Throwable is not allowed", 
                                cc.getException());
                 } else if (itb.isSubTypeCompatible(ERROR)) {
-                    addProblem("Catching an Error is not allowed.", 
+                    addProblem("Catching an Error is not allowed", 
                             cc.getException());
                 }
             }
             
             if (ts.getFinally() != null) {
-                addProblem("Finally clauses are not allowed.",
+                addProblem("Finally clauses are not allowed",
                            ts.getFinally());
             }
             return true;
@@ -1655,12 +1708,12 @@ public class Verifier {
                     if (!BuildState.isImmutable(superTags)) {
                         addProblem("Superclass of Immutable class " + 
                                    itb.getName() + " may access non-Immutable "
-                                   + "local state.", itb);
+                                   + "local state", itb);
                     } else if (BuildState.isPowerless(needed)
                             && !BuildState.isPowerless(superTags)) {
                         addProblem("Superclass of Powerless class " + 
                                    itb.getName() + " may access non-Powerless "
-                                   + "local state.", itb);
+                                   + "local state", itb);
                     }
                 }
                 
@@ -1674,12 +1727,12 @@ public class Verifier {
                     int callTags = reduceTags(needed, constructed, itb);                  
                     if (!BuildState.isImmutable(callTags)) {
                         addProblem("Construction of " + className + " may " +
-                                   "grant access to non-Immutable local state.", 
+                                   "grant access to non-Immutable local state", 
                                    call.getType());
                     } else if (BuildState.isPowerless(needed)
                 	       && !BuildState.isPowerless(callTags)) {
                         addProblem("Construction of " + className + " may " +
-                                   "grant access to non-Powerless local state.", 
+                                   "grant access to non-Powerless local state", 
                                    call.getType());
                     }
                 }
