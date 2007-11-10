@@ -1,4 +1,4 @@
-// Copyright 2005-06 Regents of the University of California.  May be used 
+// Copyright 2005-07 Regents of the University of California.  May be used 
 // under the terms of the revised BSD license.  See LICENSING for details.
 /** 
  * @author Adrian Mettler 
@@ -6,8 +6,8 @@
 package org.joe_e.eclipse;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.BufferedReader;
+//import java.io.FileReader;
+//import java.io.BufferedReader;
 
 //import java.util.Arrays;
 import java.util.Collection;
@@ -26,7 +26,117 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 
 public class Taming {
-    private final HashMap<IType, Entry> db;
+    /*
+     * Static utility methods that are independent of any taming data
+     */
+    static boolean isRelevant(IType type) throws JavaModelException {
+        int flags = type.getFlags();
+        // TODO: is special handling needed for protected inner classes of
+        // final classes?  Would anyone declare one (protected is equivalent to 
+        // the default (package) protection in such a case)
+        return (Flags.isPublic(flags) || Flags.isProtected(flags));
+        /*
+         || !Flags.isFinal(typeFlags) && Flags.isProtected(flags))
+                && !Flags.isSynthetic(flags));
+        */
+    }
+    
+    static boolean isRelevant(IType type, IField field) 
+                                        throws JavaModelException {
+        int typeFlags = type.getFlags();
+        int flags = field.getFlags();
+        return ((Flags.isPublic(flags) 
+                 || !Flags.isFinal(typeFlags) && Flags.isProtected(flags))
+                && !Flags.isSynthetic(flags));
+    }
+    
+    static boolean isRelevant(IType type, IMethod method) 
+                                        throws JavaModelException {
+        int typeFlags = type.getFlags();
+        int flags = method.getFlags();
+        return ((Flags.isPublic(flags) 
+                 || !Flags.isFinal(typeFlags) && Flags.isProtected(flags))
+                && !Flags.isSynthetic(flags) 
+                && !method.getElementName().equals("<clinit>"));
+    }
+    
+    static String getFlatSignature(IMethod method) {
+        StringBuilder flatSigBuilder = 
+            new StringBuilder(method.getElementName() + "(");
+        boolean first = true;
+        for (String paramSig : method.getParameterTypes()) {
+            if (first) {
+                first = false;
+            } else {
+                flatSigBuilder.append(", ");
+            }
+            String parameterSimpleName = 
+                Signature.getSignatureSimpleName(paramSig);
+            flatSigBuilder.append(parameterSimpleName);
+        }
+        // special handling for varargs?
+        //if () {
+        //    flatSigBuilder.replace(flatSigBuilder.length() - 2, 
+        //                           flatSigBuilder.length(), "...");
+        //}
+        return flatSigBuilder.append(")").toString();
+    }
+    
+    /*
+     * TODO: too hard? is it necessary?
+     *
+    static String getOverrideSignature(IMethod method) {
+        StringBuilder overrideSigBuilder = 
+            new StringBuilder(method.getElementName() + "(");
+        boolean first = true;
+        for (String paramSig : method.getParameterTypes()) {
+            if (first) {
+                first = false;
+            } else {
+                overrideSigBuilder.append(", ");
+            }
+            String parameterQualifiedName = 
+                getQualifiedErasure(paramSig, method);
+            overrideSigBuilder.append(parameterQualifiedName);
+        }
+        // special handling for varargs?
+        //if () {
+        //    flatSigBuilder.replace(flatSigBuilder.length() - 2, 
+        //                           flatSigBuilder.length(), "...");
+        //}
+        return overrideSigBuilder.append(")").toString();
+    }
+       
+    static String getQualifiedErasure(String paramSig, IMethod method) {
+        ITypeParameter[] itps = method.getTypeParameters();       
+        if (Signature.getTypeSignatureKind(paramSig) == 
+            Signature.TYPE_VARIABLE_SIGNATURE) {
+            for (ITypeParameter itp : itps) {
+                if (itp.getElementName().equals(
+                        Signature.getTypeVariable(paramSig))) {
+                    String[] bounds = itp.getBounds();
+                    if (bounds.length > 0) {
+                        return bounds[0];
+                    }
+                    return "java.lang.Object";
+                }
+            }
+            String[][] genericType = 
+                method.getDeclaringType().resolveType(
+                        Signature.getTypeVariable(paramSig));
+            IType t = method.getJavaProject().findType(
+                    genericType[0][0], genericType[0][1]);
+            
+            
+            throw new AssertionError(); // shouldn't happen
+        } else {
+            return Signature.getSignatureQualifier(paramSig) + "."
+                   Signature.getSignatureSimpleName(paramSig);
+        }
+    }
+    */
+    
+    final HashMap<IType, Entry> db;
     final IJavaProject project;
     
     /*
@@ -45,6 +155,9 @@ public class Taming {
     Taming(File persistentDB, IJavaProject project) throws CoreException {
         this.project = project;
 
+        // FIXME: HACK HACK HACK - build some safej files on startup.
+        //new SafeJBuild(System.err, project);
+        
         // These are in the Java library and should always be findable.
         // OBJECT = project.findType("java.lang.Object");
         // ENUM = project.findType("java.lang.Enum"); 
@@ -84,7 +197,11 @@ public class Taming {
                            "select a taming directory in the Joe-E pane " +
                            "of Window·Preferences.", null));
         }
-            
+        
+        SafeJImport.importTaming(System.err, persistentDB, this, 
+                                         project);
+        
+        /*
         File[] files = persistentDB.listFiles();
         for (File f : files) {
             String name = f.getName();
@@ -103,6 +220,8 @@ public class Taming {
             }
         } 
         System.out.println("Done reading taming DB");
+        */
+        
     }  
         
     /*
@@ -166,6 +285,7 @@ public class Taming {
             return e.honoraries;
         }
     }
+
     
     boolean isTamed(ITypeBinding itb) {
         if (Preferences.isTamingEnabled()) {
@@ -174,12 +294,13 @@ public class Taming {
             return true;
         }
     }
-
+    
+    
     boolean isAllowed(ITypeBinding classBinding, IVariableBinding fieldBinding) {
         if (Preferences.isTamingEnabled()) {
             Entry e = db.get((IType) classBinding.getJavaElement());
             IField field = (IField) fieldBinding.getJavaElement();
-            return ((e != null) && e.allowedFields.contains(field));
+            return ((e != null) && e.allowedFields.containsKey(field));
         } else {
             return true;
         }
@@ -194,42 +315,104 @@ public class Taming {
             //    System.out.println("itsakey: " + m.getKey());
             //    System.out.println("equals? " + method.equals(m));
             //}
-            return ((e != null) && e.allowedMethods.contains(method));
+            return ((e != null) && e.allowedMethods.containsKey(method));
         } else {
             return true;
         }    
     }
 
+    /**
+     * Get the class taming comment (if any) for a class.
+     * @param itb
+     * @return the comment, or <code>null</code> if no comment, or
+     *      "No policy" if no taming policy exists.
+     */
+    String getTamingComment(ITypeBinding itb) {
+        Entry e = db.get((IType) itb.getJavaElement());
+        if (e == null) {
+            return "no policy specified for this class";
+        } else {
+            return e.comment;
+        }
+    }
+    
+    /**
+     * Get the taming comment (if any) for a disabled field
+     * @param classBinding the class containing the disabled field
+     * @param fieldBinding the disabled field
+     * @return the taming comment for the disabled field, or <code>null</code>
+     *         if none.
+     */
+    String getTamingComment(ITypeBinding classBinding, 
+                            IVariableBinding fieldBinding) {
+        Entry e = db.get((IType) classBinding.getJavaElement());
+        IField field = (IField) fieldBinding.getJavaElement();
+        if (e == null) {
+            return null;
+        } else {
+            return e.disabledFields.get(field);
+        }
+    }
+
+    /**
+     * Get the taming comment (if any) for a disabled method
+     * @param classBinding the class containing the disabled method
+     * @param methodBinding the disabled method
+     * @return the taming comment for the disabled method, or <code>null</code>
+     *         if none.
+     */
+    String getTamingComment(ITypeBinding classBinding, 
+                            IMethodBinding methodBinding) {
+        Entry e = db.get((IType) classBinding.getJavaElement());
+        IMethod method = (IMethod) methodBinding.getJavaElement();
+        if (e == null) {
+            return null;
+        } else {
+            return e.disabledMethods.get(method);
+        }
+    }
+
     class Entry {
+        final boolean enabled;
+        final String comment;
+        final Map<IField, String> allowedFields;
+        final Map<IMethod, String> allowedMethods;
+        final Map<IField, String> disabledFields;
+        final Map<IMethod, String> disabledMethods;
         final Set<IType> honoraries;
-        // final Set<IType> deemings;
-        final Set<IField> allowedFields;
-        final Set<IMethod> allowedMethods;
+        // final Set<IType> deemings;        
         
-        // TODO: static file-contents based approach, rather than reading in a config file here?
         
-        Entry(Set<IMethod> allowedMethods, Set<IField> allowedFields, 
-              Set<IType> deemings, Set<IType> honoraries) {
-            this.honoraries = honoraries;
-            // this.deemings = deemings;
+        /**
+         * Create an entry for an enabled class
+         */
+        Entry(String comment, Map<IField, String> allowedFields,
+              Map<IMethod, String> allowedMethods,
+              Map<IField, String> disabledFields,
+              Map<IMethod, String> disabledMethods,
+              Set<IType> honoraries /*, Set<IType> deemings*/) {
+            enabled = true;
+            this.comment = comment;
             this.allowedFields = allowedFields;
             this.allowedMethods = allowedMethods;
+            this.disabledFields = disabledFields;
+            this.disabledMethods = disabledMethods;
+            this.honoraries = honoraries;
+            // this.deemings = deemings;
+        }
+        
+        /**
+         * Create an entry for an explicitly disabled class
+         */
+        Entry(String comment) {
+            enabled = false;
+            this.comment = comment;
+            allowedFields = disabledFields = null;
+            allowedMethods = disabledMethods = null;
+            honoraries = null;
         }
         
         /*
-        Entry(IMethod[] allowedMethods, IField[] allowedFields, 
-              IType[] deemings, IType[] honoraries) {
-            this.honoraries = new HashSet<IType>();
-            this.honoraries.addAll(Arrays.asList(honoraries));
-            this.allowedFields = new HashSet<IField>();
-            this.allowedFields.addAll(Arrays.asList(allowedFields));
-            this.allowedMethods = new HashSet<IMethod>();
-            this.allowedMethods.addAll(Arrays.asList(allowedMethods));            
-            // this.deemings = new HashSet<IType>();
-            // this.deemings.addAll(Arrays.asList(deemings));
-        }
-        */
-        
         Entry(IType type, File f) {
             allowedMethods = new HashSet<IMethod>();
             allowedFields  = new HashSet<IField>();
@@ -320,6 +503,7 @@ public class Taming {
                                        + " \"" + s + "\" ignored.");
                 }
             }
-        }      
+        }    
+        */  
     }
 }
