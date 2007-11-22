@@ -52,11 +52,17 @@
                class="org.joe_e.eclipse.TogglePackageAction"
                enablesFor="+"
                id="Joe_E.togglePackageAction"
-               label="Enable Joe-E Verifier"
+               label="Joe-E Verify This Package"
                menubarPath="additions"
                state="false"
                style="toggle">
          </action>
+         <!-- <filter
+               name="projectNature"
+               value="Joe_E.JoeENature"/>
+         <visibility>
+             <objectClass name="org.eclipse.jdt.core.IPackageFragment" /> 
+         </visibility> -->
       </objectContribution>
    </extension>
    <extension

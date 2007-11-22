@@ -97,7 +97,7 @@ public class ToggleNatureAction implements IObjectActionDelegate {
      * Return whether the specified project has the Joe-E nature, i.e.
      * whether the Joe-E verifier is enabled.
      */
-    private boolean hasJoeENature(IProject project) {
+    static boolean hasJoeENature(IProject project) {
         try {
             IProjectDescription description = project.getDescription();
             String[] natures = description.getNatureIds();        

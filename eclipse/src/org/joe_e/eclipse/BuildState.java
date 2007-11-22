@@ -17,6 +17,8 @@ class BuildState {
 	
     static final int IS_EQUATABLE =    0x0010;
 
+    static final int UNVERIFIED = 0x8000;
+    
     static boolean isSelfless(int tags) {
         return ((tags & IMPL_SELFLESS) != 0);
     }

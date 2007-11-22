@@ -9,6 +9,8 @@ import org.eclipse.jdt.core.*;
 
 import org.eclipse.jdt.core.dom.*;
 
+import java.io.File;
+import java.io.PrintStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Stack;
@@ -30,8 +32,10 @@ import java.util.Arrays;
  * associate it with a new build state.
  */
 public class Verifier {
+    // final IJavaProject project;
     final Taming taming;
     final BuildState state;
+    // final SafeJBuild build;
 
     /**
      * Create a new verifier object associated with a specific project. The
@@ -46,9 +50,13 @@ public class Verifier {
      *            the taming database to use
      * @throws JavaModelException
      */
-    Verifier(BuildState state, Taming taming) {
+    Verifier(/*IJavaProject project,*/ BuildState state, Taming taming) {
+        // this.project = project;
         this.state = state;
         this.taming = taming;
+        // create a proper safejbuild object or equivalent -- needs access
+        // to project resources where safej is stored, not a java.io.File
+        // this.build = new SafeJBuild();
     }
 
     
@@ -354,12 +362,12 @@ public class Verifier {
                         || itb.isAnnotation() || itb.isWildcardType()
                         || itb.isTypeVariable());
                 
-                if (!itb.isFromSource()) {
-                    // check in taming database
-                    if (!taming.isTamed(itb)) {
-                        addProblem("Reference to disabled class " +
-                                   itb.getName(), sn, itb);
-                    }
+                if (taming.isJoeE(itb)) {
+                    // FIXME: dependency that it's Joe-E.  in general
+                    // dependencies are probably screwed up.
+                } else if (!taming.isTamed(itb)){
+                    addProblem("Reference to disabled class " +
+                            itb.getName(), sn, itb);
                 }
             } else if (ib instanceof IMethodBinding) {
                 // Handled elsewhere since we wish to record the lexical type
@@ -390,26 +398,26 @@ public class Verifier {
             // special-cased here; we allow it.
             if (classBinding == null) {
                 return;
-            } else if (classBinding.isFromSource()) {
-                // add a dependency on the field existing.  We don't need to
-                // worry about superclasses shadowing the field because such
-                // a change would definitely require Java to recompile the file
-                state.addDeepDependency(icu, classBinding);
-            } else {
-                // check in taming database
-                if (!taming.isTamed(classBinding)) {
-                    addProblem("Field " + fieldBinding.getName() + " from " +
-                               "disabled class " + classBinding.getName() + 
-                               " accessed", source, classBinding);
-                    return;
-                }
-
+            } else if (taming.isJoeE(classBinding)) {
+                // FIXME: dependencies?  also for tamed stuff?
+            } else if (taming.isTamed(classBinding)) {
                 if (!taming.isAllowed(classBinding, fieldBinding)) {
                     addProblem("Disabled field " + fieldBinding.getName() +
                                " from class " + classBinding.getName() +
                                " accessed", source, classBinding, fieldBinding);
-                }
-            } 
+                }                
+            } else {
+                addProblem("Field " + fieldBinding.getName() + " from " +
+                        "disabled class " + classBinding.getName() + 
+                        " accessed", source, classBinding);
+            }
+                /*    
+                    classBinding.isFromSource()) {
+                // add a dependency on the field existing.  We don't need to
+                // worry about superclasses shadowing the field because such
+                // a change would definitely require Java to recompile the file
+                state.addDeepDependency(icu, classBinding);
+                 */
         }
         
         /**
@@ -435,16 +443,13 @@ public class Verifier {
                 classInfo.get(getCurrentClass()).addCall(cic);
             }
            
+            // FIXME: dependencies?
             // Check if taming is violated for the constructor invocation.
             // Only applies to non-source classes (not interfaces).
-            if (!lexicalClass.isFromSource() && lexicalClass.isClass()){
-                if (!taming.isTamed(lexicalClass)) {
-                    // Already flagged as an untamed SimpleName
-                    //addProblem("Construction of disabled class " +
-                    //           lexicalClass.getName(), cic.getType());
-                    return true;
-                }
-
+            // Untamed classes here are covered by the SimpleName check.
+            if (!taming.isJoeE(lexicalClass) &&  taming.isTamed(lexicalClass) 
+                && lexicalClass.isClass()) {
+                
                 // Find constructor called from non-source type: signature will
                 // exactly match that of the implicit synthetic anonymous 
                 // constructor that is actually called (JLS3 15.9.5.1)
@@ -532,7 +537,7 @@ public class Verifier {
             // TODO: must fix this once we can customize whether something is checked.
             // No dependency needed here; we assume that the superclass
             // can't change from being from source to being part of the library.
-            if (!classBinding.isFromSource() && taming.isTamed(classBinding)
+            if (!taming.isJoeE(classBinding) && taming.isTamed(classBinding)
                 && !taming.isAllowed(classBinding, superCtor)) {
                 addProblem("Disabled superconstructor called", sci, 
                            classBinding, superCtor);
@@ -565,25 +570,27 @@ public class Verifier {
             // invoked on arrays.
             
             // TODO: better detection of when taming is necessary.
-            if (lexicalClass != null && lexicalClass.isFromSource()) {
+            if (lexicalClass != null && taming.isJoeE(lexicalClass)) {
                 // Add deep dependency on method resolving the way it does.
                 // This is against the lexical class, as changes to it may
                 // change method dispatch.
                 state.addDeepDependency(icu, lexicalClass);
             }
             
-            if (!actualClass.isFromSource()) {
-                // check in taming database
-                if (!taming.isTamed(actualClass)) {
-                    addProblem("Method from disabled class " +
-                               actualClass.getName() + " called", 
-                               mi.getName(), actualClass);
-                } else if (!taming.isAllowed(actualClass, imb)) {
+            if (taming.isJoeE(actualClass)) {
+                // TODO: dependency?
+            } else if (taming.isTamed(actualClass)) {
+                if (!taming.isAllowed(actualClass, imb)) {
                     addProblem("Disabled method " + imb.getName() +
                                " from class " + actualClass.getName() +
                                " called", mi.getName(), actualClass, imb);
                 }
+            } else {
+                addProblem("Method from disabled class " +
+                           actualClass.getName() + " called", 
+                           mi.getName(), actualClass);               
             }
+            
             // If we are in constructor or instance initializer, forbid 
             // non-static local method calls.  These are calls with no explicit
             // target object expression; calls using "this" are flagged in the
@@ -623,7 +630,7 @@ public class Verifier {
             
             // Check if taming is violated for non-source types.  If the 
             // superclass is an disabled class, we have already flagged it.
-            if (classBinding.isFromSource()) {
+            if (taming.isJoeE(classBinding)) {
                 // Can't violate taming and can't be Object.equals()
             } else if (taming.isTamed(classBinding)
                        && !taming.isAllowed(classBinding, imb)) {
@@ -820,7 +827,7 @@ public class Verifier {
             ITypeBinding sc = cc.getSuperclass();
             
             // If sc is not tamed, the "extends" clause will flag an error
-            if (!sc.isFromSource() && taming.isTamed(sc)) {
+            if (!taming.isJoeE(sc) && taming.isTamed(sc)) {
                 // check zero-ary constructor
                 IMethodBinding[] methods = sc.getDeclaredMethods();
                 for (IMethodBinding imb : methods) {                            
@@ -986,6 +993,7 @@ public class Verifier {
             
             // TODO: is there a way to do this using just bindings?
             IType type = (IType) itb.getJavaElement();
+            
             
             try {
                 if (!Flags.isPrivate(type.getFlags())) {
@@ -1511,7 +1519,7 @@ public class Verifier {
                         // that takes precedence over any varargs matches
                         if (imb.getName().equals("toString")
                                 && imb.getParameterTypes().length == 0) {
-                            if (!current.isFromSource()
+                            if (!taming.isJoeE(current)
                                 && (!taming.isTamed(current) 
                                     || !taming.isAllowed(current, imb))) {
                                 String description = 
