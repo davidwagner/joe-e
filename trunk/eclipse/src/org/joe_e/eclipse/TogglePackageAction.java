@@ -7,10 +7,12 @@ package org.joe_e.eclipse;
 
 import java.util.Iterator;
 
-import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -18,7 +20,7 @@ import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 
 public class TogglePackageAction implements IObjectActionDelegate {
-    static final QualifiedName PROPERTY = new QualifiedName("Joe_E", "package-enabled");
+    static final QualifiedName SKIP_PKG = new QualifiedName("Joe_E", "skip-package");
 	private ISelection selection;
 
     /*
@@ -39,10 +41,20 @@ public class TogglePackageAction implements IObjectActionDelegate {
                                          .getAdapter(IPackageFragment.class);
 				}
 				if (pkg != null) {
+                    // isChecked after action (= unchecked before action)
                     if (action.isChecked()) {
                         setJoeE(pkg);
                     } else {
                         removeJoeE(pkg);
+                    }
+                    try {
+                        for (ICompilationUnit icu : pkg.getCompilationUnits()) {
+                            icu.getCorrespondingResource().touch(null);
+                        }
+                    } catch (CoreException ce) {
+                       System.err.println("Unhandled CoreException! " +
+                                          "Shouldn't happen.");
+                       ce.printStackTrace(System.err);
                     }
 				}
 			}
@@ -56,7 +68,10 @@ public class TogglePackageAction implements IObjectActionDelegate {
 	 *      org.eclipse.jface.viewers.ISelection)
 	 */
 	public void selectionChanged(IAction action, ISelection selection) {
-        this.selection = selection;
+        this.selection = selection;      
+        boolean enabled = false;
+        boolean checked = true;
+        
         // System.out.println("got a selection");
         // Set the checkmark to checked only if all projects in selection have
         // the verifier enabled.
@@ -71,16 +86,19 @@ public class TogglePackageAction implements IObjectActionDelegate {
                     pkg = (IPackageFragment) ((IAdaptable) element)
                                          .getAdapter(IPackageFragment.class);
                 }
-                // project with verifier disabled
-                if (pkg != null && !isJoeE(pkg)) {
-                    action.setChecked(false);
-                    return;
+                if (ToggleNatureAction.hasJoeENature(pkg.getJavaProject().getProject())) {
+                    enabled = true;
+                    // project with verifier disabled
+                    if (pkg != null && !isJoeE(pkg)) {
+                        checked = false;
+                        break;
+                    }
                 }
             }
         }
         
-        // no projects with verifier disabled found
-        action.setChecked(true);
+        action.setEnabled(enabled);
+        action.setChecked(enabled && checked);
         return;
 	}
 
@@ -97,11 +115,9 @@ public class TogglePackageAction implements IObjectActionDelegate {
      * Return whether the specified project has the Joe-E nature, i.e.
      * whether the Joe-E verifier is enabled.
      */
-    private boolean isJoeE(IPackageFragment pkg) {
+    static private boolean isJoeE(IPackageFragment pkg) {
         try {
-            String enabled = pkg.getCorrespondingResource()
-                                 .getPersistentProperty(PROPERTY);
-            return enabled != null;
+            return isJoeE((IContainer) pkg.getCorrespondingResource());        
         } catch (CoreException ce) {
             System.err.println("Unhandled CoreException! Shouldn't happen.");
             ce.printStackTrace(System.err);
@@ -110,15 +126,27 @@ public class TogglePackageAction implements IObjectActionDelegate {
     } 
     
     /*
-     * Set the Joe-E nature on the specified project, i.e. enable the Joe-E
-     * verifier for the project.  Does nothing if the verifier is already
-     * enabled for the project.  Triggers a full build of the Joe-E Builder
-     * (i.e. runs the verifier on all files) if it wasn't already enabled.
+     * Returns true if the IContainer argument corresponds to a package
+     * that the Joe-E verifier is not told to skip.
+     */
+    static boolean isJoeE(IContainer container) {
+        try {
+            return container.getPersistentProperty(SKIP_PKG) == null;
+        } catch (CoreException ce) {
+            System.err.println("Unhandled CoreException! Shouldn't happen.");
+            ce.printStackTrace(System.err);
+            return false;
+        }  
+    }
+    
+    /*
+     * Clear the skip property on the specified project, i.e. enable the Joe-E
+     * verifier for the project.
      */
     private void setJoeE(IPackageFragment pkg) {
         try {
-            pkg.getCorrespondingResource().setPersistentProperty(PROPERTY, 
-                                                                 "enabled");
+            pkg.getCorrespondingResource().setPersistentProperty(SKIP_PKG, 
+                                                                 null);
         } catch (CoreException ce) {
             System.err.println("Unhandled CoreException! Shouldn't happen.");
             ce.printStackTrace(System.err);
@@ -126,15 +154,13 @@ public class TogglePackageAction implements IObjectActionDelegate {
     }
 
     /*
-     * Remove the Joe-E nature on the specified project, i.e. disable the Joe-E
-     * verifier for the project.  Does nothing if the verifier is already
-     * disabled for the project.  Triggers a clean() (removing all Joe-E
-     * markers from verifier errors) if the verifier was previously enabled.
+     * Set the skip property for the specified project, i.e. disable the Joe-E
+     * verifier for the project.
      */
     private void removeJoeE(IPackageFragment pkg) {
         try {
-            pkg.getCorrespondingResource().setPersistentProperty(PROPERTY, 
-                                                                 null);
+            pkg.getCorrespondingResource().setPersistentProperty(SKIP_PKG, 
+                                                                 "skip");
         } catch (CoreException ce) {
             System.err.println("Unhandled CoreException! Shouldn't happen.");
             ce.printStackTrace(System.err);

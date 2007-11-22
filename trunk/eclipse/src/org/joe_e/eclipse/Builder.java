@@ -164,11 +164,21 @@ public class Builder extends IncrementalProjectBuilder {
      */
     private Collection<ICompilationUnit> 
         checkAndUpdateProblems(ICompilationUnit icu) throws CoreException {
-        IFile file = (IFile) icu.getCorrespondingResource();
-       
-        System.out.println("Checking file " + file.getFullPath() + ":");
-        
+        IFile file = (IFile) icu.getCorrespondingResource();     
+                
         deleteMarkers(file);
+
+        if (!TogglePackageAction.isJoeE(
+                (IContainer) icu.getParent().getUnderlyingResource())) {
+            HashSet<ICompilationUnit> recheck = new HashSet<ICompilationUnit>();
+            for (IType type : icu.getAllTypes()) {
+                recheck.addAll(state.updateTags(type, BuildState.UNVERIFIED));
+            }
+            
+            return recheck; 
+        }
+        
+        System.out.println("Checking file " + file.getFullPath() + ":");
         
         IMarker[] jdtMarkers = 
             file.findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, 
@@ -177,18 +187,18 @@ public class Builder extends IncrementalProjectBuilder {
         for (IMarker marker : jdtMarkers) {
             Integer severity = (Integer) marker.getAttribute(IMarker.SEVERITY);
             if (severity == IMarker.SEVERITY_ERROR) {
-        	jdtErrors = true;
-        	break;
+                jdtErrors = true;
+                break;
             }
         }
 
         SourceLocationConverter slc = new SourceLocationConverter(file);
         if (jdtErrors) {
             addMarker(file, new Problem("Joe-E verifier not run on this " +
-        	    	                "file due to compilation errors",
-        	    	                IMarker.SEVERITY_INFO), slc);
+        	    	                    "file due to compilation errors",
+        	    	                    IMarker.SEVERITY_INFO), slc);
             System.out.println("... file skipped due to Java compilation " +
-        	    	       "errors");
+        	    	           "errors");
             return new LinkedList<ICompilationUnit>();
         } else {
             List<Problem> problems = new LinkedList<Problem>();

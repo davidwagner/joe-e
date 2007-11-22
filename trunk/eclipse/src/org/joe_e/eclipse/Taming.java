@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
@@ -285,17 +286,27 @@ public class Taming {
             return e.honoraries;
         }
     }
-
     
-    boolean isTamed(ITypeBinding itb) {
-        if (Preferences.isTamingEnabled()) {
-            return db.containsKey((IType) itb.getJavaElement());
+    boolean isJoeE(ITypeBinding itb) {
+        if (itb.isFromSource()) {
+            IContainer container = 
+                itb.getJavaElement().getResource().getParent();
+            return itb.getJavaElement().getJavaProject() == project
+                && TogglePackageAction.isJoeE(container);
         } else {
-            return true;
+            return false;
         }
     }
     
-    
+    boolean isTamed(ITypeBinding itb) {
+        if (Preferences.isTamingEnabled()) {
+            Entry e = db.get((IType) itb.getJavaElement());
+            return e != null && e.enabled;
+        } else {
+            return true;
+        }
+    }   
+       
     boolean isAllowed(ITypeBinding classBinding, IVariableBinding fieldBinding) {
         if (Preferences.isTamingEnabled()) {
             Entry e = db.get((IType) classBinding.getJavaElement());
