@@ -7,6 +7,8 @@ package org.joe_e.eclipse;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.resources.IFolder;
 
 import java.util.*;
 
@@ -38,9 +40,18 @@ class BuildState {
     final Map<IType, ITypeState> typeStates;
     final Map<ICompilationUnit, ICUState> icuStates;
     
-	BuildState() {
+	BuildState(IJavaProject ijp) {
 		typeStates = new HashMap<IType, ITypeState>();
 		icuStates = new HashMap<ICompilationUnit, ICUState>();
+        IFolder tamingFolder = ijp.getProject().getFolder("taming");;
+        if (!tamingFolder.exists()) {
+            try {
+                tamingFolder.create(false, true, null);
+            } catch (CoreException ce) {
+                System.err.println("ERROR creating taming folder!");
+                ce.printStackTrace();
+            }
+        }
 	}
 	
 	/**

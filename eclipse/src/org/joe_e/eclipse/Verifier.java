@@ -35,8 +35,7 @@ public class Verifier {
     // final IJavaProject project;
     final Taming taming;
     final BuildState state;
-    // final SafeJBuild build;
-
+    
     /**
      * Create a new verifier object associated with a specific project. The
      * verifier does not maintain persistent state of its own aside from
@@ -50,13 +49,9 @@ public class Verifier {
      *            the taming database to use
      * @throws JavaModelException
      */
-    Verifier(/*IJavaProject project,*/ BuildState state, Taming taming) {
-        // this.project = project;
+    Verifier(BuildState state, Taming taming) {
         this.state = state;
         this.taming = taming;
-        // create a proper safejbuild object or equivalent -- needs access
-        // to project resources where safej is stored, not a java.io.File
-        // this.build = new SafeJBuild();
     }
 
     
@@ -362,10 +357,12 @@ public class Verifier {
                         || itb.isAnnotation() || itb.isWildcardType()
                         || itb.isTypeVariable());
                 
-                if (taming.isJoeE(itb)) {
+                if (itb.isTypeVariable() || itb.isWildcardType()) {
+                    // OK
+                } else if (taming.isJoeE(itb)) {
                     // FIXME: dependency that it's Joe-E.  in general
                     // dependencies are probably screwed up.
-                } else if (!taming.isTamed(itb)){
+                } else if (!taming.isTamed(itb)) {
                     addProblem("Reference to disabled class " +
                             itb.getName(), sn, itb);
                 }
@@ -997,7 +994,7 @@ public class Verifier {
             
             try {
                 if (!Flags.isPrivate(type.getFlags())) {
-                    // add it to safej!
+                    taming.processJoeEType(type);
                 }
                 
                 ITypeHierarchy sth = type.newSupertypeHierarchy(null);

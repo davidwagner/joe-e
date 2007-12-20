@@ -5,7 +5,10 @@
  */
 package org.joe_e.eclipse;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.PrintStream;
+import java.io.ByteArrayInputStream;
 //import java.io.FileReader;
 //import java.io.BufferedReader;
 
@@ -16,11 +19,15 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.TreeSet;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
@@ -30,6 +37,7 @@ public class Taming {
     /*
      * Static utility methods that are independent of any taming data
      */
+    
     static boolean isRelevant(IType type) throws JavaModelException {
         int flags = type.getFlags();
         // TODO: is special handling needed for protected inner classes of
@@ -82,6 +90,37 @@ public class Taming {
         //}
         return flatSigBuilder.append(")").toString();
     }
+    
+    /*
+     * Impossible to get fully qualified names here due to Eclipse sucking
+     * IMethods only know the types of their arguments as declared, thus
+     * usually just the simple type names.  Maybe could do it with a method
+     * that resolves against the imports of the defining class or something.
+     *
+    static String getSignature(IMethod method) {
+        return Signature.toString(method.getSignature(), 
+                                  method.getElementName(), 
+                                  null, true, false);
+        StringBuilder flatSigBuilder = 
+            new StringBuilder(method.getElementName() + "(");
+        boolean first = true;
+        for (String paramSig : method.getParameterTypes()) {
+            if (first) {
+                first = false;
+            } else {
+                flatSigBuilder.append(", ");
+            }
+            String parameterSimpleName = 
+                Signature.getSignatureSimpleName(paramSig);
+            flatSigBuilder.append(parameterSimpleName);
+        }
+        // special handling for varargs?
+        //if () {
+        //    flatSigBuilder.replace(flatSigBuilder.length() - 2, 
+        //                           flatSigBuilder.length(), "...");
+        //}
+        return flatSigBuilder.append(")").toString();
+    } */
     
     /*
      * TODO: too hard? is it necessary?
@@ -137,8 +176,11 @@ public class Taming {
     }
     */
     
+    final HashMap<IFile, Set<IType>> types;
     final HashMap<IType, Entry> db;
     final IJavaProject project;
+    final ProjectSafeJBuild sjbuild;
+    final IFile policyFile;
     
     /*
      *  Types with significance to the verifier.
@@ -155,14 +197,57 @@ public class Taming {
        
     Taming(File persistentDB, IJavaProject project) throws CoreException {
         this.project = project;
-
-        // FIXME: HACK HACK HACK - build some safej files on startup.
-        //new SafeJBuild(System.err, project);
         
-        // These are in the Java library and should always be findable.
-        // OBJECT = project.findType("java.lang.Object");
-        // ENUM = project.findType("java.lang.Enum"); 
+        /*
+         * Project SafeJ Builder
+         */
+        IFolder tamingFolder = project.getProject().getFolder("taming");
+        if (tamingFolder.exists()) {
+            // clean up contents
+            for (IResource ir : tamingFolder.members()) {
+                ir.delete(false, null);
+            }
+        } else {
+            // create taming folder
+            tamingFolder.create(false, true, null);
+        }
         
+        sjbuild = new ProjectSafeJBuild(System.err, tamingFolder);
+        
+        /*
+         * Project runtime taming policy file builder
+         */
+        IFolder srcFolder = null;
+        IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
+        for (IPackageFragmentRoot r : roots) {
+            IResource resource = r.getCorrespondingResource();
+            if (resource instanceof IFolder) {
+                srcFolder = (IFolder) resource;
+                break;
+            }
+        }
+        
+        if (srcFolder == null) {
+            throw new CoreException(
+                new Status(IStatus.ERROR, Plugin.PLUGIN_ID, 10, 
+                           "Couldn't find source directory for output of " +
+                           "org.joe_e.taming.Policy.", null));
+        }
+        
+        String[] packagePath = {"org", "joe_e", "taming"};
+        IFolder current = srcFolder;
+        for (String pkg : packagePath) {
+            current = current.getFolder(pkg);
+            if (!current.exists()) {
+                current.create(false, true, null);
+            }
+        }
+        
+        policyFile = current.getFile("Policy.java");
+        
+        /* 
+         * Sanity check for Joe-E library
+         */
         // The following may not be found if the Joe-E library is not reachable.
         SELFLESS = project.findType("org.joe_e.Selfless");
         IMMUTABLE = project.findType("org.joe_e.Immutable");
@@ -172,7 +257,6 @@ public class Taming {
         EQUATABLE = project.findType("org.joe_e.Equatable");   
         TOKEN = project.findType("org.joe_e.Token");     
         
-        // Sanity check for Joe-E library
         if (SELFLESS == null || IMMUTABLE == null || POWERLESS == null 
             || EQUATABLE == null || TOKEN == null) {
             System.out.println("FATAL: Could not find Joe-E library classes!");
@@ -184,9 +268,12 @@ public class Taming {
                            null));
         }
         
+        this.types = new HashMap<IFile, Set<IType>>();
         this.db = new HashMap<IType, Entry>();
         
-        // Sanity check for the taming database
+        /*
+         * Import project-external taming database
+         */
         if (persistentDB == null || !persistentDB.isDirectory()) {
             System.out.println("FATAL: Taming DB path \"" + persistentDB + 
                                "\" does not exist or is not a directory.");
@@ -201,30 +288,91 @@ public class Taming {
         
         SafeJImport.importTaming(System.err, persistentDB, this, 
                                          project);
+    }            
+    
+       
+    class Entry {
+        final boolean enabled;
+        final String comment;
+        final Map<IField, String> allowedFields;
+        final Map<IMethod, String> allowedMethods;
+        final Map<IField, String> disabledFields;
+        final Map<IMethod, String> disabledMethods;
+        final Set<IType> honoraries;
+        // final Set<IType> deemings;        
         
-        /*
-        File[] files = persistentDB.listFiles();
-        for (File f : files) {
-            String name = f.getName();
-            if (name.endsWith(".taming")) {
-                String typeName = name.substring(0, name.length() 
-                                                    - ".taming".length());
-                IType type = project.findType(typeName);
-                if (type == null) {
-                    System.err.println("ERROR: Type " + typeName +
-                                       " not found!");
-                } else {
-                    System.out.println("Reading taming data for type "
-                            + typeName + " ...");
-                    db.put(type, new Entry(type, f));
-                }
+        
+        /**
+         * Create an entry for an enabled class
+         */
+        Entry(String comment, Map<IField, String> allowedFields,
+              Map<IMethod, String> allowedMethods,
+              Map<IField, String> disabledFields,
+              Map<IMethod, String> disabledMethods,
+              Set<IType> honoraries /*, Set<IType> deemings*/) {
+            enabled = true;
+            this.comment = comment;
+            this.allowedFields = allowedFields;
+            this.allowedMethods = allowedMethods;
+            this.disabledFields = disabledFields;
+            this.disabledMethods = disabledMethods;
+            this.honoraries = honoraries;
+            // this.deemings = deemings;
+        }
+        
+        /**
+         * Create an entry for a Joe-E class
+         */
+        Entry(Map<IField, String> allowedFields,
+              Map<IMethod, String> allowedMethods) {
+              enabled = true;
+              comment = null;
+              this.allowedFields = allowedFields;
+              this.allowedMethods = allowedMethods;
+              disabledFields = null;
+              disabledMethods = null;
+              honoraries = null;
+              // this.deemings = deemings;
+        }
+        
+        /**
+         * Create an entry for an explicitly disabled class
+         */
+        Entry(String comment) {
+            enabled = false;
+            this.comment = comment;
+            allowedFields = disabledFields = null;
+            allowedMethods = disabledMethods = null;
+            honoraries = null;
+        }
+    }
+    
+    /*
+     * Query methods on the database
+     */
+    
+    Collection<IType> getHonorariesFor(IType type) {
+        Entry e = db.get(type);
+        if (e == null) {
+            return new LinkedList<IType>();
+        } else {
+            return e.honoraries;
+        }
+    }
+    
+    boolean implementsOverlay(IType subtype, IType mi) throws JavaModelException {
+        ITypeHierarchy sth = subtype.newSupertypeHierarchy(null);
+        if (sth.contains(mi)) {
+            return true;
+        } else {
+            Collection<IType> h = getHonorariesFor(subtype);
+            if (h.contains(mi)) {
+                return true;
             }
-        } 
-        System.out.println("Done reading taming DB");
-        */
-        
-    }  
-        
+        }
+        return false;
+    }
+    
     /*
      * Returns whether the type specified by itb implements the marker
      * interface mi.
@@ -249,20 +397,7 @@ public class Taming {
             throw new IllegalArgumentException("unhandled binding type!");
         }
     }
-    
-    boolean implementsOverlay(IType subtype, IType mi) throws JavaModelException {
-        ITypeHierarchy sth = subtype.newSupertypeHierarchy(null);
-        if (sth.contains(mi)) {
-            return true;
-        } else {
-            Collection<IType> h = getHonorariesFor(subtype);
-            if (h.contains(mi)) {
-                return true;
-            }
-        }
-        return false;
-    }
-       
+          
     Set<IType> unimplementedHonoraries(ITypeHierarchy sth) {
         Set<IType> result = new HashSet<IType>();
         
@@ -276,15 +411,6 @@ public class Taming {
         }
         
         return result;
-    }
-    
-    Collection<IType> getHonorariesFor(IType type) {
-        Entry e = db.get(type);
-        if (e == null) {
-            return new LinkedList<IType>();
-        } else {
-            return e.honoraries;
-        }
     }
     
     boolean isJoeE(ITypeBinding itb) {
@@ -336,7 +462,7 @@ public class Taming {
      * Get the class taming comment (if any) for a class.
      * @param itb
      * @return the comment, or <code>null</code> if no comment, or
-     *      "No policy" if no taming policy exists.
+     *      "no policy specified for this class" if no taming policy exists.
      */
     String getTamingComment(ITypeBinding itb) {
         Entry e = db.get((IType) itb.getJavaElement());
@@ -381,140 +507,143 @@ public class Taming {
         } else {
             return e.disabledMethods.get(method);
         }
+    }    
+    
+    /*
+     * Mutating methods on the database for use with classes in the project.
+     * These also auto-generate safej files for the project.
+     */
+    void addType(IFile file, IType type) {
+        Set<IType> typesFound = types.get(file);
+        if (typesFound == null) {
+            types.put(file, new HashSet<IType>());
+        }
+        types.get(file).add(type);
     }
 
-    class Entry {
-        final boolean enabled;
-        final String comment;
-        final Map<IField, String> allowedFields;
-        final Map<IMethod, String> allowedMethods;
-        final Map<IField, String> disabledFields;
-        final Map<IMethod, String> disabledMethods;
-        final Set<IType> honoraries;
-        // final Set<IType> deemings;        
-        
-        
-        /**
-         * Create an entry for an enabled class
-         */
-        Entry(String comment, Map<IField, String> allowedFields,
-              Map<IMethod, String> allowedMethods,
-              Map<IField, String> disabledFields,
-              Map<IMethod, String> disabledMethods,
-              Set<IType> honoraries /*, Set<IType> deemings*/) {
-            enabled = true;
-            this.comment = comment;
-            this.allowedFields = allowedFields;
-            this.allowedMethods = allowedMethods;
-            this.disabledFields = disabledFields;
-            this.disabledMethods = disabledMethods;
-            this.honoraries = honoraries;
-            // this.deemings = deemings;
+    void removeTypesFor(IFile file) {
+        if (types.containsKey(file)) {
+            for (IType toRemove : types.get(file)) {
+                db.remove(toRemove);
+                sjbuild.removeType(toRemove);
+            }
+        }
+    }
+    
+    void processJoeEType(IType type) throws JavaModelException {
+        Map<IField, String> allowedFields = new HashMap<IField, String>();
+        Map<IMethod, String> allowedMethods = new HashMap<IMethod, String>();
+
+        for (IField f : type.getFields()) {
+            if (Taming.isRelevant(type, f)) {
+                allowedFields.put(f, null);
+            }
         }
         
-        /**
-         * Create an entry for an explicitly disabled class
-         */
-        Entry(String comment) {
-            enabled = false;
-            this.comment = comment;
-            allowedFields = disabledFields = null;
-            allowedMethods = disabledMethods = null;
-            honoraries = null;
+        for (IMethod m : type.getMethods()) {
+            if (Taming.isRelevant(type, m)) {
+                allowedMethods.put(m, null);
+            }
         }
         
-        /*
-        Entry(IType type, File f) {
-            allowedMethods = new HashSet<IMethod>();
-            allowedFields  = new HashSet<IField>();
-            // deemings       = new HashSet<IType>();
-            honoraries     = new HashSet<IType>();
+        db.put(type, new Entry(allowedFields, allowedMethods));
+        
+        sjbuild.processJoeEType(type);
+    }
+    
+    void outputRuntimeDatabase() {
+        ByteArrayOutputStream content = new ByteArrayOutputStream();
+        PrintStream out = new PrintStream(content);
+        out.println("// This file is auto-generated by the Joe-E builder.  " + 
+                    "Do not edit.");
+        out.println("package org.joe_e.taming.Policy;");
+        out.println();
+        out.println("import java.util.HashMap;");        
+        out.println("import java.util.HashSet;");
+        out.println();        
+        out.println("class Policy {");
+        out.println("    private Policy() {}");
+        out.println();
+        out.println("    private static HashMap<Class<?>, Integer> honoraries = ");
+        out.println("        new HashMap<Class<?>, Integer>();");      
+        out.println("    private static HashSet<String> fields = " 
+                    + "new HashSet<String>();");
+        out.println("    private static HashSet<String> constructors;"
+                    + "new HashSet<String>();");
+        out.println("    private static HashSet<String> methods;"
+                    + "new HashSet<String>();");
+        out.println();
+        out.println("static {");        
+        
+        boolean firstType = true;
+        for (IType type : db.keySet()) {
+            Entry e = db.get(type);
+            String fqn = type.getFullyQualifiedName();
+
+            out.println((firstType ? "" : "\n") + "    // Type " + fqn);
+            firstType = false;
             
-            try {    
-                BufferedReader br = new BufferedReader(new FileReader(f));
-                
-                String[] firstLine = br.readLine().split(" ");
-                parseMarkerInterfaces(firstLine, honoraries);
-                
-                // String[] secondLine = br.readLine().split(" ");
-                // parseMarkerInterfaces(secondLine, deemings);
-                
-                String nextLine = br.readLine();
-                while (nextLine != null && !nextLine.contains("(")) {
-                    IField field = type.getField(nextLine);
-                    if (field.exists()) {
-                        // System.out.println("   f " + nextLine);
-                        allowedFields.add(field);
-                    } else {
-                        System.out.println("*WARNING: Nonexistent field \"" +
-                                           nextLine + "\" skipped.");
-                    }
-                    
-                    nextLine = br.readLine();
-                }
-                
-                IMethod[] methods = type.getMethods();
-                Map<String, IMethod> stringsToMethods = new HashMap<String, IMethod>();
-                for (IMethod im : methods) {
-                    // Exclude synthetic methods; these can include extra
-                    // versions of methods with the same arguments but different
-                    // return types, which are not equal to the methods invoked.
-                    if (!Flags.isSynthetic(im.getFlags())) {
-                        // TODO: string representation is undocumented; this is
-                        // fragile.  Consider using stable interfaces instead.
-                        String imToString = im.toString();
-                        int lparen = imToString.indexOf("(");
-                        // no space found results in start = 0, just what we want
-                        int start = imToString.lastIndexOf(" ", lparen) + 1;
-                        int end = imToString.indexOf(")") + 1;
-                        imToString = imToString.substring(start, end);
-                    	//System.out.println(imToString);
-                    	stringsToMethods.put(imToString, im);
-                    } else {
-                        //System.out.println("Synthetic method " + im
-                        //                   + " ignored");
+            Set<IType> honoraries = e.honoraries;
+            if (!honoraries.isEmpty()) {
+                out.print("    honoraries.add(" + fqn + ".class, ");
+                boolean firstHon = true;
+                for (IType hon : honoraries) {
+                    out.print(firstHon ? "" : "| ");
+                    firstHon = false;
+                    if (hon == SELFLESS) {
+                        // stuff
+                    } else if (hon == POWERLESS) {
+                        // etc
                     }
                 }
-                
-                while (nextLine != null) {
-                    IMethod allowed = stringsToMethods.get(nextLine);
-                    if (allowed == null) {
-                        System.out.println("*WARNING: Nonexistent method \"" +
-                                           nextLine + "\" skipped.");
-                    } else {
-                        // System.out.println("   m " + nextLine);
-                        allowedMethods.add(allowed);
+                out.println(";");
+            }
+            
+            Map<IField, String> fields = e.allowedFields;
+            for (IField f : fields.keySet()) {
+                out.println("    fields.add(\"" + fqn + "." + 
+                            f.getElementName() + "\");");
+            }
+            
+            Map<IMethod, String> methods = e.allowedMethods;
+            for (IMethod m : methods.keySet()) {
+                try {
+                    if (m.isConstructor()) {
+                        out.println("    constructors.add(\"" + fqn + 
+                                    getFlatSignature(m) + "\");");
                     }
-                    
-                    nextLine = br.readLine();
+                } catch (JavaModelException jme) {
+                    jme.printStackTrace(System.err);
+                    return;
                 }
-                
-            } catch (Exception e) {
-                e.printStackTrace();
+            }
+            for (IMethod m : methods.keySet()) {
+                try {
+                    if (!m.isConstructor()) {
+                        out.println("    methods.add(\"" + fqn + 
+                                    getFlatSignature(m) + "\");");
+                    }
+                } catch (JavaModelException jme) {
+                    jme.printStackTrace(System.err);
+                    return;
+                }
             }
         }
         
-        void parseMarkerInterfaces (String[] line, Set<IType> dest) {
-            for (String s : line) {
-                if (s.equals(IMMUTABLE.getElementName())) {
-                    dest.add(IMMUTABLE);
-                } else if (s.equals(POWERLESS.getElementName())) {
-                    dest.add(IMMUTABLE);
-                    dest.add(POWERLESS);
-                } else if (s.equals(SELFLESS.getElementName())) {
-                    dest.add(SELFLESS);
-                } else if (s.equals("Data")) {
-                    dest.add(IMMUTABLE);
-                    dest.add(POWERLESS);
-                    dest.add(SELFLESS);
-                } else if (s.equals(EQUATABLE.getElementName())) {
-                    dest.add(EQUATABLE);
-                } else if (s.length() > 0) {
-                    System.out.println("*WARNING: Unrecognized marker interface"
-                                       + " \"" + s + "\" ignored.");
-                }
+        out.println("}"); // end static {
+        out.println("}"); // end class {
+        
+        ByteArrayInputStream stream = new ByteArrayInputStream(content.toByteArray());
+        try {
+            if (policyFile.exists()) {
+                policyFile.setContents(stream, false, true, null);
+            } else {
+                policyFile.create(stream, false, null);
             }
-        }    
-        */  
+            policyFile.setDerived(true);
+        } catch (CoreException ce) {
+            System.err.println("couldn't write policy output file!");
+            ce.printStackTrace(System.err);
+        }
     }
 }
