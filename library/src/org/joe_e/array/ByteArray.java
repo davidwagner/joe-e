@@ -242,7 +242,8 @@ public final class ByteArray extends PowerlessArray<Byte> {
            buffer[size++] = (byte) b;
        }
 
-       // provided so that people don't have to catch IOException
+       // Should be equivalent to OutputStream's implementation, but provided
+       // so that people don't have to catch IOException
        public void write(final byte[] b) {
            write(b, 0, b.length);
        }      
