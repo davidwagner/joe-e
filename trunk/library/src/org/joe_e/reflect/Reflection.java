@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import org.joe_e.array.PowerlessArray;
+import org.joe_e.taming.Policy;
 
 /**
  * The reflection interface.
@@ -218,6 +219,15 @@ public final class Reflection {
      */
     static private final ClassLoader boot = Runnable.class.getClassLoader();
 
+    /*
+     * Return the non-nested-class aware simple name for a class 
+     * (the one that may have $'s).
+     */
+    static private String getFlatName(Class c) {
+        String name = c.getName();
+        return name.substring(name.lastIndexOf('.') + 1);
+    }
+   
     /**
      * Is the given member allowed to be accessed by Joe-E code?
      * @param member    candidate member
@@ -233,6 +243,41 @@ public final class Reflection {
      */
     static private boolean safe(final Member member) {
         final Class declarer = member.getDeclaringClass();
+        StringBuilder sb = new StringBuilder(declarer.getCanonicalName());
+        if (member instanceof Field) {
+            sb.append("." + member.getName());
+            return Policy.fieldEnabled(sb.toString());
+        }
+        else if (member instanceof Constructor) {
+            Constructor c = (Constructor) member;
+            sb.append("(");
+            boolean first = true;
+            for (Class arg : c.getParameterTypes()) {
+                if (first) {
+                    first = false;
+                } else {
+                    sb.append(", ");               
+                }
+                sb.append(getFlatName(arg));
+            }
+            sb.append(")");
+            return Policy.methodEnabled(sb.toString());
+        } else { // member instanceof Method
+            Method m = (Method) member;
+            sb.append("." + m.getName() + "(");
+            boolean first = true;
+            for (Class arg : m.getParameterTypes()) {
+                if (first) {
+                    first = false;
+                } else {
+                    sb.append(", ");               
+                }
+                sb.append(getFlatName(arg));
+            }
+            sb.append(")");
+            return Policy.constructorEnabled(sb.toString());
+        }
+        /*  
         return declarer == Runnable.class 
             || (declarer == Object.class
                 && (member.getName().equals("getClass")
@@ -242,8 +287,9 @@ public final class Reflection {
                 // prevent cheating the checks on invocation handlers
                 && !(member instanceof Constructor
                      && Proxy.class.isAssignableFrom(declarer)));
+        */
     }
-
+        
     /*
      * Methods for using reflective objects
      */
