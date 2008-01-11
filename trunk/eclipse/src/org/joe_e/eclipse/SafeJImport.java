@@ -349,15 +349,15 @@ public class SafeJImport {
                             relevantConstructors.put(Taming.getFlatSignature(m), m);
                         } else {
                             relevantMethods.put(Taming.getFlatSignature(m), m);
-                        }                    
+                        }
                     }
                 }
-                       
+
                 MemberProcessor mp = new MemberProcessor();
                 for (Member m : staticMembers) {
                     mp.processMember(m, true);
-                }    
-            
+                }
+                
                 for (Member m : instanceMembers) {
                     mp.processMember(m, false);
                 }

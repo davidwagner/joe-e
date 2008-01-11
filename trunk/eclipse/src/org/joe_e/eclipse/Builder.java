@@ -285,7 +285,7 @@ public class Builder extends IncrementalProjectBuilder {
         Queue<ICompilationUnit> workQueue = 
             new LinkedList<ICompilationUnit>(inBuild);
             
-        monitor.beginTask("Joe-E full build", workQueue.size());
+        monitor.beginTask("Joe-E full build", workQueue.size() + 1);
             
         while (!workQueue.isEmpty()) {
             ICompilationUnit current = workQueue.remove();
@@ -295,7 +295,8 @@ public class Builder extends IncrementalProjectBuilder {
             checkAndUpdateProblems(current);
             monitor.worked(1);
         }
-        
+
+        taming.outputRuntimeDatabase(); // counts as one additional task
         monitor.done();       
     }
     
@@ -353,13 +354,15 @@ public class Builder extends IncrementalProjectBuilder {
         DeltaVisitor dv = new DeltaVisitor();
         delta.accept(dv);
         Set<ICompilationUnit> inBuild = dv.inBuild;
+        if (inBuild.isEmpty()) {
+            return;
+        }
+        
         Queue<ICompilationUnit> workQueue = 
             new LinkedList<ICompilationUnit>(inBuild);
-            
-        //TODO: if stuff changes, rebuild runtime taming class
         
         int fewestTasksRemaining = inBuild.size();
-        monitor.beginTask("Joe-E incremental build", fewestTasksRemaining);
+        monitor.beginTask("Joe-E incremental build", fewestTasksRemaining + 1);
             
         while (!workQueue.isEmpty()) {
             ICompilationUnit current = workQueue.remove();
@@ -382,7 +385,9 @@ public class Builder extends IncrementalProjectBuilder {
                 monitor.worked(1);
                 --fewestTasksRemaining;
             }
-        } 
+        }
+        
+        taming.outputRuntimeDatabase(); // counts as one additional task
         monitor.done();
 	}
     
