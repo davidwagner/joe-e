@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.lang.UnsupportedOperationException",
+  static(constructor(suppress, "UnsupportedOperationException()", comment("default deny")),
+    constructor(suppress, "UnsupportedOperationException(String)", comment("default deny")),
+    constructor(suppress, "UnsupportedOperationException(String, Throwable)", comment("default deny")),
+    constructor(suppress, "UnsupportedOperationException(Throwable)", comment("default deny"))))

@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.lang.ClassCastException",
+  static(constructor(suppress, "ClassCastException()", comment("default deny")),
+    constructor(suppress, "ClassCastException(String)", comment("default deny"))))

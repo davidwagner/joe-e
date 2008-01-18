@@ -1,0 +1,7 @@
+# Manually audited.  Everything looks OK.
+class("java.lang.Exception",
+  honoraries("org.joe_e.Powerless"),
+  static(constructor("Exception()"),
+    constructor("Exception(String)"),
+    constructor("Exception(String, Throwable)"),
+    constructor("Exception(Throwable)")))

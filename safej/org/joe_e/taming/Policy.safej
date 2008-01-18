@@ -1,0 +1,6 @@
+# auto-generated safej for Joe-E code: allow everything.
+class("org.joe_e.taming.Policy",
+  static(method("constructorEnabled(String)"),
+    method("fieldEnabled(String)"),
+    method("hasHonorary(String, String)"),
+    method("methodEnabled(String)")))

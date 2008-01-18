@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.lang.NullPointerException",
+  static(constructor(suppress, "NullPointerException()", comment("default deny")),
+    constructor(suppress, "NullPointerException(String)", comment("default deny"))))

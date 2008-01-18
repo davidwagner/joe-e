@@ -1,0 +1,7 @@
+# auto-generated safej for Joe-E code: allow everything.
+class("org.joe_e.charset.UTF8",
+  static(method("decode(byte[])"),
+    method("decode(byte[], int, int)"),
+    method("encode(String)"),
+    method("input(InputStream)"),
+    method("output(OutputStream)")))

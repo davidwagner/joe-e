@@ -1,0 +1,3 @@
+# auto-generated safej: default deny everything
+# Test for what happens when a nonexistent class is specified.
+class("java.io.Nonexistent")

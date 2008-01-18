@@ -1,0 +1,4 @@
+# Testlib taming file: allow field and constructor
+class("org.joe_e.testlib.ContainsNonImmutable",
+  static(constructor("ContainsNonImmutable(double[])")),
+  instance(field("coordinates")))

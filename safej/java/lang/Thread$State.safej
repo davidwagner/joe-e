@@ -1,0 +1,10 @@
+# auto-generated safej: default deny everything
+class("java.lang.Thread$State",
+  static(field(suppress, "BLOCKED", comment("default deny")),
+    field(suppress, "NEW", comment("default deny")),
+    field(suppress, "RUNNABLE", comment("default deny")),
+    field(suppress, "TERMINATED", comment("default deny")),
+    field(suppress, "TIMED_WAITING", comment("default deny")),
+    field(suppress, "WAITING", comment("default deny")),
+    method(suppress, "valueOf(String)", comment("default deny")),
+    method(suppress, "values()", comment("default deny"))))

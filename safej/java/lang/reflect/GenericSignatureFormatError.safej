@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.lang.reflect.GenericSignatureFormatError"
+,
+  static(constructor(suppress, "GenericSignatureFormatError()", comment("default deny"))))

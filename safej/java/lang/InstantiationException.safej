@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.lang.InstantiationException",
+  static(constructor(suppress, "InstantiationException()", comment("default deny")),
+    constructor(suppress, "InstantiationException(String)", comment("default deny"))))

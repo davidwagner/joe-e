@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.lang.InterruptedException",
+  static(constructor(suppress, "InterruptedException()", comment("default deny")),
+    constructor(suppress, "InterruptedException(String)", comment("default deny"))))

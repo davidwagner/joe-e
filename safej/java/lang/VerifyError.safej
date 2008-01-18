@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.lang.VerifyError",
+  static(constructor(suppress, "VerifyError()", comment("default deny")),
+    constructor(suppress, "VerifyError(String)", comment("default deny"))))

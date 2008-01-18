@@ -1,0 +1,4 @@
+# auto-generated safej for Joe-E code: allow everything.
+class("org.joe_e.array.PowerlessArray",
+  static(method("array(E[])")),
+  instance(method("with(E)")))

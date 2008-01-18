@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("java.lang.reflect.Proxy"
+,
+  static(constructor(suppress, "Proxy(InvocationHandler)", comment("default deny")),
+    method(suppress, "getInvocationHandler(Object)", comment("default deny")),
+    method(suppress, "getProxyClass(ClassLoader, Class<?>[])", comment("default deny")),
+    method(suppress, "isProxyClass(Class<?>)", comment("default deny")),
+    method(suppress, "newProxyInstance(ClassLoader, Class<?>[], InvocationHandler)", comment("default deny"))),
+  instance(field(suppress, "h", comment("default deny"))))

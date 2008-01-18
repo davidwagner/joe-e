@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.lang.IncompatibleClassChangeError",
+  static(constructor(suppress, "IncompatibleClassChangeError()", comment("default deny")),
+    constructor(suppress, "IncompatibleClassChangeError(String)", comment("default deny"))))

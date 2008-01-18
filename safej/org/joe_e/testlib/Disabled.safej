@@ -1,0 +1,2 @@
+# Testlib taming file: this class is disabled entirely.
+class(unsafe, "org.joe_e.testlib.Disabled")

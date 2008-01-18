@@ -1,0 +1,11 @@
+# auto-generated safej: default deny everything
+class("java.lang.StackTraceElement",
+  static(constructor(suppress, "StackTraceElement(String, String, String, int)", comment("default deny"))),
+  instance(method(suppress, "equals(Object)", comment("default deny")),
+    method(suppress, "getClassName()", comment("default deny")),
+    method(suppress, "getFileName()", comment("default deny")),
+    method(suppress, "getLineNumber()", comment("default deny")),
+    method(suppress, "getMethodName()", comment("default deny")),
+    method(suppress, "hashCode()", comment("default deny")),
+    method(suppress, "isNativeMethod()", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

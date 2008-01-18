@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.lang.RuntimeException",
+  static(constructor(suppress, "RuntimeException()", comment("default deny")),
+    constructor(suppress, "RuntimeException(String)", comment("default deny")),
+    constructor(suppress, "RuntimeException(String, Throwable)", comment("default deny")),
+    constructor(suppress, "RuntimeException(Throwable)", comment("default deny"))))

@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.lang.ClassFormatError",
+  static(constructor(suppress, "ClassFormatError()", comment("default deny")),
+    constructor(suppress, "ClassFormatError(String)", comment("default deny"))))

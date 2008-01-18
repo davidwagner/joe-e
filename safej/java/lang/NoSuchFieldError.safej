@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.lang.NoSuchFieldError",
+  static(constructor(suppress, "NoSuchFieldError()", comment("default deny")),
+    constructor(suppress, "NoSuchFieldError(String)", comment("default deny"))))

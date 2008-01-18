@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.lang.NoSuchMethodException",
+  static(constructor(suppress, "NoSuchMethodException()", comment("default deny")),
+    constructor(suppress, "NoSuchMethodException(String)", comment("default deny"))))
