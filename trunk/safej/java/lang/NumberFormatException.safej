@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.lang.NumberFormatException",
+  static(constructor(suppress, "NumberFormatException()", comment("default deny")),
+    constructor(suppress, "NumberFormatException(String)", comment("default deny"))))

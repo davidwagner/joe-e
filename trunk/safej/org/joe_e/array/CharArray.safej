@@ -1,0 +1,13 @@
+# auto-generated safej for Joe-E code: allow everything.
+class("org.joe_e.array.CharArray",
+  static(method("array(char[])")),
+  instance(method("equals(Object)"),
+    method("get(int)"),
+    method("getChar(int)"),
+    method("hashCode()"),
+    method("length()"),
+    method("toArray(T[])"),
+    method("toCharArray()"),
+    method("toString()"),
+    method("with(Character)"),
+    method("with(char)")))

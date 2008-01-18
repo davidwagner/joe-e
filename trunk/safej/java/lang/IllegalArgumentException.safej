@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.lang.IllegalArgumentException",
+  static(constructor(suppress, "IllegalArgumentException()", comment("default deny")),
+    constructor(suppress, "IllegalArgumentException(String)", comment("default deny")),
+    constructor(suppress, "IllegalArgumentException(String, Throwable)", comment("default deny")),
+    constructor(suppress, "IllegalArgumentException(Throwable)", comment("default deny"))))

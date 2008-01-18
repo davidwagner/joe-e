@@ -1,0 +1,4 @@
+# auto-generated safej for Joe-E code: allow everything.
+class("org.joe_e.charset.URLEncoding",
+  static(method("decode(String)"),
+    method("encode(String)")))

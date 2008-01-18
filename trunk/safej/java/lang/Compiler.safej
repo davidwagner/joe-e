@@ -1,0 +1,7 @@
+# auto-generated safej: default deny everything
+class("java.lang.Compiler",
+  static(method(suppress, "command(Object)", comment("default deny")),
+    method(suppress, "compileClass(Class<?>)", comment("default deny")),
+    method(suppress, "compileClasses(String)", comment("default deny")),
+    method(suppress, "disable()", comment("default deny")),
+    method(suppress, "enable()", comment("default deny"))))

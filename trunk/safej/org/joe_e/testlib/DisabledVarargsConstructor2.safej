@@ -1,0 +1,5 @@
+# Testlib taming file: suppress String[] varargs constructor, but not
+# Object[] varargs constructor -- corner case for default superconstructor
+class("org.joe_e.testlib.DisabledVarargsConstructor2",
+  static(constructor("DisabledVarargsConstructor2(Object[])"),
+    constructor(suppress, "DisabledVarargsConstructor2(String[])")))

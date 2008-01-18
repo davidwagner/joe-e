@@ -1,0 +1,19 @@
+# Manually audited.  Not sure how to handle chained throables, getCause may be OK.
+# Stack traces look like a bad idea, as they allow apparent nondeterminism.
+class("java.lang.Throwable",
+  honorary("org.joe_e.Powerless"),
+  static(constructor("Throwable()"),
+    constructor("Throwable(String)"),
+    constructor("Throwable(String, Throwable)"),
+    constructor("Throwable(Throwable)")),
+  instance(method(suppress, "fillInStackTrace()", comment("default deny")),
+    method(suppress, "getCause()", comment("default deny")),
+    method(suppress, "getLocalizedMessage()", comment("default deny")),
+    method("getMessage()"),
+    method(suppress, "getStackTrace()", comment("default deny")),
+    method(suppress, "initCause(Throwable)", comment("modifies object that should be immutable")),
+    method(suppress, "printStackTrace()", comment("default deny")),
+    method(suppress, "printStackTrace(PrintStream)", comment("default deny")),
+    method(suppress, "printStackTrace(PrintWriter)", comment("default deny")),
+    method(suppress, "setStackTrace(StackTraceElement[])", comment("modifies object that should be immutable")),
+    method("toString()")))

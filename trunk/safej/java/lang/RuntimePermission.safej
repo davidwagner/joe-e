@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.lang.RuntimePermission",
+  static(constructor(suppress, "RuntimePermission(String)", comment("default deny")),
+    constructor(suppress, "RuntimePermission(String, String)", comment("default deny"))))

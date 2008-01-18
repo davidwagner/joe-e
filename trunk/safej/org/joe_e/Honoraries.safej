@@ -1,0 +1,9 @@
+# auto-generated safej for Joe-E code: allow everything.
+class("org.joe_e.Honoraries",
+  static(field("IMPL_EQUATABLE"),
+    field("IMPL_IMMUTABLE"),
+    field("IMPL_POWERLESS"),
+    field("IMPL_SELFLESS"),
+    constructor("Honoraries()"),
+    method("getFlags(Collection<String>)"),
+    method("honorarilyImplements(Class<?>, Class<?>)")))

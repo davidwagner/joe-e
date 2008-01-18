@@ -1,0 +1,5 @@
+# Testlib taming file: this class has its members disabled.
+class("org.joe_e.testlib.MembersDisabled",
+  static(constructor(suppress, "MembersDisabled()")),
+  instance(field(suppress, "i"),
+    method(suppress, "foo()")))

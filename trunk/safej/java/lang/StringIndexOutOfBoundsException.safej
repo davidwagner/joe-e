@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.lang.StringIndexOutOfBoundsException",
+  static(constructor(suppress, "StringIndexOutOfBoundsException()", comment("default deny")),
+    constructor(suppress, "StringIndexOutOfBoundsException(String)", comment("default deny")),
+    constructor(suppress, "StringIndexOutOfBoundsException(int)", comment("default deny"))))

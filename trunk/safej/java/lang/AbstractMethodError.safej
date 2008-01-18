@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.lang.AbstractMethodError",
+  static(constructor(suppress, "AbstractMethodError()", comment("default deny")),
+    constructor(suppress, "AbstractMethodError(String)", comment("default deny"))))

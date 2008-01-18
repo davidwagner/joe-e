@@ -1,0 +1,5 @@
+# Testlib taming file: class deemed to honorarily implement Powerless
+# even though it has non-final fields
+class("org.joe_e.testlib.GrandfatheredPowerless",
+  honorary("org.joe_e.Powerless"),
+  static(constructor("GrandfatheredPowerless()")))

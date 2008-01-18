@@ -1,0 +1,7 @@
+# auto-generated safej: default deny everything
+class("java.lang.ClassNotFoundException",
+  static(constructor(suppress, "ClassNotFoundException()", comment("default deny")),
+    constructor(suppress, "ClassNotFoundException(String)", comment("default deny")),
+    constructor(suppress, "ClassNotFoundException(String, Throwable)", comment("default deny"))),
+  instance(method(suppress, "getCause()", comment("default deny")),
+    method(suppress, "getException()", comment("default deny"))))

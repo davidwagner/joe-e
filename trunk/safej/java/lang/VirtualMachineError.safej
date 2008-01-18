@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.lang.VirtualMachineError",
+  static(constructor(suppress, "VirtualMachineError()", comment("default deny")),
+    constructor(suppress, "VirtualMachineError(String)", comment("default deny"))))

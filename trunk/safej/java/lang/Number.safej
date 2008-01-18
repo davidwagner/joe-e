@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("java.lang.Number",
+  static(constructor(suppress, "Number()", comment("default deny"))),
+  instance(method(suppress, "byteValue()", comment("default deny")),
+    method(suppress, "doubleValue()", comment("default deny")),
+    method(suppress, "floatValue()", comment("default deny")),
+    method(suppress, "intValue()", comment("default deny")),
+    method(suppress, "longValue()", comment("default deny")),
+    method(suppress, "shortValue()", comment("default deny"))))

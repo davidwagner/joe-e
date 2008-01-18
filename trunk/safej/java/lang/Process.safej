@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("java.lang.Process",
+  static(constructor(suppress, "Process()", comment("default deny"))),
+  instance(method(suppress, "destroy()", comment("default deny")),
+    method(suppress, "exitValue()", comment("default deny")),
+    method(suppress, "getErrorStream()", comment("default deny")),
+    method(suppress, "getInputStream()", comment("default deny")),
+    method(suppress, "getOutputStream()", comment("default deny")),
+    method(suppress, "waitFor()", comment("default deny"))))

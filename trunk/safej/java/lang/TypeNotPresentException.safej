@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.lang.TypeNotPresentException",
+  static(constructor(suppress, "TypeNotPresentException(String, Throwable)", comment("default deny"))),
+  instance(method(suppress, "typeName()", comment("default deny"))))

@@ -1,0 +1,4 @@
+# Testlib taming file: disable two varargs constructors
+class("org.joe_e.testlib.DisabledVarargsConstructor1",
+  static(constructor(suppress, "DisabledVarargsConstructor1(Object[])"),
+    constructor(suppress, "DisabledVarargsConstructor1(int[])")))

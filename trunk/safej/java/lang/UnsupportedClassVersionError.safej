@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.lang.UnsupportedClassVersionError",
+  static(constructor(suppress, "UnsupportedClassVersionError()", comment("default deny")),
+    constructor(suppress, "UnsupportedClassVersionError(String)", comment("default deny"))))

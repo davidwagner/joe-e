@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.lang.reflect.WildcardType"
+,
+  instance(method(suppress, "getLowerBounds()", comment("default deny")),
+    method(suppress, "getUpperBounds()", comment("default deny"))))

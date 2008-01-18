@@ -1,0 +1,10 @@
+# Manually audited.
+class("java.lang.AssertionError",
+  static(constructor("AssertionError()"),
+    constructor(suppress, "AssertionError(Object)", comment("can bypass toString() restrictions")),
+    constructor("AssertionError(boolean)"),
+    constructor("AssertionError(char)"),
+    constructor("AssertionError(double)"),
+    constructor("AssertionError(float)"),
+    constructor("AssertionError(int)"),
+    constructor("AssertionError(long)")))

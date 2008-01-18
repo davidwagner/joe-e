@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.lang.IllegalAccessError",
+  static(constructor(suppress, "IllegalAccessError()", comment("default deny")),
+    constructor(suppress, "IllegalAccessError(String)", comment("default deny"))))

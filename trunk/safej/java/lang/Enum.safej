@@ -1,0 +1,12 @@
+# auto-generated safej: default deny everything
+class("java.lang.Enum",
+  static(constructor(suppress, "Enum(String, int)", comment("default deny")),
+    method(suppress, "valueOf(Class<T>, String)", comment("default deny"))),
+  instance(method(suppress, "clone()", comment("default deny")),
+    method(suppress, "compareTo(E)", comment("default deny")),
+    method(suppress, "equals(Object)", comment("default deny")),
+    method(suppress, "getDeclaringClass()", comment("default deny")),
+    method(suppress, "hashCode()", comment("default deny")),
+    method(suppress, "name()", comment("default deny")),
+    method(suppress, "ordinal()", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

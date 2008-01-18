@@ -1,0 +1,3 @@
+# auto-generated safej for Joe-E code: allow everything.
+class("org.joe_e.ErrorHandler",
+  instance(method("handle(Error)")))
