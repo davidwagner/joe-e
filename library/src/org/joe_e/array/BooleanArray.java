@@ -199,4 +199,111 @@ public final class BooleanArray extends PowerlessArray<Boolean> {
         newBooleans[booleans.length] = newBoolean;
         return new BooleanArray(newBooleans);
     }
+
+    /**
+     * Return a new <code>BooleanArray</code> that contains the same elements
+     * as this one excluding the element at a specified index
+     * @param i the index of the element to exclude
+     * @return  the new array
+     */
+    public BooleanArray without(final int i) {
+        final boolean[] newArr = new boolean[booleans.length - 1];
+        System.arraycopy(booleans, 0, newArr, 0, i);
+        System.arraycopy(booleans, i + 1, newArr, i, newArr.length - i);
+        return new BooleanArray(newArr);
+    }
+    
+    /**
+     * A {@link BooleanArray} factory.
+     */
+    static public final class Builder implements ArrayBuilder<Boolean> {
+        private boolean[] buffer;
+        private int size;
+
+        /**
+         * Construct an instance with the default internal array length.
+         */
+        public Builder() {
+            this(0);
+        }
+        
+        /**
+         * Construct an instance.
+         * @param estimate  estimated array length
+         */
+        public Builder(int estimate) {
+            buffer = new boolean[estimate > 0 ? estimate : 32];
+            size = 0;
+        }
+
+        // ArrayBuilder<Boolean> interface
+        public void write(Boolean newBoolean) {
+            write ((boolean) newBoolean);
+        }
+        
+        public void write(final Boolean[] newBooleans) {
+            write(newBooleans, 0, newBooleans.length);
+        }      
+        
+        public void write(final Boolean[] newBooleans, 
+                          final int off, final int len) {
+            int newSize = size + len;
+            if (len < 0 || newSize < 0 || off + len > newBooleans.length) {
+                throw new IndexOutOfBoundsException();
+            }
+            if (newSize > buffer.length) {
+                int newLength = Math.max(newSize, 2 * buffer.length);
+                System.arraycopy(buffer, 0, buffer = new boolean[newLength], 0,
+                                 size);
+            }
+            
+            for (int i = off; i < off + len; ++i) {
+                buffer[size + i] = newBooleans[i];
+            }           
+            size = newSize;
+        }
+        
+        /**
+         * Create a snapshot of the current content.
+         */
+        public BooleanArray snapshot() {
+            final boolean[] arr;
+            if (size == buffer.length) {
+                arr = buffer;
+            } else {
+                arr = new boolean[size];
+                System.arraycopy(buffer, 0, arr, 0, size);
+            }
+            return new BooleanArray(arr);
+        }
+        
+        /*
+         * Convenience (more efficient) methods with boolean
+         */
+        public void write(final boolean newBoolean) {
+            if (size == buffer.length) {
+                System.arraycopy(buffer, 0, buffer = new boolean[2 * size], 0,
+                                 size);
+            }
+            buffer[size++] = newBoolean;
+        }
+
+        public void write(final boolean[] newBooleans) {
+            write(newBooleans, 0, newBooleans.length);
+        }      
+        
+        public void write(final boolean[] newBooleans, final int off, final int len) {
+            int newSize = size + len;
+            if (len < 0 || newSize < 0 || off + len > newBooleans.length) {
+                throw new IndexOutOfBoundsException();
+            }
+            if (newSize > buffer.length) {
+                int newLength = Math.max(newSize, 2 * buffer.length);
+                System.arraycopy(buffer, 0, buffer = new boolean[newLength], 0,
+                                 size);
+            }
+            System.arraycopy(newBooleans, off, buffer, size, len);
+            size = newSize;
+        }
+    }
 }

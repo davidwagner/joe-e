@@ -199,4 +199,111 @@ public final class IntArray extends PowerlessArray<Integer> {
         newInts[ints.length] = newInt;
         return new IntArray(newInts);
     }
+
+    /**
+     * Return a new <code>IntArray</code> that contains the same elements
+     * as this one excluding the element at a specified index
+     * @param i the index of the element to exclude
+     * @return  the new array
+     */
+    public IntArray without(final int i) {
+        final int[] newArr = new int[ints.length - 1];
+        System.arraycopy(ints, 0, newArr, 0, i);
+        System.arraycopy(ints, i + 1, newArr, i, newArr.length - i);
+        return new IntArray(newArr);
+    }
+    
+    /**
+     * A {@link IntArray} factory.
+     */
+    static public final class Builder implements ArrayBuilder<Integer> {
+        private int[] buffer;
+        private int size;
+
+        /**
+         * Construct an instance with the default internal array length.
+         */
+        public Builder() {
+            this(0);
+        }
+        
+        /**
+         * Construct an instance.
+         * @param estimate  estimated array length
+         */
+        public Builder(int estimate) {
+            buffer = new int[estimate > 0 ? estimate : 32];
+            size = 0;
+        }
+
+        // ArrayBuilder<Integer> interface
+        public void write(Integer newInt) {
+            write ((int) newInt);
+        }
+        
+        public void write(final Integer[] newInts) {
+            write(newInts, 0, newInts.length);
+        }      
+        
+        public void write(final Integer[] newInts, 
+                          final int off, final int len) {
+            int newSize = size + len;
+            if (len < 0 || newSize < 0 || off + len > newInts.length) {
+                throw new IndexOutOfBoundsException();
+            }
+            if (newSize > buffer.length) {
+                int newLength = Math.max(newSize, 2 * buffer.length);
+                System.arraycopy(buffer, 0, buffer = new int[newLength], 0,
+                                 size);
+            }
+            
+            for (int i = off; i < off + len; ++i) {
+                buffer[size + i] = newInts[i];
+            }           
+            size = newSize;
+        }
+        
+        /**
+         * Create a snapshot of the current content.
+         */
+        public IntArray snapshot() {
+            final int[] arr;
+            if (size == buffer.length) {
+                arr = buffer;
+            } else {
+                arr = new int[size];
+                System.arraycopy(buffer, 0, arr, 0, size);
+            }
+            return new IntArray(arr);
+        }
+        
+        /*
+         * Convenience (more efficient) methods with int
+         */
+        public void write(final int newInt) {
+            if (size == buffer.length) {
+                System.arraycopy(buffer, 0, buffer = new int[2 * size], 0,
+                                 size);
+            }
+            buffer[size++] = newInt;
+        }
+
+        public void write(final int[] newInts) {
+            write(newInts, 0, newInts.length);
+        }      
+        
+        public void write(final int[] newInts, final int off, final int len) {
+            int newSize = size + len;
+            if (len < 0 || newSize < 0 || off + len > newInts.length) {
+                throw new IndexOutOfBoundsException();
+            }
+            if (newSize > buffer.length) {
+                int newLength = Math.max(newSize, 2 * buffer.length);
+                System.arraycopy(buffer, 0, buffer = new int[newLength], 0,
+                                 size);
+            }
+            System.arraycopy(newInts, off, buffer, size, len);
+            size = newSize;
+        }
+    }
 }

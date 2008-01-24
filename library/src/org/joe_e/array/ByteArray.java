@@ -168,7 +168,7 @@ public final class ByteArray extends PowerlessArray<Byte> {
      * @throws NullPointerException <code>newByte</code> is null
      */
     public ByteArray with(final Byte newByte) {
-        return with(newByte.byteValue());
+        return with((byte) newByte);
     }
            
     /*
@@ -210,16 +210,29 @@ public final class ByteArray extends PowerlessArray<Byte> {
    }
    
    /**
+    * Return a new <code>ByteArray</code> that contains the same elements
+    * as this one excluding the element at a specified index
+    * @param i the index of the element to exclude
+    * @return  the new array
+    */
+   public ByteArray without(final int i) {
+       final byte[] newArr = new byte[bytes.length - 1];
+       System.arraycopy(bytes, 0, newArr, 0, i);
+       System.arraycopy(bytes, i + 1, newArr, i, newArr.length - i);
+       return new ByteArray(newArr);
+   }
+   
+   /**
     * A {@link ByteArray} factory.
     */
-   static public final class Generator extends OutputStream {
+   static public final class Builder extends OutputStream implements ArrayBuilder<Byte> {
        private byte[] buffer;
        private int size;
 
        /**
         * Construct an instance with the default internal array length.
         */
-       public Generator() {
+       public Builder() {
            this(0);
        }
        
@@ -227,13 +240,13 @@ public final class ByteArray extends PowerlessArray<Byte> {
         * Construct an instance.
         * @param estimate  estimated array length
         */
-       public Generator(int estimate) {
+       public Builder(int estimate) {
            buffer = new byte[estimate > 0 ? estimate : 32];
            size = 0;
        }
 
        // java.io.OutputStream interface
-
+       
        public void write(final int b) {
            if (size == buffer.length) {
                System.arraycopy(buffer, 0, buffer = new byte[2 * size], 0,
@@ -250,7 +263,7 @@ public final class ByteArray extends PowerlessArray<Byte> {
        
        public void write(byte[] b, int off, int len) {
            int newSize = size + len;
-           if (len < 0 || newSize < 0) {
+           if (len < 0 || newSize < 0 || off + len > b.length) {
                throw new IndexOutOfBoundsException();
            }
            if (newSize > buffer.length) {
@@ -259,6 +272,33 @@ public final class ByteArray extends PowerlessArray<Byte> {
                                 size);
            }
            System.arraycopy(b, off, buffer, size, len);
+           size = newSize;
+       }
+       
+       // ArrayBuilder<Byte> interface
+       
+       public void write(Byte b) {
+           write ((int) b);
+       }
+       
+       public void write(final Byte[] b) {
+           write(b, 0, b.length);
+       }      
+       
+       public void write(Byte[] b, int off, int len) {
+           int newSize = size + len;
+           if (len < 0 || newSize < 0 || off + len > b.length) {
+               throw new IndexOutOfBoundsException();
+           }
+           if (newSize > buffer.length) {
+               int newLength = Math.max(newSize, 2 * buffer.length);
+               System.arraycopy(buffer, 0, buffer = new byte[newLength], 0,
+                                size);
+           }
+           
+           for (int i = off; i < len; ++i) {
+               buffer[size + i] = b[i];
+           }           
            size = newSize;
        }
        

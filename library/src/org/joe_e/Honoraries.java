@@ -77,7 +77,7 @@ public final class Honoraries {
         entries.put(Character.class, MAKE_DATA);
         entries.put(Boolean.class, MAKE_DATA);       
         
-        entries.put(StackTraceElement.class, MAKE_DATA);
+        entries.put(StackTraceElement.class, MAKE_DATA); // ???
         entries.put(Throwable.class, MAKE_POWERLESS);
         entries.put(Exception.class, MAKE_POWERLESS);       
         // make sure any additional untamed exceptions are listed here as

@@ -199,4 +199,111 @@ public final class CharArray extends PowerlessArray<Character> {
         newChars[chars.length] = newChar;
         return new CharArray(newChars);
     }
+
+    /**
+     * Return a new <code>CharArray</code> that contains the same elements
+     * as this one excluding the element at a specified index
+     * @param i the index of the element to exclude
+     * @return  the new array
+     */
+    public CharArray without(final int i) {
+        final char[] newArr = new char[chars.length - 1];
+        System.arraycopy(chars, 0, newArr, 0, i);
+        System.arraycopy(chars, i + 1, newArr, i, newArr.length - i);
+        return new CharArray(newArr);
+    }
+    
+    /**
+     * A {@link CharArray} factory.
+     */
+    static public final class Builder implements ArrayBuilder<Character> {
+        private char[] buffer;
+        private int size;
+
+        /**
+         * Construct an instance with the default internal array length.
+         */
+        public Builder() {
+            this(0);
+        }
+        
+        /**
+         * Construct an instance.
+         * @param estimate  estimated array length
+         */
+        public Builder(int estimate) {
+            buffer = new char[estimate > 0 ? estimate : 32];
+            size = 0;
+        }
+
+        // ArrayBuilder<Character> interface
+        public void write(Character newChar) {
+            write ((char) newChar);
+        }
+        
+        public void write(final Character[] newChars) {
+            write(newChars, 0, newChars.length);
+        }      
+        
+        public void write(final Character[] newChars, 
+                          final int off, final int len) {
+            int newSize = size + len;
+            if (len < 0 || newSize < 0 || off + len > newChars.length) {
+                throw new IndexOutOfBoundsException();
+            }
+            if (newSize > buffer.length) {
+                int newLength = Math.max(newSize, 2 * buffer.length);
+                System.arraycopy(buffer, 0, buffer = new char[newLength], 0,
+                                 size);
+            }
+            
+            for (int i = 0; i < len; ++i) {
+                buffer[size + i] = newChars[off + i];
+            }           
+            size = newSize;
+        }
+        
+        /**
+         * Create a snapshot of the current content.
+         */
+        public CharArray snapshot() {
+            final char[] arr;
+            if (size == buffer.length) {
+                arr = buffer;
+            } else {
+                arr = new char[size];
+                System.arraycopy(buffer, 0, arr, 0, size);
+            }
+            return new CharArray(arr);
+        }
+        
+        /*
+         * Convenience (more efficient) methods with char
+         */
+        public void write(final char newChar) {
+            if (size == buffer.length) {
+                System.arraycopy(buffer, 0, buffer = new char[2 * size], 0,
+                                 size);
+            }
+            buffer[size++] = newChar;
+        }
+
+        public void write(final char[] newChars) {
+            write(newChars, 0, newChars.length);
+        }      
+        
+        public void write(final char[] newChars, final int off, final int len) {
+            int newSize = size + len;
+            if (len < 0 || newSize < 0 || off + len > newChars.length) {
+                throw new IndexOutOfBoundsException();
+            }
+            if (newSize > buffer.length) {
+                int newLength = Math.max(newSize, 2 * buffer.length);
+                System.arraycopy(buffer, 0, buffer = new char[newLength], 0,
+                                 size);
+            }
+            System.arraycopy(newChars, off, buffer, size, len);
+            size = newSize;
+        }
+    }
 }

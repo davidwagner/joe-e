@@ -199,4 +199,111 @@ public final class DoubleArray extends PowerlessArray<Double> {
         newDoubles[doubles.length] = newDouble;
         return new DoubleArray(newDoubles);
     }
+
+    /**
+     * Return a new <code>DoubleArray</code> that contains the same elements
+     * as this one excluding the element at a specified index
+     * @param i the index of the element to exclude
+     * @return  the new array
+     */
+    public DoubleArray without(final int i) {
+        final double[] newArr = new double[doubles.length - 1];
+        System.arraycopy(doubles, 0, newArr, 0, i);
+        System.arraycopy(doubles, i + 1, newArr, i, newArr.length - i);
+        return new DoubleArray(newArr);
+    }
+    
+    /**
+     * A {@link DoubleArray} factory.
+     */
+    static public final class Builder implements ArrayBuilder<Double> {
+        private double[] buffer;
+        private int size;
+
+        /**
+         * Construct an instance with the default internal array length.
+         */
+        public Builder() {
+            this(0);
+        }
+        
+        /**
+         * Construct an instance.
+         * @param estimate  estimated array length
+         */
+        public Builder(int estimate) {
+            buffer = new double[estimate > 0 ? estimate : 32];
+            size = 0;
+        }
+
+        // ArrayBuilder<Double> interface
+        public void write(Double newDouble) {
+            write ((double) newDouble);
+        }
+        
+        public void write(final Double[] newDoubles) {
+            write(newDoubles, 0, newDoubles.length);
+        }      
+        
+        public void write(final Double[] newDoubles, 
+                          final int off, final int len) {
+            int newSize = size + len;
+            if (len < 0 || newSize < 0 || off + len > newDoubles.length) {
+                throw new IndexOutOfBoundsException();
+            }
+            if (newSize > buffer.length) {
+                int newLength = Math.max(newSize, 2 * buffer.length);
+                System.arraycopy(buffer, 0, buffer = new double[newLength], 0,
+                                 size);
+            }
+            
+            for (int i = off; i < off + len; ++i) {
+                buffer[size + i] = newDoubles[i];
+            }           
+            size = newSize;
+        }
+        
+        /**
+         * Create a snapshot of the current content.
+         */
+        public DoubleArray snapshot() {
+            final double[] arr;
+            if (size == buffer.length) {
+                arr = buffer;
+            } else {
+                arr = new double[size];
+                System.arraycopy(buffer, 0, arr, 0, size);
+            }
+            return new DoubleArray(arr);
+        }
+        
+        /*
+         * Convenience (more efficient) methods with double
+         */
+        public void write(final double newDouble) {
+            if (size == buffer.length) {
+                System.arraycopy(buffer, 0, buffer = new double[2 * size], 0,
+                                 size);
+            }
+            buffer[size++] = newDouble;
+        }
+
+        public void write(final double[] newDoubles) {
+            write(newDoubles, 0, newDoubles.length);
+        }      
+        
+        public void write(final double[] newDoubles, final int off, final int len) {
+            int newSize = size + len;
+            if (len < 0 || newSize < 0 || off + len > newDoubles.length) {
+                throw new IndexOutOfBoundsException();
+            }
+            if (newSize > buffer.length) {
+                int newLength = Math.max(newSize, 2 * buffer.length);
+                System.arraycopy(buffer, 0, buffer = new double[newLength], 0,
+                                 size);
+            }
+            System.arraycopy(newDoubles, off, buffer, size, len);
+            size = newSize;
+        }
+    }
 }
