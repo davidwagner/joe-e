@@ -199,4 +199,111 @@ public final class FloatArray extends PowerlessArray<Float> {
         newFloats[floats.length] = newFloat;
         return new FloatArray(newFloats);
     }
+
+    /**
+     * Return a new <code>FloatArray</code> that contains the same elements
+     * as this one excluding the element at a specified index
+     * @param i the index of the element to exclude
+     * @return  the new array
+     */
+    public FloatArray without(final int i) {
+        final float[] newArr = new float[floats.length - 1];
+        System.arraycopy(floats, 0, newArr, 0, i);
+        System.arraycopy(floats, i + 1, newArr, i, newArr.length - i);
+        return new FloatArray(newArr);
+    }
+    
+    /**
+     * A {@link FloatArray} factory.
+     */
+    static public final class Builder implements ArrayBuilder<Float> {
+        private float[] buffer;
+        private int size;
+
+        /**
+         * Construct an instance with the default internal array length.
+         */
+        public Builder() {
+            this(0);
+        }
+        
+        /**
+         * Construct an instance.
+         * @param estimate  estimated array length
+         */
+        public Builder(int estimate) {
+            buffer = new float[estimate > 0 ? estimate : 32];
+            size = 0;
+        }
+
+        // ArrayBuilder<Float> interface
+        public void write(Float newFloat) {
+            write ((float) newFloat);
+        }
+        
+        public void write(final Float[] newFloats) {
+            write(newFloats, 0, newFloats.length);
+        }      
+        
+        public void write(final Float[] newFloats, 
+                          final int off, final int len) {
+            int newSize = size + len;
+            if (len < 0 || newSize < 0 || off + len > newFloats.length) {
+                throw new IndexOutOfBoundsException();
+            }
+            if (newSize > buffer.length) {
+                int newLength = Math.max(newSize, 2 * buffer.length);
+                System.arraycopy(buffer, 0, buffer = new float[newLength], 0,
+                                 size);
+            }
+            
+            for (int i = off; i < off + len; ++i) {
+                buffer[size + i] = newFloats[i];
+            }           
+            size = newSize;
+        }
+        
+        /**
+         * Create a snapshot of the current content.
+         */
+        public FloatArray snapshot() {
+            final float[] arr;
+            if (size == buffer.length) {
+                arr = buffer;
+            } else {
+                arr = new float[size];
+                System.arraycopy(buffer, 0, arr, 0, size);
+            }
+            return new FloatArray(arr);
+        }
+        
+        /*
+         * Convenience (more efficient) methods with float
+         */
+        public void write(final float newFloat) {
+            if (size == buffer.length) {
+                System.arraycopy(buffer, 0, buffer = new float[2 * size], 0,
+                                 size);
+            }
+            buffer[size++] = newFloat;
+        }
+
+        public void write(final float[] newFloats) {
+            write(newFloats, 0, newFloats.length);
+        }      
+        
+        public void write(final float[] newFloats, final int off, final int len) {
+            int newSize = size + len;
+            if (len < 0 || newSize < 0 || off + len > newFloats.length) {
+                throw new IndexOutOfBoundsException();
+            }
+            if (newSize > buffer.length) {
+                int newLength = Math.max(newSize, 2 * buffer.length);
+                System.arraycopy(buffer, 0, buffer = new float[newLength], 0,
+                                 size);
+            }
+            System.arraycopy(newFloats, off, buffer, size, len);
+            size = newSize;
+        }
+    }
 }

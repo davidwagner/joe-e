@@ -8,9 +8,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.regex.Pattern;
 
 import org.joe_e.array.PowerlessArray;
 import org.joe_e.taming.Policy;
@@ -28,6 +28,8 @@ import org.joe_e.taming.Policy;
 public final class Reflection {
     private Reflection() {}
 
+    static final Pattern UNQUALIFY = 
+        Pattern.compile("[^\\(<> ]*\\.([^<> \\.]*)");
     /*
      * Methods for obtaining reflective objects
      */
@@ -190,8 +192,7 @@ public final class Reflection {
             System.arraycopy(ms, 0, ms = new Method[n], 0, n); 
         }
         Arrays.sort(ms, new Comparator<Method>() {
-            public int
-            compare(final Method a, final Method b) {
+            public int compare(final Method a, final Method b) {
                 int diff = a.getName().compareTo(b.getName());
                 if (diff == 0) {
                     diff = a.getDeclaringClass().getName().compareTo(
@@ -220,12 +221,21 @@ public final class Reflection {
     static private final ClassLoader boot = Runnable.class.getClassLoader();
 
     /*
-     * Return the non-nested-class aware simple name for a class 
-     * (the one that may have $'s).
+     * Return the non-nested-class aware name for a class (the one that may
+     * have $'s).  Arrays are in source form (trailing []'s).
      */
     static private String getFlatName(Class c) {
         String name = c.getName();
-        return name.substring(name.lastIndexOf('.') + 1);
+        if (!c.isArray()) {
+            return name;
+        }
+
+        Class component = c.getComponentType();
+        StringBuilder ret = new StringBuilder(component.getName());
+        for (int i = 0; name.charAt(i) == '['; ++i) {
+            ret.append("[]");
+        }
+        return ret.toString();
     }
    
     /**
@@ -234,48 +244,27 @@ public final class Reflection {
      * @return <code>true</code> if the member may be used by Joe-E code,
      *         else <code>false</code>
      */
-    /* 
-     * TODO: Current implementation is a temporary hack.  It is wildly
-     * over-conservative with library functions (can't call anything except a
-     * few special cases).  It is also potentially unsafe, in cases where
-     * any non-boot-classloader code is disallowed by taming.  The correct way
-     * to implement this requires runtime access to the taming database.
-     */
     static private boolean safe(final Member member) {
         final Class declarer = member.getDeclaringClass();
-        StringBuilder sb = new StringBuilder(declarer.getCanonicalName());
+        // getName() is the binary name, possibly with $'s
+        StringBuilder sb = new StringBuilder(declarer.getName());
         if (member instanceof Field) {
             sb.append("." + member.getName());
             return Policy.fieldEnabled(sb.toString());
         }
         else if (member instanceof Constructor) {
-            Constructor c = (Constructor) member;
-            sb.append("(");
-            boolean first = true;
-            for (Class arg : c.getParameterTypes()) {
-                if (first) {
-                    first = false;
-                } else {
-                    sb.append(", ");               
-                }
-                sb.append(getFlatName(arg));
-            }
-            sb.append(")");
-            return Policy.methodEnabled(sb.toString());
-        } else { // member instanceof Method
-            Method m = (Method) member;
-            sb.append("." + m.getName() + "(");
-            boolean first = true;
-            for (Class arg : m.getParameterTypes()) {
-                if (first) {
-                    first = false;
-                } else {
-                    sb.append(", ");               
-                }
-                sb.append(getFlatName(arg));
-            }
-            sb.append(")");
+            String stringForm = member.toString();
+            String args = stringForm.substring(stringForm.indexOf('('),
+                                               stringForm.indexOf(')') + 1);
+            sb.append(UNQUALIFY.matcher(args).replaceAll("$1"));
             return Policy.constructorEnabled(sb.toString());
+        } else { // member instanceof Method
+            sb.append("." + member.getName());
+            String stringForm = member.toString();
+            String args = stringForm.substring(stringForm.indexOf('('),
+                                               stringForm.indexOf(')') + 1);
+            sb.append(UNQUALIFY.matcher(args).replaceAll("$1"));
+            return Policy.methodEnabled(sb.toString());
         }
         /*  
         return declarer == Runnable.class 

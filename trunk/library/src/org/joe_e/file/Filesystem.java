@@ -93,6 +93,20 @@ public final class Filesystem {
     }
     
     /**
+     * Gets the length of a file
+     * @param file  file to stat
+     * @return the length of the file in bytes
+     * @throws FileNotFoundException   <code>file</code> not found
+     */
+    static public long length(final File file) 
+                                        throws FileNotFoundException {
+        if (!file.isFile()) { 
+            throw new FileNotFoundException();
+        }
+        return file.length();
+    }
+    
+    /**
      * Opens an existing file for reading.
      * @param file  file to open
      * @return opened input stream

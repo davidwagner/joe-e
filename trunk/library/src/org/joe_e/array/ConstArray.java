@@ -227,7 +227,7 @@ public class ConstArray<E> implements Selfless, Iterable<E>, Serializable {
         
         System.arraycopy(arr, 0, prototype, 0, len);
         return prototype;
-    }
+    }  
         
     /**
      * Return a new <code>ConstArray</code> that contains the same elements
@@ -243,5 +243,95 @@ public class ConstArray<E> implements Selfless, Iterable<E>, Serializable {
         System.arraycopy(arr, 0, newArr, 0, arr.length);
         newArr[arr.length] = newE;
         return new ConstArray<E>(newArr);       
+    }
+    
+    /**
+     * Return a new <code>ConstArray</code> that contains the same elements
+     * as this one excluding the element at a specified index
+     * @param i the index of the element to exclude
+     * @return  the new array
+     */
+    public ConstArray<E> without(final int i) {
+        final Object[] newArr = new Object[arr.length - 1];
+        System.arraycopy(arr, 0, newArr, 0, i);
+        System.arraycopy(arr, i + 1, newArr, i, newArr.length - i);
+        return new ConstArray<E>(newArr);
+    }
+    
+    public static class Builder<E> implements ArrayBuilder<E> {
+        private Object[] buffer;
+        private int size;
+
+        /**
+         * Construct an instance with the default internal array length.
+         */
+        public Builder() {
+            this(0);
+        }
+        
+        /**
+         * Construct an instance.
+         * @param estimate  estimated array length
+         */
+        public Builder(final int estimate) {
+            buffer = new Object[estimate > 0 ? estimate : 32];
+            size = 0;
+        }        
+
+        /** 
+         * Appends an element to the Array
+         * @param newE the element to append
+         */
+        public void write(E newE) {
+            if (size == buffer.length) {
+                System.arraycopy(buffer, 0, buffer = new Object[2 * size], 0,
+                                 size);
+            }
+            buffer[size++] = newE;
+        }
+
+        /** 
+         * Appends all elements from a Java array to the Array
+         * @param newEs the element to append
+         */
+        public void write(E[] newEs) {
+            write(newEs, 0, newEs.length);
+        }
+
+        /** 
+         * Appends a range of elements from a Java array to the Array
+         * @param newEs the source array
+         * @param off   the index of the first element to append
+         * @param len   the number of elements to append
+         */
+        public void write(E[] newEs, int off, int len) {
+            int newSize = size + len;
+            if (len < 0 || newSize < 0 || off + len > newEs.length) {
+                throw new IndexOutOfBoundsException();
+            }
+            if (newSize > buffer.length) {
+                int newLength = Math.max(newSize, 2 * buffer.length);
+                System.arraycopy(buffer, 0, buffer = new Object[newLength], 0,
+                                 size);
+            }
+            System.arraycopy(newEs, off, buffer, size, len);
+            size = newSize;
+        }
+        
+        /**
+         * Create a snapshot of the current content.
+         * @return a <code>ConstArray<E></code> containing the elements written
+         *         so far
+         */
+        public ConstArray<E> snapshot() {
+            final Object[] arr;
+            if (size == buffer.length) {
+                arr = buffer;
+            } else {
+                arr = new Object[size];
+                System.arraycopy(buffer, 0, arr, 0, size);
+            }
+            return new ConstArray<E>(arr);
+        }
     }
 }

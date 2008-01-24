@@ -199,4 +199,111 @@ public final class LongArray extends PowerlessArray<Long> {
         newLongs[longs.length] = newLong;
         return new LongArray(newLongs);
     }
+
+    /**
+     * Return a new <code>LongArray</code> that contains the same elements
+     * as this one excluding the element at a specified index
+     * @param i the index of the element to exclude
+     * @return  the new array
+     */
+    public LongArray without(final int i) {
+        final long[] newArr = new long[longs.length - 1];
+        System.arraycopy(longs, 0, newArr, 0, i);
+        System.arraycopy(longs, i + 1, newArr, i, newArr.length - i);
+        return new LongArray(newArr);
+    }
+    
+    /**
+     * A {@link LongArray} factory.
+     */
+    static public final class Builder implements ArrayBuilder<Long> {
+        private long[] buffer;
+        private int size;
+
+        /**
+         * Construct an instance with the default internal array length.
+         */
+        public Builder() {
+            this(0);
+        }
+        
+        /**
+         * Construct an instance.
+         * @param estimate  estimated array length
+         */
+        public Builder(int estimate) {
+            buffer = new long[estimate > 0 ? estimate : 32];
+            size = 0;
+        }
+
+        // ArrayBuilder<Long> interface
+        public void write(Long newLong) {
+            write ((long) newLong);
+        }
+        
+        public void write(final Long[] newLongs) {
+            write(newLongs, 0, newLongs.length);
+        }      
+        
+        public void write(final Long[] newLongs, 
+                          final int off, final int len) {
+            int newSize = size + len;
+            if (len < 0 || newSize < 0 || off + len > newLongs.length) {
+                throw new IndexOutOfBoundsException();
+            }
+            if (newSize > buffer.length) {
+                int newLength = Math.max(newSize, 2 * buffer.length);
+                System.arraycopy(buffer, 0, buffer = new long[newLength], 0,
+                                 size);
+            }
+            
+            for (int i = off; i < off + len; ++i) {
+                buffer[size + i] = newLongs[i];
+            }           
+            size = newSize;
+        }
+        
+        /**
+         * Create a snapshot of the current content.
+         */
+        public LongArray snapshot() {
+            final long[] arr;
+            if (size == buffer.length) {
+                arr = buffer;
+            } else {
+                arr = new long[size];
+                System.arraycopy(buffer, 0, arr, 0, size);
+            }
+            return new LongArray(arr);
+        }
+        
+        /*
+         * Convenience (more efficient) methods with long
+         */
+        public void write(final long newLong) {
+            if (size == buffer.length) {
+                System.arraycopy(buffer, 0, buffer = new long[2 * size], 0,
+                                 size);
+            }
+            buffer[size++] = newLong;
+        }
+
+        public void write(final long[] newLongs) {
+            write(newLongs, 0, newLongs.length);
+        }      
+        
+        public void write(final long[] newLongs, final int off, final int len) {
+            int newSize = size + len;
+            if (len < 0 || newSize < 0 || off + len > newLongs.length) {
+                throw new IndexOutOfBoundsException();
+            }
+            if (newSize > buffer.length) {
+                int newLength = Math.max(newSize, 2 * buffer.length);
+                System.arraycopy(buffer, 0, buffer = new long[newLength], 0,
+                                 size);
+            }
+            System.arraycopy(newLongs, off, buffer, size, len);
+            size = newSize;
+        }
+    }
 }
