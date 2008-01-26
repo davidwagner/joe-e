@@ -153,6 +153,7 @@ public class Builder extends IncrementalProjectBuilder {
         state = null;
         getProject().deleteMarkers(MARKER_TYPE, 
                 true, IResource.DEPTH_INFINITE);
+        // delete safej's??
     }
         
     /**
@@ -211,12 +212,9 @@ public class Builder extends IncrementalProjectBuilder {
 		
             System.out.println("... found " + problems.size() + " problem" 
                                + (problems.size() == 1 ? "." : "s."));
-        
-            // System.out.println(state);
-        
 
             for (Problem problem : problems) {
-        	addMarker(file, problem, slc);
+                addMarker(file, problem, slc);
             }
         
             return recheck;
@@ -297,7 +295,8 @@ public class Builder extends IncrementalProjectBuilder {
         }
 
         taming.outputRuntimeDatabase(); // counts as one additional task
-        monitor.done();       
+        monitor.done(); 
+        needRebuild(); // force java builder to be re-run on modified policy.
     }
     
     /**
@@ -321,10 +320,15 @@ public class Builder extends IncrementalProjectBuilder {
                 if (file.getName().endsWith(".java")) {
                     ICompilationUnit icu = 
                         (ICompilationUnit) JavaCore.create(file);
+                    // .java files in weird locations don't have 
+                    // ICompilationUnits that exist
                     if (icu.exists()) {
-                        // .java files in weird locations don't have 
-                        // ICompilationUnits that exist
-                        inBuild.add(icu);
+                        IType mainType = icu.findPrimaryType();
+                        if (mainType == null ||
+                            !mainType.getFullyQualifiedName()
+                            .equals("org.joe_e.taming.Policy")) {
+                            inBuild.add(icu);
+                        }
                     }
                 }
             }
@@ -389,6 +393,7 @@ public class Builder extends IncrementalProjectBuilder {
         
         taming.outputRuntimeDatabase(); // counts as one additional task
         monitor.done();
+        needRebuild();
 	}
     
     /**

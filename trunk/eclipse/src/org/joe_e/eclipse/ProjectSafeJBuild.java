@@ -135,6 +135,10 @@ public class ProjectSafeJBuild {
     }
     
     private void process(IType type, boolean joeE) throws JavaModelException {
+        if (!Taming.isRelevant(type)) {
+            return;
+        }
+        
         IFolder dir;
         try {
             dir = directoryFor(type.getPackageFragment(), true);
@@ -159,8 +163,14 @@ public class ProjectSafeJBuild {
         Set<String> constructors = new TreeSet<String>();
         Set<String> staticMethods = new TreeSet<String>();
         Set<String> instanceMethods = new TreeSet<String>();            
-            
+        
+        boolean defaultConstructor = 
+            type.isClass() && Flags.isPublic(type.getFlags());
         for (IMethod m : type.getMethods()) {
+            if (m.isConstructor()) {
+                defaultConstructor = false;
+            }
+            
             int flags = m.getFlags();
             if (Taming.isRelevant(type, m)) {
                 if (m.isConstructor()) {
@@ -171,6 +181,10 @@ public class ProjectSafeJBuild {
                     instanceMethods.add(Taming.getFlatSignature(m));
                 }
             }
+        }
+        
+        if (defaultConstructor) {
+            constructors.add(type.getTypeQualifiedName() + "()");
         }
             
         Set<String> staticFields = new TreeSet<String>();

@@ -102,7 +102,7 @@ public class SafeJBuild {
             } else {
                 out.println("# auto-generated safej: default deny everything");
             }
-            out.println("class(\"" + type.getFullyQualifiedName() + "\"");
+            out.print("class(\"" + type.getFullyQualifiedName() + "\"");
            
             Set<String> constructors = new TreeSet<String>();
             Set<String> staticMethods = new TreeSet<String>();
