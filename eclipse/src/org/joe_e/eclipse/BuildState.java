@@ -37,11 +37,13 @@ class BuildState {
     static final int VERIFY_POWERLESS =  0x0400;
     */
     
+    final IJavaProject ijp;
     final Map<IType, ITypeState> typeStates;
     final Map<ICompilationUnit, ICUState> icuStates;
     
 	BuildState(IJavaProject ijp) {
-		typeStates = new HashMap<IType, ITypeState>();
+		this.ijp = ijp;
+        typeStates = new HashMap<IType, ITypeState>();
 		icuStates = new HashMap<ICompilationUnit, ICUState>();
         IFolder tamingFolder = ijp.getProject().getFolder("taming");;
         if (!tamingFolder.exists()) {
@@ -98,9 +100,17 @@ class BuildState {
 	}
 	*/
     
+    private boolean isFromProject(ITypeBinding itb) {
+        return itb.getJavaElement().getJavaProject().equals(ijp);
+    }
+    
     void addFlagDependency(ICompilationUnit current, ITypeBinding dependedOn) {
         if (dependedOn.isFromSource() && !dependedOn.isTypeVariable()) {
             IType type = (IType) dependedOn.getJavaElement();
+            if (!type.getJavaProject().equals(ijp)) {
+                return; // we don't handle cross-project dependencies yet
+            }
+            
             ITypeState dependedState = typeStates.get(type);
             if (dependedState == null) {
                 // create a node with an unitialized flags state

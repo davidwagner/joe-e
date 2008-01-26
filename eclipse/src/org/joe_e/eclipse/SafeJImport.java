@@ -108,7 +108,7 @@ public class SafeJImport {
                    
                     // Inherited honoraries check: subclass must honorarily or
                     // actually implement any honorary interfaces from superclass
-                    checkHonoraries(superclass, type);                
+                    checkHonoraries(superclass, type, sth);                
                 }
                 
                 // Also, must implement honoraries implemented by nearest
@@ -123,7 +123,7 @@ public class SafeJImport {
                 while (!superInterfaces.isEmpty()) {
                     IType current = superInterfaces.remove();                   
                     if (taming.db.containsKey(current)) {
-                        checkHonoraries(current, type);
+                        checkHonoraries(current, type, sth);
                     } else {
                         err.println("WARNING: type " + type.getElementName() +
                                     "'s superinterface " + 
@@ -165,9 +165,10 @@ public class SafeJImport {
          * @param supertype the supertype whose honoraries must be implemented
          * @param subtype the subtype being checked
          */
-        void checkHonoraries(IType supertype, IType subtype) {
+        void checkHonoraries(IType supertype, IType subtype, ITypeHierarchy sth) {
             for (IType honorary : taming.db.get(supertype).honoraries) {
-                if (!taming.db.get(subtype).honoraries.contains(honorary)) {
+                if (!sth.contains(honorary) &&
+                    !taming.db.get(subtype).honoraries.contains(honorary)) {
                     err.println("ERROR: type " + subtype.getElementName() +
                                 " does not inherit honorary interface " + 
                                 honorary.getElementName() + " from supertype "
@@ -215,9 +216,11 @@ public class SafeJImport {
                 } 
             }
             
-            for (IMethod m : enabled.keySet()) {
-                if (!Flags.isStatic(m.getFlags())) {
-                    propagate.add(m);
+            if (enabled != null) {
+                for (IMethod m : enabled.keySet()) {
+                    if (!Flags.isStatic(m.getFlags())) {
+                        propagate.add(m);
+                    }
                 }
             }
             
@@ -324,8 +327,12 @@ public class SafeJImport {
             }
             
             try {
-                IType type = project.findType(className);
-         
+                int lastDot = className.lastIndexOf('.');
+                String packageName = className.substring(0, lastDot);
+                String typeQualifiedName = 
+                    className.substring(lastDot + 1).replace('$', '.');
+                IType type = project.findType(packageName, typeQualifiedName);
+
                 if (type == null) {
                     err.println("WARNING: Type " + className + " not found!");
                     throw new ImportFailure();
@@ -533,7 +540,7 @@ public class SafeJImport {
         }
         */
         private void failImporting(String problem) throws ImportFailure {
-            err.println("Importing failed: " + problem);
+            err.println( "Importing failed: " + problem);
             throw new ImportFailure();
         }
     }

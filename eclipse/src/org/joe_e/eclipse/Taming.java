@@ -45,17 +45,13 @@ public class Taming {
         // final classes?  Would anyone declare one (protected is equivalent to 
         // the default (package) protection in such a case)
         return (Flags.isPublic(flags) || Flags.isProtected(flags));
-        /*
-         || !Flags.isFinal(typeFlags) && Flags.isProtected(flags))
-                && !Flags.isSynthetic(flags));
-        */
     }
     
     static boolean isRelevant(IType type, IField field) 
                                         throws JavaModelException {
         int typeFlags = type.getFlags();
         int flags = field.getFlags();
-        return ((Flags.isPublic(flags) 
+        return ((type.isInterface() || Flags.isPublic(flags) 
                  || !Flags.isFinal(typeFlags) && Flags.isProtected(flags))
                 && !Flags.isSynthetic(flags));
     }
@@ -64,9 +60,13 @@ public class Taming {
                                         throws JavaModelException {
         int typeFlags = type.getFlags();
         int flags = method.getFlags();
-        return ((Flags.isPublic(flags) 
+        // The method must be (a) from an interface, thus implicitly public,
+        // (b) public, or (c) a protected method from a non-final class in
+        // order for taming to be relevant.  In addition, synthetic methods
+        // and the <clinit> pseudomethod are not relevant.
+        return ((type.isInterface() || Flags.isPublic(flags)
                  || !Flags.isFinal(typeFlags) && Flags.isProtected(flags))
-                && !Flags.isSynthetic(flags) 
+                && !Flags.isSynthetic(flags)
                 && !method.getElementName().equals("<clinit>"));
     }
     
@@ -80,9 +80,17 @@ public class Taming {
             } else {
                 flatSigBuilder.append(", ");
             }
-            String parameterSimpleName = 
-                Signature.getSignatureSimpleName(paramSig);
-            flatSigBuilder.append(parameterSimpleName);
+            
+            // Can replace $ with % to avoid turning them into dots and thus
+            // preserve them.  Unfortunately, the $'s aren't always present to
+            // begin with, so it appears to be a lost cause.
+            //String readableType = 
+            //    Signature.toString(paramSig.replace('$', '%'));
+            String readableType = Signature.toString(paramSig);
+            String flatReadableType = 
+                readableType.replaceAll("[^<> ]*\\.([^<> \\.]*)", "$1");
+            //flatSigBuilder.append(flatReadableType.replace('%', '$'));
+            flatSigBuilder.append(flatReadableType);
         }
         // special handling for varargs?
         //if () {
@@ -198,6 +206,10 @@ public class Taming {
        
     Taming(File persistentDB, IJavaProject project) throws CoreException {
         this.project = project;
+        
+        /* HUGE HACK! TEMPORARY! what to do here? */
+        SafeJBuild hack = new SafeJBuild(System.err, new File("/home/adrian/taming/safej-dump"));
+        hack.processLibraryPackage("java.io", project);
         
         /*
          * Project SafeJ Builder
@@ -417,12 +429,16 @@ public class Taming {
         return result;
     }
     
+    private boolean isFromProject(ITypeBinding itb) {
+        return (itb.isFromSource() &&
+                itb.getJavaElement().getJavaProject().equals(project));
+    }
+    
     boolean isJoeE(ITypeBinding itb) {
-        if (itb.isFromSource()) {
+        if (isFromProject(itb)) {
             IContainer container = 
                 itb.getJavaElement().getResource().getParent();
-            return itb.getJavaElement().getJavaProject() == project
-                && TogglePackageAction.isJoeE(container);
+            return TogglePackageAction.isJoeE(container);
         } else {
             return false;
         }
@@ -613,7 +629,6 @@ public class Taming {
         for (IType type : db.keySet()) {
             Entry e = db.get(type);
             String fqn = type.getFullyQualifiedName();
-            String pkg = type.getPackageFragment().getElementName();
             
             out.println((firstType ? "" : "\n") + "        // Type " + fqn);
             firstType = false;
@@ -646,8 +661,10 @@ public class Taming {
                 for (IMethod m : methods.keySet()) {
                     try {
                         if (m.isConstructor()) {
-                            out.println("        constructors.add(\"" + pkg +
-                                        "." + getFlatSignature(m) + "\");");
+                            String flatSig = getFlatSignature(m);
+                            flatSig = flatSig.substring(flatSig.indexOf('('));
+                            out.println("        constructors.add(\"" + fqn +
+                                        flatSig + "\");");
                         }
                     } catch (JavaModelException jme) {
                         jme.printStackTrace(System.err);

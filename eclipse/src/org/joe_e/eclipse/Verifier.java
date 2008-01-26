@@ -354,17 +354,17 @@ public class Verifier {
                 ITypeBinding itb = (ITypeBinding) ib;
                 
                 assert (itb.isClass() || itb.isInterface() || itb.isEnum()
-                        || itb.isAnnotation() || itb.isWildcardType()
+                        || itb.isAnnotation()
                         || itb.isTypeVariable());
                 
-                if (itb.isTypeVariable() || itb.isWildcardType()) {
+                // we depend on the type being tamed and/or verified as Joe-E
+                state.addFlagDependency(icu, itb);
+                
+                if (itb.isTypeVariable()) {
                     // OK
-                } else if (taming.isJoeE(itb)) {
-                    // FIXME: dependency that it's Joe-E.  in general
-                    // dependencies are probably screwed up.
-                } else if (!taming.isTamed(itb)) {
+                } else if (!taming.isJoeE(itb) && !taming.isTamed(itb)) {
                     addProblem("Reference to disabled class " +
-                            itb.getName(), sn, itb);
+                            itb.getName(), sn, itb);                   
                 }
             } else if (ib instanceof IMethodBinding) {
                 // Handled elsewhere since we wish to record the lexical type
@@ -395,8 +395,13 @@ public class Verifier {
             // special-cased here; we allow it.
             if (classBinding == null) {
                 return;
-            } else if (taming.isJoeE(classBinding)) {
-                // FIXME: dependencies?  also for tamed stuff?
+            } 
+
+            // Depend on whether class is tamed or if it is Joe-E
+            state.addFlagDependency(icu, classBinding);
+            
+            if (taming.isJoeE(classBinding)) {
+                // OK
             } else if (taming.isTamed(classBinding)) {
                 if (!taming.isAllowed(classBinding, fieldBinding)) {
                     addProblem("Disabled field " + fieldBinding.getName() +
@@ -408,13 +413,6 @@ public class Verifier {
                         "disabled class " + classBinding.getName() + 
                         " accessed", source, classBinding);
             }
-                /*    
-                    classBinding.isFromSource()) {
-                // add a dependency on the field existing.  We don't need to
-                // worry about superclasses shadowing the field because such
-                // a change would definitely require Java to recompile the file
-                state.addDeepDependency(icu, classBinding);
-                 */
         }
         
         /**
@@ -432,6 +430,8 @@ public class Verifier {
         public boolean visit(ClassInstanceCreation cic) {
             IMethodBinding actualCtor = cic.resolveConstructorBinding();
             ITypeBinding actualClass = actualCtor.getDeclaringClass();
+            // The lexical class may differ from the actual class in the case
+            // of anonymous types
             ITypeBinding lexicalClass = cic.getType().resolveBinding();
             ITypeBinding currentClass = getCurrentClass();
 
@@ -439,14 +439,16 @@ public class Verifier {
             if (actualClass != currentClass && isLocal(actualClass)) {
                 classInfo.get(getCurrentClass()).addCall(cic);
             }
-           
-            // FIXME: dependencies?
+
+            // If the lexical class is from the project, we depend on whether
+            // or not it is Joe-E; redundant with SimpleName
+            // state.addFlagDependency(icu, lexicalClass);
+            
             // Check if taming is violated for the constructor invocation.
-            // Only applies to non-source classes (not interfaces).
-            // Untamed classes here are covered by the SimpleName check.
-            if (!taming.isJoeE(lexicalClass) &&  taming.isTamed(lexicalClass) 
-                && lexicalClass.isClass()) {
-                
+            // Only applies to non-Joe-E classes (not interfaces).
+            // Disabled classes here are covered by the SimpleName check.
+            if (!taming.isJoeE(lexicalClass)
+                && taming.isTamed(lexicalClass) && lexicalClass.isClass()) {    
                 // Find constructor called from non-source type: signature will
                 // exactly match that of the implicit synthetic anonymous 
                 // constructor that is actually called (JLS3 15.9.5.1)
@@ -528,12 +530,13 @@ public class Verifier {
             IMethodBinding superCtor = sci.resolveConstructorBinding();
             ITypeBinding classBinding = superCtor.getDeclaringClass();
 
+            // No need for dependency here, we already have a dependency
+            // on the SimpleName for the superclass.
+            // state.addFlagDependency(icu, classBinding);
+            
             // Check if taming is violated for non-source types.
             // If the superclass is a disabled class, we have already flagged
             // it. 
-            // TODO: must fix this once we can customize whether something is checked.
-            // No dependency needed here; we assume that the superclass
-            // can't change from being from source to being part of the library.
             if (!taming.isJoeE(classBinding) && taming.isTamed(classBinding)
                 && !taming.isAllowed(classBinding, superCtor)) {
                 addProblem("Disabled superconstructor called", sci, 
@@ -565,17 +568,19 @@ public class Verifier {
             // Unlike for a field, getDeclaringClass on a method binding will 
             // never return null.  It returns java.lang.Object for methods
             // invoked on arrays.
-            
-            // TODO: better detection of when taming is necessary.
-            if (lexicalClass != null && taming.isJoeE(lexicalClass)) {
+
+            if (lexicalClass != null) {
                 // Add deep dependency on method resolving the way it does.
                 // This is against the lexical class, as changes to it may
-                // change method dispatch.
+                // change method dispatch.  Transitive dependencies also cover
+                // ancestors of the lexical class.
+                // TODO: Dependencies probably still broken if there are several 
+                // non-Joe-E source classes involved.  Maybe not worth fixing.
                 state.addDeepDependency(icu, lexicalClass);
             }
             
             if (taming.isJoeE(actualClass)) {
-                // TODO: dependency?
+                // OK
             } else if (taming.isTamed(actualClass)) {
                 if (!taming.isAllowed(actualClass, imb)) {
                     addProblem("Disabled method " + imb.getName() +
@@ -790,10 +795,26 @@ public class Verifier {
             }
             
             if (name.getIdentifier().equals("finalize") 
-                && md.parameters().size() == 0) {
+                && md.parameters().isEmpty()) {
                 addProblem("Finalizers are not allowed", name);
+            } else if (name.getIdentifier().equals("readObject")
+                       && md.parameters().size() == 1) {
+                SingleVariableDeclaration arg = 
+                    (SingleVariableDeclaration) md.parameters().get(0);
+                if (arg.getType().resolveBinding().getQualifiedName()
+                       .equals("java.io.ObjectInputStream")) {
+                    addProblem("Custom serialization behavior is not allowed.");
+                }
+            } else if (name.getIdentifier().equals("writeObject")
+                       && md.parameters().size() == 1) {
+                SingleVariableDeclaration arg = 
+                    (SingleVariableDeclaration) md.parameters().get(0);
+                if (arg.getType().resolveBinding().getQualifiedName()
+                       .equals("java.io.ObjectOutputStream")) {
+                    addProblem("Custom serialization behavior is not allowed.");
+                }    
             }
-                               
+                
             if (md.isConstructor()) {
                 List statements = md.getBody().statements();
                            
@@ -993,17 +1014,25 @@ public class Verifier {
             
             
             try {
-                if (!Flags.isPrivate(type.getFlags())) {
+                if (!Flags.isPrivate(type.getFlags())) {  // TODO: is this right?
                     taming.processJoeEType(type);
                 }
                 
-                ITypeHierarchy sth = type.newSupertypeHierarchy(null);
-                                
-                // Marker interfaces here = implements in BASE type system
+                ITypeHierarchy sth;
+                if (type.isEnum() && type.isAnonymous()) {
+                    // workaround for an Eclipse bug(?): anonymous type of a
+                    // constant-specific class body of an Enum gives a bogus
+                    // supertype hierarchy, so use the enclosing class instead
+                    sth = type.getDeclaringType().newSupertypeHierarchy(null);
+                } else {
+                    sth = type.newSupertypeHierarchy(null);
+                }
+                
                 boolean isSelfless = sth.contains(taming.SELFLESS);
                 boolean isImmutable = sth.contains(taming.IMMUTABLE);
                 boolean isPowerless = sth.contains(taming.POWERLESS);
                 boolean isEquatable = sth.contains(taming.EQUATABLE);
+                
                 // TODO: special handling for enums to avoid needing to declare
                 // implements Powerless, Equatable for all of them?
 
@@ -1030,8 +1059,8 @@ public class Verifier {
                     if (Modifier.isStatic(modifiers)) {
                         if (Modifier.isFinal(modifiers)) {
                             ITypeBinding fieldTB = fb.getType();
-                            // must be Powerless
-                            state.addFlagDependency(icu, fieldTB);
+                            // must be Powerless; redundant with SimpleName
+                            // state.addFlagDependency(icu, fieldTB);
 
                             if (!taming.implementsOverlay(fieldTB,
                                     taming.POWERLESS)) {
@@ -1127,8 +1156,8 @@ public class Verifier {
                 if (isPowerless 
                     /* && !taming.isDeemed(type, taming.POWERLESS) */) {
                     if (sth.contains(taming.TOKEN)) {
-                        addProblem("Powerless class " + type.getElementName() +
-                                   " can't extend Token", type);
+                            addProblem("Powerless class " + itb.getName() +
+                                       " can't extend Token", type);
                     }
 
                     verifyAllFieldsAre(itb, taming.POWERLESS);
@@ -1312,7 +1341,8 @@ public class Verifier {
                         // Field must implement mi
                         ITypeBinding fieldTB = fb.getType();
 
-                        // add dependency on type of field
+                        // dependent on field implementing mi
+                        // mostly redundant with SimpleName, but no harm
                         state.addFlagDependency(icu, fieldTB);
 
                         if (taming.implementsOverlay(fieldTB, mi)
@@ -1451,20 +1481,18 @@ public class Verifier {
                                 "encountered analyzing infix expression", ie);
                 }             
             } else if (op == InfixExpression.Operator.PLUS) {
-                //try {
-                    // left operand NOT always statically a string or boxed 
-                    // primitive... only one of the first two need be.
-                    // Just go ahead and check both.
-                    checkToString(ie.getLeftOperand());
-                    checkToString(ie.getRightOperand());
+                // left operand NOT always statically a string or boxed 
+                // primitive... only one of the first two need be.
+                // Just go ahead and check both.
+                checkToString(ie.getLeftOperand());
+                checkToString(ie.getRightOperand());
                     
-                    if (ie.hasExtendedOperands()) {
-                        for (Object o : ie.extendedOperands()) {
-                            Expression e = (Expression) o;
-                            checkToString(e);
-                        }
+                 if (ie.hasExtendedOperands()) {
+                    for (Object o : ie.extendedOperands()) {
+                        Expression e = (Expression) o;
+                        checkToString(e);
                     }
-                // } catch {}
+                }
             }
             
             return true;
@@ -1488,9 +1516,40 @@ public class Verifier {
             return true;
         }
         
-        /*
+        /**
+         * Check an assert statement.  Ensure that the expression to the right
+         * of the ":", if any, is safe to call toString() on.  Note that it is not
+         * ensured that the assertion expression is pure; this means that a
+         * program will be able to tell whether or not assertions are enabled.
+         * TODO: this might be nice to enforce if we can.
+         * 
+         * @param as
+         *            the assert statement to check
+         * @return true to visit children of this node
+         */
+        public boolean visit(AssertStatement as) {
+            Expression message = as.getMessage();
+            if (message != null) {
+                checkToString(as.getMessage());
+            }
+            return true;
+        }
+        
+        public boolean visit(EnhancedForStatement efs) {
+            Expression iterable = efs.getExpression();
+            final ITypeBinding itb  = resolveType(iterable);
+            if (itb.isArray()) {
+                // not a problem
+            } else { 
+                checkImplicitMethodCall("iterator", itb, iterable);
+            }
+            return true;
+        }
+        
+        /**
          * Checks if invoking toString() on expression e violates taming
-         * decisions.  Adds problems if so.
+         * decisions.  Adds problems if so.  Allows toString() on primitives
+         * and denies the toString() method on arrays.  
          */
         void checkToString(Expression e) {
             final ITypeBinding itb  = resolveType(e);
@@ -1503,66 +1562,79 @@ public class Verifier {
             } else { // no funny stuff, itb should be in the class hierarchy
                 // add dependency on either toString existing, or what the
                 // superclass is
-                state.addDeepDependency(icu, itb);                
-                Stack<ITypeBinding> left = new Stack<ITypeBinding>();
-                left.add(itb);
+                state.addDeepDependency(icu, itb); 
                 
-                while (!left.isEmpty()) {
-                    ITypeBinding current = left.pop();
-                    IMethodBinding[] imbs = current.getDeclaredMethods();
-                    for (IMethodBinding imb : imbs) {
-                        // Most specific statically resolvable toString method.
-                        // Thankfully, since Object declares this with no args,
-                        // that takes precedence over any varargs matches
-                        if (imb.getName().equals("toString")
-                                && imb.getParameterTypes().length == 0) {
-                            if (!taming.isJoeE(current)
-                                && (!taming.isTamed(current) 
-                                    || !taming.isAllowed(current, imb))) {
-                                String description = 
-                                    describe("Implicit call of disabled " +
-                                             "toString() method for class " +
-                                             current.getName(), current, imb);
-                                addProblem(description + ".  Fields and return "
-                                           + "values of parameterized type " +
-                                           "may require explicit casts.", e);
-                            }
-                            return;
-                        }      
-                    }
-                    if (current.isClass()) {
-                        left.push(current.getSuperclass());
-                    } else { // current is interface
-                        // push interfaces onto stack, first interface listed on
-                        // top.  Note that this does not handle *multiple* toString
-                        // methods if they are tamed differently.
-                        ITypeBinding[] superInterfaces = current.getInterfaces();
-                        for (int i = superInterfaces.length - 1; i >= 0; --i) {
-                            left.push(superInterfaces[i]);
-                        }
-                        // After interfaces exhausted, try Object
-                        if (left.isEmpty()) {
-                            left.push(OBJECT);
-                        }
-                    }
-                }
-                
-                addProblem("VERIFIER BUG: unable to resolve toString() for "
-                           + e, e);
+                checkImplicitMethodCall("toString", itb, e);
             }
         }
 
-        /*
-         * Resolves the type of an expression.
+        void checkImplicitMethodCall(String methodName, ITypeBinding itb, 
+                                     Expression e) {
+            Stack<ITypeBinding> left = new Stack<ITypeBinding>();
+            left.add(itb);
+            
+            while (!left.isEmpty()) {
+                ITypeBinding current = left.pop();
+                IMethodBinding[] imbs = current.getDeclaredMethods();
+                for (IMethodBinding imb : imbs) {
+                    // Most specific statically resolvable toString method.
+                    // Thankfully, since Object declares this with no args,
+                    // that takes precedence over any varargs matches
+                    if (imb.getName().equals(methodName)
+                            && imb.getParameterTypes().length == 0) {
+                        if (!taming.isJoeE(current)
+                            && (!taming.isTamed(current) 
+                                || !taming.isAllowed(current, imb))) {
+                            String description = 
+                                describe("Implicit call of disabled method"
+                                         + methodName + "for class " +
+                                         current.getName(), current, imb);
+                            addProblem(description + ".  Fields and return "
+                                       + "values of parameter type " +
+                                       "may require explicit casts.", e);
+                        }
+                        return;
+                    }      
+                }
+                if (current.isClass() && current.getSuperclass() != null) {
+                    left.push(current.getSuperclass());
+                } else { // current is interface
+                    // push interfaces onto stack, first interface listed on
+                    // top.  Note that this does not handle *multiple* toString
+                    // methods if they are tamed differently.
+                    ITypeBinding[] superInterfaces = current.getInterfaces();
+                    for (int i = superInterfaces.length - 1; i >= 0; --i) {
+                        left.push(superInterfaces[i]);
+                    }
+                    // After interfaces exhausted, try Object
+                    if (left.isEmpty()) {
+                        left.push(OBJECT);
+                    }
+                }
+            }
+            
+            addProblem("VERIFIER BUG: unable to resolve " + methodName + 
+                       "() for " + e, e);
+        }       
+        
+        /**
+         * Conservatively resolves the type of an expression.
          * Aims to be safe in the face of heap pollution to avoid cheating
-         * object identity and toString restrictions.  May fail to do so.
+         * object identity and toString restrictions.  This is tricky, so this
+         * method may be broken, leading to security bugs.  It may be impossible
+         * to write correctly, due to underspecification.
          * The JLS is quite vague on this as far as I can tell, but from my
-         * experiments ?: will throw a class cast exception and (), ==, and
+         * experiments ?: will throw a class cast exception and (x), ==, and
          * implicit toString() won't, if the type isn't what is expected.
-         * The obvious way to handle heap pollution is to throw a 
-         * ClassCastException as soon as an expression is known not to match its
-         * static type (i.e. on method invocation or field access), but this
-         * is clearly not what Java does.  Don't ask me why.
+         * The obvious way to handle heap pollution would be to add an implicit
+         * cast to the expected type whenever expression might not match its
+         * static type (i.e. field reads of parameter types and methods
+         * returning same), but this is not what Java does.  It seems to only
+         * catch the mistyped value when it is assigned to a variable whose type
+         * does not match (including temporaries created for things like ?:), or
+         * when a method call on the suspect object fails.
+         *
+         * @param  the expression to conservatively infer the type of
          */
         ITypeBinding resolveType(Expression e) {
             if (e instanceof ParenthesizedExpression) {
