@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Joe-E Library"/>
 	<classpathentry kind="lib" path="testlib.jar"/>
+	<classpathentry kind="lib" path="/home/adrian/workspace/joe-e-lib.jar" sourcepath="/home/adrian/workspace/joe-e-lib.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

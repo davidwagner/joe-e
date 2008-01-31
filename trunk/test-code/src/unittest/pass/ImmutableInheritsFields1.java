@@ -7,7 +7,7 @@ public class ImmutableInheritsFields1 extends ContainsImmutable
 	ImmutableInheritsFields1(int id, String name) {
 		super(new org.joe_e.Token(), name, id);
 	}
-	
+
 	final Exception e = null;
 	final String s = null;
 }
