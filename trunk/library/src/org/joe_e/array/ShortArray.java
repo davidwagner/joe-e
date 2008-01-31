@@ -11,6 +11,8 @@ import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.lang.reflect.Array;
 
+import org.joe_e.array.ByteArray.Builder;
+
 
 /**
  * An immutable array of <code>short</code>.
@@ -216,7 +218,7 @@ public final class ShortArray extends PowerlessArray<Short> {
     /**
      * A {@link ShortArray} factory.
      */
-    static public final class Builder implements ArrayBuilder<Short> {
+    static public final class Builder extends PowerlessArray.Builder<Short> {
         private short[] buffer;
         private int size;
 
@@ -237,15 +239,15 @@ public final class ShortArray extends PowerlessArray<Short> {
         }
 
         // ArrayBuilder<Short> interface
-        public void write(Short newShort) {
-            write ((short) newShort);
+        public void append(Short newShort) {
+            append ((short) newShort);
         }
         
-        public void write(final Short[] newShorts) {
-            write(newShorts, 0, newShorts.length);
+        public void append(final Short[] newShorts) {
+            append(newShorts, 0, newShorts.length);
         }      
         
-        public void write(final Short[] newShorts, 
+        public void append(final Short[] newShorts, 
                           final int off, final int len) {
             int newSize = size + len;
             if (len < 0 || newSize < 0 || off + len > newShorts.length) {
@@ -257,8 +259,8 @@ public final class ShortArray extends PowerlessArray<Short> {
                                  size);
             }
             
-            for (int i = off; i < off + len; ++i) {
-                buffer[size + i] = newShorts[i];
+            for (int i = 0; i < len; ++i) {
+                buffer[size + i] = newShorts[off + i];
             }           
             size = newSize;
         }
@@ -280,7 +282,7 @@ public final class ShortArray extends PowerlessArray<Short> {
         /*
          * Convenience (more efficient) methods with short
          */
-        public void write(final short newShort) {
+        public void append(final short newShort) {
             if (size == buffer.length) {
                 System.arraycopy(buffer, 0, buffer = new short[2 * size], 0,
                                  size);
@@ -288,11 +290,11 @@ public final class ShortArray extends PowerlessArray<Short> {
             buffer[size++] = newShort;
         }
 
-        public void write(final short[] newShorts) {
-            write(newShorts, 0, newShorts.length);
+        public void append(final short[] newShorts) {
+            append(newShorts, 0, newShorts.length);
         }      
         
-        public void write(final short[] newShorts, final int off, final int len) {
+        public void append(final short[] newShorts, final int off, final int len) {
             int newSize = size + len;
             if (len < 0 || newSize < 0 || off + len > newShorts.length) {
                 throw new IndexOutOfBoundsException();
@@ -305,5 +307,26 @@ public final class ShortArray extends PowerlessArray<Short> {
             System.arraycopy(newShorts, off, buffer, size, len);
             size = newSize;
         }
+    }
+    
+    /* If one only invokes static methods statically, this is sound, since
+     * ShortArray extends PowerlessArray<Short> and thus this method is
+     * only required to return something of a type covariant with
+     * PowerlessArray.Builder<Short>.  Unfortunately, this is not completely
+     * sound because it is possible to invoke static methods on instances, e.g.
+     * ConstArray.Builder<String> = (ConstArray (ShortArray.array())).builder(),
+     * allowing for heap pollution without an unchecked cast warning.
+     * 
+     * The only solution to this would be to completely de-genericize these
+     * methods.
+     */
+    @SuppressWarnings("unchecked")
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Builder builder(final int estimate) {
+        return new Builder(estimate);
     }
 }

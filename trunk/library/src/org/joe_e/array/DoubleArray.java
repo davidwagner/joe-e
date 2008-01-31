@@ -11,6 +11,8 @@ import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.lang.reflect.Array;
 
+import org.joe_e.array.ByteArray.Builder;
+
 
 /**
  * An immutable array of <code>double</code>.
@@ -216,7 +218,7 @@ public final class DoubleArray extends PowerlessArray<Double> {
     /**
      * A {@link DoubleArray} factory.
      */
-    static public final class Builder implements ArrayBuilder<Double> {
+    static public final class Builder extends PowerlessArray.Builder<Double> {
         private double[] buffer;
         private int size;
 
@@ -237,15 +239,15 @@ public final class DoubleArray extends PowerlessArray<Double> {
         }
 
         // ArrayBuilder<Double> interface
-        public void write(Double newDouble) {
-            write ((double) newDouble);
+        public void append(Double newDouble) {
+            append ((double) newDouble);
         }
         
-        public void write(final Double[] newDoubles) {
-            write(newDoubles, 0, newDoubles.length);
+        public void append(final Double[] newDoubles) {
+            append(newDoubles, 0, newDoubles.length);
         }      
         
-        public void write(final Double[] newDoubles, 
+        public void append(final Double[] newDoubles, 
                           final int off, final int len) {
             int newSize = size + len;
             if (len < 0 || newSize < 0 || off + len > newDoubles.length) {
@@ -257,8 +259,8 @@ public final class DoubleArray extends PowerlessArray<Double> {
                                  size);
             }
             
-            for (int i = off; i < off + len; ++i) {
-                buffer[size + i] = newDoubles[i];
+            for (int i = 0; i < len; ++i) {
+                buffer[size + i] = newDoubles[off + i];
             }           
             size = newSize;
         }
@@ -280,7 +282,7 @@ public final class DoubleArray extends PowerlessArray<Double> {
         /*
          * Convenience (more efficient) methods with double
          */
-        public void write(final double newDouble) {
+        public void append(final double newDouble) {
             if (size == buffer.length) {
                 System.arraycopy(buffer, 0, buffer = new double[2 * size], 0,
                                  size);
@@ -288,11 +290,11 @@ public final class DoubleArray extends PowerlessArray<Double> {
             buffer[size++] = newDouble;
         }
 
-        public void write(final double[] newDoubles) {
-            write(newDoubles, 0, newDoubles.length);
+        public void append(final double[] newDoubles) {
+            append(newDoubles, 0, newDoubles.length);
         }      
         
-        public void write(final double[] newDoubles, final int off, final int len) {
+        public void append(final double[] newDoubles, final int off, final int len) {
             int newSize = size + len;
             if (len < 0 || newSize < 0 || off + len > newDoubles.length) {
                 throw new IndexOutOfBoundsException();
@@ -305,5 +307,26 @@ public final class DoubleArray extends PowerlessArray<Double> {
             System.arraycopy(newDoubles, off, buffer, size, len);
             size = newSize;
         }
+    }
+    
+    /* If one only invokes static methods statically, this is sound, since
+     * DoubleArray extends PowerlessArray<Double> and thus this method is
+     * only required to return something of a type covariant with
+     * PowerlessArray.Builder<Double>.  Unfortunately, this is not completely
+     * sound because it is possible to invoke static methods on instances, e.g.
+     * ConstArray.Builder<String> = (ConstArray (DoubleArray.array())).builder(),
+     * allowing for heap pollution without an unchecked cast warning.
+     * 
+     * The only solution to this would be to completely de-genericize these
+     * methods.
+     */
+    @SuppressWarnings("unchecked")
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Builder builder(final int estimate) {
+        return new Builder(estimate);
     }
 }

@@ -257,7 +257,7 @@ public class ConstArray<E> implements Selfless, Iterable<E>, Serializable {
         System.arraycopy(arr, i + 1, newArr, i, newArr.length - i);
         return new ConstArray<E>(newArr);
     }
-    
+        
     public static class Builder<E> implements ArrayBuilder<E> {
         private Object[] buffer;
         private int size;
@@ -282,7 +282,7 @@ public class ConstArray<E> implements Selfless, Iterable<E>, Serializable {
          * Appends an element to the Array
          * @param newE the element to append
          */
-        public void write(E newE) {
+        public void append(E newE) {
             if (size == buffer.length) {
                 System.arraycopy(buffer, 0, buffer = new Object[2 * size], 0,
                                  size);
@@ -294,8 +294,8 @@ public class ConstArray<E> implements Selfless, Iterable<E>, Serializable {
          * Appends all elements from a Java array to the Array
          * @param newEs the element to append
          */
-        public void write(E[] newEs) {
-            write(newEs, 0, newEs.length);
+        public void append(E[] newEs) {
+            append(newEs, 0, newEs.length);
         }
 
         /** 
@@ -304,7 +304,7 @@ public class ConstArray<E> implements Selfless, Iterable<E>, Serializable {
          * @param off   the index of the first element to append
          * @param len   the number of elements to append
          */
-        public void write(E[] newEs, int off, int len) {
+        public void append(E[] newEs, int off, int len) {
             int newSize = size + len;
             if (len < 0 || newSize < 0 || off + len > newEs.length) {
                 throw new IndexOutOfBoundsException();
@@ -333,5 +333,13 @@ public class ConstArray<E> implements Selfless, Iterable<E>, Serializable {
             }
             return new ConstArray<E>(arr);
         }
+    }
+    
+    public static <E> Builder<E> builder() {
+        return new Builder<E>(0);
+    }
+    
+    public static <E> Builder<E> builder(final int estimate) {
+        return new Builder<E>(estimate);
     }
 }

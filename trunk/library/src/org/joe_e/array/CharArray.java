@@ -11,6 +11,8 @@ import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.lang.reflect.Array;
 
+import org.joe_e.array.ByteArray.Builder;
+
 
 /**
  * An immutable array of <code>char</code>.
@@ -216,7 +218,7 @@ public final class CharArray extends PowerlessArray<Character> {
     /**
      * A {@link CharArray} factory.
      */
-    static public final class Builder implements ArrayBuilder<Character> {
+    static public final class Builder extends PowerlessArray.Builder<Character> {
         private char[] buffer;
         private int size;
 
@@ -237,15 +239,15 @@ public final class CharArray extends PowerlessArray<Character> {
         }
 
         // ArrayBuilder<Character> interface
-        public void write(Character newChar) {
-            write ((char) newChar);
+        public void append(Character newChar) {
+            append ((char) newChar);
         }
         
-        public void write(final Character[] newChars) {
-            write(newChars, 0, newChars.length);
+        public void append(final Character[] newChars) {
+            append(newChars, 0, newChars.length);
         }      
         
-        public void write(final Character[] newChars, 
+        public void append(final Character[] newChars, 
                           final int off, final int len) {
             int newSize = size + len;
             if (len < 0 || newSize < 0 || off + len > newChars.length) {
@@ -280,7 +282,7 @@ public final class CharArray extends PowerlessArray<Character> {
         /*
          * Convenience (more efficient) methods with char
          */
-        public void write(final char newChar) {
+        public void append(final char newChar) {
             if (size == buffer.length) {
                 System.arraycopy(buffer, 0, buffer = new char[2 * size], 0,
                                  size);
@@ -288,11 +290,11 @@ public final class CharArray extends PowerlessArray<Character> {
             buffer[size++] = newChar;
         }
 
-        public void write(final char[] newChars) {
-            write(newChars, 0, newChars.length);
+        public void append(final char[] newChars) {
+            append(newChars, 0, newChars.length);
         }      
         
-        public void write(final char[] newChars, final int off, final int len) {
+        public void append(final char[] newChars, final int off, final int len) {
             int newSize = size + len;
             if (len < 0 || newSize < 0 || off + len > newChars.length) {
                 throw new IndexOutOfBoundsException();
@@ -305,5 +307,26 @@ public final class CharArray extends PowerlessArray<Character> {
             System.arraycopy(newChars, off, buffer, size, len);
             size = newSize;
         }
+    }
+    
+    /* If one only invokes static methods statically, this is sound, since
+     * CharArray extends PowerlessArray<Character> and thus this method is
+     * only required to return something of a type covariant with
+     * PowerlessArray.Builder<Character>.  Unfortunately, this is not completely
+     * sound because it is possible to invoke static methods on instances, e.g.
+     * ConstArray.Builder<String> = (ConstArray (CharArray.array())).builder(),
+     * allowing for heap pollution without an unchecked cast warning.
+     * 
+     * The only solution to this would be to completely de-genericize these
+     * methods.
+     */
+    @SuppressWarnings("unchecked")
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Builder builder(final int estimate) {
+        return new Builder(estimate);
     }
 }

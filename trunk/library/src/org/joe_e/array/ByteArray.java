@@ -14,6 +14,8 @@ import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.lang.reflect.Array;
 
+import org.joe_e.array.ConstArray.Builder;
+
 
 /**
  * An immutable array of <code>byte</code>.
@@ -225,7 +227,7 @@ public final class ByteArray extends PowerlessArray<Byte> {
    /**
     * A {@link ByteArray} factory.
     */
-   static public final class Builder extends OutputStream implements ArrayBuilder<Byte> {
+   static public final class Builder extends PowerlessArray.Builder<Byte> {
        private byte[] buffer;
        private int size;
 
@@ -245,49 +247,18 @@ public final class ByteArray extends PowerlessArray<Byte> {
            size = 0;
        }
 
-       // java.io.OutputStream interface
-       
-       public void write(final int b) {
-           if (size == buffer.length) {
-               System.arraycopy(buffer, 0, buffer = new byte[2 * size], 0,
-                                size);
-           }
-           buffer[size++] = (byte) b;
+       // ArrayBuilder<Byte> interface      
+       public void append(Byte b) {
+           append((byte) b);
        }
-
-       // Should be equivalent to OutputStream's implementation, but provided
-       // so that people don't have to catch IOException
-       public void write(final byte[] b) {
-           write(b, 0, b.length);
+       
+       public void append(final Byte[] newBytes) {
+           append(newBytes, 0, newBytes.length);
        }      
        
-       public void write(byte[] b, int off, int len) {
+       public void append(Byte[] newBytes, int off, int len) {
            int newSize = size + len;
-           if (len < 0 || newSize < 0 || off + len > b.length) {
-               throw new IndexOutOfBoundsException();
-           }
-           if (newSize > buffer.length) {
-               int newLength = Math.max(newSize, 2 * buffer.length);
-               System.arraycopy(buffer, 0, buffer = new byte[newLength], 0,
-                                size);
-           }
-           System.arraycopy(b, off, buffer, size, len);
-           size = newSize;
-       }
-       
-       // ArrayBuilder<Byte> interface
-       
-       public void write(Byte b) {
-           write ((int) b);
-       }
-       
-       public void write(final Byte[] b) {
-           write(b, 0, b.length);
-       }      
-       
-       public void write(Byte[] b, int off, int len) {
-           int newSize = size + len;
-           if (len < 0 || newSize < 0 || off + len > b.length) {
+           if (len < 0 || newSize < 0 || off + len > newBytes.length) {
                throw new IndexOutOfBoundsException();
            }
            if (newSize > buffer.length) {
@@ -296,8 +267,8 @@ public final class ByteArray extends PowerlessArray<Byte> {
                                 size);
            }
            
-           for (int i = off; i < len; ++i) {
-               buffer[size + i] = b[i];
+           for (int i = 0; i < len; ++i) {
+               buffer[size + i] = newBytes[off + i];
            }           
            size = newSize;
        }
@@ -315,5 +286,74 @@ public final class ByteArray extends PowerlessArray<Byte> {
            }
            return new ByteArray(arr);
        }
+       
+       // Append methods using the primitive Byte type
+       public void append(final byte b) {
+           if (size == buffer.length) {
+               System.arraycopy(buffer, 0, buffer = new byte[2 * size], 0,
+                                size);
+           }
+           buffer[size++] = (byte) b;
+       }
+
+       public void append(final byte[] newBytes) {
+           append(newBytes, 0, newBytes.length);
+       }      
+       
+       public void append(byte[] newBytes, int off, int len) {
+           int newSize = size + len;
+           if (len < 0 || newSize < 0 || off + len > newBytes.length) {
+               throw new IndexOutOfBoundsException();
+           }
+           if (newSize > buffer.length) {
+               int newLength = Math.max(newSize, 2 * buffer.length);
+               System.arraycopy(buffer, 0, buffer = new byte[newLength], 0,
+                                size);
+           }
+           System.arraycopy(newBytes, off, buffer, size, len);
+           size = newSize;
+       }
+   }
+   
+   static public final class BuilderOutputStream extends OutputStream {
+       private Builder builder;
+       
+       // OutputStream interface
+       public BuilderOutputStream() {
+           builder = new Builder();
+       }
+       
+       public BuilderOutputStream(int estimate) {
+           builder = new Builder(estimate);
+       }
+       
+       public void write(int b) {
+           builder.append((byte) b);
+       }
+
+       // Should be equivalent to OutputStream's implementation, but provided
+       // so that people don't have to catch IOException
+       public void write(byte[] b) {
+           builder.append(b, 0, b.length);
+       }
+       
+       public void write(byte[] b, int off, int len) {
+           builder.append(b, off, len);
+       }
+       
+       // method to get data out
+       public ByteArray snapshot() {
+           return builder.snapshot();
+       }
+   }
+   
+   @SuppressWarnings("unchecked")
+   public static Builder builder() {
+       return new Builder();
+   }
+
+   @SuppressWarnings("unchecked")
+   public static Builder builder(final int estimate) {
+       return new Builder(estimate);
    }
 }
