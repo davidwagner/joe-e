@@ -28,39 +28,28 @@ public class Invocation {
     }
     
     public static void test() {
-        // get()    
-        try {
-            Field kindOfSecret = 
-                Reflection.field(NotPublic.class, "goo");
-            int value = (Integer) Reflection.get(kindOfSecret, new NotPublic());
-            assert false;
-        } catch (NoSuchFieldException nsme) {
-            assert false;
-        } catch (IllegalAccessException iae) { 
-            
-        }
-        
+        // get()          
         try {
             Field publicField = Reflection.field(Invocation.class, "dummy");
             int value = (Integer) Reflection.get(publicField, new Invocation());
-        } catch (NoSuchFieldException nsme) {
+        } catch (NoSuchFieldException nsfe) {
             assert false;
         } catch (IllegalAccessException iae) {
             assert false;
         }
         
-        // set()
         try {
-            Field kindOfSecret = 
+            Field notReallyPublic = 
                 Reflection.field(NotPublic.class, "goo");
-            Reflection.set(kindOfSecret, new NotPublic(), 7);
+            int value = (Integer) Reflection.get(notReallyPublic, new NotPublic());
             assert false;
-        } catch (NoSuchFieldException nsme) {
+        } catch (NoSuchFieldException nsfe) {
             assert false;
         } catch (IllegalAccessException iae) { 
             
         }
         
+        // set()
         try {
             Field publicField = Reflection.field(Invocation.class, "dummy");
             Reflection.set(publicField, new Invocation(), 7);
@@ -69,21 +58,20 @@ public class Invocation {
         } catch (IllegalAccessException iae) {
             assert false;
         }
-
-        // construct()
+        
         try {
-            Constructor kindOfSecret = 
-                Reflection.constructor(NotPublic.class, new Class[] {});
-            Reflection.construct(kindOfSecret, new Object[] {});
+            Field notReallyPublic = 
+                Reflection.field(NotPublic.class, "goo");
+            Reflection.set(notReallyPublic, new NotPublic(), 7);
             assert false;
-        } catch (NoSuchMethodException nsme) {
+        } catch (NoSuchFieldException nsme) {
             assert false;
         } catch (IllegalAccessException iae) { 
             
-        } catch (Exception e) {
-            assert false;
         }
-               
+        
+
+        // construct()
         try {
             Constructor publicCtor = 
                 Reflection.constructor(Token.class, new Class[] {});
@@ -92,11 +80,10 @@ public class Invocation {
             assert false;
         }
 
-        // invoke()
         try {
-            Method kindOfSecret = 
-                Reflection.method(NotPublic.class, "foo", new Class[] {});
-            Reflection.invoke(kindOfSecret, new Object[] {});
+            Constructor notReallyPublic = 
+                Reflection.constructor(NotPublic.class, new Class[] {});
+            Reflection.construct(notReallyPublic, new Object[] {});
             assert false;
         } catch (NoSuchMethodException nsme) {
             assert false;
@@ -105,12 +92,26 @@ public class Invocation {
         } catch (Exception e) {
             assert false;
         }
-               
+        
+        // invoke()
         try {
             Method publicMethod = 
                 Reflection.method(ConstArray.class, "length", new Class[] {});
             ConstArray<String> ca = ConstArray.array("high", "dry");
             int length = (Integer) Reflection.invoke(publicMethod, ca, new Object[] {});
+        } catch (Exception e) {
+            assert false;
+        }
+        
+        try {
+            Method notReallyPublic = 
+                Reflection.method(NotPublic.class, "foo", new Class[] {});
+            Reflection.invoke(notReallyPublic, new Object[] {});
+            assert false;
+        } catch (NoSuchMethodException nsme) {
+            assert false;
+        } catch (IllegalAccessException iae) { 
+            
         } catch (Exception e) {
             assert false;
         }
