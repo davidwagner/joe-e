@@ -216,27 +216,22 @@ public final class Reflection {
     }
 
     /**
+     * Get the name of a class.  Wrapper to avoid exposing the number of
+     * proxy interfaces generated.
+     */
+    static public String getName(Class c) {
+        if (java.lang.reflect.Proxy.isProxyClass(c)) {
+            throw new IllegalArgumentException("Can't get the name of a " +
+                                               "proxy class.");
+        } else {
+            return c.getName();
+        }
+    }
+    
+    /**
      * boot class loader
      */
-    static private final ClassLoader boot = Runnable.class.getClassLoader();
-
-    /*
-     * Return the non-nested-class aware name for a class (the one that may
-     * have $'s).  Arrays are in source form (trailing []'s).
-     */
-    static private String getFlatName(Class c) {
-        String name = c.getName();
-        if (!c.isArray()) {
-            return name;
-        }
-
-        Class component = c.getComponentType();
-        StringBuilder ret = new StringBuilder(component.getName());
-        for (int i = 0; name.charAt(i) == '['; ++i) {
-            ret.append("[]");
-        }
-        return ret.toString();
-    }
+    // static private final ClassLoader boot = Runnable.class.getClassLoader();
    
     /**
      * Is the given member allowed to be accessed by Joe-E code?

@@ -73,7 +73,7 @@ public class PowerlessArray<E> extends ImmutableArray<E> implements Powerless {
         return new PowerlessArray<E>(newArr);
     }
     
-    public static class Builder<E> implements ArrayBuilder<E> {
+    public static class Builder<E> extends ImmutableArray.Builder<E> {
         private Object[] buffer;
         private int size;
 
@@ -97,7 +97,7 @@ public class PowerlessArray<E> extends ImmutableArray<E> implements Powerless {
          * Appends an element to the Array
          * @param newE the element to append
          */
-        public void write(E newE) {
+        public void append(E newE) {
             if (!JoeE.instanceOf(newE, Powerless.class)) {
                 throw new ClassCastException(newE.getClass().getName() +
                                              "is not Powerless");
@@ -114,8 +114,8 @@ public class PowerlessArray<E> extends ImmutableArray<E> implements Powerless {
          * Appends all elements from a Java array to the Array
          * @param newEs the element to append
          */
-        public void write(E[] newEs) {
-            write(newEs, 0, newEs.length);
+        public void append(E[] newEs) {
+            append(newEs, 0, newEs.length);
         }
 
         /** 
@@ -124,7 +124,7 @@ public class PowerlessArray<E> extends ImmutableArray<E> implements Powerless {
          * @param off   the index of the first element to append
          * @param len   the number of elements to append
          */
-        public void write(E[] newEs, int off, int len) {
+        public void append(E[] newEs, int off, int len) {
             final Class e = newEs.getClass().getComponentType();
             if (!JoeE.isSubtypeOf(e, Powerless.class)) {
                 throw new ClassCastException(e.getName() + " is not Powerless");
@@ -159,4 +159,12 @@ public class PowerlessArray<E> extends ImmutableArray<E> implements Powerless {
             return new PowerlessArray<E>(arr);
         }
     } 
+    
+    public static <E> Builder<E> builder() {
+        return new Builder<E>(0);
+    }
+    
+    public static <E> Builder<E> builder(final int estimate) {
+        return new Builder<E>(estimate);
+    }
 }

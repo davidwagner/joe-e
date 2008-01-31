@@ -11,6 +11,8 @@ import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.lang.reflect.Array;
 
+import org.joe_e.array.ByteArray.Builder;
+
 
 /**
  * An immutable array of <code>long</code>.
@@ -216,7 +218,7 @@ public final class LongArray extends PowerlessArray<Long> {
     /**
      * A {@link LongArray} factory.
      */
-    static public final class Builder implements ArrayBuilder<Long> {
+    static public final class Builder extends PowerlessArray.Builder<Long> {
         private long[] buffer;
         private int size;
 
@@ -237,15 +239,15 @@ public final class LongArray extends PowerlessArray<Long> {
         }
 
         // ArrayBuilder<Long> interface
-        public void write(Long newLong) {
-            write ((long) newLong);
+        public void append(Long newLong) {
+            append ((long) newLong);
         }
         
-        public void write(final Long[] newLongs) {
-            write(newLongs, 0, newLongs.length);
+        public void append(final Long[] newLongs) {
+            append(newLongs, 0, newLongs.length);
         }      
         
-        public void write(final Long[] newLongs, 
+        public void append(final Long[] newLongs, 
                           final int off, final int len) {
             int newSize = size + len;
             if (len < 0 || newSize < 0 || off + len > newLongs.length) {
@@ -257,8 +259,8 @@ public final class LongArray extends PowerlessArray<Long> {
                                  size);
             }
             
-            for (int i = off; i < off + len; ++i) {
-                buffer[size + i] = newLongs[i];
+            for (int i = 0; i < len; ++i) {
+                buffer[size + i] = newLongs[off + i];
             }           
             size = newSize;
         }
@@ -280,7 +282,7 @@ public final class LongArray extends PowerlessArray<Long> {
         /*
          * Convenience (more efficient) methods with long
          */
-        public void write(final long newLong) {
+        public void append(final long newLong) {
             if (size == buffer.length) {
                 System.arraycopy(buffer, 0, buffer = new long[2 * size], 0,
                                  size);
@@ -288,11 +290,11 @@ public final class LongArray extends PowerlessArray<Long> {
             buffer[size++] = newLong;
         }
 
-        public void write(final long[] newLongs) {
-            write(newLongs, 0, newLongs.length);
+        public void append(final long[] newLongs) {
+            append(newLongs, 0, newLongs.length);
         }      
         
-        public void write(final long[] newLongs, final int off, final int len) {
+        public void append(final long[] newLongs, final int off, final int len) {
             int newSize = size + len;
             if (len < 0 || newSize < 0 || off + len > newLongs.length) {
                 throw new IndexOutOfBoundsException();
@@ -305,5 +307,26 @@ public final class LongArray extends PowerlessArray<Long> {
             System.arraycopy(newLongs, off, buffer, size, len);
             size = newSize;
         }
+    }
+    
+    /* If one only invokes static methods statically, this is sound, since
+     * LongArray extends PowerlessArray<Long> and thus this method is
+     * only required to return something of a type covariant with
+     * PowerlessArray.Builder<Long>.  Unfortunately, this is not completely
+     * sound because it is possible to invoke static methods on instances, e.g.
+     * ConstArray.Builder<String> = (ConstArray (LongArray.array())).builder(),
+     * allowing for heap pollution without an unchecked cast warning.
+     * 
+     * The only solution to this would be to completely de-genericize these
+     * methods.
+     */
+    @SuppressWarnings("unchecked")
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Builder builder(final int estimate) {
+        return new Builder(estimate);
     }
 }

@@ -7,6 +7,7 @@ package org.joe_e.array;
 
 import org.joe_e.Immutable;
 import org.joe_e.JoeE;
+import org.joe_e.array.ConstArray.Builder;
 
 /**
  * An immutable array containing immutable objects.
@@ -73,7 +74,7 @@ public class ImmutableArray<E> extends ConstArray<E> implements Immutable {
         return new ImmutableArray<E>(newArr);
     }
     
-    public static class Builder<E> implements ArrayBuilder<E> {
+    public static class Builder<E> extends ConstArray.Builder<E> {
         private Object[] buffer;
         private int size;
 
@@ -97,7 +98,7 @@ public class ImmutableArray<E> extends ConstArray<E> implements Immutable {
          * Appends an element to the Array
          * @param newE the element to append
          */
-        public void write(E newE) {
+        public void append(E newE) {
             if (!JoeE.instanceOf(newE, Immutable.class)) {
                 throw new ClassCastException(newE.getClass().getName() +
                                              "is not Immutable");
@@ -114,8 +115,8 @@ public class ImmutableArray<E> extends ConstArray<E> implements Immutable {
          * Appends all elements from a Java array to the Array
          * @param newEs the element to append
          */
-        public void write(E[] newEs) {
-            write(newEs, 0, newEs.length);
+        public void append(E[] newEs) {
+            append(newEs, 0, newEs.length);
         }
 
         /** 
@@ -124,7 +125,7 @@ public class ImmutableArray<E> extends ConstArray<E> implements Immutable {
          * @param off   the index of the first element to append
          * @param len   the number of elements to append
          */
-        public void write(E[] newEs, int off, int len) {
+        public void append(E[] newEs, int off, int len) {
             final Class e = newEs.getClass().getComponentType();
             if (!JoeE.isSubtypeOf(e, Immutable.class)) {
                 throw new ClassCastException(e.getName() + " is not Immutable");
@@ -159,4 +160,12 @@ public class ImmutableArray<E> extends ConstArray<E> implements Immutable {
             return new ImmutableArray<E>(arr);
         }
     }   
+    
+    public static <E> Builder<E> builder() {
+        return new Builder<E>(0);
+    }
+    
+    public static <E> Builder<E> builder(final int estimate) {
+        return new Builder<E>(estimate);
+    }
 }

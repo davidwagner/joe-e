@@ -13,13 +13,13 @@ public interface ArrayBuilder<E> {
      * Appends an element to the Array
      * @param element the element to append
      */
-    void write(E element);
+    void append(E element);
 
     /** 
      * Appends all elements from a Java array to the Array
      * @param elements the element to append
      */
-    void write(E[] elements);
+    void append(E[] elements);
 
     /** 
      * Appends a range of elements from a Java array to the Array
@@ -27,7 +27,7 @@ public interface ArrayBuilder<E> {
      * @param off   the index of the first element to append
      * @param len   the number of elements to append
      */
-    void write(E[] elements, int off, int len);
+    void append(E[] elements, int off, int len);
     
     /**
      * Create a snapshot of the current content.

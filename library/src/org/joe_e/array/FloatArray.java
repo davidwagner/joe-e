@@ -11,6 +11,8 @@ import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.lang.reflect.Array;
 
+import org.joe_e.array.ByteArray.Builder;
+
 
 /**
  * An immutable array of <code>float</code>.
@@ -216,7 +218,7 @@ public final class FloatArray extends PowerlessArray<Float> {
     /**
      * A {@link FloatArray} factory.
      */
-    static public final class Builder implements ArrayBuilder<Float> {
+    static public final class Builder extends PowerlessArray.Builder<Float> {
         private float[] buffer;
         private int size;
 
@@ -237,15 +239,15 @@ public final class FloatArray extends PowerlessArray<Float> {
         }
 
         // ArrayBuilder<Float> interface
-        public void write(Float newFloat) {
-            write ((float) newFloat);
+        public void append(Float newFloat) {
+            append ((float) newFloat);
         }
         
-        public void write(final Float[] newFloats) {
-            write(newFloats, 0, newFloats.length);
+        public void append(final Float[] newFloats) {
+            append(newFloats, 0, newFloats.length);
         }      
         
-        public void write(final Float[] newFloats, 
+        public void append(final Float[] newFloats, 
                           final int off, final int len) {
             int newSize = size + len;
             if (len < 0 || newSize < 0 || off + len > newFloats.length) {
@@ -257,8 +259,8 @@ public final class FloatArray extends PowerlessArray<Float> {
                                  size);
             }
             
-            for (int i = off; i < off + len; ++i) {
-                buffer[size + i] = newFloats[i];
+            for (int i = 0; i < len; ++i) {
+                buffer[size + i] = newFloats[off + i];
             }           
             size = newSize;
         }
@@ -280,7 +282,7 @@ public final class FloatArray extends PowerlessArray<Float> {
         /*
          * Convenience (more efficient) methods with float
          */
-        public void write(final float newFloat) {
+        public void append(final float newFloat) {
             if (size == buffer.length) {
                 System.arraycopy(buffer, 0, buffer = new float[2 * size], 0,
                                  size);
@@ -288,11 +290,11 @@ public final class FloatArray extends PowerlessArray<Float> {
             buffer[size++] = newFloat;
         }
 
-        public void write(final float[] newFloats) {
-            write(newFloats, 0, newFloats.length);
+        public void append(final float[] newFloats) {
+            append(newFloats, 0, newFloats.length);
         }      
         
-        public void write(final float[] newFloats, final int off, final int len) {
+        public void append(final float[] newFloats, final int off, final int len) {
             int newSize = size + len;
             if (len < 0 || newSize < 0 || off + len > newFloats.length) {
                 throw new IndexOutOfBoundsException();
@@ -305,5 +307,26 @@ public final class FloatArray extends PowerlessArray<Float> {
             System.arraycopy(newFloats, off, buffer, size, len);
             size = newSize;
         }
+    }
+    
+    /* If one only invokes static methods statically, this is sound, since
+     * FloatArray extends PowerlessArray<Float> and thus this method is
+     * only required to return something of a type covariant with
+     * PowerlessArray.Builder<Float>.  Unfortunately, this is not completely
+     * sound because it is possible to invoke static methods on instances, e.g.
+     * ConstArray.Builder<String> = (ConstArray (FloatArray.array())).builder(),
+     * allowing for heap pollution without an unchecked cast warning.
+     * 
+     * The only solution to this would be to completely de-genericize these
+     * methods.
+     */
+    @SuppressWarnings("unchecked")
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Builder builder(final int estimate) {
+        return new Builder(estimate);
     }
 }

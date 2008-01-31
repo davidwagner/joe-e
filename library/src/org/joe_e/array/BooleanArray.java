@@ -11,6 +11,8 @@ import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.lang.reflect.Array;
 
+import org.joe_e.array.ByteArray.Builder;
+
 
 /**
  * An immutable array of <code>boolean</code>.
@@ -216,7 +218,7 @@ public final class BooleanArray extends PowerlessArray<Boolean> {
     /**
      * A {@link BooleanArray} factory.
      */
-    static public final class Builder implements ArrayBuilder<Boolean> {
+    static public final class Builder extends PowerlessArray.Builder<Boolean> {
         private boolean[] buffer;
         private int size;
 
@@ -237,15 +239,15 @@ public final class BooleanArray extends PowerlessArray<Boolean> {
         }
 
         // ArrayBuilder<Boolean> interface
-        public void write(Boolean newBoolean) {
-            write ((boolean) newBoolean);
+        public void append(Boolean newBoolean) {
+            append ((boolean) newBoolean);
         }
         
-        public void write(final Boolean[] newBooleans) {
-            write(newBooleans, 0, newBooleans.length);
+        public void append(final Boolean[] newBooleans) {
+            append(newBooleans, 0, newBooleans.length);
         }      
         
-        public void write(final Boolean[] newBooleans, 
+        public void append(final Boolean[] newBooleans, 
                           final int off, final int len) {
             int newSize = size + len;
             if (len < 0 || newSize < 0 || off + len > newBooleans.length) {
@@ -257,8 +259,8 @@ public final class BooleanArray extends PowerlessArray<Boolean> {
                                  size);
             }
             
-            for (int i = off; i < off + len; ++i) {
-                buffer[size + i] = newBooleans[i];
+            for (int i = 0; i < len; ++i) {
+                buffer[size + i] = newBooleans[off + i];
             }           
             size = newSize;
         }
@@ -280,7 +282,7 @@ public final class BooleanArray extends PowerlessArray<Boolean> {
         /*
          * Convenience (more efficient) methods with boolean
          */
-        public void write(final boolean newBoolean) {
+        public void append(final boolean newBoolean) {
             if (size == buffer.length) {
                 System.arraycopy(buffer, 0, buffer = new boolean[2 * size], 0,
                                  size);
@@ -288,11 +290,11 @@ public final class BooleanArray extends PowerlessArray<Boolean> {
             buffer[size++] = newBoolean;
         }
 
-        public void write(final boolean[] newBooleans) {
-            write(newBooleans, 0, newBooleans.length);
+        public void append(final boolean[] newBooleans) {
+            append(newBooleans, 0, newBooleans.length);
         }      
         
-        public void write(final boolean[] newBooleans, final int off, final int len) {
+        public void append(final boolean[] newBooleans, final int off, final int len) {
             int newSize = size + len;
             if (len < 0 || newSize < 0 || off + len > newBooleans.length) {
                 throw new IndexOutOfBoundsException();
@@ -305,5 +307,26 @@ public final class BooleanArray extends PowerlessArray<Boolean> {
             System.arraycopy(newBooleans, off, buffer, size, len);
             size = newSize;
         }
+    }
+    
+    /* If one only invokes static methods statically, this is sound, since
+     * BooleanArray extends PowerlessArray<Boolean> and thus this method is
+     * only required to return something of a type covariant with
+     * PowerlessArray.Builder<Boolean>.  Unfortunately, this is not completely
+     * sound because it is possible to invoke static methods on instances, e.g.
+     * ConstArray.Builder<String> = (ConstArray (BooleanArray.array())).builder(),
+     * allowing for heap pollution without an unchecked cast warning.
+     * 
+     * The only solution to this would be to completely de-genericize these
+     * methods.
+     */
+    @SuppressWarnings("unchecked")
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Builder builder(final int estimate) {
+        return new Builder(estimate);
     }
 }
