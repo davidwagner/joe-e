@@ -38,6 +38,7 @@ public class WriteRead {
             for (File f : contents) {
                 if (f.equals(tempfile)) {
                     found = true;
+                    assert (Filesystem.length(f) == 6);
                     break;
                 }
             }
