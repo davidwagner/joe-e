@@ -5,13 +5,12 @@ import org.joe_e.array.ConstArray;
 import java.util.Arrays;
 
 
-
 public class Scratch {
 	int f = new org.joe_e.testlib.Disabled().i;
-	
+        
     final transient int WTF = 6;
     
-    enum Pie {
+    enum Pie {        
         PECAN, KEY_LIME;
         
         static boolean fresh = true;
@@ -25,13 +24,17 @@ public class Scratch {
     }
     
     static void printdir(java.io.File f) {
+        ConstArray.Builder<Scratch> cbs = ConstArray.builder();
+        
+        org.joe_e.array.PowerlessArray.Builder<String> bb = 
+            ((org.joe_e.array.PowerlessArray) org.joe_e.array.ByteArray.array()).builder();
+        
         System.out.print("contents of dir \"" + f.getPath() + "\": ");
         System.out.println(Arrays.toString(f.list()));
     }
     
     static class MyThrowable extends Throwable {
-        final static int serialVersionUID = 1;
-        
+        final static long serialVersionUID = 1;
     }
 
     public static void foob() throws MyThrowable {
