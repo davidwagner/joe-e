@@ -132,6 +132,7 @@ public class Verifier {
         final ITypeBinding OBJECT;
         final ITypeBinding THROWABLE;
         final ITypeBinding ERROR;
+        // final ITypeBinding ENUM;
 
         // Contains a stack of body declaration nodes that are ancestors of the
         // current node.  The top element is the context in which the current
@@ -201,6 +202,8 @@ public class Verifier {
             OBJECT = ast.resolveWellKnownType("java.lang.Object");
             THROWABLE = ast.resolveWellKnownType("java.lang.Throwable");
             ERROR = ast.resolveWellKnownType("java.lang.Error");
+            // ENUM = ast.resolveWellKnownType("java.lang.Enum"); 
+            // not well known, wtf?
         }
 
         /*
@@ -640,7 +643,7 @@ public class Verifier {
                            "class " + classBinding.getName() + " called", smi,
                            classBinding, imb);
             } else if (BuildState.isSelfless(classInfo.get(target).classTags)) {
-                ITypeBinding superTB = target.getSuperclass();
+                ITypeBinding superTB = target.getSuperclass(); // can't be Enum
                 if (superTB == OBJECT && imb.getName().equals("equals")
                     && Arrays.equals(imb.getParameterTypes(),
                                      new ITypeBinding[] {OBJECT})) {
@@ -803,7 +806,8 @@ public class Verifier {
                     (SingleVariableDeclaration) md.parameters().get(0);
                 if (arg.getType().resolveBinding().getQualifiedName()
                        .equals("java.io.ObjectInputStream")) {
-                    addProblem("Custom serialization behavior is not allowed.");
+                    addProblem("Custom serialization behavior is not allowed.",
+                               name);
                 }
             } else if (name.getIdentifier().equals("writeObject")
                        && md.parameters().size() == 1) {
@@ -811,7 +815,8 @@ public class Verifier {
                     (SingleVariableDeclaration) md.parameters().get(0);
                 if (arg.getType().resolveBinding().getQualifiedName()
                        .equals("java.io.ObjectOutputStream")) {
-                    addProblem("Custom serialization behavior is not allowed.");
+                    addProblem("Custom serialization behavior is not allowed.",
+                               name);
                 }    
             }
                 
@@ -1001,7 +1006,7 @@ public class Verifier {
             // Add a deep dependency on supertype as it can affect method call
             // resolution, which is important for taming.  Also a flag 
             // dependency on superinterfaces, in case marker interfaces change. 
-            ITypeBinding superTB = itb.getSuperclass();
+            ITypeBinding superTB = itb.getSuperclass(); // don't need for Enum
             if (superTB != null) {
                 state.addDeepDependency(icu, superTB);    
             }
@@ -1235,6 +1240,7 @@ public class Verifier {
                     }
                     methodsNeeded = newNeeds;
                     current = current.getSuperclass();
+                    // TODO: won't find some methods defined for enums!
                 }
                 if (!methodsNeeded.isEmpty()) {
                     addProblem("VERIFIER ERROR: Couldn't find implementation " +
@@ -1248,7 +1254,25 @@ public class Verifier {
                            "analyzing type" + type.getElementName());
             }
         }
-
+        
+        /**
+         * Gets the superclass for of an ITypeBinding.  Same as
+         * itb.getSuperclass(), but gives the real superclass for Enums instead
+         * of returning <code>null</code>.
+         * @return itb's superclass
+         *
+        ITypeBinding getSuperclass(ITypeBinding itb) {
+            if (itb.isEnum()) {
+                if (itb.isAnonymous()) {
+                    return itb.getDeclaringClass();
+                } else {
+                    return ENUM;
+                }
+            } else {
+                return itb.getSuperclass();
+            }
+        } */
+        
         /**
          * Verify that all fields (declared, inherited, and lexically visible)
          * of a type are final and implement the specified marker interface in
@@ -1387,6 +1411,7 @@ public class Verifier {
             // declaringMethod.  The only local classes without declaring
             // methods are those defined in initializers and field initializing
             // expressions, which must already be static.
+            // TODO: is this right, or should it use this.isLocal()?
             IMethodBinding declaringMethod = type.getDeclaringMethod();
             if (type.isLocal() && (declaringMethod == null ||
                 Flags.isStatic(declaringMethod.getModifiers()))) {
@@ -1537,10 +1562,17 @@ public class Verifier {
         
         public boolean visit(EnhancedForStatement efs) {
             Expression iterable = efs.getExpression();
-            final ITypeBinding itb  = resolveType(iterable);
+            final ITypeBinding itb = iterable.resolveTypeBinding();
+            // resolveType(iterable) not necessary here: JLS defines implicit
+            // iterator() to be equivalent to calling it from source. See
+            // JLS3 14.14.2 and EvilIterable in test-code.
             if (itb.isArray()) {
                 // not a problem
             } else { 
+                // add dependency on either toString existing, or what the
+                // superclass is
+                state.addDeepDependency(icu, itb); 
+                
                 checkImplicitMethodCall("iterator", itb, iterable);
             }
             return true;
@@ -1586,22 +1618,22 @@ public class Verifier {
                             && (!taming.isTamed(current) 
                                 || !taming.isAllowed(current, imb))) {
                             String description = 
-                                describe("Implicit call of disabled method"
-                                         + methodName + "for class " +
+                                describe("Implicit call of disabled method "
+                                         + methodName + "() for class " +
                                          current.getName(), current, imb);
-                            addProblem(description + ".  Fields and return "
-                                       + "values of parameter type " +
-                                       "may require explicit casts.", e);
+                            addProblem((methodName.equals("toString")) 
+                                       ? description + ".  Fields and return "
+                                         + "values of parameter type " +
+                                         "may require explicit casts."
+                                       : description, e);
                         }
                         return;
                     }      
                 }
-                if (current.isClass() && current.getSuperclass() != null) {
-                    left.push(current.getSuperclass());
-                } else { // current is interface
+                if (current.isInterface()) {
                     // push interfaces onto stack, first interface listed on
-                    // top.  Note that this does not handle *multiple* toString
-                    // methods if they are tamed differently.
+                    // top.  Note that this may give a false error if there
+                    // are *multiple* matching methods, tamed differently!
                     ITypeBinding[] superInterfaces = current.getInterfaces();
                     for (int i = superInterfaces.length - 1; i >= 0; --i) {
                         left.push(superInterfaces[i]);
@@ -1610,6 +1642,14 @@ public class Verifier {
                     if (left.isEmpty()) {
                         left.push(OBJECT);
                     }
+                } else if (current.isEnum()) {
+                    if (methodName.equals("toString")) {
+                        return;
+                    } else if (current.isAnonymous()) {
+                        left.add(current.getDeclaringClass());
+                    }
+                } else if (current.getSuperclass() != null) {
+                    left.push(current.getSuperclass());
                 }
             }
             
@@ -1756,9 +1796,11 @@ public class Verifier {
         }
         
         /*
-         * Sanity check to ensure that codeContext and classTags are empty upon
-         * the completion of visiting a compilation unit (file).  Also perform
-         * the file-global checks required for local classes.
+         * Perform the file-global checks required for local classes.
+         * 
+         * Also contains some assertions that perform a sanity check to ensure
+         * that codeContext and classTags are empty upon completing the visit
+         * of a compilation unit (file).
          */
         public void endVisit(CompilationUnit cu) {
             assert (codeContext.isEmpty());
@@ -1779,7 +1821,7 @@ public class Verifier {
                 }
                 
                 // Check local supertype
-                ITypeBinding superTB = itb.getSuperclass();
+                ITypeBinding superTB = itb.getSuperclass(); // TODO: Enums?
                 if (isLocal(superTB)) {
                     int superTags = reduceTags(needed, superTB, itb);
                     if (!BuildState.isImmutable(superTags)) {
@@ -1872,7 +1914,7 @@ public class Verifier {
                 }
                 
                 // check local supertype
-                ITypeBinding currentSuper = current.getSuperclass();
+                ITypeBinding currentSuper = current.getSuperclass(); // TODO
                 if (currentSuper != null && isLocal(currentSuper) 
                     && visited.add(currentSuper)) {
                     left.add(currentSuper);

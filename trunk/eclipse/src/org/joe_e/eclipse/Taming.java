@@ -208,8 +208,8 @@ public class Taming {
         this.project = project;
         
         /* HUGE HACK! TEMPORARY! what to do here? */
-        SafeJBuild hack = new SafeJBuild(System.err, new File("/home/adrian/taming/safej-dump"));
-        hack.processLibraryPackage("java.io", project);
+        //SafeJBuild hack = new SafeJBuild(System.err, new File("/home/adrian/taming/safej-dump"));
+        //hack.processLibraryPackage("java.util", project);
         
         /*
          * Project SafeJ Builder
@@ -660,9 +660,12 @@ public class Taming {
             if (methods != null) {
                 for (IMethod m : methods.keySet()) {
                     try {
-                        if (m.isConstructor()) {
-                            String flatSig = getFlatSignature(m);
-                            flatSig = flatSig.substring(flatSig.indexOf('('));
+                        if (m == null || m.isConstructor()) {
+                            String flatSig = "()";
+                            if (m != null) {
+                                flatSig = getFlatSignature(m);
+                                flatSig = flatSig.substring(flatSig.indexOf('('));
+                            }
                             out.println("        constructors.add(\"" + fqn +
                                         flatSig + "\");");
                         }
@@ -673,7 +676,7 @@ public class Taming {
                 }
                 for (IMethod m : methods.keySet()) {
                     try {
-                        if (!m.isConstructor()) {
+                        if (m != null && !m.isConstructor()) {
                             out.println("        methods.add(\"" + fqn + 
                                         "." + getFlatSignature(m) + "\");");
                         }
