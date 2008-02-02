@@ -11,7 +11,7 @@ class Enabler4<T> {
 	}
 }
 
-public class TypeParameterToString4 {
+public class TypeParameterStringConversion4 {
 	Enabler4 e = new Enabler4<Object>(new Object());
 	Enabler4<String> e2 = e;
 	

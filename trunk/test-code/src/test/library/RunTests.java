@@ -8,20 +8,18 @@ public class RunTests {
     }
     
     public static void test() {
-        try {
-        	assert false;
-        	System.out.println("Assertions disabled! Please run with them enabled.");
-        	JoeE.abort(new Error());
-        } catch (AssertionError ae) {           
-
-        }
-    	
-    	try {
+       boolean assertsOn = false;
+       assert assertsOn = true;
+       if (!assertsOn) {
+    	   System.out.println("Assertions disabled! Please run with them enabled.");
+    	   JoeE.abort(new Error());
+       }
+       
+       try {
             test.library.array.RunTests.test();
             test.library.charset.RunTests.test();
             test.library.file.RunTests.test();
             test.library.reflect.RunTests.test();
-            assert false; // uncomment to verify that assertions are enabled
         }
         
         catch (Error e) {
