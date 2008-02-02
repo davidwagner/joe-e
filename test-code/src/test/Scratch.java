@@ -4,45 +4,24 @@ package test;
 import org.joe_e.array.ConstArray;
 import java.util.Arrays;
 
+interface Gooey {
+    void goo();
+}
+
+class Foo {
+    public void goo() { }
+}
+
+class Bar extends Foo implements Gooey {
+    
+}
+
 public class Scratch {
-	
-	public void testy() {
-	}
-	
-	public enum Operation implements org.joe_e.Powerless, org.joe_e.Equatable {
-	    //plus {
-	    //    double eval(double x, double y) { return x + y; }
-	    //},
-	    //minus {
-	    //    double eval(double x, double y) { return x - y; }
-	    //},
-	    //times {
-	    //    double eval(double x, double y) { return x * y; }
-	    //},
-	    divided_by {
-	    	int foo;
-	        double eval(double x, double y) { ++foo; return x / y; }
-	    };
-
-	    // Perform arithmetic operation represented by this constant
-	    abstract double eval(double x, double y);
-
-	    public static void main(String args[]) {
-	        double x = Double.parseDouble(args[0]);
-	        double y = Double.parseDouble(args[1]);
-
-	        for (Operation op : Operation.values()) {
-	            //System.out.println(x + " " + op + " " + y + " = " + op.eval(x, y));
-	        }
-	    }
-	}
-	
-	
-	int f = new org.joe_e.testlib.Disabled().i;
-	
+    int f = new org.joe_e.testlib.Disabled().i;
+        
     final transient int WTF = 6;
     
-    enum Pie implements org.joe_e.Powerless, org.joe_e.Equatable {
+    enum Pie {        
         PECAN, KEY_LIME;
         
         static boolean fresh = true;
@@ -56,15 +35,17 @@ public class Scratch {
     }
     
     static void printdir(java.io.File f) {
-
-    	
+        ConstArray.Builder<Scratch> cbs = ConstArray.builder();
+        
+        org.joe_e.array.PowerlessArray.Builder<String> bb = 
+            ((org.joe_e.array.PowerlessArray) org.joe_e.array.ByteArray.array()).builder();
+        
         System.out.print("contents of dir \"" + f.getPath() + "\": ");
         System.out.println(Arrays.toString(f.list()));
     }
     
     static class MyThrowable extends Throwable {
-        final static int serialVersionUID = 1;
-        
+        final static long serialVersionUID = 1;
     }
 
     public static void foob() throws MyThrowable {
@@ -73,7 +54,9 @@ public class Scratch {
     
     
     public static void main(String args[]) {
-        
+        new EvilStringConversion().test();
+        new EvilIterable().foo();
+        /*
         ConstArray<Object> c = ConstArray.array(1, 2, new Object());
         ConstArray<Integer> liar = (ConstArray<Integer>) (ConstArray) c;
         for (int i = 0; i < 3; ++i) {
@@ -106,7 +89,7 @@ public class Scratch {
                 
         printdir(empty);
         printdir(cur);
-        
+        */
         
        /*
         for (char c : sa) {
