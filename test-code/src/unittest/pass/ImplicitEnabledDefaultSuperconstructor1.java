@@ -2,9 +2,6 @@ package unittest.pass;
 
 import org.joe_e.testlib.ContainsNonFinal;
 
-public class ImplicitEnabledSuperconstructor2 
+public class ImplicitEnabledDefaultSuperconstructor1 
 										extends ContainsNonFinal {
-	ImplicitEnabledSuperconstructor2() {
-
-	}	
 }

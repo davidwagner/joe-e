@@ -1,10 +1,9 @@
 package unittest.pass;
-import org.joe_e.testlib.ContainsImmutable;
-import org.joe_e.Token;
+import org.joe_e.testlib.ContainsNonFinal;
 
-public class CallsEnabledConstructor3 {
+public class CallsEnabledDefaultConstructor2 {
 	void foo() {
-		new ContainsImmutable(new Token(), "comment", -42) {
+		new ContainsNonFinal() {
 		    static final long serialVersionUID = 1;
         };
 	}

@@ -1,6 +1,6 @@
 package unittest.pass;
 
-public class TypeParameterToString2 {
+public class TypeParameterStringConversion2 {
 	<T extends Exception> String foo(T t) {
 		String a = "a";
 		a += t;

@@ -21,7 +21,7 @@ class Enabler5<T extends Printable5> {
 	}
 }
 
-public class TypeParameterToString5 {
+public class TypeParameterStringConversion5 {
 	Enabler5<Foo5> e = new Enabler5<Foo5>(new Foo5());
 	Enabler5<Foo5> e2 = e;
 	

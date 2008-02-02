@@ -11,7 +11,7 @@ class Enabler6<T> {
 	}
 }
 
-public class TypeParameterToString6 {
+public class TypeParameterStringConversion6 {
 	Enabler6 e = new Enabler6<Object>(new Object());
 	Enabler6<String> e2 = e;
 	

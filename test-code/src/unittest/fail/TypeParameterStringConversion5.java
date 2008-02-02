@@ -14,7 +14,7 @@ class Enabler5<T extends Serializable> {
 	}
 }
 
-public class TypeParameterToString5 {
+public class TypeParameterStringConversion5 {
 	Enabler5 e = new Enabler5<Serializable>(new Token());
 	Enabler5<String> e2 = e;
 	

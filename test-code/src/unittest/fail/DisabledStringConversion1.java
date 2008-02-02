@@ -4,7 +4,7 @@ class DontPrintMe {
 	
 }
 
-public class DisabledToString1 {
+public class DisabledStringConversion1 {
 	String f() {
 		return "hello" + 32 + 4.5 + new DontPrintMe();
 	}
