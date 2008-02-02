@@ -91,8 +91,8 @@ public class SafeJImport {
                 while (superclass != null 
                        && !taming.db.containsKey(superclass)) {
                     left.add(superclass);
-                    err.println("WARNING: type " + type.getElementName() +  
-                                "'s superclass " + superclass.getElementName()
+                    err.println("WARNING: type " + type.getFullyQualifiedName()
+                                + "'s superclass " + superclass.getElementName()
                                 + " is not in taming database.");
                     superclass = sth.getSuperclass(superclass);
                 }
@@ -125,10 +125,10 @@ public class SafeJImport {
                     if (taming.db.containsKey(current)) {
                         checkHonoraries(current, type, sth);
                     } else {
-                        err.println("WARNING: type " + type.getElementName() +
-                                    "'s superinterface " + 
-                                    current.getElementName() + 
-                                    " is not in taming database.");
+                        err.println("WARNING: type " + 
+                                    type.getFullyQualifiedName() + "'s " +
+                                    "superinterface " + current.getElementName()
+                                    + " is not in taming database.");
                         for (IType iface : sth.getSuperInterfaces(current)) {
                             superInterfaces.add(iface);
                         }
@@ -169,11 +169,10 @@ public class SafeJImport {
             for (IType honorary : taming.db.get(supertype).honoraries) {
                 if (!sth.contains(honorary) &&
                     !taming.db.get(subtype).honoraries.contains(honorary)) {
-                    err.println("ERROR: type " + subtype.getElementName() +
-                                " does not inherit honorary interface " + 
+                    err.println("ERROR: type " + subtype.getFullyQualifiedName()
+                                + " does not inherit honorary interface " + 
                                 honorary.getElementName() + " from supertype "
                                 + supertype.getElementName() + ".");
-                                
                 }
             }
         }
@@ -218,7 +217,7 @@ public class SafeJImport {
             
             if (enabled != null) {
                 for (IMethod m : enabled.keySet()) {
-                    if (!Flags.isStatic(m.getFlags())) {
+                    if (m != null && !Flags.isStatic(m.getFlags())) {
                         propagate.add(m);
                     }
                 }
@@ -282,15 +281,15 @@ public class SafeJImport {
                          
                     case CONSTRUCTOR:
                         IMethod ctor = relevantConstructors.get(m.identifier);
-                        relevantConstructors.remove(m.identifier);
-                        
-                        if (ctor == null) {
+                        if (!relevantConstructors.containsKey(m.identifier)) {
                             failImporting("Error: Unknown or duplicate " + 
                                           "constructor " + m.identifier);
                         } else if (!isStatic) {
                             failImporting("Error: Constructor in instance " +
                                           "member list");
                         }
+                        
+                        relevantConstructors.remove(m.identifier);
                         
                         if (m.allowed) {
                             allowedMethods.put(ctor, m.comment);
@@ -333,7 +332,7 @@ public class SafeJImport {
                     className.substring(lastDot + 1).replace('$', '.');
                 IType type = project.findType(packageName, typeQualifiedName);
 
-                if (type == null) {
+                if (type == null || !type.exists()) {
                     err.println("WARNING: Type " + className + " not found!");
                     throw new ImportFailure();
                 }
@@ -350,16 +349,28 @@ public class SafeJImport {
                     }
                 }
 
+                boolean explicitConstructor = false;
+                
                 for (IMethod m : typeMethods) {
-                    if (Taming.isRelevant(type, m)) {
-                        if (m.isConstructor()) {
+                    if (m.isConstructor()) {
+                        explicitConstructor = true;
+                        if (Taming.isRelevant(type, m)) {
                             relevantConstructors.put(Taming.getFlatSignature(m), m);
-                        } else {
+                        }
+                    } else {
+                        if (Taming.isRelevant(type, m)) {
                             relevantMethods.put(Taming.getFlatSignature(m), m);
                         }
                     }
                 }
 
+                if (!explicitConstructor && type.isClass()) {
+                    // requesting the IJavaElement for an implicit constructor
+                    // in a source class returns null
+                    relevantConstructors.put(typeQualifiedName + "()", 
+                                             null);
+                }
+                
                 MemberProcessor mp = new MemberProcessor();
                 for (Member m : staticMembers) {
                     mp.processMember(m, true);
