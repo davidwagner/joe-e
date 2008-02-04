@@ -1,0 +1,5 @@
+Taming.java: isRelevant(IType type):
+  Is special handling needed for protected inner classes of
+  final classes?  Would anyone declare one (protected is equivalent to 
+  the default (package) protection in such a case)
+  

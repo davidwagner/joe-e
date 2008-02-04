@@ -1914,7 +1914,8 @@ public class Verifier {
                 }
                 
                 // check local supertype
-                ITypeBinding currentSuper = current.getSuperclass(); // TODO
+                ITypeBinding currentSuper = current.getSuperclass(); 
+                    // TODO: corrent for enums?
                 if (currentSuper != null && isLocal(currentSuper) 
                     && visited.add(currentSuper)) {
                     left.add(currentSuper);
