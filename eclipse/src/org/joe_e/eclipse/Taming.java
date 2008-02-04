@@ -41,9 +41,6 @@ public class Taming {
     
     static boolean isRelevant(IType type) throws JavaModelException {
         int flags = type.getFlags();
-        // TODO: is special handling needed for protected inner classes of
-        // final classes?  Would anyone declare one (protected is equivalent to 
-        // the default (package) protection in such a case)
         return (Flags.isPublic(flags) || Flags.isProtected(flags));
     }
     
@@ -100,91 +97,7 @@ public class Taming {
         return flatSigBuilder.append(")").toString();
     }
     
-    /*
-     * Impossible to get fully qualified names here due to Eclipse sucking
-     * IMethods only know the types of their arguments as declared, thus
-     * usually just the simple type names.  Maybe could do it with a method
-     * that resolves against the imports of the defining class or something.
-     *
-    static String getSignature(IMethod method) {
-        return Signature.toString(method.getSignature(), 
-                                  method.getElementName(), 
-                                  null, true, false);
-        StringBuilder flatSigBuilder = 
-            new StringBuilder(method.getElementName() + "(");
-        boolean first = true;
-        for (String paramSig : method.getParameterTypes()) {
-            if (first) {
-                first = false;
-            } else {
-                flatSigBuilder.append(", ");
-            }
-            String parameterSimpleName = 
-                Signature.getSignatureSimpleName(paramSig);
-            flatSigBuilder.append(parameterSimpleName);
-        }
-        // special handling for varargs?
-        //if () {
-        //    flatSigBuilder.replace(flatSigBuilder.length() - 2, 
-        //                           flatSigBuilder.length(), "...");
-        //}
-        return flatSigBuilder.append(")").toString();
-    } */
-    
-    /*
-     * TODO: too hard? is it necessary?
-     *
-    static String getOverrideSignature(IMethod method) {
-        StringBuilder overrideSigBuilder = 
-            new StringBuilder(method.getElementName() + "(");
-        boolean first = true;
-        for (String paramSig : method.getParameterTypes()) {
-            if (first) {
-                first = false;
-            } else {
-                overrideSigBuilder.append(", ");
-            }
-            String parameterQualifiedName = 
-                getQualifiedErasure(paramSig, method);
-            overrideSigBuilder.append(parameterQualifiedName);
-        }
-        // special handling for varargs?
-        //if () {
-        //    flatSigBuilder.replace(flatSigBuilder.length() - 2, 
-        //                           flatSigBuilder.length(), "...");
-        //}
-        return overrideSigBuilder.append(")").toString();
-    }
-       
-    static String getQualifiedErasure(String paramSig, IMethod method) {
-        ITypeParameter[] itps = method.getTypeParameters();       
-        if (Signature.getTypeSignatureKind(paramSig) == 
-            Signature.TYPE_VARIABLE_SIGNATURE) {
-            for (ITypeParameter itp : itps) {
-                if (itp.getElementName().equals(
-                        Signature.getTypeVariable(paramSig))) {
-                    String[] bounds = itp.getBounds();
-                    if (bounds.length > 0) {
-                        return bounds[0];
-                    }
-                    return "java.lang.Object";
-                }
-            }
-            String[][] genericType = 
-                method.getDeclaringType().resolveType(
-                        Signature.getTypeVariable(paramSig));
-            IType t = method.getJavaProject().findType(
-                    genericType[0][0], genericType[0][1]);
-            
-            
-            throw new AssertionError(); // shouldn't happen
-        } else {
-            return Signature.getSignatureQualifier(paramSig) + "."
-                   Signature.getSignatureSimpleName(paramSig);
-        }
-    }
-    */
-    
+   
     final HashMap<IFile, Set<IType>> types;
     final HashMap<IType, Entry> db;
     final IJavaProject project;
@@ -223,6 +136,7 @@ public class Taming {
         } else {
             // create taming folder
             tamingFolder.create(false, true, null);
+            tamingFolder.setDerived(true);
         }
         
         sjbuild = new ProjectSafeJBuild(System.err, tamingFolder);
@@ -250,12 +164,19 @@ public class Taming {
         IFolder current = srcContainer.getFolder(new Path("org"));       
         if (!current.exists()) {
             current.create(false, true, null);
+            current.setDerived(true);
+        } else {
+            // in case user adds a org.something package
+            if (current.members().length > 1) {
+                current.setDerived(false);
+            }
         }
         String[] restOfPath = new String[]{"joe_e", "taming"};
         for (String pkg : restOfPath) {
             current = current.getFolder(pkg);
             if (!current.exists()) {
                 current.create(false, true, null);
+                current.setDerived(true);
             }
         }
         
