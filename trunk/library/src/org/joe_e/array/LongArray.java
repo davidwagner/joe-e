@@ -11,9 +11,6 @@ import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.lang.reflect.Array;
 
-import org.joe_e.array.ByteArray.Builder;
-
-
 /**
  * An immutable array of <code>long</code>.
  */
@@ -31,8 +28,8 @@ public final class LongArray extends PowerlessArray<Long> {
     }
     
     /**
-     * Constructs a {@link LongArray}.
-     * @param longs each <code>long</code>
+     * Constructs an array of <code>long</code>s.
+     * @param longs each element
      */
     static public LongArray array(final long... longs) {
         return new LongArray(longs.clone());
@@ -133,8 +130,8 @@ public final class LongArray extends PowerlessArray<Long> {
     }
     
     /**
-     * Creates a {@link Long} for a specified <code>long</code>.
-     * @param i position of the <code>long</code> to return
+     * Creates a <code>Long</code> for a specified <code>long</code>.
+     * @param i position of the element to return
      * @throws ArrayIndexOutOfBoundsException <code>i</code> is out of bounds
      */
     public Long get(int i) { 
@@ -163,8 +160,8 @@ public final class LongArray extends PowerlessArray<Long> {
     }
     
     /**
-     * Creates a {@link LongArray} with an appended {@link Long}.
-     * @param newLong   the {@link Long} to append
+     * Creates a <code>LongArray<code> with an appended <code>Long</code>.
+     * @param newLong   the element to append
      * @throws NullPointerException <code>newLong</code> is null
      */
     public LongArray with(final Long newLong) {
@@ -177,7 +174,7 @@ public final class LongArray extends PowerlessArray<Long> {
         
     /**
      * Gets the <code>long</code> at a specified position.
-     * @param i position of the <code>long</code> to return
+     * @param i position of the element to return
      * @throws ArrayIndexOutOfBoundsException <code>i</code> is out of bounds
      */
     public long getLong(final int i) { 
@@ -192,8 +189,8 @@ public final class LongArray extends PowerlessArray<Long> {
     }
     
     /** 
-     * Creates a {@link LongArray} with an appended <code>long</code>.
-     * @param newLong   the <code>long</code> to append
+     * Creates a <code>LongArray</code> with an appended <code>long</code>.
+     * @param newLong   the element to append
      */
     public LongArray with(final long newLong) {
         final long[] newLongs = new long[longs.length + 1];
@@ -239,18 +236,39 @@ public final class LongArray extends PowerlessArray<Long> {
         }
 
         // ArrayBuilder<Long> interface
+        /**
+         * Append a <code>Long</code>
+         * @param newLong the element to add
+         */
         public void append(Long newLong) {
             append ((long) newLong);
         }
-        
+
+        /**
+         * Append an array of <code>Long</code>s
+         * @param newLongs the elements to add
+         * @throws IndexOutOfBoundsException if the resulting array would
+         * exceed the maximum length of a Java array.  The builder is
+         * unmodified.
+         */
         public void append(final Long[] newLongs) {
             append(newLongs, 0, newLongs.length);
         }      
-        
+
+        /**
+         * Append a range of elements from an array of <code>Long</code>s
+         * @param newLongs the array to add elements from
+         * @param off the index of the first element to add
+         * @param len the number of elements to add
+         * @throws IndexOutOfBoundsException if an out-of-bounds index would
+         *  be referenced or the resulting array would exceed the maximum length
+         *  of a Java array.  The builder is unmodified.
+         */
         public void append(final Long[] newLongs, 
                           final int off, final int len) {
             int newSize = size + len;
-            if (len < 0 || newSize < 0 || off + len > newLongs.length) {
+            if (newSize < 0 || off < 0 || len < 0 || off + len < 0
+                || off + len > newLongs.length) {
                 throw new IndexOutOfBoundsException();
             }
             if (newSize > buffer.length) {
@@ -267,6 +285,7 @@ public final class LongArray extends PowerlessArray<Long> {
         
         /**
          * Create a snapshot of the current content.
+         * @return a <code>LongArray</code> containing the elements so far
          */
         public LongArray snapshot() {
             final long[] arr;
@@ -281,6 +300,10 @@ public final class LongArray extends PowerlessArray<Long> {
         
         /*
          * Convenience (more efficient) methods with long
+         */       
+        /**
+         * Append a <code>long</code>
+         * @param newLong the element to add
          */
         public void append(final long newLong) {
             if (size == buffer.length) {
@@ -290,13 +313,27 @@ public final class LongArray extends PowerlessArray<Long> {
             buffer[size++] = newLong;
         }
 
+        /**
+         * Append an array of <code>long</code>s
+         * @param newLongs the elements to add
+         */
         public void append(final long[] newLongs) {
             append(newLongs, 0, newLongs.length);
         }      
-        
+
+        /**
+         * Append a range of elements from an array of <code>long</code>s
+         * @param newLongs the array to add longacters from
+         * @param off the index of the first element to add
+         * @param len the number of elements to add
+         * @throws IndexOutOfBoundsException if an out-of-bounds index would
+         *  be referenced or the resulting array would exceed the maximum length
+         *  of a Java array.  The builder is unmodified.
+         */
         public void append(final long[] newLongs, final int off, final int len) {
             int newSize = size + len;
-            if (len < 0 || newSize < 0 || off + len > newLongs.length) {
+            if (newSize < 0 || off < 0 || len < 0 || off + len < 0
+                || off + len > newLongs.length) {
                 throw new IndexOutOfBoundsException();
             }
             if (newSize > buffer.length) {
@@ -320,11 +357,23 @@ public final class LongArray extends PowerlessArray<Long> {
      * The only solution to this would be to completely de-genericize these
      * methods.
      */
+
+    /**
+     * Get a <code>LongArray.Builder</code>.  This is equivalent to the
+     * constructor.
+     * @return a new builder instance, with the default internal array length
+     */
     @SuppressWarnings("unchecked")
     public static Builder builder() {
-        return new Builder();
+        return new Builder(0);
     }
 
+    /**
+     * Get a <code>LongArray.Builder</code>.  This is equivalent to the
+     * constructor.
+     * @param estimate  estimated array length  
+     * @return a new builder instance
+     */
     @SuppressWarnings("unchecked")
     public static Builder builder(final int estimate) {
         return new Builder(estimate);

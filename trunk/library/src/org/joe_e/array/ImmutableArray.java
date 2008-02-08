@@ -7,7 +7,6 @@ package org.joe_e.array;
 
 import org.joe_e.Immutable;
 import org.joe_e.JoeE;
-import org.joe_e.array.ConstArray.Builder;
 
 /**
  * An immutable array containing immutable objects.
@@ -74,6 +73,10 @@ public class ImmutableArray<E> extends ConstArray<E> implements Immutable {
         return new ImmutableArray<E>(newArr);
     }
     
+    
+    /**
+     * An {@link ImmutableArray} factory.
+     */
     public static class Builder<E> extends ConstArray.Builder<E> {
         private Object[] buffer;
         private int size;
@@ -114,6 +117,9 @@ public class ImmutableArray<E> extends ConstArray<E> implements Immutable {
         /** 
          * Appends all elements from a Java array to the Array
          * @param newEs the element to append
+         * @throws IndexOutOfBoundsException if the resulting array would
+         * exceed the maximum length of a Java array.  The builder is
+         * unmodified.
          */
         public void append(E[] newEs) {
             append(newEs, 0, newEs.length);
@@ -124,6 +130,9 @@ public class ImmutableArray<E> extends ConstArray<E> implements Immutable {
          * @param newEs the source array
          * @param off   the index of the first element to append
          * @param len   the number of elements to append
+         * @throws IndexOutOfBoundsException if an out-of-bounds index would
+         *  be referenced or the resulting array would exceed the maximum length
+         *  of a Java array.  The builder is unmodified.
          */
         public void append(E[] newEs, int off, int len) {
             final Class e = newEs.getClass().getComponentType();
@@ -132,7 +141,8 @@ public class ImmutableArray<E> extends ConstArray<E> implements Immutable {
             }
             
             int newSize = size + len;
-            if (len < 0 || newSize < 0) {
+            if (newSize < 0 || off < 0 || len < 0 || off + len < 0
+                || off + len > newEs.length) {
                 throw new IndexOutOfBoundsException();
             }
             if (newSize > buffer.length) {
@@ -146,8 +156,7 @@ public class ImmutableArray<E> extends ConstArray<E> implements Immutable {
         
         /**
          * Create a snapshot of the current content.
-         * @return an <code>ImmutableArray<E></code> containing the elements written
-         *         so far
+         * @return an <code>ImmutableArray<E></code> containing the elements so far
          */
         public ImmutableArray<E> snapshot() {
             final Object[] arr;
@@ -161,10 +170,21 @@ public class ImmutableArray<E> extends ConstArray<E> implements Immutable {
         }
     }   
     
+    /**
+     * Get an <code>ImmutableArray.Builder</code>.  This is equivalent to the
+     * constructor.
+     * @return a new builder instance, with the default internal array length
+     */
     public static <E> Builder<E> builder() {
         return new Builder<E>(0);
     }
     
+    /**
+     * Get an <code>ImmutableArray.Builder</code>.  This is equivalent to the
+     * constructor.
+     * @param estimate  estimated array length  
+     * @return a new builder instance
+     */    
     public static <E> Builder<E> builder(final int estimate) {
         return new Builder<E>(estimate);
     }

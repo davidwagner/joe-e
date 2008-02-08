@@ -257,7 +257,10 @@ public class ConstArray<E> implements Selfless, Iterable<E>, Serializable {
         System.arraycopy(arr, i + 1, newArr, i, newArr.length - i);
         return new ConstArray<E>(newArr);
     }
-        
+       
+    /**
+     * A {@link ConstArray} factory.
+     */
     public static class Builder<E> implements ArrayBuilder<E> {
         private Object[] buffer;
         private int size;
@@ -293,6 +296,9 @@ public class ConstArray<E> implements Selfless, Iterable<E>, Serializable {
         /** 
          * Appends all elements from a Java array to the Array
          * @param newEs the element to append
+         * @throws IndexOutOfBoundsException if the resulting array would
+         * exceed the maximum length of a Java array.  The builder is
+         * unmodified.
          */
         public void append(E[] newEs) {
             append(newEs, 0, newEs.length);
@@ -303,10 +309,14 @@ public class ConstArray<E> implements Selfless, Iterable<E>, Serializable {
          * @param newEs the source array
          * @param off   the index of the first element to append
          * @param len   the number of elements to append
+         * @throws IndexOutOfBoundsException if an out-of-bounds index would
+         *  be referenced or the resulting array would exceed the maximum length
+         *  of a Java array.  The builder is unmodified.
          */
         public void append(E[] newEs, int off, int len) {
             int newSize = size + len;
-            if (len < 0 || newSize < 0 || off + len > newEs.length) {
+            if (newSize < 0 || off < 0 || len < 0 || off + len < 0
+                || off + len > newEs.length) {
                 throw new IndexOutOfBoundsException();
             }
             if (newSize > buffer.length) {
@@ -320,8 +330,7 @@ public class ConstArray<E> implements Selfless, Iterable<E>, Serializable {
         
         /**
          * Create a snapshot of the current content.
-         * @return a <code>ConstArray<E></code> containing the elements written
-         *         so far
+         * @return a <code>ConstArray<E></code> containing the elements so far
          */
         public ConstArray<E> snapshot() {
             final Object[] arr;
@@ -335,10 +344,21 @@ public class ConstArray<E> implements Selfless, Iterable<E>, Serializable {
         }
     }
     
+    /**
+     * Get a <code>ConstArray.Builder</code>.  This is equivalent to the
+     * constructor.
+     * @return a new builder instance, with the default internal array length
+     */
     public static <E> Builder<E> builder() {
         return new Builder<E>(0);
     }
-    
+
+    /**
+     * Get a <code>ConstArray.Builder</code>.  This is equivalent to the
+     * constructor.
+     * @param estimate  estimated array length  
+     * @return a new builder instance
+     */    
     public static <E> Builder<E> builder(final int estimate) {
         return new Builder<E>(estimate);
     }

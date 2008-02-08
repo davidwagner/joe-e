@@ -11,9 +11,6 @@ import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.lang.reflect.Array;
 
-import org.joe_e.array.ByteArray.Builder;
-
-
 /**
  * An immutable array of <code>double</code>.
  */
@@ -31,8 +28,8 @@ public final class DoubleArray extends PowerlessArray<Double> {
     }
     
     /**
-     * Constructs a {@link DoubleArray}.
-     * @param doubles each <code>double</code>
+     * Constructs an array of <code>double</code>s.
+     * @param doubles each element
      */
     static public DoubleArray array(final double... doubles) {
         return new DoubleArray(doubles.clone());
@@ -133,8 +130,8 @@ public final class DoubleArray extends PowerlessArray<Double> {
     }
     
     /**
-     * Creates a {@link Double} for a specified <code>double</code>.
-     * @param i position of the <code>double</code> to return
+     * Creates a <code>Double</code> for a specified <code>double</code>.
+     * @param i position of the element to return
      * @throws ArrayIndexOutOfBoundsException <code>i</code> is out of bounds
      */
     public Double get(int i) { 
@@ -163,8 +160,8 @@ public final class DoubleArray extends PowerlessArray<Double> {
     }
     
     /**
-     * Creates a {@link DoubleArray} with an appended {@link Double}.
-     * @param newDouble   the {@link Double} to append
+     * Creates a <code>DoubleArray<code> with an appended <code>Double</code>.
+     * @param newDouble   the element to append
      * @throws NullPointerException <code>newDouble</code> is null
      */
     public DoubleArray with(final Double newDouble) {
@@ -177,7 +174,7 @@ public final class DoubleArray extends PowerlessArray<Double> {
         
     /**
      * Gets the <code>double</code> at a specified position.
-     * @param i position of the <code>double</code> to return
+     * @param i position of the element to return
      * @throws ArrayIndexOutOfBoundsException <code>i</code> is out of bounds
      */
     public double getDouble(final int i) { 
@@ -192,8 +189,8 @@ public final class DoubleArray extends PowerlessArray<Double> {
     }
     
     /** 
-     * Creates a {@link DoubleArray} with an appended <code>double</code>.
-     * @param newDouble   the <code>double</code> to append
+     * Creates a <code>DoubleArray</code> with an appended <code>double</code>.
+     * @param newDouble   the element to append
      */
     public DoubleArray with(final double newDouble) {
         final double[] newDoubles = new double[doubles.length + 1];
@@ -239,18 +236,39 @@ public final class DoubleArray extends PowerlessArray<Double> {
         }
 
         // ArrayBuilder<Double> interface
+        /**
+         * Append a <code>Double</code>
+         * @param newDouble the element to add
+         */
         public void append(Double newDouble) {
             append ((double) newDouble);
         }
-        
+
+        /**
+         * Append an array of <code>Double</code>s
+         * @param newDoubles the elements to add
+         * @throws IndexOutOfBoundsException if the resulting array would
+         * exceed the maximum length of a Java array.  The builder is
+         * unmodified.
+         */
         public void append(final Double[] newDoubles) {
             append(newDoubles, 0, newDoubles.length);
         }      
-        
+
+        /**
+         * Append a range of elements from an array of <code>Double</code>s
+         * @param newDoubles the array to add elements from
+         * @param off the index of the first element to add
+         * @param len the number of elements to add
+         * @throws IndexOutOfBoundsException if an out-of-bounds index would
+         *  be referenced or the resulting array would exceed the maximum length
+         *  of a Java array.  The builder is unmodified.
+         */
         public void append(final Double[] newDoubles, 
                           final int off, final int len) {
             int newSize = size + len;
-            if (len < 0 || newSize < 0 || off + len > newDoubles.length) {
+            if (newSize < 0 || off < 0 || len < 0 || off + len < 0
+                || off + len > newDoubles.length) {
                 throw new IndexOutOfBoundsException();
             }
             if (newSize > buffer.length) {
@@ -267,6 +285,7 @@ public final class DoubleArray extends PowerlessArray<Double> {
         
         /**
          * Create a snapshot of the current content.
+         * @return a <code>DoubleArray</code> containing the elements so far
          */
         public DoubleArray snapshot() {
             final double[] arr;
@@ -281,6 +300,10 @@ public final class DoubleArray extends PowerlessArray<Double> {
         
         /*
          * Convenience (more efficient) methods with double
+         */       
+        /**
+         * Append a <code>double</code>
+         * @param newDouble the element to add
          */
         public void append(final double newDouble) {
             if (size == buffer.length) {
@@ -290,13 +313,27 @@ public final class DoubleArray extends PowerlessArray<Double> {
             buffer[size++] = newDouble;
         }
 
+        /**
+         * Append an array of <code>double</code>s
+         * @param newDoubles the elements to add
+         */
         public void append(final double[] newDoubles) {
             append(newDoubles, 0, newDoubles.length);
         }      
-        
+
+        /**
+         * Append a range of elements from an array of <code>double</code>s
+         * @param newDoubles the array to add doubleacters from
+         * @param off the index of the first element to add
+         * @param len the number of elements to add
+         * @throws IndexOutOfBoundsException if an out-of-bounds index would
+         *  be referenced or the resulting array would exceed the maximum length
+         *  of a Java array.  The builder is unmodified.
+         */
         public void append(final double[] newDoubles, final int off, final int len) {
             int newSize = size + len;
-            if (len < 0 || newSize < 0 || off + len > newDoubles.length) {
+            if (newSize < 0 || off < 0 || len < 0 || off + len < 0
+                || off + len > newDoubles.length) {
                 throw new IndexOutOfBoundsException();
             }
             if (newSize > buffer.length) {
@@ -320,11 +357,23 @@ public final class DoubleArray extends PowerlessArray<Double> {
      * The only solution to this would be to completely de-genericize these
      * methods.
      */
+
+    /**
+     * Get a <code>DoubleArray.Builder</code>.  This is equivalent to the
+     * constructor.
+     * @return a new builder instance, with the default internal array length
+     */
     @SuppressWarnings("unchecked")
     public static Builder builder() {
-        return new Builder();
+        return new Builder(0);
     }
 
+    /**
+     * Get a <code>DoubleArray.Builder</code>.  This is equivalent to the
+     * constructor.
+     * @param estimate  estimated array length  
+     * @return a new builder instance
+     */
     @SuppressWarnings("unchecked")
     public static Builder builder(final int estimate) {
         return new Builder(estimate);
