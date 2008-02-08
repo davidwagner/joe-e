@@ -9,8 +9,6 @@ import org.eclipse.jdt.core.*;
 
 import org.eclipse.jdt.core.dom.*;
 
-import java.io.File;
-import java.io.PrintStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Stack;
@@ -146,13 +144,15 @@ public class Verifier {
         // For each class defined in the file, maintain information about it to
         // facilitate a global check to ensure that synthetic fields added to
         // allow access to local variables by inner classes don't violate
-        // Immutable or Powerless.
+        // Immutable or Powerless.  The question is whether non-Powerless or
+        // non-Immutable variables may be accessible through a sequence of
+        // constructor calls of local classes.
         class ClassInfo {
             final int classTags; // tags on this class
-            final Set<IVariableBinding> immutableVars; 
-                // enclosing-scope immutable locals referenced by this class
             final Set<IVariableBinding> localVars; 
                 // enclosing-scope non-immutable locals referenced by this class
+            final Set<IVariableBinding> immutableVars; 
+                // enclosing-scope non-powerless locals not included above
             final List<ClassInstanceCreation> constructorCalls; 
                 // calls to local constructors
             ClassInfo(int classTags) {
@@ -560,28 +560,17 @@ public class Verifier {
          * @return true to visit children of this node
          */
         public boolean visit(MethodInvocation mi) {
-            ITypeBinding lexicalClass = null;
-            Expression expression = mi.getExpression();
-            if (expression != null) {
-                lexicalClass = expression.resolveTypeBinding();
-            }
             IMethodBinding imb = mi.resolveMethodBinding();
-            ITypeBinding actualClass = imb.getDeclaringClass();
-            
+            ITypeBinding actualClass = imb.getDeclaringClass();           
             // Unlike for a field, getDeclaringClass on a method binding will 
             // never return null.  It returns java.lang.Object for methods
             // invoked on arrays.
-
-            if (lexicalClass != null) {
-                // Add deep dependency on method resolving the way it does.
-                // This is against the lexical class, as changes to it may
-                // change method dispatch.  Transitive dependencies also cover
-                // ancestors of the lexical class.
-                // TODO: Dependencies probably still broken if there are several 
-                // non-Joe-E source classes involved.  Maybe not worth fixing.
-                state.addDeepDependency(icu, lexicalClass);
-            }
             
+            // A dependency on how the method resolves is not necessary, as
+            // a change to method resolution should trigger a Java recompile.
+            // We do, however, depend on whether the actual class is Joe-E.           
+            state.addFlagDependency(icu, actualClass);
+                        
             if (taming.isJoeE(actualClass)) {
                 // OK
             } else if (taming.isTamed(actualClass)) {
@@ -601,7 +590,7 @@ public class Verifier {
             // target object expression; calls using "this" are flagged in the
             // checks on ThisExpression nodes.
             if (inConstructorContext() && !Flags.isStatic(imb.getModifiers())
-                && expression == null) {
+                && mi.getExpression() == null) {
                 addProblem("Called non-static method " + imb.getName() + 
                            " on object being initialized", mi.getName());
             }
@@ -1014,14 +1003,10 @@ public class Verifier {
                 state.addDeepDependency(icu, i);
             }
             
-            // TODO: is there a way to do this using just bindings?
             IType type = (IType) itb.getJavaElement();
             
-            
             try {
-                if (!Flags.isPrivate(type.getFlags())) {  // TODO: is this right?
-                    taming.processJoeEType(type);
-                }
+                taming.processJoeEType(type);
                 
                 ITypeHierarchy sth;
                 if (type.isEnum() && type.isAnonymous()) {
@@ -1037,9 +1022,6 @@ public class Verifier {
                 boolean isImmutable = sth.contains(taming.IMMUTABLE);
                 boolean isPowerless = sth.contains(taming.POWERLESS);
                 boolean isEquatable = sth.contains(taming.EQUATABLE);
-                
-                // TODO: special handling for enums to avoid needing to declare
-                // implements Powerless, Equatable for all of them?
 
                 int tags = isSelfless ? BuildState.IMPL_SELFLESS : 0;
                 tags |= isImmutable ? BuildState.IMPL_IMMUTABLE : 0;
@@ -1053,8 +1035,6 @@ public class Verifier {
                 dependents.addAll(state.updateTags(type, tags));
                 
                 // Restrictions on static fields.
-                // TODO: more more of these checks to other elements, e.g.
-                // FieldDeclaration?
                 IVariableBinding[] fields = itb.getDeclaredFields();
 
                 for (IVariableBinding fb : fields) {
@@ -1101,9 +1081,9 @@ public class Verifier {
 
                 // See what honoraries superclass has; make sure that all
                 // are implemented by this class.
-                // TODO: If supertype is from source, we are already OK
-                // -- except for honoraries from interfaces we implement.
-                // refactor to avoid double-errors here.
+                // TODO: If supertype is Joe-E, the error will be caught there,
+                // except for honoraries from interfaces we implement.
+                // Could refactor to avoid double-errors here.
                 Set<IType> unimp = taming.unimplementedHonoraries(sth);
                 for (IType i : unimp) {
                     addProblem("Honorary interface " + i.getElementName() +
@@ -1213,11 +1193,10 @@ public class Verifier {
                     for (IMethodBinding need : methodsNeeded) {
                         boolean needFilled = false;
                         for (IMethodBinding have : dm) {
-                            // the (symmetric) "subsignature" relation is used 
-                            // to determine interface implementation: JLS3 8.4.2
-                            // TODO: **NOT** symmetric! oops! 
-                            // -- but is this a problem, i.e. can one override
-                            // both ways?
+                            // the "subsignature" relation is used to determine
+                            // interface implementation: JLS3 8.4.2.  A generic
+                            // method signature can be overriden by its
+                            // erasure, but not vice-versa.
                             if (have.isSubsignature(need)) {
                                 needFilled = true;
                                 //System.out.println("have: " + have);
@@ -1240,7 +1219,8 @@ public class Verifier {
                     }
                     methodsNeeded = newNeeds;
                     current = current.getSuperclass();
-                    // TODO: won't find some methods defined for enums!
+                    // TODO: False positive bug - won't find some methods
+                    // defined for enums!  Will fix if anyone notices.
                 }
                 if (!methodsNeeded.isEmpty()) {
                     addProblem("VERIFIER ERROR: Couldn't find implementation " +
@@ -1248,7 +1228,7 @@ public class Verifier {
                                methodsNeeded,  type);                    
                 }
             } catch (Throwable e) {
-                e.printStackTrace(); // TODO: prettier debug
+                e.printStackTrace();
                 addProblem("Analysis incomplete: BUG IN VERIFIER or I/O " +
                            "error (unhandled exception) encountered " +
                            "analyzing type" + type.getElementName());
@@ -1256,6 +1236,9 @@ public class Verifier {
         }
         
         /**
+         * Unfortunately, cannot be written since Enum is not a wellKnownType
+         * in Eclipse.
+         * 
          * Gets the superclass for of an ITypeBinding.  Same as
          * itb.getSuperclass(), but gives the real superclass for Enums instead
          * of returning <code>null</code>.
@@ -1401,18 +1384,18 @@ public class Verifier {
             
             // Check that enclosing class implements Immutable or Powerless
             // when neccessary.
+            
+            // No restriction on enclosing class of Selfless or static classes            
             if (mi == taming.SELFLESS || Flags.isStatic(type.getModifiers())) {
                 return;
-            }
-
-            // isLocal means a type that is not a member of any class
-            // We can't just check declaringMethod for null since a class
-            // defined within another class that is within a method has a
-            // declaringMethod.  The only local classes without declaring
-            // methods are those defined in initializers and field initializing
-            // expressions, which must already be static.
-            // TODO: is this right, or should it use this.isLocal()?
-            IMethodBinding declaringMethod = type.getDeclaringMethod();
+            }          
+            
+            // The enclosing class of local methods is irrelevant if they are
+            // defined in a static initializer, static field initializing 
+            // expression, or static method.  Since local types in instance
+            // initializers and initializing expressions are forbidden, anything
+            // with a null declaring method is static.
+            IMethodBinding declaringMethod = type.getDeclaringMethod();           
             if (type.isLocal() && (declaringMethod == null ||
                 Flags.isStatic(declaringMethod.getModifiers()))) {
                 return;
@@ -1546,7 +1529,6 @@ public class Verifier {
          * of the ":", if any, is safe to call toString() on.  Note that it is not
          * ensured that the assertion expression is pure; this means that a
          * program will be able to tell whether or not assertions are enabled.
-         * TODO: this might be nice to enforce if we can.
          * 
          * @param as
          *            the assert statement to check
@@ -1821,7 +1803,7 @@ public class Verifier {
                 }
                 
                 // Check local supertype
-                ITypeBinding superTB = itb.getSuperclass(); // TODO: Enums?
+                ITypeBinding superTB = itb.getSuperclass(); // Enums are OK
                 if (isLocal(superTB)) {
                     int superTags = reduceTags(needed, superTB, itb);
                     if (!BuildState.isImmutable(superTags)) {
@@ -1915,7 +1897,7 @@ public class Verifier {
                 
                 // check local supertype
                 ITypeBinding currentSuper = current.getSuperclass(); 
-                    // TODO: corrent for enums?
+                    // OK for enums: supertypes are never local
                 if (currentSuper != null && isLocal(currentSuper) 
                     && visited.add(currentSuper)) {
                     left.add(currentSuper);

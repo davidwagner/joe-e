@@ -69,8 +69,6 @@ public class Builder extends IncrementalProjectBuilder {
      *          used for reporting on the progress of the build
      * 
      * @return  always null for now
-     *          (TODO: should return projects for any out-of-project
-     *                 dependencies)
      *          
      * @throws CoreException
      *          if a problem arises during the build that cannot be indicated
@@ -78,7 +76,6 @@ public class Builder extends IncrementalProjectBuilder {
      */
     protected IProject[] build(int kind, Map args, IProgressMonitor monitor) 
         throws CoreException {
-        //TODO: more disciplined debugging?
         System.out.println("Build request issued.");
         
         // Check if the Java compiler posted an error indicating that it wasn't run.
@@ -256,7 +253,7 @@ public class Builder extends IncrementalProjectBuilder {
         try {
             file.deleteMarkers(MARKER_TYPE, false, IResource.DEPTH_ZERO);
         } catch (CoreException ce) {
-            ce.printStackTrace(); // TODO: classier debug here
+            ce.printStackTrace();
             // No need to rethrow an exception here: failure to delete a marker
             // can never result in an invalid build proceeding without error.
         }

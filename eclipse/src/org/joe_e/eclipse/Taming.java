@@ -38,12 +38,48 @@ public class Taming {
     /*
      * Static utility methods that are independent of any taming data
      */
-    
+    /**
+     * Check whether a type should be included in the taming database; i.e.
+     * whether it may be visible to a type in another package.  This is true
+     * when all of a type's components (there is only one for top-level types)
+     * are visible.  A protected type is considered to be visible if its
+     * enclosing type is not final.  Members of interfaces are implicitly
+     * public and are correctly handled by this method.
+     * 
+     * @param type the type to check
+     * @return true if the type is relevant to taming
+     */
     static boolean isRelevant(IType type) throws JavaModelException {
-        int flags = type.getFlags();
-        return (Flags.isPublic(flags) || Flags.isProtected(flags));
+        IType current = type;
+        while (current != null) {
+            int flags = current.getFlags();
+            IType parent = current.getDeclaringType();
+            if (Flags.isProtected(flags) && parent != null) {
+                if (Flags.isFinal(parent.getFlags())) {
+                    return false;
+                }
+            }
+            else if (!Flags.isPublic(flags) && !Flags.isProtected(flags)
+                     && (parent == null || !parent.isInterface())) {
+                return false;
+            }
+            current = parent;
+        }
+        return true;
     }
-    
+
+    /**
+     * Check whether a field should be included in the taming database; i.e.
+     * whether it may be visible to a type in another package.  This is true
+     * if the field is public, or is protected and the type is non-final.
+     * Members of interfaces are implicitly public and are correctly handled
+     * by this method.  Synthetic fields are considered irrelevant.
+     * 
+     * @param type the type containing the field: it is assumed that
+     *      isRelevant(type) is true
+     * @param field the field to test
+     * @return true if the field is relevant to taming
+     */    
     static boolean isRelevant(IType type, IField field) 
                                         throws JavaModelException {
         int typeFlags = type.getFlags();
@@ -53,20 +89,38 @@ public class Taming {
                 && !Flags.isSynthetic(flags));
     }
     
+
+    /**
+     * Check whether a field should be included in the taming database; i.e.
+     * whether it may be visible to a type in another package.  This is true
+     * if the field is public, or is protected and the type is non-final.
+     * Members of interfaces are implicitly public and are correctly handled
+     * by this method.  Synthetic methods and the class initializer 
+     * "<clinit>" for binary types are considered irrelevant.
+     * 
+     * @param type the type containing the field: it is assumed that
+     *      isRelevant(type) is true
+     * @param field the field to test
+     * @return true if the field is relevant to taming
+     */
     static boolean isRelevant(IType type, IMethod method) 
                                         throws JavaModelException {
         int typeFlags = type.getFlags();
         int flags = method.getFlags();
-        // The method must be (a) from an interface, thus implicitly public,
-        // (b) public, or (c) a protected method from a non-final class in
-        // order for taming to be relevant.  In addition, synthetic methods
-        // and the <clinit> pseudomethod are not relevant.
         return ((type.isInterface() || Flags.isPublic(flags)
                  || !Flags.isFinal(typeFlags) && Flags.isProtected(flags))
                 && !Flags.isSynthetic(flags)
                 && !method.getElementName().equals("<clinit>"));
     }
     
+    /**
+     * Returns a flat signature for a method.  This includes the argument types
+     * but not the return type or any thrown Exceptions.  The signature is 
+     * "flat" in that all argument types are unqualified (including member
+     * types).
+     * @param method
+     * @return the signature of the method
+     */
     static String getFlatSignature(IMethod method) {
         StringBuilder flatSigBuilder = 
             new StringBuilder(method.getElementName() + "(");
@@ -471,25 +525,42 @@ public class Taming {
         }
     }
     
+    /**
+     * Add taming info about a type to the verifier's runtime database.
+     * This is used to populate the Policy class.
+     * 
+     * Also write a safej for the type.
+     * 
+     * Both actions are conditional on whether the type is relevant for
+     * taming (see taming.isRelevant(IType)); this method does nothing for
+     * irrelevant types.
+     * 
+     * @param type the type to process
+     * @throws JavaModelException probably a bug if it does
+     */
     void processJoeEType(IType type) throws JavaModelException {
-        Map<IField, String> allowedFields = new HashMap<IField, String>();
-        Map<IMethod, String> allowedMethods = new HashMap<IMethod, String>();
+        if (isRelevant(type)) {      
+            Map<IField, String> allowedFields = 
+                new HashMap<IField, String>();
+            Map<IMethod, String> allowedMethods = 
+                new HashMap<IMethod, String>();
 
-        for (IField f : type.getFields()) {
-            if (Taming.isRelevant(type, f)) {
-                allowedFields.put(f, null);
+            for (IField f : type.getFields()) {
+                if (Taming.isRelevant(type, f)) {
+                    allowedFields.put(f, null);
+                }
             }
-        }
         
-        for (IMethod m : type.getMethods()) {
-            if (Taming.isRelevant(type, m)) {
-                allowedMethods.put(m, null);
+            for (IMethod m : type.getMethods()) {
+                if (Taming.isRelevant(type, m)) {
+                    allowedMethods.put(m, null);
+                }
             }
+        
+            db.put(type, new Entry(allowedFields, allowedMethods));
+        
+            sjbuild.processJoeEType(type);
         }
-        
-        db.put(type, new Entry(allowedFields, allowedMethods));
-        
-        sjbuild.processJoeEType(type);
     }
     
     void outputRuntimeDatabase() {
