@@ -1,5 +1,22 @@
-Taming.java: isRelevant(IType type):
-  Is special handling needed for protected inner classes of
-  final classes?  Would anyone declare one (protected is equivalent to 
-  the default (package) protection in such a case)
-  
+*Known bug: interface-implementation check is broken for enums that
+implement interfaces satisfied by enabled methods in Enum or Object
+
+Menu item for safej export of library package/class
+
+Improve documentation (comments)
+
+Automatically build clean when the classpath changes
+
+Enforce pureness of assertions
+
+Cleaner debugging output on failure; less verbose diagnostic output?
+
+Consider refactoring to use binding api in more places if possible and more
+appropriate.
+
+Consider special treatment for Enums (implicitly implementing Powerless,
+ Equatable) after considering consequences.
+
+
+Builder.java:
+Possible added feature: recognize Joe-E code across projects.
