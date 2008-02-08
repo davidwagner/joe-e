@@ -82,6 +82,8 @@ public final class Reflection {
                 if (diff == 0) {
                     diff = a.getDeclaringClass().getName().compareTo(
                                b.getDeclaringClass().getName());
+                    // Class.getName() fine as long as fields belonging to
+                    // proxy classes are never safe().
                 }
                 return diff;
             }
@@ -139,6 +141,7 @@ public final class Reflection {
                 int diff = pa.length - pb.length;
                 for (int i = 0; diff == 0 && i < pa.length; ++i) {
                     diff = pa[i].getName().compareTo(pb[i].getName());
+                    // OK since compiled types don't change
                 }
                 return diff;
             }
@@ -197,6 +200,8 @@ public final class Reflection {
                 if (diff == 0) {
                     diff = a.getDeclaringClass().getName().compareTo(
                             b.getDeclaringClass().getName());
+                    // Class.getName() fine as long as methods belonging to
+                    // proxy classes are never safe().
                     if (diff == 0) {
                         final Class[] pa = a.getParameterTypes();
                         final Class[] pb = b.getParameterTypes();
@@ -206,6 +211,7 @@ public final class Reflection {
                         for (int i = 0; diff == 0 && i < pa.length; ++i) {
                             diff = pa[i].getName().compareTo(pb[i].getName());
                         }
+                        // OK since compiled types don't change
                     }
                 }
                 return diff;
@@ -216,8 +222,13 @@ public final class Reflection {
     }
 
     /**
-     * Get the name of a class.  Wrapper to avoid exposing the number of
-     * proxy interfaces generated.
+     * Get the name of the entity represented by a <code>Class</code> object,
+     * in the same format as returned by {@link Class.getName()}.  This wrapper
+     * exists to avoid exposing the number of proxy interfaces that have been
+     * generated.
+     * @param c the class to get the name of
+     * @return the name of class <code>c</code>
+     * @throws IllegalArgumentException if <code>c</code> is a proxy class
      */
     static public String getName(Class c) {
         if (java.lang.reflect.Proxy.isProxyClass(c)) {

@@ -258,7 +258,8 @@ public final class ByteArray extends PowerlessArray<Byte> {
        
        public void append(Byte[] newBytes, int off, int len) {
            int newSize = size + len;
-           if (len < 0 || newSize < 0 || off + len > newBytes.length) {
+           if (newSize < 0 || off < 0 || len < 0 || off + len < 0
+               || off + len > newBytes.length) {
                throw new IndexOutOfBoundsException();
            }
            if (newSize > buffer.length) {
@@ -302,7 +303,8 @@ public final class ByteArray extends PowerlessArray<Byte> {
        
        public void append(byte[] newBytes, int off, int len) {
            int newSize = size + len;
-           if (len < 0 || newSize < 0 || off + len > newBytes.length) {
+           if (newSize < 0 || off < 0 || len < 0 || off + len < 0
+               || off + len > newBytes.length) {
                throw new IndexOutOfBoundsException();
            }
            if (newSize > buffer.length) {

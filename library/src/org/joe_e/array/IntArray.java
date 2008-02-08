@@ -11,9 +11,6 @@ import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.lang.reflect.Array;
 
-import org.joe_e.array.ByteArray.Builder;
-
-
 /**
  * An immutable array of <code>int</code>.
  */
@@ -31,8 +28,8 @@ public final class IntArray extends PowerlessArray<Integer> {
     }
     
     /**
-     * Constructs a {@link IntArray}.
-     * @param ints each <code>int</code>
+     * Constructs an array of <code>int</code>s.
+     * @param ints each element
      */
     static public IntArray array(final int... ints) {
         return new IntArray(ints.clone());
@@ -133,8 +130,8 @@ public final class IntArray extends PowerlessArray<Integer> {
     }
     
     /**
-     * Creates a {@link Integer} for a specified <code>int</code>.
-     * @param i position of the <code>int</code> to return
+     * Creates a <code>Integer</code> for a specified <code>int</code>.
+     * @param i position of the element to return
      * @throws ArrayIndexOutOfBoundsException <code>i</code> is out of bounds
      */
     public Integer get(int i) { 
@@ -163,8 +160,8 @@ public final class IntArray extends PowerlessArray<Integer> {
     }
     
     /**
-     * Creates a {@link IntArray} with an appended {@link Integer}.
-     * @param newInt   the {@link Integer} to append
+     * Creates a <code>IntArray<code> with an appended <code>Integer</code>.
+     * @param newInt   the element to append
      * @throws NullPointerException <code>newInt</code> is null
      */
     public IntArray with(final Integer newInt) {
@@ -177,7 +174,7 @@ public final class IntArray extends PowerlessArray<Integer> {
         
     /**
      * Gets the <code>int</code> at a specified position.
-     * @param i position of the <code>int</code> to return
+     * @param i position of the element to return
      * @throws ArrayIndexOutOfBoundsException <code>i</code> is out of bounds
      */
     public int getInt(final int i) { 
@@ -192,8 +189,8 @@ public final class IntArray extends PowerlessArray<Integer> {
     }
     
     /** 
-     * Creates a {@link IntArray} with an appended <code>int</code>.
-     * @param newInt   the <code>int</code> to append
+     * Creates a <code>IntArray</code> with an appended <code>int</code>.
+     * @param newInt   the element to append
      */
     public IntArray with(final int newInt) {
         final int[] newInts = new int[ints.length + 1];
@@ -239,18 +236,39 @@ public final class IntArray extends PowerlessArray<Integer> {
         }
 
         // ArrayBuilder<Integer> interface
+        /**
+         * Append a <code>Integer</code>
+         * @param newInt the element to add
+         */
         public void append(Integer newInt) {
             append ((int) newInt);
         }
-        
+
+        /**
+         * Append an array of <code>Integer</code>s
+         * @param newInts the elements to add
+         * @throws IndexOutOfBoundsException if the resulting array would
+         * exceed the maximum length of a Java array.  The builder is
+         * unmodified.
+         */
         public void append(final Integer[] newInts) {
             append(newInts, 0, newInts.length);
         }      
-        
+
+        /**
+         * Append a range of elements from an array of <code>Integer</code>s
+         * @param newInts the array to add elements from
+         * @param off the index of the first element to add
+         * @param len the number of elements to add
+         * @throws IndexOutOfBoundsException if an out-of-bounds index would
+         *  be referenced or the resulting array would exceed the maximum length
+         *  of a Java array.  The builder is unmodified.
+         */
         public void append(final Integer[] newInts, 
                           final int off, final int len) {
             int newSize = size + len;
-            if (len < 0 || newSize < 0 || off + len > newInts.length) {
+            if (newSize < 0 || off < 0 || len < 0 || off + len < 0
+                || off + len > newInts.length) {
                 throw new IndexOutOfBoundsException();
             }
             if (newSize > buffer.length) {
@@ -267,6 +285,7 @@ public final class IntArray extends PowerlessArray<Integer> {
         
         /**
          * Create a snapshot of the current content.
+         * @return a <code>IntArray</code> containing the elements so far
          */
         public IntArray snapshot() {
             final int[] arr;
@@ -281,6 +300,10 @@ public final class IntArray extends PowerlessArray<Integer> {
         
         /*
          * Convenience (more efficient) methods with int
+         */       
+        /**
+         * Append a <code>int</code>
+         * @param newInt the element to add
          */
         public void append(final int newInt) {
             if (size == buffer.length) {
@@ -290,13 +313,27 @@ public final class IntArray extends PowerlessArray<Integer> {
             buffer[size++] = newInt;
         }
 
+        /**
+         * Append an array of <code>int</code>s
+         * @param newInts the elements to add
+         */
         public void append(final int[] newInts) {
             append(newInts, 0, newInts.length);
         }      
-        
+
+        /**
+         * Append a range of elements from an array of <code>int</code>s
+         * @param newInts the array to add intacters from
+         * @param off the index of the first element to add
+         * @param len the number of elements to add
+         * @throws IndexOutOfBoundsException if an out-of-bounds index would
+         *  be referenced or the resulting array would exceed the maximum length
+         *  of a Java array.  The builder is unmodified.
+         */
         public void append(final int[] newInts, final int off, final int len) {
             int newSize = size + len;
-            if (len < 0 || newSize < 0 || off + len > newInts.length) {
+            if (newSize < 0 || off < 0 || len < 0 || off + len < 0
+                || off + len > newInts.length) {
                 throw new IndexOutOfBoundsException();
             }
             if (newSize > buffer.length) {
@@ -320,11 +357,23 @@ public final class IntArray extends PowerlessArray<Integer> {
      * The only solution to this would be to completely de-genericize these
      * methods.
      */
+
+    /**
+     * Get a <code>IntArray.Builder</code>.  This is equivalent to the
+     * constructor.
+     * @return a new builder instance, with the default internal array length
+     */
     @SuppressWarnings("unchecked")
     public static Builder builder() {
-        return new Builder();
+        return new Builder(0);
     }
 
+    /**
+     * Get a <code>IntArray.Builder</code>.  This is equivalent to the
+     * constructor.
+     * @param estimate  estimated array length  
+     * @return a new builder instance
+     */
     @SuppressWarnings("unchecked")
     public static Builder builder(final int estimate) {
         return new Builder(estimate);

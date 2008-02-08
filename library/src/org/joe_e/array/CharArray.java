@@ -11,9 +11,6 @@ import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.lang.reflect.Array;
 
-import org.joe_e.array.ByteArray.Builder;
-
-
 /**
  * An immutable array of <code>char</code>.
  */
@@ -31,8 +28,8 @@ public final class CharArray extends PowerlessArray<Character> {
     }
     
     /**
-     * Constructs a {@link CharArray}.
-     * @param chars each <code>char</code>
+     * Constructs an array of <code>char</code>s.
+     * @param chars each element
      */
     static public CharArray array(final char... chars) {
         return new CharArray(chars.clone());
@@ -133,8 +130,8 @@ public final class CharArray extends PowerlessArray<Character> {
     }
     
     /**
-     * Creates a {@link Character} for a specified <code>char</code>.
-     * @param i position of the <code>char</code> to return
+     * Creates a <code>Character</code> for a specified <code>char</code>.
+     * @param i position of the element to return
      * @throws ArrayIndexOutOfBoundsException <code>i</code> is out of bounds
      */
     public Character get(int i) { 
@@ -163,8 +160,8 @@ public final class CharArray extends PowerlessArray<Character> {
     }
     
     /**
-     * Creates a {@link CharArray} with an appended {@link Character}.
-     * @param newChar   the {@link Character} to append
+     * Creates a <code>CharArray<code> with an appended <code>Character</code>.
+     * @param newChar   the element to append
      * @throws NullPointerException <code>newChar</code> is null
      */
     public CharArray with(final Character newChar) {
@@ -177,7 +174,7 @@ public final class CharArray extends PowerlessArray<Character> {
         
     /**
      * Gets the <code>char</code> at a specified position.
-     * @param i position of the <code>char</code> to return
+     * @param i position of the element to return
      * @throws ArrayIndexOutOfBoundsException <code>i</code> is out of bounds
      */
     public char getChar(final int i) { 
@@ -192,8 +189,8 @@ public final class CharArray extends PowerlessArray<Character> {
     }
     
     /** 
-     * Creates a {@link CharArray} with an appended <code>char</code>.
-     * @param newChar   the <code>char</code> to append
+     * Creates a <code>CharArray</code> with an appended <code>char</code>.
+     * @param newChar   the element to append
      */
     public CharArray with(final char newChar) {
         final char[] newChars = new char[chars.length + 1];
@@ -239,18 +236,39 @@ public final class CharArray extends PowerlessArray<Character> {
         }
 
         // ArrayBuilder<Character> interface
+        /**
+         * Append a <code>Character</code>
+         * @param newChar the element to add
+         */
         public void append(Character newChar) {
             append ((char) newChar);
         }
-        
+
+        /**
+         * Append an array of <code>Character</code>s
+         * @param newChars the elements to add
+         * @throws IndexOutOfBoundsException if the resulting array would
+         * exceed the maximum length of a Java array.  The builder is
+         * unmodified.
+         */
         public void append(final Character[] newChars) {
             append(newChars, 0, newChars.length);
         }      
-        
+
+        /**
+         * Append a range of elements from an array of <code>Character</code>s
+         * @param newChars the array to add elements from
+         * @param off the index of the first element to add
+         * @param len the number of elements to add
+         * @throws IndexOutOfBoundsException if an out-of-bounds index would
+         *  be referenced or the resulting array would exceed the maximum length
+         *  of a Java array.  The builder is unmodified.
+         */
         public void append(final Character[] newChars, 
                           final int off, final int len) {
             int newSize = size + len;
-            if (len < 0 || newSize < 0 || off + len > newChars.length) {
+            if (newSize < 0 || off < 0 || len < 0 || off + len < 0
+                || off + len > newChars.length) {
                 throw new IndexOutOfBoundsException();
             }
             if (newSize > buffer.length) {
@@ -267,6 +285,7 @@ public final class CharArray extends PowerlessArray<Character> {
         
         /**
          * Create a snapshot of the current content.
+         * @return a <code>CharArray</code> containing the elements so far
          */
         public CharArray snapshot() {
             final char[] arr;
@@ -281,6 +300,10 @@ public final class CharArray extends PowerlessArray<Character> {
         
         /*
          * Convenience (more efficient) methods with char
+         */       
+        /**
+         * Append a <code>char</code>
+         * @param newChar the element to add
          */
         public void append(final char newChar) {
             if (size == buffer.length) {
@@ -290,13 +313,27 @@ public final class CharArray extends PowerlessArray<Character> {
             buffer[size++] = newChar;
         }
 
+        /**
+         * Append an array of <code>char</code>s
+         * @param newChars the elements to add
+         */
         public void append(final char[] newChars) {
             append(newChars, 0, newChars.length);
         }      
-        
+
+        /**
+         * Append a range of elements from an array of <code>char</code>s
+         * @param newChars the array to add characters from
+         * @param off the index of the first element to add
+         * @param len the number of elements to add
+         * @throws IndexOutOfBoundsException if an out-of-bounds index would
+         *  be referenced or the resulting array would exceed the maximum length
+         *  of a Java array.  The builder is unmodified.
+         */
         public void append(final char[] newChars, final int off, final int len) {
             int newSize = size + len;
-            if (len < 0 || newSize < 0 || off + len > newChars.length) {
+            if (newSize < 0 || off < 0 || len < 0 || off + len < 0
+                || off + len > newChars.length) {
                 throw new IndexOutOfBoundsException();
             }
             if (newSize > buffer.length) {
@@ -320,11 +357,23 @@ public final class CharArray extends PowerlessArray<Character> {
      * The only solution to this would be to completely de-genericize these
      * methods.
      */
+
+    /**
+     * Get a <code>CharArray.Builder</code>.  This is equivalent to the
+     * constructor.
+     * @return a new builder instance, with the default internal array length
+     */
     @SuppressWarnings("unchecked")
     public static Builder builder() {
-        return new Builder();
+        return new Builder(0);
     }
 
+    /**
+     * Get a <code>CharArray.Builder</code>.  This is equivalent to the
+     * constructor.
+     * @param estimate  estimated array length  
+     * @return a new builder instance
+     */
     @SuppressWarnings("unchecked")
     public static Builder builder(final int estimate) {
         return new Builder(estimate);
