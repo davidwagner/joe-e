@@ -239,6 +239,9 @@ public final class FloatArray extends PowerlessArray<Float> {
         /**
          * Append a <code>Float</code>
          * @param newFloat the element to add
+         * @throws NegativeArraySizeException if the resulting internal array
+         *   would exceed the maximum length of a Java array.  The builder is
+         *   unmodified.
          */
         public void append(Float newFloat) {
             append ((float) newFloat);
@@ -247,9 +250,9 @@ public final class FloatArray extends PowerlessArray<Float> {
         /**
          * Append an array of <code>Float</code>s
          * @param newFloats the elements to add
-         * @throws IndexOutOfBoundsException if the resulting array would
-         * exceed the maximum length of a Java array.  The builder is
-         * unmodified.
+         * @throws IndexOutOfBoundsException if the resulting internal array
+         *   would exceed the maximum length of a Java array.  The builder is
+         *   unmodified.
          */
         public void append(final Float[] newFloats) {
             append(newFloats, 0, newFloats.length);
@@ -261,8 +264,8 @@ public final class FloatArray extends PowerlessArray<Float> {
          * @param off the index of the first element to add
          * @param len the number of elements to add
          * @throws IndexOutOfBoundsException if an out-of-bounds index would
-         *  be referenced or the resulting array would exceed the maximum length
-         *  of a Java array.  The builder is unmodified.
+         *  be referenced or the resulting internal array would exceed the
+         *  maximum length of a Java array.  The builder is unmodified.
          */
         public void append(final Float[] newFloats, 
                           final int off, final int len) {
@@ -304,6 +307,9 @@ public final class FloatArray extends PowerlessArray<Float> {
         /**
          * Append a <code>float</code>
          * @param newFloat the element to add
+         * @throws NegativeArraySizeException if the resulting internal array
+         *   would exceed the maximum length of a Java array.  The builder is
+         *   unmodified.
          */
         public void append(final float newFloat) {
             if (size == buffer.length) {
@@ -316,6 +322,9 @@ public final class FloatArray extends PowerlessArray<Float> {
         /**
          * Append an array of <code>float</code>s
          * @param newFloats the elements to add
+         * @throws IndexOutOfBoundsException if the resulting internal array
+         *   would exceed the maximum length of a Java array.  The builder is
+         *   unmodified.
          */
         public void append(final float[] newFloats) {
             append(newFloats, 0, newFloats.length);
@@ -323,12 +332,12 @@ public final class FloatArray extends PowerlessArray<Float> {
 
         /**
          * Append a range of elements from an array of <code>float</code>s
-         * @param newFloats the array to add floatacters from
+         * @param newFloats the array to add elements from
          * @param off the index of the first element to add
          * @param len the number of elements to add
          * @throws IndexOutOfBoundsException if an out-of-bounds index would
-         *  be referenced or the resulting array would exceed the maximum length
-         *  of a Java array.  The builder is unmodified.
+         *  be referenced or the resulting internal array would exceed the
+         *  maximum length of a Java array.  The builder is unmodified.
          */
         public void append(final float[] newFloats, final int off, final int len) {
             int newSize = size + len;

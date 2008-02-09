@@ -239,6 +239,9 @@ public final class BooleanArray extends PowerlessArray<Boolean> {
         /**
          * Append a <code>Boolean</code>
          * @param newBoolean the element to add
+         * @throws NegativeArraySizeException if the resulting internal array
+         *   would exceed the maximum length of a Java array.  The builder is
+         *   unmodified.
          */
         public void append(Boolean newBoolean) {
             append ((boolean) newBoolean);
@@ -247,9 +250,9 @@ public final class BooleanArray extends PowerlessArray<Boolean> {
         /**
          * Append an array of <code>Boolean</code>s
          * @param newBooleans the elements to add
-         * @throws IndexOutOfBoundsException if the resulting array would
-         * exceed the maximum length of a Java array.  The builder is
-         * unmodified.
+         * @throws IndexOutOfBoundsException if the resulting internal array
+         *   would exceed the maximum length of a Java array.  The builder is
+         *   unmodified.
          */
         public void append(final Boolean[] newBooleans) {
             append(newBooleans, 0, newBooleans.length);
@@ -261,8 +264,8 @@ public final class BooleanArray extends PowerlessArray<Boolean> {
          * @param off the index of the first element to add
          * @param len the number of elements to add
          * @throws IndexOutOfBoundsException if an out-of-bounds index would
-         *  be referenced or the resulting array would exceed the maximum length
-         *  of a Java array.  The builder is unmodified.
+         *  be referenced or the resulting internal array would exceed the
+         *  maximum length of a Java array.  The builder is unmodified.
          */
         public void append(final Boolean[] newBooleans, 
                           final int off, final int len) {
@@ -304,6 +307,9 @@ public final class BooleanArray extends PowerlessArray<Boolean> {
         /**
          * Append a <code>boolean</code>
          * @param newBoolean the element to add
+         * @throws NegativeArraySizeException if the resulting internal array
+         *   would exceed the maximum length of a Java array.  The builder is
+         *   unmodified.
          */
         public void append(final boolean newBoolean) {
             if (size == buffer.length) {
@@ -316,6 +322,9 @@ public final class BooleanArray extends PowerlessArray<Boolean> {
         /**
          * Append an array of <code>boolean</code>s
          * @param newBooleans the elements to add
+         * @throws IndexOutOfBoundsException if the resulting internal array
+         *   would exceed the maximum length of a Java array.  The builder is
+         *   unmodified.
          */
         public void append(final boolean[] newBooleans) {
             append(newBooleans, 0, newBooleans.length);
@@ -323,12 +332,12 @@ public final class BooleanArray extends PowerlessArray<Boolean> {
 
         /**
          * Append a range of elements from an array of <code>boolean</code>s
-         * @param newBooleans the array to add booleanacters from
+         * @param newBooleans the array to add elements from
          * @param off the index of the first element to add
          * @param len the number of elements to add
          * @throws IndexOutOfBoundsException if an out-of-bounds index would
-         *  be referenced or the resulting array would exceed the maximum length
-         *  of a Java array.  The builder is unmodified.
+         *  be referenced or the resulting internal array would exceed the
+         *  maximum length of a Java array.  The builder is unmodified.
          */
         public void append(final boolean[] newBooleans, final int off, final int len) {
             int newSize = size + len;
