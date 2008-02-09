@@ -239,6 +239,9 @@ public final class ShortArray extends PowerlessArray<Short> {
         /**
          * Append a <code>Short</code>
          * @param newShort the element to add
+         * @throws NegativeArraySizeException if the resulting internal array
+         *   would exceed the maximum length of a Java array.  The builder is
+         *   unmodified.
          */
         public void append(Short newShort) {
             append ((short) newShort);
@@ -247,9 +250,9 @@ public final class ShortArray extends PowerlessArray<Short> {
         /**
          * Append an array of <code>Short</code>s
          * @param newShorts the elements to add
-         * @throws IndexOutOfBoundsException if the resulting array would
-         * exceed the maximum length of a Java array.  The builder is
-         * unmodified.
+         * @throws IndexOutOfBoundsException if the resulting internal array
+         *   would exceed the maximum length of a Java array.  The builder is
+         *   unmodified.
          */
         public void append(final Short[] newShorts) {
             append(newShorts, 0, newShorts.length);
@@ -261,8 +264,8 @@ public final class ShortArray extends PowerlessArray<Short> {
          * @param off the index of the first element to add
          * @param len the number of elements to add
          * @throws IndexOutOfBoundsException if an out-of-bounds index would
-         *  be referenced or the resulting array would exceed the maximum length
-         *  of a Java array.  The builder is unmodified.
+         *  be referenced or the resulting internal array would exceed the
+         *  maximum length of a Java array.  The builder is unmodified.
          */
         public void append(final Short[] newShorts, 
                           final int off, final int len) {
@@ -304,6 +307,9 @@ public final class ShortArray extends PowerlessArray<Short> {
         /**
          * Append a <code>short</code>
          * @param newShort the element to add
+         * @throws NegativeArraySizeException if the resulting internal array
+         *   would exceed the maximum length of a Java array.  The builder is
+         *   unmodified.
          */
         public void append(final short newShort) {
             if (size == buffer.length) {
@@ -316,6 +322,9 @@ public final class ShortArray extends PowerlessArray<Short> {
         /**
          * Append an array of <code>short</code>s
          * @param newShorts the elements to add
+         * @throws IndexOutOfBoundsException if the resulting internal array
+         *   would exceed the maximum length of a Java array.  The builder is
+         *   unmodified.
          */
         public void append(final short[] newShorts) {
             append(newShorts, 0, newShorts.length);
@@ -323,12 +332,12 @@ public final class ShortArray extends PowerlessArray<Short> {
 
         /**
          * Append a range of elements from an array of <code>short</code>s
-         * @param newShorts the array to add shortacters from
+         * @param newShorts the array to add elements from
          * @param off the index of the first element to add
          * @param len the number of elements to add
          * @throws IndexOutOfBoundsException if an out-of-bounds index would
-         *  be referenced or the resulting array would exceed the maximum length
-         *  of a Java array.  The builder is unmodified.
+         *  be referenced or the resulting internal array would exceed the
+         *  maximum length of a Java array.  The builder is unmodified.
          */
         public void append(final short[] newShorts, final int off, final int len) {
             int newSize = size + len;

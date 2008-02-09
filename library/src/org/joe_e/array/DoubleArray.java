@@ -239,6 +239,9 @@ public final class DoubleArray extends PowerlessArray<Double> {
         /**
          * Append a <code>Double</code>
          * @param newDouble the element to add
+         * @throws NegativeArraySizeException if the resulting internal array
+         *   would exceed the maximum length of a Java array.  The builder is
+         *   unmodified.
          */
         public void append(Double newDouble) {
             append ((double) newDouble);
@@ -247,9 +250,9 @@ public final class DoubleArray extends PowerlessArray<Double> {
         /**
          * Append an array of <code>Double</code>s
          * @param newDoubles the elements to add
-         * @throws IndexOutOfBoundsException if the resulting array would
-         * exceed the maximum length of a Java array.  The builder is
-         * unmodified.
+         * @throws IndexOutOfBoundsException if the resulting internal array
+         *   would exceed the maximum length of a Java array.  The builder is
+         *   unmodified.
          */
         public void append(final Double[] newDoubles) {
             append(newDoubles, 0, newDoubles.length);
@@ -261,8 +264,8 @@ public final class DoubleArray extends PowerlessArray<Double> {
          * @param off the index of the first element to add
          * @param len the number of elements to add
          * @throws IndexOutOfBoundsException if an out-of-bounds index would
-         *  be referenced or the resulting array would exceed the maximum length
-         *  of a Java array.  The builder is unmodified.
+         *  be referenced or the resulting internal array would exceed the
+         *  maximum length of a Java array.  The builder is unmodified.
          */
         public void append(final Double[] newDoubles, 
                           final int off, final int len) {
@@ -304,6 +307,9 @@ public final class DoubleArray extends PowerlessArray<Double> {
         /**
          * Append a <code>double</code>
          * @param newDouble the element to add
+         * @throws NegativeArraySizeException if the resulting internal array
+         *   would exceed the maximum length of a Java array.  The builder is
+         *   unmodified.
          */
         public void append(final double newDouble) {
             if (size == buffer.length) {
@@ -316,6 +322,9 @@ public final class DoubleArray extends PowerlessArray<Double> {
         /**
          * Append an array of <code>double</code>s
          * @param newDoubles the elements to add
+         * @throws IndexOutOfBoundsException if the resulting internal array
+         *   would exceed the maximum length of a Java array.  The builder is
+         *   unmodified.
          */
         public void append(final double[] newDoubles) {
             append(newDoubles, 0, newDoubles.length);
@@ -323,12 +332,12 @@ public final class DoubleArray extends PowerlessArray<Double> {
 
         /**
          * Append a range of elements from an array of <code>double</code>s
-         * @param newDoubles the array to add doubleacters from
+         * @param newDoubles the array to add elements from
          * @param off the index of the first element to add
          * @param len the number of elements to add
          * @throws IndexOutOfBoundsException if an out-of-bounds index would
-         *  be referenced or the resulting array would exceed the maximum length
-         *  of a Java array.  The builder is unmodified.
+         *  be referenced or the resulting internal array would exceed the
+         *  maximum length of a Java array.  The builder is unmodified.
          */
         public void append(final double[] newDoubles, final int off, final int len) {
             int newSize = size + len;

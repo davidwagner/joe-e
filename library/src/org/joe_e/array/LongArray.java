@@ -239,6 +239,9 @@ public final class LongArray extends PowerlessArray<Long> {
         /**
          * Append a <code>Long</code>
          * @param newLong the element to add
+         * @throws NegativeArraySizeException if the resulting internal array
+         *   would exceed the maximum length of a Java array.  The builder is
+         *   unmodified.
          */
         public void append(Long newLong) {
             append ((long) newLong);
@@ -247,9 +250,9 @@ public final class LongArray extends PowerlessArray<Long> {
         /**
          * Append an array of <code>Long</code>s
          * @param newLongs the elements to add
-         * @throws IndexOutOfBoundsException if the resulting array would
-         * exceed the maximum length of a Java array.  The builder is
-         * unmodified.
+         * @throws IndexOutOfBoundsException if the resulting internal array
+         *   would exceed the maximum length of a Java array.  The builder is
+         *   unmodified.
          */
         public void append(final Long[] newLongs) {
             append(newLongs, 0, newLongs.length);
@@ -261,8 +264,8 @@ public final class LongArray extends PowerlessArray<Long> {
          * @param off the index of the first element to add
          * @param len the number of elements to add
          * @throws IndexOutOfBoundsException if an out-of-bounds index would
-         *  be referenced or the resulting array would exceed the maximum length
-         *  of a Java array.  The builder is unmodified.
+         *  be referenced or the resulting internal array would exceed the
+         *  maximum length of a Java array.  The builder is unmodified.
          */
         public void append(final Long[] newLongs, 
                           final int off, final int len) {
@@ -304,6 +307,9 @@ public final class LongArray extends PowerlessArray<Long> {
         /**
          * Append a <code>long</code>
          * @param newLong the element to add
+         * @throws NegativeArraySizeException if the resulting internal array
+         *   would exceed the maximum length of a Java array.  The builder is
+         *   unmodified.
          */
         public void append(final long newLong) {
             if (size == buffer.length) {
@@ -316,6 +322,9 @@ public final class LongArray extends PowerlessArray<Long> {
         /**
          * Append an array of <code>long</code>s
          * @param newLongs the elements to add
+         * @throws IndexOutOfBoundsException if the resulting internal array
+         *   would exceed the maximum length of a Java array.  The builder is
+         *   unmodified.
          */
         public void append(final long[] newLongs) {
             append(newLongs, 0, newLongs.length);
@@ -323,12 +332,12 @@ public final class LongArray extends PowerlessArray<Long> {
 
         /**
          * Append a range of elements from an array of <code>long</code>s
-         * @param newLongs the array to add longacters from
+         * @param newLongs the array to add elements from
          * @param off the index of the first element to add
          * @param len the number of elements to add
          * @throws IndexOutOfBoundsException if an out-of-bounds index would
-         *  be referenced or the resulting array would exceed the maximum length
-         *  of a Java array.  The builder is unmodified.
+         *  be referenced or the resulting internal array would exceed the
+         *  maximum length of a Java array.  The builder is unmodified.
          */
         public void append(final long[] newLongs, final int off, final int len) {
             int newSize = size + len;

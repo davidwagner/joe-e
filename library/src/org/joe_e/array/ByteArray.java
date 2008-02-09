@@ -14,9 +14,6 @@ import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.lang.reflect.Array;
 
-import org.joe_e.array.ConstArray.Builder;
-
-
 /**
  * An immutable array of <code>byte</code>.
  */
@@ -50,7 +47,7 @@ public final class ByteArray extends PowerlessArray<Byte> {
      * immutable state as mutable.  These methods can otherwise be ignored.
      *
      * These use the byte array directly, for better performance than would
-     * be obtained by using the element-by-element versions from CharArray.
+     * be obtained by using the element-by-element versions from ConstArray.
      */
     private void writeObject(final ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
@@ -248,14 +245,36 @@ public final class ByteArray extends PowerlessArray<Byte> {
        }
 
        // ArrayBuilder<Byte> interface      
-       public void append(Byte b) {
-           append((byte) b);
+       /**
+        * Append a <code>Byte</code>
+        * @param newByte the element to add
+        * @throws IndexOutOfBoundsException if the resulting array would exceed
+        *  the maximum length of a Java array.  The builder is unmodified.
+        */
+       public void append(Byte newByte) {
+           append((byte) newByte);
        }
        
+       /**
+        * Append an array of <code>Bytes</code>s
+        * @param newBytes the elements to add
+        * @throws IndexOutOfBoundsException if the resulting internal array
+        *  would exceed the maximum length of a Java array.  The builder is
+        *  unmodified.
+        */
        public void append(final Byte[] newBytes) {
            append(newBytes, 0, newBytes.length);
        }      
        
+       /**
+        * Append a range of elements from an array of <code>Byte</code>s
+        * @param newBytes the array to add elements from
+        * @param off the index of the first element to add
+        * @param len the number of elements to add
+        * @throws IndexOutOfBoundsException if an out-of-bounds index would
+        *  be referenced or the resulting internal array would exceed the
+        *  maximum length of a Java array.  The builder is unmodified.
+        */
        public void append(Byte[] newBytes, int off, int len) {
            int newSize = size + len;
            if (newSize < 0 || off < 0 || len < 0 || off + len < 0
@@ -276,6 +295,7 @@ public final class ByteArray extends PowerlessArray<Byte> {
        
        /**
         * Create a snapshot of the current content.
+        * @return a <code>ByteArray</code> containing the elements so far
         */
        public ByteArray snapshot() {
            final byte[] arr;
@@ -288,19 +308,44 @@ public final class ByteArray extends PowerlessArray<Byte> {
            return new ByteArray(arr);
        }
        
-       // Append methods using the primitive Byte type
-       public void append(final byte b) {
+       /*
+        * Convenience (more efficient) methods with byte
+        */       
+       /**
+        * Append a <code>byte</code>
+        * @param newByte the element to add
+        * @throws IndexOutOfBoundsException if the resulting internal array
+        *  would exceed the maximum length of a Java array.  The builder is
+        *  unmodified.
+        */
+       public void append(final byte newByte) {
            if (size == buffer.length) {
                System.arraycopy(buffer, 0, buffer = new byte[2 * size], 0,
                                 size);
            }
-           buffer[size++] = (byte) b;
+           buffer[size++] = (byte) newByte;
        }
-
+       
+       /**
+        * Append an array of <code>byte</code>s
+        * @param newBytes the elements to add
+        * @throws IndexOutOfBoundsException if the resulting internal array
+        *  would exceed the maximum length of a Java array.  The builder is
+        *  unmodified.
+        */
        public void append(final byte[] newBytes) {
            append(newBytes, 0, newBytes.length);
        }      
        
+       /**
+        * Append a range of elements from an array of <code>byte</code>s
+        * @param newBytes the array to add elements from
+        * @param off the index of the first element to add
+        * @param len the number of elements to add
+        * @throws IndexOutOfBoundsException if an out-of-bounds index would
+        *  be referenced or the resulting internal array would exceed the
+        *  maximum length of a Java array.  The builder is unmodified.
+        */
        public void append(byte[] newBytes, int off, int len) {
            int newSize = size + len;
            if (newSize < 0 || off < 0 || len < 0 || off + len < 0
@@ -317,43 +362,85 @@ public final class ByteArray extends PowerlessArray<Byte> {
        }
    }
    
+   /**
+    * A {@link ByteArray} factory that extends {@link OutputStream}.
+    * All methods are simple wrappers around those provided by
+    * {@link ByteArray.Builder}.
+    */
    static public final class BuilderOutputStream extends OutputStream {
        private Builder builder;
        
-       // OutputStream interface
+       /**
+        * Create a byte array using an underlying {@link Builder} with the
+        * default internal array length
+        */
        public BuilderOutputStream() {
            builder = new Builder();
        }
-       
+
+       /**
+        * Create a byte array using an underlying {@link Builder}
+        * @param estimate estimated array length
+        */
        public BuilderOutputStream(int estimate) {
            builder = new Builder(estimate);
        }
-       
+
+       // OutputStream interface
+       /**
+        * Append a <code>byte</code> to the underlying {@link Builder}
+        * @param newByte the element to add
+        */
        public void write(int b) {
            builder.append((byte) b);
        }
 
        // Should be equivalent to OutputStream's implementation, but provided
        // so that people don't have to catch IOException
+       /**
+        * Append a <code>byte</code> array to the underlying {@link Builder}
+        * @param b the elements to add
+        */
        public void write(byte[] b) {
            builder.append(b, 0, b.length);
        }
-       
+
+       /**
+        * Append part of a <code>byte</code> array to the underlying {@link Builder}
+        * @param b the elements to add
+        * @param off the index of the first element to add
+        * @param len the number of elements to add
+        */
        public void write(byte[] b, int off, int len) {
            builder.append(b, off, len);
        }
-       
-       // method to get data out
+     
+       // Added method to get data out
+       /**
+        * Create a snapshot of the current content.
+        * @return a <code>ByteArray</code> containing the elements so far
+        */
        public ByteArray snapshot() {
            return builder.snapshot();
        }
    }
    
+   /**
+    * Get a <code>ByteArray.Builder</code>.  This is equivalent to the
+    * constructor.
+    * @return a new builder instance, with the default internal array length
+    */
    @SuppressWarnings("unchecked")
    public static Builder builder() {
        return new Builder();
    }
 
+   /**
+    * Get a <code>ByteArray.Builder</code>.  This is equivalent to the
+    * constructor.
+    * @param estimate  estimated array length  
+    * @return a new builder instance
+    */
    @SuppressWarnings("unchecked")
    public static Builder builder(final int estimate) {
        return new Builder(estimate);
