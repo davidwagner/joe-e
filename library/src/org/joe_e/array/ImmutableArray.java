@@ -7,6 +7,7 @@ package org.joe_e.array;
 
 import org.joe_e.Immutable;
 import org.joe_e.JoeE;
+import org.joe_e.reflect.Reflection;
 
 /**
  * An immutable array containing immutable objects.
@@ -15,6 +16,7 @@ import org.joe_e.JoeE;
  */
 public class ImmutableArray<E> extends ConstArray<E> implements Immutable {	
     static private final long serialVersionUID = 1L;
+    
     
     /**
      * Package-scope back-door constructor for use by subclasses that
@@ -35,7 +37,8 @@ public class ImmutableArray<E> extends ConstArray<E> implements Immutable {
     static public <E> ImmutableArray<E> array(final E... values) {
         final Class e = values.getClass().getComponentType();
         if (!JoeE.isSubtypeOf(e, Immutable.class)) {
-            throw new ClassCastException(e.getName() + " is not Immutable");
+            throw new ClassCastException(Reflection.getName(e) +
+                                         " is not Immutable");
         }
         return new ImmutableArray<E>(values.clone());
     }
@@ -49,7 +52,8 @@ public class ImmutableArray<E> extends ConstArray<E> implements Immutable {
      */ 
     public ImmutableArray<E> with(final E newE) {
         if (!JoeE.instanceOf(newE, Immutable.class)) {
-            throw new ClassCastException(newE.getClass().getName() + "is not Immutable");
+            throw new ClassCastException(Reflection.getName(newE.getClass()) +
+                                         "is not Immutable");
         }
         // We use a new Object array here, because we don't know the static type
         // of E that was used; it may not match the dynamic component type of
@@ -100,14 +104,15 @@ public class ImmutableArray<E> extends ConstArray<E> implements Immutable {
         /** 
          * Appends an element to the Array
          * @param newE the element to append
-         * @throws IndexOutOfBoundsException if the resulting internal array
+         * @throws ClassCastException if the <code>newE</code> is not immutable
+         * @throws NegativeArraySizeException if the resulting internal array
          *  would exceed the maximum length of a Java array.  The builder is
          *  unmodified.
          */
          public void append(E newE) {
             if (!JoeE.instanceOf(newE, Immutable.class)) {
-                throw new ClassCastException(newE.getClass().getName() +
-                                             "is not Immutable");
+                throw new ClassCastException(Reflection.getName(newE.getClass())
+                                             + "is not Immutable");
             }
             
             if (size == buffer.length) {
@@ -120,9 +125,10 @@ public class ImmutableArray<E> extends ConstArray<E> implements Immutable {
         /** 
          * Appends all elements from a Java array to the Array
          * @param newEs the element to append
+         * @throws ClassCastException if the <code>newEs</code> is not immutable
          * @throws IndexOutOfBoundsException if the resulting internal array
          *  would exceed the maximum length of a Java array.  The builder is
-         *  unmodified.
+         *  unmodified. 
          */
         public void append(E[] newEs) {
             append(newEs, 0, newEs.length);
@@ -133,6 +139,7 @@ public class ImmutableArray<E> extends ConstArray<E> implements Immutable {
          * @param newEs the source array
          * @param off   the index of the first element to append
          * @param len   the number of elements to append
+         * @throws ClassCastException if the <code>newEs</code> is not immutable
          * @throws IndexOutOfBoundsException if an out-of-bounds index would
          *  be referenced or the resulting internal array would exceed the
          *  maximum length of a Java array.  The builder is unmodified.
@@ -140,7 +147,8 @@ public class ImmutableArray<E> extends ConstArray<E> implements Immutable {
         public void append(E[] newEs, int off, int len) {
             final Class e = newEs.getClass().getComponentType();
             if (!JoeE.isSubtypeOf(e, Immutable.class)) {
-                throw new ClassCastException(e.getName() + " is not Immutable");
+                throw new ClassCastException(Reflection.getName(e) + 
+                                             " is not Immutable");
             }
             
             int newSize = size + len;

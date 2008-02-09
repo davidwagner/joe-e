@@ -7,6 +7,7 @@ package org.joe_e.array;
 
 import org.joe_e.JoeE;
 import org.joe_e.Powerless;
+import org.joe_e.reflect.Reflection;
 
 /**
  * An immutable array containing powerless objects.
@@ -35,7 +36,8 @@ public class PowerlessArray<E> extends ImmutableArray<E> implements Powerless {
     static public <E> PowerlessArray<E> array(final E... values) {
         final Class e = values.getClass().getComponentType();
         if (!JoeE.isSubtypeOf(e, Powerless.class)) {
-            throw new ClassCastException(e.getName() + " is not Powerless");
+            throw new ClassCastException(Reflection.getName(e) + 
+                                         " is not Powerless");
         }
         return new PowerlessArray<E>(values.clone());
     }
@@ -49,7 +51,8 @@ public class PowerlessArray<E> extends ImmutableArray<E> implements Powerless {
      */
     public PowerlessArray<E> with(E newE) {
         if (!JoeE.instanceOf(newE, Powerless.class)) {
-            throw new ClassCastException(newE.getClass().getName() + "is not Powerless");
+            throw new ClassCastException(Reflection.getName(newE.getClass()) +
+                                         "is not Powerless");
         }
         // We use a new Object array here, because we don't know the static type
         // of E that was used; it may not match the dynamic component type of
@@ -99,14 +102,15 @@ public class PowerlessArray<E> extends ImmutableArray<E> implements Powerless {
         /** 
          * Appends an element to the Array
          * @param newE the element to append
-         * @throws IndexOutOfBoundsException if the resulting internal array
+         * @throws ClassCastException if the <code>newE</code> is not powerless
+         * @throws NegativeArraySizeException if the resulting internal array
          *  would exceed the maximum length of a Java array.  The builder is
          *  unmodified.
          */
          public void append(E newE) {
             if (!JoeE.instanceOf(newE, Powerless.class)) {
-                throw new ClassCastException(newE.getClass().getName() +
-                                             "is not Powerless");
+                throw new ClassCastException(Reflection.getName(newE.getClass())
+                                             + "is not Powerless");
             }
             
             if (size == buffer.length) {
@@ -119,6 +123,7 @@ public class PowerlessArray<E> extends ImmutableArray<E> implements Powerless {
         /** 
          * Appends all elements from a Java array to the Array
          * @param newEs the element to append
+         * @throws ClassCastException if the <code>newEs</code> is not powerless
          * @throws IndexOutOfBoundsException if the resulting internal array
          *  would exceed the maximum length of a Java array.  The builder is
          *  unmodified.
@@ -132,6 +137,7 @@ public class PowerlessArray<E> extends ImmutableArray<E> implements Powerless {
          * @param newEs the source array
          * @param off   the index of the first element to append
          * @param len   the number of elements to append
+         * @throws ClassCastException if the <code>newEs</code> is not powerless
          * @throws IndexOutOfBoundsException if an out-of-bounds index would
          *  be referenced or the resulting internal array would exceed the
          *  maximum length of a Java array.  The builder is unmodified.
@@ -139,7 +145,8 @@ public class PowerlessArray<E> extends ImmutableArray<E> implements Powerless {
         public void append(E[] newEs, int off, int len) {
             final Class e = newEs.getClass().getComponentType();
             if (!JoeE.isSubtypeOf(e, Powerless.class)) {
-                throw new ClassCastException(e.getName() + " is not Powerless");
+                throw new ClassCastException(Reflection.getName(e) +
+                                             " is not Powerless");
             }
             
             int newSize = size + len;
