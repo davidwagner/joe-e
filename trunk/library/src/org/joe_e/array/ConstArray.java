@@ -284,7 +284,7 @@ public class ConstArray<E> implements Selfless, Iterable<E>, Serializable {
         /** 
          * Appends an element to the Array
          * @param newE the element to append
-         * @throws IndexOutOfBoundsException if the resulting internal array
+         * @throws NegativeArraySizeException if the resulting internal array
          *  would exceed the maximum length of a Java array.  The builder is
          *  unmodified.
          */
