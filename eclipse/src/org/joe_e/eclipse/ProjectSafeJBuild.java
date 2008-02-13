@@ -1,18 +1,13 @@
-// Copyright 2007 Regents of the University of California.  May be used 
+// Copyright 2007-08 Regents of the University of California.  May be used 
 // under the terms of the revised BSD license.  See LICENSING for details.
 /** 
  * @author Adrian Mettler 
  */
 package org.joe_e.eclipse;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.CoreException;
-import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
@@ -61,52 +56,6 @@ public class ProjectSafeJBuild {
             return;
         }
     }
-    
-    /**
-     * remove all safej for a specified file, if it belongs to a
-     * compiled package.
-     * @param type
-     *
-    public void removeTypesFor(IFile file) {
-        IFolder dir = null;       
-        IContainer parent = file.getParent();
-        
-        try {
-            if (parent instanceof IFolder) {
-                IJavaElement frag = JavaCore.create((IFolder) parent);
-                if (frag == null) {
-                    return;
-                }
-                dir = directoryFor((IPackageFragment) frag);
-            } else {
-                IPath parentPath = (file.getFullPath().removeLastSegments(1));
-                IJavaProject proj = JavaCore.create((IProject) parent);
-                if (proj.findPackageFragmentRoot(parentPath) == null) {
-                    return;
-                }
-                dir = safejBase;
-            } 
-        
-            String typeName = file.getName();
-            typeName = typeName.substring(0, typeName.indexOf('.'));
-        
-            for (IResource ir : dir.members()) {
-                if (ir instanceof IFile) {
-                    String name = ir.getName();
-                    if (name.equals(typeName + ".safej")
-                        || name.startsWith(typeName + "$")
-                           && name.endsWith(".safej")) {
-                        ir.delete(false, null);
-                    }
-                }
-            }
-        } catch (CoreException ce) {
-            err.println("ERROR: couldn't list and/or delete safej files from "
-                        + dir);
-            ce.printStackTrace(err);
-        }
-    }
-    */
     
     /**
      * If create is true, 
