@@ -1,6 +1,6 @@
 # auto-generated safej: default deny everything
-class("java.lang.reflect.InvocationTargetException"
-,
+class("java.lang.reflect.InvocationTargetException",
+  honorary("org.joe_e.Powerless"),
   static(constructor(suppress, "InvocationTargetException()", comment("default deny")),
     constructor(suppress, "InvocationTargetException(Throwable)", comment("default deny")),
     constructor(suppress, "InvocationTargetException(Throwable, String)", comment("default deny"))),

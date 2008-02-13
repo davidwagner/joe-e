@@ -1,4 +1,5 @@
 # auto-generated safej: default deny everything
 class("java.lang.IllegalMonitorStateException",
+  honorary("org.joe_e.Powerless"),
   static(constructor(suppress, "IllegalMonitorStateException()", comment("default deny")),
     constructor(suppress, "IllegalMonitorStateException(String)", comment("default deny"))))

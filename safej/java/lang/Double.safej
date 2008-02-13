@@ -1,5 +1,6 @@
 # Manually audited.  All should be OK, but see comments on valueOf
 class("java.lang.Double",
+  honorary("org.joe_e.Powerless", "org.joe_e.Selfless"),
   static(field("MAX_VALUE"),
     field("MIN_VALUE"),
     field("NEGATIVE_INFINITY"),

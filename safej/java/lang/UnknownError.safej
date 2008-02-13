@@ -1,4 +1,5 @@
 # auto-generated safej: default deny everything
 class("java.lang.UnknownError",
+  honorary("org.joe_e.Powerless"),
   static(constructor(suppress, "UnknownError()", comment("default deny")),
     constructor(suppress, "UnknownError(String)", comment("default deny"))))

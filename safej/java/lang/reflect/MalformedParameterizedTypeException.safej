@@ -1,4 +1,4 @@
 # auto-generated safej: default deny everything
-class("java.lang.reflect.MalformedParameterizedTypeException"
-,
+class("java.lang.reflect.MalformedParameterizedTypeException",
+  honorary("org.joe_e.Powerless"),
   static(constructor(suppress, "MalformedParameterizedTypeException()", comment("default deny"))))

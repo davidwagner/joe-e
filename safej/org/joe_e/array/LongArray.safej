@@ -1,6 +1,8 @@
 # auto-generated safej for Joe-E code: allow everything.
 class("org.joe_e.array.LongArray",
-  static(method("array(long[])")),
+  static(method("array(long[])"),
+    method("builder()"),
+    method("builder(int)")),
   instance(method("equals(Object)"),
     method("get(int)"),
     method("getLong(int)"),
@@ -10,4 +12,5 @@ class("org.joe_e.array.LongArray",
     method("toLongArray()"),
     method("toString()"),
     method("with(Long)"),
-    method("with(long)")))
+    method("with(long)"),
+    method("without(int)")))

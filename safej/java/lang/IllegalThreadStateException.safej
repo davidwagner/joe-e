@@ -1,4 +1,5 @@
 # auto-generated safej: default deny everything
 class("java.lang.IllegalThreadStateException",
+  honorary("org.joe_e.Powerless"),
   static(constructor(suppress, "IllegalThreadStateException()", comment("default deny")),
     constructor(suppress, "IllegalThreadStateException(String)", comment("default deny"))))

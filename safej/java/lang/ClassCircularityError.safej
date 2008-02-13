@@ -1,4 +1,5 @@
 # auto-generated safej: default deny everything
 class("java.lang.ClassCircularityError",
+  honorary("org.joe_e.Powerless"),
   static(constructor(suppress, "ClassCircularityError()", comment("default deny")),
     constructor(suppress, "ClassCircularityError(String)", comment("default deny"))))
