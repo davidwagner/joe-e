@@ -1,9 +1,12 @@
-# auto-generated safej: default deny everything
+# Manually audited.  Note that the fact that Numbers are honorarily Powerless and Selfless
+# means that we must ensure that Joe-E code can't ever be able to get its hands on AtomicIntegers or AtomicLongs
+# that may be modified.
 class("java.lang.Number",
-  static(constructor(suppress, "Number()", comment("default deny"))),
-  instance(method(suppress, "byteValue()", comment("default deny")),
-    method(suppress, "doubleValue()", comment("default deny")),
-    method(suppress, "floatValue()", comment("default deny")),
-    method(suppress, "intValue()", comment("default deny")),
-    method(suppress, "longValue()", comment("default deny")),
-    method(suppress, "shortValue()", comment("default deny"))))
+  honorary("org.joe_e.Powerless", "org.joe_e.Selfless"),
+  static(constructor(suppress, "Number()", comment("don't let users make their own kind of Number"))),
+  instance(method("byteValue()"),
+    method("doubleValue()"),
+    method("floatValue()"),
+    method("intValue()"),
+    method("longValue()"),
+    method("shortValue()")))

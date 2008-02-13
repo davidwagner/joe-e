@@ -1,6 +1,8 @@
 # auto-generated safej for Joe-E code: allow everything.
 class("org.joe_e.array.ByteArray",
-  static(method("array(byte[])")),
+  static(method("array(byte[])"),
+    method("builder()"),
+    method("builder(int)")),
   instance(method("asInputStream()"),
     method("equals(Object)"),
     method("get(int)"),
@@ -11,4 +13,5 @@ class("org.joe_e.array.ByteArray",
     method("toByteArray()"),
     method("toString()"),
     method("with(Byte)"),
-    method("with(byte)")))
+    method("with(byte)"),
+    method("without(int)")))

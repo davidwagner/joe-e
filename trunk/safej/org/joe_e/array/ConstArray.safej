@@ -1,6 +1,8 @@
 # auto-generated safej for Joe-E code: allow everything.
 class("org.joe_e.array.ConstArray",
-  static(method("array(T[])")),
+  static(method("array(T[])"),
+    method("builder()"),
+    method("builder(int)")),
   instance(method("equals(Object)"),
     method("get(int)"),
     method("hashCode()"),
@@ -8,4 +10,5 @@ class("org.joe_e.array.ConstArray",
     method("length()"),
     method("toArray(T[])"),
     method("toString()"),
-    method("with(E)")))
+    method("with(E)"),
+    method("without(int)")))

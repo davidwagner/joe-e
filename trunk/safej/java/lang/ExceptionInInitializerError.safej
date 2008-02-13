@@ -1,5 +1,6 @@
 # auto-generated safej: default deny everything
 class("java.lang.ExceptionInInitializerError",
+  honorary("org.joe_e.Powerless"),
   static(constructor(suppress, "ExceptionInInitializerError()", comment("default deny")),
     constructor(suppress, "ExceptionInInitializerError(String)", comment("default deny")),
     constructor(suppress, "ExceptionInInitializerError(Throwable)", comment("default deny"))),

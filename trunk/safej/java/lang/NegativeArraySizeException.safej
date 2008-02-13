@@ -1,4 +1,5 @@
 # auto-generated safej: default deny everything
 class("java.lang.NegativeArraySizeException",
+  honorary("org.joe_e.Powerless"),
   static(constructor(suppress, "NegativeArraySizeException()", comment("default deny")),
     constructor(suppress, "NegativeArraySizeException(String)", comment("default deny"))))

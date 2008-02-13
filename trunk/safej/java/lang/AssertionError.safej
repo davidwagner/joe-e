@@ -1,5 +1,6 @@
 # Manually audited.
 class("java.lang.AssertionError",
+  honorary("org.joe_e.Powerless"),
   static(constructor("AssertionError()"),
     constructor(suppress, "AssertionError(Object)", comment("can bypass toString() restrictions")),
     constructor("AssertionError(boolean)"),

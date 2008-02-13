@@ -1,5 +1,6 @@
 # auto-generated safej: default deny everything
 class("java.lang.RuntimeException",
+  honorary("org.joe_e.Powerless"),
   static(constructor(suppress, "RuntimeException()", comment("default deny")),
     constructor(suppress, "RuntimeException(String)", comment("default deny")),
     constructor(suppress, "RuntimeException(String, Throwable)", comment("default deny")),
