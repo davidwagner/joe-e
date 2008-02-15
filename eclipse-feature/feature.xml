@@ -64,7 +64,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
    <plugin
          id="Joe_E"
          download-size="72"
-         install-size="0"
+         install-size="1"
          version="0.0.0"
          unpack="false"/>
 
