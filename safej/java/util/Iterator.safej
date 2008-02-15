@@ -1,0 +1,7 @@
+# Manually audited.  The fact that next() and hasNext() are allowed means that Joe-E must
+# ensure that no instance of an "evil" iterator is made available to Joe-E code.
+class("java.util.Iterator",
+  comment("No reason to disable next() and hasNext() as enhanced for loops can call them anyway"), 
+  instance(method("hasNext()"),
+    method("next()"),
+    method(suppress, "remove()", comment("default deny"))))

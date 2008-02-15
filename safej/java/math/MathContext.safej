@@ -1,0 +1,15 @@
+# Manually audited: Immutable pair containing math configuration info
+class("java.math.MathContext",
+  honorary("org.joe_e.Powerless", "org.joe_e.Selfless"),
+  static(field("DECIMAL128"),
+    field("DECIMAL32"),
+    field("DECIMAL64"),
+    field("UNLIMITED"),
+    constructor("MathContext(String)"),
+    constructor("MathContext(int)"),
+    constructor("MathContext(int, RoundingMode)")),
+  instance(method("equals(Object)"),
+    method("getPrecision()"),
+    method("getRoundingMode()"),
+    method("hashCode()"),
+    method("toString()")))

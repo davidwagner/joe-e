@@ -1,0 +1,3 @@
+# Testlib taming file: this class has its members disabled.
+class("org.joe_e.testlib.DisabledDefaultConstructor",
+  static(constructor(suppress, "DisabledDefaultConstructor()", comment("what it says"))))
