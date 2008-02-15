@@ -1,0 +1,107 @@
+#summary Instructions for installing and getting started with Joe-E
+
+= Introduction =
+In order to use Joe-E, you will need
+# the Joe-E library, for use by your Joe-E application
+# the taming database, specifying what Java library methods are safe to call
+# the Joe-E verifier for Eclipse, to verify that a program is Joe-E compliant.
+
+= Details =
+
+== The Joe-E library == 
+The library is a JAR file that can be downloaded in the Downloads section.
+It provides marker interfaces and utility classes that are useful for Joe-E programs.
+Some of the classes are required to be on the build path of a Joe-E application, or else the verifier will refuse to run.
+
+Download the JAR file to a convenient location.  You will need to add it as an external JAR in the build path of any Java project that you use the Joe-E verifier with.
+
+== The taming database ==
+This is a collection of files specifying policy on which Java constructors, methods, and fields are allowable for Joe-E code to access.  Since the Java libraries were not designed with capability-security in mind, many of the methods provide ambient authority or ambient nondeterminism.  Without a taming database, you will not be able to access any classes from the Java libraries.  Since java.lang.Object is part of the library, this would be very restrictive indeed.
+
+Download one of the archives containing the taming database and decompress it somewhere.  You'll need to tell Eclipse where it is later.
+
+== Installing the actual plug-in ==
+To install Joe-E, now with magical web-based Eclipse Updates magic,
+open Eclipse and from the menu bar invoke
+
+Help -> Software Updates -> Find and Install...
+
+This brings up a wizard interface.
+Click "Search for new features to install" and then "Next" to proceed.
+
+Click "New Remote Site..." and put in a title like "eclipse.joe-e.org"
+and for the URL put "http://eclipse.joe-e.org".  Click "OK" to add
+it to the list of sites.
+
+Click "Finish".
+
+Dig down and select the "Joe-E" feature (or just select the whole site -
+there's only one feature in it at present) and click Next.
+
+Accept the license agreement.  (Believe it or not, it's impossible to
+distribute anything via Eclipse Update *without* a clickthrough agreement; if
+you leave it blank, Eclipse refuses to install it.) 
+
+Accept the default install location (or change it), and click Finish.
+
+You will get a nasty warning that the plug-in is not cryptographically signed.
+Click Install to choose convenience over security (wins every time!).
+
+Eclipse recommends that you restart.  I just tested it, and it does appear
+necessary to do so.  After restarting, you should have the Eclipse plug-in
+installed.
+
+== Configuration ==
+
+Before using the plugin, you must tell it the location of the taming database.
+Choose "Window -> Preferences" ("Eclipse -> Preferences" on a Mac) from the menu
+bar, select the Joe-E pane, and select the directory where you placed the taming
+files.
+
+== Using the Verifier ==
+
+Before enabling the plug-in for a project, the project must have the Joe-E
+library in its classpath.  Add library-2.x.x.jar as an External JAR in the
+project's classpath.  This is set in the project's Properties window (obtained by right-clicking and selecting Properties).  Select "Java Build Path" on the left,
+the "Libraries" tab at the top, and then "Add External JARs..." on the right.
+
+To enable Joe-E for a project, right-click on it and select 
+"Enable Joe-E Verifier".  This is a toggle option, and is checked
+when the verifier is enabled.  Enabling the verifier should trigger a full run
+of the verifier.  The verifier is configured as a builder in Eclipse, so it
+will be run the same way as you run the Java compiler in Eclipse.  If
+Auto-Build is on (the default), it will run automatically on a file when it is
+modified and saved, or when changes to other files necessitate re-verification.
+
+You can turn the verifier on and off for individual packages within the project by
+right-clicking on the package and selecting "Joe-E Verify this Package".
+When the verifier is enabled for a project, it is turned on for all packages by
+default.
+
+== Quirks and Tips ==
+
+Immediately after starting Eclipse, the plug-in may seems dead
+until the first build triggers it or one UI action (which is lost) is
+dispatched to it.  I think that this is a bug in Eclipse.  Just be aware that
+the "Enable Joe-E Verifier" context menu item sometimes does nothing
+the first time you select it other than activate itself and make the checkmark
+status visible when the menu is subsequently opened.
+
+Also note that when starting up, if the workspace remembers a previous run of
+the verifier and is still displaying its results, a new run will not be
+triggered until some file in the workspace changes or a "Clean Build" is
+triggered.  It's always possible to trigger a rebuild of a particular file
+(rather than a whole project) by adding a character and then deleting it,
+making Eclipse think that the file has changed.  This should rarely be
+necessary, however, as the Joe-E builder tries to automatically re-check files
+if a change to some other file could affect the set of errors the verifer will
+generate.  Please let me know if there is a case that isn't handled here.
+
+The Filter function in the Problems tab is helpful for searching through a 
+large number of errors or hiding some of them.  (It's that funky icon with
+the three arrows.)
+
+== Uninstallation ==
+
+You can completely disable or uninstall the verifier from
+"Help -> Software Updates -> Manage Configuration".
