@@ -1,5 +1,6 @@
 # auto-generated safej: default deny everything
 class("java.lang.Thread$State",
+  honorary("org.joe_e.Powerless", "org.joe_e.Equatable"),
   static(field(suppress, "BLOCKED", comment("default deny")),
     field(suppress, "NEW", comment("default deny")),
     field(suppress, "RUNNABLE", comment("default deny")),

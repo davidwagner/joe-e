@@ -1,7 +1,7 @@
 # auto-generated safej: default deny everything
 class("java.lang.reflect.Method",
   honorary("org.joe_e.Powerless", "org.joe_e.Selfless"),
-  instance(method(suppress, "equals(Object)", comment("default deny")),
+  instance(method("equals(Object)"),
     method(suppress, "getAnnotation(Class<T>)", comment("default deny")),
     method(suppress, "getDeclaredAnnotations()", comment("default deny")),
     method(suppress, "getDeclaringClass()", comment("default deny")),
