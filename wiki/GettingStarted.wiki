@@ -80,7 +80,7 @@ default.
 
 == Quirks and Tips ==
 
-Immediately after starting Eclipse, the plug-in may seems dead
+Immediately after starting Eclipse, the plug-in may seem dead
 until the first build triggers it or one UI action (which is lost) is
 dispatched to it.  I think that this is a bug in Eclipse.  Just be aware that
 the "Enable Joe-E Verifier" context menu item sometimes does nothing
