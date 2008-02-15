@@ -39,7 +39,7 @@ Dig down and select the "Joe-E" feature (or just select the whole site -
 there's only one feature in it at present) and click Next.
 
 Accept the license agreement.  (Believe it or not, it's impossible to
-distribute anything via Eclipse Update *without* a clickthrough agreement; if
+distribute anything via Eclipse Update _without_ a clickthrough agreement; if
 you leave it blank, Eclipse refuses to install it.) 
 
 Accept the default install location (or change it), and click Finish.
