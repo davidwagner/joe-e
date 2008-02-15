@@ -2,9 +2,9 @@
 
 = Introduction =
 In order to use Joe-E, you will need
-# the Joe-E library, for use by your Joe-E application
-# the taming database, specifying what Java library methods are safe to call
-# the Joe-E verifier for Eclipse, to verify that a program is Joe-E compliant.
+  # the Joe-E library, for use by your Joe-E application
+  # the taming database, specifying what Java library methods are safe to call
+  # the Joe-E verifier for Eclipse, to verify that a program is Joe-E compliant.
 
 = Details =
 
