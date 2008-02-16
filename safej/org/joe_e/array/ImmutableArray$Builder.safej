@@ -1,0 +1,8 @@
+# auto-generated safej for Joe-E code: allow everything.
+class("org.joe_e.array.ImmutableArray$Builder",
+  static(constructor("Builder()"),
+    constructor("Builder(int)")),
+  instance(method("append(E)"),
+    method("append(E[])"),
+    method("append(E[], int, int)"),
+    method("snapshot()")))

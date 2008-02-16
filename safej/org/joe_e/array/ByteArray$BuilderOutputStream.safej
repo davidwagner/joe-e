@@ -1,7 +1,7 @@
 # auto-generated safej for Joe-E code: allow everything.
-class("org.joe_e.array.ByteArray$Generator",
-  static(constructor("Generator()"),
-    constructor("Generator(int)")),
+class("org.joe_e.array.ByteArray$BuilderOutputStream",
+  static(constructor("BuilderOutputStream()"),
+    constructor("BuilderOutputStream(int)")),
   instance(method("snapshot()"),
     method("write(byte[])"),
     method("write(byte[], int, int)"),

@@ -1,7 +1,7 @@
 # auto-generated safej: default deny everything
 class("java.lang.UnsupportedOperationException",
   honorary("org.joe_e.Powerless"),
-  static(constructor(suppress, "UnsupportedOperationException()", comment("default deny")),
-    constructor(suppress, "UnsupportedOperationException(String)", comment("default deny")),
-    constructor(suppress, "UnsupportedOperationException(String, Throwable)", comment("default deny")),
-    constructor(suppress, "UnsupportedOperationException(Throwable)", comment("default deny"))))
+  static(constructor("UnsupportedOperationException()"),
+    constructor("UnsupportedOperationException(String)"),
+    constructor("UnsupportedOperationException(String, Throwable)"),
+    constructor(suppress, "UnsupportedOperationException(Throwable)", comment("calls toString on cause to generate message"))))
