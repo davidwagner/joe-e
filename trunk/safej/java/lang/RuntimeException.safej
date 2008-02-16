@@ -1,7 +1,7 @@
-# auto-generated safej: default deny everything
+# Manually audited.
 class("java.lang.RuntimeException",
   honorary("org.joe_e.Powerless"),
-  static(constructor(suppress, "RuntimeException()", comment("default deny")),
-    constructor(suppress, "RuntimeException(String)", comment("default deny")),
-    constructor(suppress, "RuntimeException(String, Throwable)", comment("default deny")),
-    constructor(suppress, "RuntimeException(Throwable)", comment("default deny"))))
+  static(constructor("RuntimeException()"),
+    constructor("RuntimeException(String)"),
+    constructor("RuntimeException(String, Throwable)"),
+    constructor(suppress, "RuntimeException(Throwable)", comment("calls toString on cause to generate message"))))

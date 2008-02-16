@@ -1,0 +1,11 @@
+# auto-generated safej for Joe-E code: allow everything.
+class("org.joe_e.array.ShortArray$Builder",
+  static(constructor("Builder()"),
+    constructor("Builder(int)")),
+  instance(method("append(Short)"),
+    method("append(Short[])"),
+    method("append(Short[], int, int)"),
+    method("append(short)"),
+    method("append(short[])"),
+    method("append(short[], int, int)"),
+    method("snapshot()")))

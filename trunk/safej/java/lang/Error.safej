@@ -4,4 +4,4 @@ class("java.lang.Error",
   static(constructor("Error()"),
     constructor("Error(String)"),
     constructor("Error(String, Throwable)"),
-    constructor("Error(Throwable)")))
+    constructor(suppress, "Error(Throwable)", comment("calls toString on cause to generate message"))))

@@ -1,9 +1,10 @@
-# auto-generated safej: default deny everything
+# Partially audited.  Is arraycopy really the only safe method in this class?
+# (Complete auditing would give a rationale for disabling everything else.)
 class("java.lang.System",
   static(field(suppress, "err", comment("default deny")),
     field(suppress, "in", comment("default deny")),
     field(suppress, "out", comment("default deny")),
-    method(suppress, "arraycopy(Object, int, Object, int, int)", comment("default deny")),
+    method("arraycopy(Object, int, Object, int, int)"),
     method(suppress, "clearProperty(String)", comment("default deny")),
     method(suppress, "currentTimeMillis()", comment("default deny")),
     method(suppress, "exit(int)", comment("default deny")),

@@ -1,5 +1,5 @@
-# auto-generated safej: default deny everything
-class("java.lang.reflect.WildcardType"
-,
+# Manually audited, but to allow must make an assumption that may not be warranted.
+class("java.lang.reflect.WildcardType",
+  honorary("org.joe_e.Powerless"),
   instance(method(suppress, "getLowerBounds()", comment("default deny")),
-    method(suppress, "getUpperBounds()", comment("default deny"))))
+    method("getUpperBounds()", comment("allow on the assumption that these are in declaration order.   Seems like they should be, but I'd be happier if this were explicitly specified by Sun."))))

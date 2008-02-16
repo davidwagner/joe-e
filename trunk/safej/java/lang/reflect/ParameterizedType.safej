@@ -1,6 +1,6 @@
-# auto-generated safej: default deny everything
-class("java.lang.reflect.ParameterizedType"
-,
-  instance(method(suppress, "getActualTypeArguments()", comment("default deny")),
-    method(suppress, "getOwnerType()", comment("default deny")),
-    method(suppress, "getRawType()", comment("default deny"))))
+# Manually audited.  things look OK
+class("java.lang.reflect.ParameterizedType",
+  honorary("org.joe_e.Powerless"),
+  instance(method("getActualTypeArguments()"),
+    method("getOwnerType()"),
+    method("getRawType()")))

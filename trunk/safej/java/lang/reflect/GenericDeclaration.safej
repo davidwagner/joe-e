@@ -1,4 +1,3 @@
-# auto-generated safej: default deny everything
-class("java.lang.reflect.GenericDeclaration"
-,
-  instance(method(suppress, "getTypeParameters()", comment("default deny"))))
+# Manually audited.
+class("java.lang.reflect.GenericDeclaration",
+  instance(method("getTypeParameters()")))
