@@ -366,7 +366,7 @@ public class Verifier {
                 if (itb.isTypeVariable()) {
                     // OK
                 } else if (!taming.isJoeE(itb) && !taming.isTamed(itb)) {
-                    addProblem("Reference to disabled class " +
+                    addProblem("Reference to disabled type " +
                             itb.getName(), sn, itb);                   
                 }
             } else if (ib instanceof IMethodBinding) {
@@ -408,12 +408,12 @@ public class Verifier {
             } else if (taming.isTamed(classBinding)) {
                 if (!taming.isAllowed(classBinding, fieldBinding)) {
                     addProblem("Disabled field " + fieldBinding.getName() +
-                               " from class " + classBinding.getName() +
+                               " from type " + classBinding.getName() +
                                " accessed", source, classBinding, fieldBinding);
                 }                
             } else {
                 addProblem("Field " + fieldBinding.getName() + " from " +
-                        "disabled class " + classBinding.getName() + 
+                        "disabled type " + classBinding.getName() + 
                         " accessed", source, classBinding);
             }
         }
@@ -576,11 +576,11 @@ public class Verifier {
             } else if (taming.isTamed(actualClass)) {
                 if (!taming.isAllowed(actualClass, imb)) {
                     addProblem("Disabled method " + imb.getName() +
-                               " from class " + actualClass.getName() +
+                               " from type " + actualClass.getName() +
                                " called", mi.getName(), actualClass, imb);
                 }
             } else {
-                addProblem("Method from disabled class " +
+                addProblem("Method from disabled type " +
                            actualClass.getName() + " called", 
                            mi.getName(), actualClass);               
             }
