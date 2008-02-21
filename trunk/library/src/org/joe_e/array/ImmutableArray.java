@@ -29,7 +29,7 @@ public class ImmutableArray<E> extends ConstArray<E> implements Immutable {
 	}
     
     /**
-     * Constuct a {@link ImmutableArray}.
+     * Constuct a <code>ImmutableArray</code>.
      * @param values    each value
      * @throws ClassCastException if the runtime component type of 
      *     <code>values</code> is not immutable in the overlay type system

@@ -223,7 +223,7 @@ public final class Reflection {
 
     /**
      * Get the name of the entity represented by a <code>Class</code> object,
-     * in the same format as returned by {@link Class.getName()}.  This wrapper
+     * in the same format as returned by {@link Class#getName()}.  This wrapper
      * exists to avoid exposing the number of proxy interfaces that have been
      * generated.
      * @param c the class to get the name of

@@ -32,7 +32,7 @@ public final class ASCII {
      * Decodes a US-ASCII string. Each byte not corresponding to a US-ASCII
      * character decodes to the Unicode replacement character U+FFFD.  This
      * method is equivalent to <code>decode(buffer, 0, buffer.length)</code>.
-     * @parameter buffer    the ASCII-encoded string to decode
+     * @param buffer    the ASCII-encoded string to decode
      * @return The corresponding string
      * @throws java.lang.IndexOutOfBoundsException
      */
@@ -43,10 +43,10 @@ public final class ASCII {
     /**
      * Decodes a US-ASCII string. Each byte not corresponding to a US-ASCII
      * character decodes to the Unicode replacement character U+FFFD.
-     * @parameter buffer    the ASCII-encoded string to decode
-     * @parameter off       where to start decoding
-     * @parameter len       how many bytes to decode
-     * @return The corresponding string
+     * @param buffer    the ASCII-encoded string to decode
+     * @param off       where to start decoding
+     * @param len       how many bytes to decode
+     * @return  the corresponding string
      * @throws java.lang.IndexOutOfBoundsException
      */
     static public String decode(byte[] buffer, int off, int len) {
@@ -56,7 +56,7 @@ public final class ASCII {
     /**
      * Constructs an ASCII reader.
      * @param in    The binary input stream
-     * @return The ASCII character reader.
+     * @return  the ASCII character reader.
      */
     static public Reader input(final InputStream in) {
         return new InputStreamReader(in, charset);
@@ -64,7 +64,7 @@ public final class ASCII {
 
     /**
      * Constructs an ASCII writer.
-     * @param out   The output stream.
+     * @param out the output stream.
      */
     static public Writer output(final OutputStream out) {
         return new OutputStreamWriter(out, charset);

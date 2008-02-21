@@ -28,7 +28,7 @@ public class PowerlessArray<E> extends ImmutableArray<E> implements Powerless {
 	}
     
     /**
-     * Constuct a {@link PowerlessArray}.  The type will be 
+     * Constuct a <code>PowerlessArray</code>.  The type will be 
      * @param values    each value, or an array of values
      * @throws ClassCastException if the runtime component type of 
      *     <code>values</code> is not powerless in the overlay type system
