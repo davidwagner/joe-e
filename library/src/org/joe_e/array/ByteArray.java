@@ -31,7 +31,7 @@ public final class ByteArray extends PowerlessArray<Byte> {
     }
     
     /**
-     * Constructs a {@link ByteArray}.
+     * Constructs a <code>ByteArray</code>.
      * @param bytes each <code>byte</code>
      */
     static public ByteArray array(final byte... bytes) {
@@ -104,8 +104,8 @@ public final class ByteArray extends PowerlessArray<Byte> {
 
     /**
      * Computes a digest of the array for hashing.  The hash code is the same
-     * as <code>Arrays.hashCode()</code> called on a Java array containing the
-     * same elements.
+     * as {@link java.util.Arrays#hashCode(Object[])} called on a Java array
+     * containing the same elements.
      * @return a hash code based on the contents of this array
      */
     public int hashCode() {
@@ -162,8 +162,8 @@ public final class ByteArray extends PowerlessArray<Byte> {
     }
     
     /**
-     * Creates a {@link ByteArray} with an appended {@link Byte}.
-     * @param newByte   the {@link Byte} to append
+     * Creates a <code>ByteArray</code> with an appended <code>Byte</code>.
+     * @param newByte   the element to append
      * @throws NullPointerException <code>newByte</code> is null
      */
     public ByteArray with(final Byte newByte) {
@@ -191,7 +191,7 @@ public final class ByteArray extends PowerlessArray<Byte> {
     }
     
     /** 
-     * Creates a {@link ByteArray} with an appended <code>byte</code>.
+     * Creates a <code>ByteArray</code> with an appended <code>byte</code>.
      * @param newByte   the <code>byte</code> to append
      */
     public ByteArray with(final byte newByte) {
@@ -389,7 +389,7 @@ public final class ByteArray extends PowerlessArray<Byte> {
        // OutputStream interface
        /**
         * Append a <code>byte</code> to the underlying {@link Builder}
-        * @param newByte the element to add
+        * @param b the element to add
         */
        public void write(int b) {
            builder.append((byte) b);

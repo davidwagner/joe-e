@@ -44,7 +44,7 @@ public class ConstArray<E> implements Selfless, Iterable<E>, Serializable {
     }
     
     /**
-     * Constuct a {@link ConstArray}.
+     * Constuct a <code>ConstArray</code>.
      * @param values    each value
      */
     static public <T> ConstArray<T> array(final T... values) {
@@ -118,13 +118,21 @@ public class ConstArray<E> implements Selfless, Iterable<E>, Serializable {
         }
         return true;
     }
+    /**
+     * Computes a digest of the array for hashing.  The hash code is the same
+     * as  called on a Java array
+     * containing the same elements.
+     * @return a hash code based on the contents of this array
+     */
 
     /**
      * Computes a digest of the array for hashing.  If all of the elements of
      * the array implement Selfless in the overlay type system, the hash will
-     * be the same as that computed by Arrays.hashCode() for a Java array with
+     * be the same as that computed by 
+     * {@link java.util.Arrays#hashCode(Object[])} for a Java array with
      * the same elements.  The precise behavior when some elements are not 
-     * Selfless is unspecified, and may change in future releases.
+     * Selfless is unspecified, and may change in future releases.  It is,
+     * however, guaranteed to be deterministic for a given library version.
      * 
      * @return a hash code based on the contents of this array
      */
