@@ -9,3 +9,9 @@ provides a brief overview to Joe-E
 = Joe-E Language Specification =
 
 The [http://www.cs.berkeley.edu/~daw/joe-e/spec-20080203.pdf latest draft of the language spec] is from Feb. 3, 2008.
+
+= Historical Information =
+
+Older versions of the specifications, code, and other interest of solely
+historical interest are available at
+[http://www.cs.berkeley.edu/~daw/joe-e/historical.html the archive page].
