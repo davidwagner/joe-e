@@ -2,7 +2,7 @@
 
 = Introduction to Joe-E =
 
-Our [http://www.cs.berkeley.edu/~daw/joe-e/bears-poster.pdf poster]
+Our [http://www.cs.berkeley.edu/~daw/joe-e/nsf-poster.pdf poster]
 provides a brief overview to Joe-E
 
 
