@@ -1,4 +1,4 @@
-# Manually audited.  Not sure how to handle chained throables, getCause may be OK.
+# Manually audited.  Not sure how to handle chained throwables; getCause may be OK.
 # Stack traces look like a bad idea, as they allow apparent nondeterminism.
 class("java.lang.Throwable",
   honorary("org.joe_e.Powerless"),
@@ -16,4 +16,4 @@ class("java.lang.Throwable",
     method(suppress, "printStackTrace(PrintStream)", comment("default deny")),
     method(suppress, "printStackTrace(PrintWriter)", comment("default deny")),
     method(suppress, "setStackTrace(StackTraceElement[])", comment("modifies object that should be immutable")),
-    method("toString()")))
+    method(suppress, "toString()", comment("may be locale-dependent?"))))
