@@ -1,4 +1,4 @@
-# Manually audited.  Everything looks OK.
+# Manually audited.
 class("java.lang.Exception",
   honorary("org.joe_e.Powerless"),
   static(constructor("Exception()"),
