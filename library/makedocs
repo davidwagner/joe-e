@@ -1,0 +1,2 @@
+#!/bin/sh
+javadoc -sourcepath src -d docs -linksource -sourcetab 4 org.joe_e org.joe_e.array org.joe_e.charset org.joe_e.file org.joe_e.reflect 
