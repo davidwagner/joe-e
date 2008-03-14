@@ -164,16 +164,26 @@ public class Verifier {
                 constructorCalls = new LinkedList<ClassInstanceCreation>();
             }
             
-            // add a reference to an immutable local
+            /**
+             * Add a reference to an immutable local variable
+             * @param newVar
+             */
             void addImmutableVar(IVariableBinding newVar) {
                 immutableVars.add(newVar);
             }
             
-            // add a reference to a non-immutable local
+            /**
+             * Add a reference to a non-immutable local variable
+             * @param newVar
+             */
             void addVar(IVariableBinding newVar) {
                 localVars.add(newVar);
             }
             
+            /**
+             * Add a constructor call
+             * @param cic
+             */
             void addCall(ClassInstanceCreation cic) {
                 constructorCalls.add(cic);
             }
@@ -188,6 +198,8 @@ public class Verifier {
          * 
          * @param icu
          *            the compilation unit to analyze
+         * @param dependents
+         *            a set of compilation units that must be rebuilt
          * @param problems
          *            a list of problems to append Joe-E verification errors to
          */
@@ -1006,7 +1018,7 @@ public class Verifier {
             IType type = (IType) itb.getJavaElement();
             
             try {
-                taming.processJoeEType(type);
+                // taming.processJoeEType(type);
                 
                 ITypeHierarchy sth;
                 if (type.isEnum() && type.isAnonymous()) {

@@ -103,5 +103,15 @@
          point="org.eclipse.core.runtime.preferences">
       <initializer class="org.joe_e.eclipse.PreferenceInitializer"/>
    </extension>
+   <extension
+         point="org.eclipse.ui.propertyPages">
+      <page
+            adaptable="true"
+            class="org.joe_e.eclipse.ProjectProperties"
+            id="org.joe_e.eclipse.tamingAutobuild"
+            name="Taming Autobuild"
+            nameFilter="*"
+            objectClass="org.eclipse.core.resources.IProject"/>
+   </extension>
 
 </plugin>

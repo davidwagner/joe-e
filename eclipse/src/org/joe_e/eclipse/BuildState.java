@@ -45,15 +45,6 @@ class BuildState {
 		this.ijp = ijp;
         typeStates = new HashMap<IType, ITypeState>();
 		icuStates = new HashMap<ICompilationUnit, ICUState>();
-        IFolder tamingFolder = ijp.getProject().getFolder("taming");;
-        if (!tamingFolder.exists()) {
-            try {
-                tamingFolder.create(false, true, null);
-            } catch (CoreException ce) {
-                System.err.println("ERROR creating taming folder!");
-                ce.printStackTrace();
-            }
-        }
 	}
 	
 	/**

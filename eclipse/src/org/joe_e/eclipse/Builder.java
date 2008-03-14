@@ -42,7 +42,26 @@ import org.eclipse.core.runtime.IProgressMonitor;
 public class Builder extends IncrementalProjectBuilder {
     public static final String BUILDER_ID = "Joe_E.JoeEBuilder";
     private static final String MARKER_TYPE = "Joe_E.JoeEProblem";
-	
+
+    /**
+     * Checks whether a Java file has compilation errors
+     * @param file the file to check
+     * @return <code>true</code> if Java compilation errors are found
+     * @throws CoreException
+     */
+    static boolean hasJavaErrors(IFile file) throws CoreException {
+        IMarker[] jdtMarkers = 
+            file.findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, 
+                     IResource.DEPTH_ZERO);
+        for (IMarker marker : jdtMarkers) {
+            Integer severity = (Integer) marker.getAttribute(IMarker.SEVERITY);
+            if (severity == IMarker.SEVERITY_ERROR) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     private BuildState state = null;	// empty until first full build
     private Taming taming = null;
     private Verifier verifier = null;
@@ -181,18 +200,8 @@ public class Builder extends IncrementalProjectBuilder {
         
         System.out.println("Checking file " + file.getFullPath() + ":");
         
-        IMarker[] jdtMarkers = 
-            file.findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, 
-        		     IResource.DEPTH_ZERO);
-        boolean jdtErrors = false;
-        for (IMarker marker : jdtMarkers) {
-            Integer severity = (Integer) marker.getAttribute(IMarker.SEVERITY);
-            if (severity == IMarker.SEVERITY_ERROR) {
-                jdtErrors = true;
-                break;
-            }
-        }
-
+        boolean jdtErrors = hasJavaErrors(file);
+        
         SourceLocationConverter slc = new SourceLocationConverter(file);
         if (jdtErrors) {
             addMarker(file, new Problem("Joe-E verifier not run on this " +
@@ -217,7 +226,7 @@ public class Builder extends IncrementalProjectBuilder {
             return recheck;
         }
     }
-	
+   
     /**
      * Adds a Problem as a warning or error marker for a file in Eclipse's 
      * marker framework.
@@ -416,11 +425,12 @@ public class Builder extends IncrementalProjectBuilder {
                 IFile file = (IFile) resource;
                 if (file.getName().endsWith(".java")) {
                     int kind = delta.getKind();
+                    /*
                     if (kind == IResourceDelta.REMOVED ||
                         kind == IResourceDelta.CHANGED) {
                         taming.removeTypesFor(file);
                     }
-                    
+                    */
                     if (kind == IResourceDelta.ADDED ||
                         kind == IResourceDelta.CHANGED) {
                         ICompilationUnit icu = 
