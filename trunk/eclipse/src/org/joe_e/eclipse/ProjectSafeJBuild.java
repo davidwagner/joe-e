@@ -47,9 +47,12 @@ public class ProjectSafeJBuild {
     
     public void removeType(IType type) {
         try {
-            IFolder dir = directoryFor(type.getPackageFragment(), true);
-            IFile outFile = dir.getFile(type.getTypeQualifiedName() + ".safej");
-            outFile.delete(false, null);
+            IFolder dir = directoryFor(type.getPackageFragment(), false);
+            if (dir != null) {
+                IFile outFile = dir.getFile(type.getTypeQualifiedName()
+                                            + ".safej");
+                outFile.delete(false, null);
+            }
         } catch (CoreException ce) {
             err.println("couldn't delete safej file for " 
                         + type.getFullyQualifiedName());

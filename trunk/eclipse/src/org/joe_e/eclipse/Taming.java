@@ -5,10 +5,7 @@
  */
 package org.joe_e.eclipse;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.PrintStream;
-import java.io.ByteArrayInputStream;
 
 import java.util.Collection;
 import java.util.Map;
@@ -151,11 +148,11 @@ public class Taming {
         return flatSigBuilder.append(")").toString();
     }
     
-   
-    final HashMap<IFile, Set<IType>> types;
-    final HashMap<IType, Entry> db;
+    // map of file -> types for removing extra safejs
+    // final HashMap<IFile, Set<IType>> types;
+    final Map<IType, Entry> db;
     final IJavaProject project;
-    final ProjectSafeJBuild sjbuild;
+    // final ProjectSafeJBuild sjbuild;
     final IFile policyFile;
     
     /*
@@ -163,7 +160,8 @@ public class Taming {
      */
     // final IType OBJECT;
     // final IType ENUM;
-
+    final IType IS_JOE_E;
+    
     final IType SELFLESS;
     final IType IMMUTABLE;
     final IType POWERLESS;
@@ -180,21 +178,80 @@ public class Taming {
         
         /*
          * Project SafeJ Builder
-         */
-        IFolder tamingFolder = project.getProject().getFolder("taming");
-        if (tamingFolder.exists()) {
-            // clean up contents
-            for (IResource ir : tamingFolder.members()) {
-                ir.delete(false, null);
+         *
+        if (ProjectProperties.isSafejOutputEnabled(project.getProject())){           
+            IFolder tamingFolder = project.getProject().getFolder("taming");
+            if (tamingFolder.exists()) {
+                // clean up contents
+                // TODO: don't clobber if we want custom taming decisions also!
+                for (IResource ir : tamingFolder.members()) {
+                    ir.delete(false, null);
+                }
+            } else { 
+                // create taming folder
+                tamingFolder.create(false, true, null);
+                tamingFolder.setDerived(true);
             }
+            sjbuild = new ProjectSafeJBuild(System.err, tamingFolder);
         } else {
-            // create taming folder
-            tamingFolder.create(false, true, null);
-            tamingFolder.setDerived(true);
+            sjbuild = null;
+        }
+        */
+        
+        if (ProjectProperties.isPolicyOutputEnabled(project.getProject())) {
+            policyFile = findPolicyFile();
+        } else {
+            policyFile = null;
+        }
+                
+        /* 
+         * Sanity check for Joe-E library
+         */
+        // The following may not be found if the Joe-E library is not reachable.
+        IS_JOE_E = project.findType("org.joe_e.IsJoeE");
+        
+        SELFLESS = project.findType("org.joe_e.Selfless");
+        IMMUTABLE = project.findType("org.joe_e.Immutable");
+        POWERLESS = project.findType("org.joe_e.Powerless");
+        // RECORD = project.findType("org.joe_e.Record");
+        // DATA = project.findType("org.joe_e.Data");
+        EQUATABLE = project.findType("org.joe_e.Equatable");   
+        TOKEN = project.findType("org.joe_e.Token");     
+        
+        if (IS_JOE_E == null || SELFLESS == null || IMMUTABLE == null 
+            || POWERLESS == null || EQUATABLE == null || TOKEN == null) {
+            System.out.println("FATAL: Could not find Joe-E library classes!");
+            throw new CoreException(
+                new Status(IStatus.ERROR, Plugin.PLUGIN_ID, 10, 
+                           "Joe-E library not found!\nThe Joe-E library " +
+                           "classes (org.joe_e.*) must be in the project's " +
+                           "build path\nin order to use the Joe-E verifier.", 
+                           null));
         }
         
-        sjbuild = new ProjectSafeJBuild(System.err, tamingFolder);
+        // this.types = new HashMap<IFile, Set<IType>>();
+        this.db = new HashMap<IType, Entry>();
         
+        /*
+         * Import project-external taming database
+         */
+        if (persistentDB == null || !persistentDB.isDirectory()) {
+            System.out.println("FATAL: Taming DB path \"" + persistentDB + 
+                               "\" does not exist or is not a directory.");
+            throw new CoreException(
+                new Status(IStatus.ERROR, Plugin.PLUGIN_ID, 20, 
+                           "Taming database not found!\nThe taming " +
+                           "database path \"" + persistentDB + "\" does " +
+                           "not exist or is not a directory.\nPlease " + 
+                           "select a taming directory in the Joe-E pane " +
+                           "of Window·Preferences.", null));
+        }
+        
+        SafeJImport.importTaming(System.err, persistentDB, this, 
+                                         project);
+    }            
+    
+    IFile findPolicyFile() throws CoreException {
         /*
          * Project runtime taming policy file builder
          */
@@ -234,52 +291,8 @@ public class Taming {
             }
         }
         
-        policyFile = current.getFile("Policy.java");
-        
-        /* 
-         * Sanity check for Joe-E library
-         */
-        // The following may not be found if the Joe-E library is not reachable.
-        SELFLESS = project.findType("org.joe_e.Selfless");
-        IMMUTABLE = project.findType("org.joe_e.Immutable");
-        POWERLESS = project.findType("org.joe_e.Powerless");
-        // RECORD = project.findType("org.joe_e.Record");
-        // DATA = project.findType("org.joe_e.Data");
-        EQUATABLE = project.findType("org.joe_e.Equatable");   
-        TOKEN = project.findType("org.joe_e.Token");     
-        
-        if (SELFLESS == null || IMMUTABLE == null || POWERLESS == null 
-            || EQUATABLE == null || TOKEN == null) {
-            System.out.println("FATAL: Could not find Joe-E library classes!");
-            throw new CoreException(
-                new Status(IStatus.ERROR, Plugin.PLUGIN_ID, 10, 
-                           "Joe-E library not found!\nThe Joe-E library " +
-                           "classes (org.joe_e.*) must be in the project's " +
-                           "build path\nin order to use the Joe-E verifier.", 
-                           null));
-        }
-        
-        this.types = new HashMap<IFile, Set<IType>>();
-        this.db = new HashMap<IType, Entry>();
-        
-        /*
-         * Import project-external taming database
-         */
-        if (persistentDB == null || !persistentDB.isDirectory()) {
-            System.out.println("FATAL: Taming DB path \"" + persistentDB + 
-                               "\" does not exist or is not a directory.");
-            throw new CoreException(
-                new Status(IStatus.ERROR, Plugin.PLUGIN_ID, 20, 
-                           "Taming database not found!\nThe taming " +
-                           "database path \"" + persistentDB + "\" does " +
-                           "not exist or is not a directory.\nPlease " + 
-                           "select a taming directory in the Joe-E pane " +
-                           "of Window·Preferences.", null));
-        }
-        
-        SafeJImport.importTaming(System.err, persistentDB, this, 
-                                         project);
-    }            
+        return current.getFile("Policy.java");
+    }
     
        
     class Entry {
@@ -507,7 +520,7 @@ public class Taming {
     /*
      * Mutating methods on the database for use with classes in the project.
      * These also auto-generate safej files for the project.
-     */
+     *
     void addType(IFile file, IType type) {
         Set<IType> typesFound = types.get(file);
         if (typesFound == null) {
@@ -520,10 +533,11 @@ public class Taming {
         if (types.containsKey(file)) {
             for (IType toRemove : types.get(file)) {
                 db.remove(toRemove);
-                sjbuild.removeType(toRemove);
+                // sjbuild.removeType(toRemove);
             }
         }
     }
+    */
     
     /**
      * Add taming info about a type to the verifier's runtime database.
@@ -538,6 +552,7 @@ public class Taming {
      * @param type the type to process
      * @throws JavaModelException probably a bug if it does
      */
+    /*
     void processJoeEType(IType type) throws JavaModelException {
         if (isRelevant(type)) {      
             Map<IField, String> allowedFields = 
@@ -559,141 +574,23 @@ public class Taming {
         
             db.put(type, new Entry(allowedFields, allowedMethods));
         
-            sjbuild.processJoeEType(type);
+            // only if enabled
+            if (sjbuild != null) {
+                // TODO: handle state transition of this option better -- this
+                // test requires clean build and reconstruction of this class
+                // for the change to take effect
+                sjbuild.processJoeEType(type);
+            }
         }
     }
+    */
     
     void outputRuntimeDatabase() {
-        ByteArrayOutputStream content = new ByteArrayOutputStream();
-        PrintStream out = new PrintStream(content);
-        out.println("// This file is auto-generated by the Joe-E builder " +
-                    "based on the taming");
-        out.println("// database (safej files), and should not be edited " +
-                    "directly.");
-        out.println("package org.joe_e.taming;");
-        out.println();
-        out.println("import java.util.HashMap;");        
-        out.println("import java.util.HashSet;");
-        //out.println("import org.joe_e.*;");
-        out.println();        
-        out.println("public class Policy {");
-        out.println("    private Policy() {}");
-        out.println();
-        out.println("    private static HashMap<String, String[]> honoraries = ");       
-        out.println("        new HashMap<String, String[]>();");      
-        out.println("    private static HashSet<String> fields = " 
-                    + "new HashSet<String>();");
-        out.println("    private static HashSet<String> constructors = "
-                    + "new HashSet<String>();");
-        out.println("    private static HashSet<String> methods = "
-                    + "new HashSet<String>();");
-        out.println();
-        out.println("    public static boolean hasHonorary(String type, " +
-                                                          "String honorary) {");
-        out.println("        if (honoraries.containsKey(type)) {");
-        out.println("            for (String hon : honoraries.get(type)) {");
-        out.println("                if (hon.equals(honorary)) {");
-        out.println("                    return true;");
-        out.println("                }");
-        out.println("            }");
-        out.println("        }");
-        out.println("        return false;");
-        out.println("    }");
-        out.println();
-        out.println("    public static boolean fieldEnabled(String " + 
-                                                           "fieldSig) {");
-        out.println("        return fields.contains(fieldSig);");
-        out.println("    }");
-        out.println();
-        out.println("    public static boolean constructorEnabled(String " +
-                                                                 "ctorSig) {");
-        out.println("        return constructors.contains(ctorSig);");
-        out.println("    }");
-        out.println();
-        out.println("    public static boolean methodEnabled(String " +
-                                                            "methodSig) {");
-        out.println("        return methods.contains(methodSig);");
-        out.println("    }");
-        out.println();
-        out.println("    static {");        
-        
-        boolean firstType = true;
-        for (IType type : db.keySet()) {
-            Entry e = db.get(type);
-            String fqn = type.getFullyQualifiedName();
-            
-            out.println((firstType ? "" : "\n") + "        // Type " + fqn);
-            firstType = false;
-            
-            Set<IType> honoraries = e.honoraries;
-            if (honoraries != null && !honoraries.isEmpty()) {
-                //out.print("        honoraries.add(" + fqn + 
-                //          ".class, new Class<?>[]{");
-                out.print("        honoraries.put(\"" + fqn + 
-                          "\", new String[]{");
-                boolean firstHon = true;
-                for (IType hon : honoraries) {
-                    out.print(firstHon ? "" : ", ");
-                    firstHon = false;
-                    out.print("\"" + hon.getFullyQualifiedName() + "\"");
-                }
-                out.println("});");
-            }
-            
-            Map<IField, String> fields = e.allowedFields;
-            if (fields != null) {
-                for (IField f : fields.keySet()) {
-                    out.println("        fields.add(\"" + fqn + "." + 
-                                f.getElementName() + "\");");
-                }
-            }
-            
-            Map<IMethod, String> methods = e.allowedMethods;
-            if (methods != null) {
-                for (IMethod m : methods.keySet()) {
-                    try {
-                        if (m == null || m.isConstructor()) {
-                            String flatSig = "()";
-                            if (m != null) {
-                                flatSig = getFlatSignature(m);
-                                flatSig = flatSig.substring(flatSig.indexOf('('));
-                            }
-                            out.println("        constructors.add(\"" + fqn +
-                                        flatSig + "\");");
-                        }
-                    } catch (JavaModelException jme) {
-                        jme.printStackTrace(System.err);
-                        return;
-                    }
-                }
-                for (IMethod m : methods.keySet()) {
-                    try {
-                        if (m != null && !m.isConstructor()) {
-                            out.println("        methods.add(\"" + fqn + 
-                                        "." + getFlatSignature(m) + "\");");
-                        }
-                    } catch (JavaModelException jme) {
-                        jme.printStackTrace(System.err);
-                        return;
-                    }
-                }
-            }
-        }
-        
-        out.println("    }"); // end static {
-        out.println("}"); // end class {
-        
-        ByteArrayInputStream stream = new ByteArrayInputStream(content.toByteArray());
-        try {
-            if (policyFile.exists()) {
-                policyFile.setContents(stream, false, true, null);
-            } else {
-                policyFile.create(stream, false, null);
-            }
-            policyFile.setDerived(true);
-        } catch (CoreException ce) {
-            System.err.println("couldn't write policy output file!");
-            ce.printStackTrace(System.err);
+        if (policyFile != null) {
+            // TODO: handle state transition of this option better -- this
+            // test requires clean build and reconstruction of this class
+            // for the change to take effect
+            PolicyWriter.write(db, policyFile);
         }
     }
 }
