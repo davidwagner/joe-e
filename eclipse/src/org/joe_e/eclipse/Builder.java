@@ -423,7 +423,23 @@ public class Builder extends IncrementalProjectBuilder {
             
             if (resource instanceof IFile) {
                 IFile file = (IFile) resource;
-                if (file.getName().endsWith(".java")) {
+                if (file.getName().equals("package-info.java")) {
+                    ICompilationUnit icu = (ICompilationUnit) JavaCore.create(file);
+                    if (icu.exists()) {
+                        // Add all classes in package
+                        IContainer container = file.getParent();
+                        for (IResource r : container.members()) {
+                            if (r instanceof IFile) {
+                                IFile f = (IFile) r;
+                                if (f.getName().endsWith(".java")) {
+                                    inBuild.add((ICompilationUnit) 
+                                                JavaCore.create(f));
+                                }
+                            }
+                        }
+                    }
+                }
+                else if (file.getName().endsWith(".java")) {
                     int kind = delta.getKind();
                     /*
                     if (kind == IResourceDelta.REMOVED ||
