@@ -37,7 +37,9 @@ public class TogglePackageAction implements IObjectActionDelegate {
 	 * 
 	 * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
 	 */
-	public void run(IAction action) {              
+	public void run(IAction action) {
+        /* currently never called.
+         * TODO: fix this (or remove)
 		if (selection instanceof IStructuredSelection) {
 			for (Iterator it = ((IStructuredSelection) selection).iterator(); 
 				    it.hasNext(); ) {
@@ -68,6 +70,7 @@ public class TogglePackageAction implements IObjectActionDelegate {
 				}
 			}
 		}
+        */
 	}
 
 	/*
