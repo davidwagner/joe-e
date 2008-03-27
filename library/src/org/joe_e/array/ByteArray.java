@@ -360,7 +360,11 @@ public final class ByteArray extends PowerlessArray<Byte> {
            size = newSize;
        }
        
-       BuilderOutputStream asOutputStream() {
+       /**
+        * Convenience method that creates an output stream using this Builder 
+        * @return a new output stream that wraps this Builder
+        */
+       public BuilderOutputStream asOutputStream() {
            return new BuilderOutputStream(this);
        }
    }
