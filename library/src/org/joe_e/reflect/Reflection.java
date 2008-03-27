@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.regex.Pattern;
 
+import org.joe_e.IsJoeE;
 import org.joe_e.array.PowerlessArray;
 import org.joe_e.taming.Policy;
 
@@ -252,6 +253,13 @@ public final class Reflection {
      */
     static private boolean safe(final Member member) {
         final Class declarer = member.getDeclaringClass();
+        // safe if declared in a Joe-E package
+        final Package pkg = declarer.getPackage();
+        // getPackage returns null for proxy classes
+        if (pkg != null && pkg.isAnnotationPresent(IsJoeE.class)) {
+            return true;
+        }
+        
         // getName() is the binary name, possibly with $'s
         StringBuilder sb = new StringBuilder(declarer.getName());
         if (member instanceof Field) {
@@ -272,17 +280,6 @@ public final class Reflection {
             sb.append(UNQUALIFY.matcher(args).replaceAll("$1"));
             return Policy.methodEnabled(sb.toString());
         }
-        /*  
-        return declarer == Runnable.class 
-            || (declarer == Object.class
-                && (member.getName().equals("getClass")
-                    || member.getName().equals("equals")
-                    || member.getName().equals("Object")))
-            || (declarer.getClassLoader() != boot
-                // prevent cheating the checks on invocation handlers
-                && !(member instanceof Constructor
-                     && Proxy.class.isAssignableFrom(declarer)));
-        */
     }
         
     /*
