@@ -359,6 +359,10 @@ public final class ByteArray extends PowerlessArray<Byte> {
            System.arraycopy(newBytes, off, byteBuffer, size, len);
            size = newSize;
        }
+       
+       BuilderOutputStream asOutputStream() {
+           return new BuilderOutputStream(this);
+       }
    }
    
    /**
@@ -367,24 +371,32 @@ public final class ByteArray extends PowerlessArray<Byte> {
     * {@link ByteArray.Builder}.
     */
    static public final class BuilderOutputStream extends OutputStream {
-       private Builder builder;
+       private final Builder builder;
        
        /**
-        * Create a byte array using an underlying {@link Builder} with the
-        * default internal array length
+        * Create an output stream using a new underlying {@link Builder} with
+        * the default internal array length
         */
        public BuilderOutputStream() {
            builder = new Builder();
        }
 
        /**
-        * Create a byte array using an underlying {@link Builder}
+        * Create an output stream using a new underlying {@link Builder}
         * @param estimate estimated array length
         */
        public BuilderOutputStream(int estimate) {
            builder = new Builder(estimate);
        }
 
+       /**
+        * Create an output stream that wraps the specified {@link Builder}
+        * @param toWrap the <code>Builder</code> to wrap
+        */
+       public BuilderOutputStream(Builder toWrap) {
+           builder = toWrap;
+       }
+       
        // OutputStream interface
        /**
         * Append a <code>byte</code> to the underlying {@link Builder}
