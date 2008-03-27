@@ -56,8 +56,8 @@ public final class ByteArray extends PowerlessArray<Byte> {
         out.write(bytes);
     }
 
-    private void readObject(final ObjectInputStream in) throws IOException, 
-    						                      ClassNotFoundException {
+    private void readObject(final ObjectInputStream in) throws 
+                                        IOException, ClassNotFoundException {
         in.defaultReadObject();
 
         final int length = in.readInt();
@@ -225,13 +225,12 @@ public final class ByteArray extends PowerlessArray<Byte> {
     * A {@link ByteArray} factory.
     */
    static public final class Builder extends PowerlessArray.Builder<Byte> {
-       private byte[] buffer;
-       private int size;
+       private byte[] byteBuffer;
 
        /**
         * Construct an instance with the default internal array length.
         */
-       public Builder() {
+       Builder() {
            this(0);
        }
        
@@ -239,8 +238,8 @@ public final class ByteArray extends PowerlessArray<Byte> {
         * Construct an instance.
         * @param estimate  estimated array length
         */
-       public Builder(int estimate) {
-           buffer = new byte[estimate > 0 ? estimate : 32];
+       Builder(int estimate) {
+           byteBuffer = new byte[estimate > 0 ? estimate : 32];
            size = 0;
        }
 
@@ -281,14 +280,14 @@ public final class ByteArray extends PowerlessArray<Byte> {
                || off + len > newBytes.length) {
                throw new IndexOutOfBoundsException();
            }
-           if (newSize > buffer.length) {
-               int newLength = Math.max(newSize, 2 * buffer.length);
-               System.arraycopy(buffer, 0, buffer = new byte[newLength], 0,
-                                size);
+           if (newSize > byteBuffer.length) {
+               int newLength = Math.max(newSize, 2 * byteBuffer.length);
+               System.arraycopy(byteBuffer, 0, 
+                                byteBuffer = new byte[newLength], 0, size);
            }
            
            for (int i = 0; i < len; ++i) {
-               buffer[size + i] = newBytes[off + i];
+               byteBuffer[size + i] = newBytes[off + i];
            }           
            size = newSize;
        }
@@ -299,11 +298,11 @@ public final class ByteArray extends PowerlessArray<Byte> {
         */
        public ByteArray snapshot() {
            final byte[] arr;
-           if (size == buffer.length) {
-               arr = buffer;
+           if (size == byteBuffer.length) {
+               arr = byteBuffer;
            } else {
                arr = new byte[size];
-               System.arraycopy(buffer, 0, arr, 0, size);
+               System.arraycopy(byteBuffer, 0, arr, 0, size);
            }
            return new ByteArray(arr);
        }
@@ -319,11 +318,11 @@ public final class ByteArray extends PowerlessArray<Byte> {
         *  unmodified.
         */
        public void append(final byte newByte) {
-           if (size == buffer.length) {
-               System.arraycopy(buffer, 0, buffer = new byte[2 * size], 0,
-                                size);
+           if (size == byteBuffer.length) {
+               System.arraycopy(byteBuffer, 0, 
+                                byteBuffer = new byte[2 * size], 0, size);
            }
-           buffer[size++] = (byte) newByte;
+           byteBuffer[size++] = (byte) newByte;
        }
        
        /**
@@ -352,12 +351,12 @@ public final class ByteArray extends PowerlessArray<Byte> {
                || off + len > newBytes.length) {
                throw new IndexOutOfBoundsException();
            }
-           if (newSize > buffer.length) {
-               int newLength = Math.max(newSize, 2 * buffer.length);
-               System.arraycopy(buffer, 0, buffer = new byte[newLength], 0,
-                                size);
+           if (newSize > byteBuffer.length) {
+               int newLength = Math.max(newSize, 2 * byteBuffer.length);
+               System.arraycopy(byteBuffer, 0,
+                                byteBuffer = new byte[newLength], 0, size);
            }
-           System.arraycopy(newBytes, off, buffer, size, len);
+           System.arraycopy(newBytes, off, byteBuffer, size, len);
            size = newSize;
        }
    }
@@ -406,7 +405,8 @@ public final class ByteArray extends PowerlessArray<Byte> {
        }
 
        /**
-        * Append part of a <code>byte</code> array to the underlying {@link Builder}
+        * Append part of a <code>byte</code> array to the underlying 
+        * {@link Builder}
         * @param b the elements to add
         * @param off the index of the first element to add
         * @param len the number of elements to add
@@ -415,7 +415,15 @@ public final class ByteArray extends PowerlessArray<Byte> {
            builder.append(b, off, len);
        }
      
-       // Added method to get data out
+       // Added methods to get data out
+       /** 
+        * Gets the number of bytes written to the underlying {@link Builder}
+        * @return the number of elements that have been appended
+        */
+       public int length() {
+           return builder.length();
+       }
+              
        /**
         * Create a snapshot of the current content.
         * @return a <code>ByteArray</code> containing the elements so far
@@ -424,6 +432,17 @@ public final class ByteArray extends PowerlessArray<Byte> {
            return builder.snapshot();
        }
    }
+
+   /* If one only invokes static methods statically, this is sound, since
+    * ByteArray extends PowerlessArray<Byte> and thus this method is
+    * only required to return something of a type covariant with
+    * PowerlessArray.Builder<Byte>.  Unfortunately, this is not completely
+    * sound because it is possible to invoke static methods on instances, e.g.
+    * ConstArray.Builder<String> = (ConstArray (ByteArray.array())).builder().
+    * Invocations of append() can then throw ClassCastExceptions.
+    * 
+    * I can't see a way to avoid this other than to de-genericize everything.
+    */
    
    /**
     * Get a <code>ByteArray.Builder</code>.  This is equivalent to the
