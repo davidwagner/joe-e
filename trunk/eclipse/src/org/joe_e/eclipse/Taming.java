@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.IAnnotationBinding;
 
 public class Taming {
     /*
@@ -423,13 +424,14 @@ public class Taming {
     }
     
     boolean isJoeE(ITypeBinding itb) {
-        if (isFromProject(itb)) {
-            IContainer container = 
-                itb.getJavaElement().getResource().getParent();
-            return TogglePackageAction.isJoeE(container);
-        } else {
-            return false;
+        for (IAnnotationBinding iab : itb.getPackage().getAnnotations()) {
+            if (iab.getAnnotationType().getQualifiedName()
+                    .equals("org.joe_e.IsJoeE")) {
+                return true;
+            }
         }
+        
+        return false;
     }
     
     boolean isTamed(ITypeBinding itb) {

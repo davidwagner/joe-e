@@ -19,6 +19,8 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.IPackageBinding;
+import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jface.action.IAction;
@@ -177,14 +179,16 @@ public class TogglePackageAction implements IObjectActionDelegate {
         boolean isJoeE = false;
         
         public boolean visit (PackageDeclaration pd) {
-            for (Object i :  pd.annotations()) {
-                Annotation a = (Annotation) i;
-                IType aType = 
-                    (IType) a.resolveAnnotationBinding().getJavaElement();
-                if (aType.getFullyQualifiedName().equals("org.joe_e.IsJoeE")) {
-                   isJoeE = true;
+            // TODO: avoid code duplication between here and 
+            // Taming.java
+            IPackageBinding ipb = pd.resolveBinding();
+            for (IAnnotationBinding iab : ipb.getAnnotations()) {
+                if (iab.getAnnotationType().getQualifiedName()
+                        .equals("org.joe_e.IsJoeE")) {
+                    isJoeE = true;
                 }
             }
+            
             return false;
         }
     }
