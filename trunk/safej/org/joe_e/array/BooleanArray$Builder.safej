@@ -1,7 +1,5 @@
 # auto-generated safej for Joe-E code: allow everything.
 class("org.joe_e.array.BooleanArray$Builder",
-  static(constructor("Builder()"),
-    constructor("Builder(int)")),
   instance(method("append(Boolean)"),
     method("append(Boolean[])"),
     method("append(Boolean[], int, int)"),
