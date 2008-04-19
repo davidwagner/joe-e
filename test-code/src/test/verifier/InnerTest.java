@@ -6,8 +6,6 @@ public class InnerTest implements org.joe_e.Powerless {
 	}
 	
     void foo () {
-    	System.out.println();
-    	
     	class Inner extends Object {
     		class MoreInner {
     			
@@ -20,6 +18,4 @@ public class InnerTest implements org.joe_e.Powerless {
     		}
     	}
     }
-    
-
 }
