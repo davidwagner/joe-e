@@ -11,13 +11,13 @@
 			</arguments>
 		</buildCommand>
 		<buildCommand>
-			<name>Joe_E.JoeEBuilder</name>
+			<name>org.joe_e.JoeEBuilder</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
-		<nature>Joe_E.JoeENature</nature>
+		<nature>org.joe_e.JoeENature</nature>
 	</natures>
 </projectDescription>
