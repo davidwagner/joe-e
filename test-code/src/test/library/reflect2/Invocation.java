@@ -1,4 +1,4 @@
-package test.library.reflect;
+package test.library.reflect2;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -28,6 +28,8 @@ public class Invocation {
     }
     
     public static void test() {
+        // TODO: add tests of more cases that consult taming data
+        
         // get()          
         try {
             Field publicField = Reflection.field(Invocation.class, "dummy");
@@ -48,7 +50,7 @@ public class Invocation {
         } catch (IllegalAccessException iae) { 
             
         }
-        
+                
         // set()
         try {
             Field publicField = Reflection.field(Invocation.class, "dummy");
