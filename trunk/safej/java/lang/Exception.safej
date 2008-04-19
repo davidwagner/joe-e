@@ -4,4 +4,4 @@ class("java.lang.Exception",
   static(constructor("Exception()"),
     constructor("Exception(String)"),
     constructor("Exception(String, Throwable)"),
-    constructor(suppress, "Exception(Throwable)", comment("calls toString on cause to generate message"))))
+    constructor("Exception(Throwable)")))
