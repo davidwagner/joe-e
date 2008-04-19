@@ -40,8 +40,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * the database anyway.
  */
 public class Builder extends IncrementalProjectBuilder {
-    public static final String BUILDER_ID = "Joe_E.JoeEBuilder";
-    private static final String MARKER_TYPE = "Joe_E.JoeEProblem";
+    public static final String BUILDER_ID = "org.joe_e.JoeEBuilder";
+    private static final String MARKER_TYPE = "org.joe_e.JoeEProblem";
 
     /**
      * Checks whether a Java file has compilation errors
@@ -424,16 +424,15 @@ public class Builder extends IncrementalProjectBuilder {
             if (resource instanceof IFile) {
                 IFile file = (IFile) resource;
                 if (file.getName().equals("package-info.java")) {
-                    ICompilationUnit icu = (ICompilationUnit) JavaCore.create(file);
-                    if (icu.exists()) {
-                        // Add all classes in package
-                        IContainer container = file.getParent();
-                        for (IResource r : container.members()) {
-                            if (r instanceof IFile) {
-                                IFile f = (IFile) r;
-                                if (f.getName().endsWith(".java")) {
-                                    inBuild.add((ICompilationUnit) 
-                                                JavaCore.create(f));
+                    IContainer container = file.getParent();
+                    for (IResource r : container.members()) {
+                        if (r instanceof IFile) {
+                            IFile f = (IFile) r;
+                            if (f.getName().endsWith(".java")) {
+                                ICompilationUnit icu = 
+                                    (ICompilationUnit) JavaCore.create(f);
+                                if (icu.exists()) {
+                                    inBuild.add(icu);
                                 }
                             }
                         }

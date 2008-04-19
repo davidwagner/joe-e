@@ -23,7 +23,7 @@
          </run>
       </runtime>
       <builder
-            id="Joe_E.JoeEBuilder">
+            id="org.joe_e.JoeEBuilder">
       </builder>
    </extension>
    <extension
@@ -32,11 +32,11 @@
             adaptable="true"
             objectClass="org.eclipse.jdt.core.IJavaProject"
             nameFilter="*"
-            id="Joe_E.toggleNature">
+            id="org.joe_e.toggleNature">
          <action
                class="org.joe_e.eclipse.ToggleNatureAction"
                enablesFor="+"
-               id="Joe_E.toggleNatureAction"
+               id="org.joe_e.toggleNatureAction"
                label="Enable Joe-E Verifier"
                menubarPath="additions"
                state="false"
@@ -47,11 +47,11 @@
             adaptable="true"
             objectClass="org.eclipse.jdt.core.IPackageFragment"
             nameFilter="*"
-            id="Joe_E.togglePackage">
+            id="org.joe_e.togglePackage">
          <action
                class="org.joe_e.eclipse.TogglePackageAction"
                enablesFor="+"
-               id="Joe_E.togglePackageAction"
+               id="org.joe_e.togglePackageAction"
                label="Joe-E Verify This Package"
                menubarPath="additions"
                state="false"
@@ -59,7 +59,7 @@
          </action>
          <!-- <filter
                name="projectNature"
-               value="Joe_E.JoeENature"/>
+               value="org.joe_e.JoeENature"/>
          <visibility>
              <objectClass name="org.eclipse.jdt.core.IPackageFragment" /> 
          </visibility> -->
@@ -107,8 +107,8 @@
       <page
             adaptable="true"
             class="org.joe_e.eclipse.ProjectProperties"
-            id="org.joe_e.eclipse.tamingAutobuild"
-            name="Taming Autobuild"
+            id="org.joe_e.projectPrefs"
+            name="Joe-E"
             nameFilter="*"
             objectClass="org.eclipse.core.resources.IProject"/>
    </extension>
