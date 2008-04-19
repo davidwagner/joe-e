@@ -14,7 +14,7 @@ import org.osgi.framework.BundleContext;
  */
 public class Plugin extends AbstractUIPlugin {
 
-    static final String PLUGIN_ID = "Joe_E";
+    static final String PLUGIN_ID = "org.joe_e";
     
 	//The shared instance.
 	private static Plugin plugin;
@@ -56,6 +56,6 @@ public class Plugin extends AbstractUIPlugin {
 	 * @return the image descriptor
 	 */
 	public static ImageDescriptor getImageDescriptor(String path) {
-		return AbstractUIPlugin.imageDescriptorFromPlugin("Joe_E", path);
+		return AbstractUIPlugin.imageDescriptorFromPlugin("org.joe_e", path);
 	}
 }

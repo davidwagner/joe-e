@@ -13,7 +13,6 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.resources.*;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -22,7 +21,6 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
-import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -31,7 +29,7 @@ import org.eclipse.ui.IWorkbenchPart;
 
 
 public class TogglePackageAction implements IObjectActionDelegate {
-    static final QualifiedName SKIP_PKG = new QualifiedName("Joe_E", "skip-package");
+    static final QualifiedName SKIP_PKG = new QualifiedName("org.joe_e", "skip-package");
 	private ISelection selection;
 
     /*

@@ -7,8 +7,6 @@ package org.joe_e.eclipse;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.resources.IFolder;
 
 import java.util.*;
 
