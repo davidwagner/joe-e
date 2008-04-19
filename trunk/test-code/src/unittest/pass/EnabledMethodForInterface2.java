@@ -5,6 +5,6 @@ interface Equalsable<T> {
 }
 
 // implements generic interface non-generically
-public class DisabledMethodForInterface2 implements Equalsable {
+public class EnabledMethodForInterface2 implements Equalsable {
 	
 }

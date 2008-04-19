@@ -2,47 +2,46 @@ package test.verifier;
 import org.joe_e.Powerless;
 
 public class Nondeterministic {
-    static class SpecificException extends Exception implements Powerless {
+	/* Way one: catch Error */
+	int recursiveNondet() {
+		try {
+			return 1 + recursiveNondet();
+		} catch (StackOverflowError e) {
+			return 1;
+		}
+	}
+	
+	/* Way two: using finally */
+    static class IntException extends Exception implements Powerless {
         static final long serialVersionUID = 1;
         final int number;
         
-        SpecificException(int me) {
+        IntException(int me) {
             number = me;
         }
     }
-    
-    static void f(int[] count) {
-        count[0]++;
-        f(count);
+
+    int nondet() {
+        try { 
+        	freemem(); return 0;
+        } catch (IntException ie) {
+        	return ie.number;
+        }
     }
-    
-    static void xx() throws SpecificException {
-        int[] max = {0};
+
+    void freemem() throws IntException {
+        int shift = 0;
         try {
-            if (2 < 5) {
-                throw new SpecificException(2);
-            }            
-        } catch (SpecificException y) {
-            f(max);
-        } catch (Error ee) {
-            throw org.joe_e.JoeE.abort(ee);
-        } finally {}              
-        /*    if (true) {
-                throw new SpecificException(max[0]);
+            for (shift = 0; ; ++shift) {
+                double a[] = new double[1 << shift];
             }
-        } */  
-    }
-    
-    static int nondet() {
-        try {
-            xx();
-            return 0;
-        } catch (SpecificException se) {
-            return se.number;
+        } finally {
+        	throw new IntException(shift);
         }
     }
     
     public static void main(String[] args) {
-        //System.out.println("RaNdO: " + nondet());
+        //System.out.println("Mystery1: " + recursiveNondet());
+    	//System.out.println("Mystery2: " + nondet());
     }
 }
