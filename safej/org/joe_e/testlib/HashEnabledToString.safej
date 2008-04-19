@@ -1,0 +1,4 @@
+# Testlib taming file: enable toString() method
+class("org.joe_e.testlib.HasEnabledToString",
+  static(constructor("HasEnabledToString()")),
+  instance(method("toString()")))
