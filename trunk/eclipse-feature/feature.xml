@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="Joe_E"
+      id="org.joe_e"
       label="Joe-E Verifier"
-      version="2.0.0"
+      version="2.1.0"
       provider-name="joe-e.org">
 
    <description url="http://www.joe-e.org">
@@ -53,17 +53,18 @@ THE POSSIBILITY OF SUCH DAMAGE.
    </url>
 
    <requires>
-      <import plugin="org.eclipse.ui" version="3.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.core.runtime" version="3.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.core.resources" version="3.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.jdt.source" version="3.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.jdt.core" version="3.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.ui.editors" version="3.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui" version="3.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.jdt"/>
    </requires>
 
    <plugin
-         id="Joe_E"
-         download-size="72"
+         id="org.joe_e"
+         download-size="77"
          install-size="1"
          version="0.0.0"
          unpack="false"/>
