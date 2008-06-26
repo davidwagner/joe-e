@@ -1,0 +1,3 @@
+# auto-generated safej: default deny everything
+class("java.net.URLStreamHandlerFactory",
+  instance(method(suppress, "createURLStreamHandler(String)", comment("default deny"))))

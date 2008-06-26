@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.net.NetPermission",
+  static(constructor(suppress, "NetPermission(String)", comment("default deny")),
+    constructor(suppress, "NetPermission(String, String)", comment("default deny"))))

@@ -1,0 +1,8 @@
+# auto-generated safej: default deny everything
+class("java.net.SecureCacheResponse",
+  static(constructor(suppress, "SecureCacheResponse()", comment("default deny"))),
+  instance(method(suppress, "getCipherSuite()", comment("default deny")),
+    method(suppress, "getLocalCertificateChain()", comment("default deny")),
+    method(suppress, "getLocalPrincipal()", comment("default deny")),
+    method(suppress, "getPeerPrincipal()", comment("default deny")),
+    method(suppress, "getServerCertificateChain()", comment("default deny"))))

@@ -1,0 +1,7 @@
+# auto-generated safej: default deny everything
+class("java.net.ProxySelector",
+  static(constructor(suppress, "ProxySelector()", comment("default deny")),
+    method(suppress, "getDefault()", comment("default deny")),
+    method(suppress, "setDefault(ProxySelector)", comment("default deny"))),
+  instance(method(suppress, "connectFailed(URI, SocketAddress, IOException)", comment("default deny")),
+    method(suppress, "select(URI)", comment("default deny"))))

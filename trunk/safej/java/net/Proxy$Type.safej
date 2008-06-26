@@ -1,0 +1,7 @@
+# auto-generated safej: default deny everything
+class("java.net.Proxy$Type",
+  static(field(suppress, "DIRECT", comment("default deny")),
+    field(suppress, "HTTP", comment("default deny")),
+    field(suppress, "SOCKS", comment("default deny")),
+    method(suppress, "valueOf(String)", comment("default deny")),
+    method(suppress, "values()", comment("default deny"))))

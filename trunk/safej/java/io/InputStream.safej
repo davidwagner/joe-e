@@ -1,0 +1,13 @@
+# Audited.  Methods should be ok, but instances of concrete subtypes 
+# should require appropriate capabilities to obtain
+class("java.io.InputStream",
+  static(constructor("InputStream()")),
+  instance(method("available()"),
+    method("close()"),
+    method("mark(int)"),
+    method("markSupported()"),
+    method("read()"),
+    method("read(byte[])"),
+    method("read(byte[], int, int)"),
+    method("reset()"),
+    method("skip(long)")))

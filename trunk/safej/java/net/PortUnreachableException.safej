@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.net.PortUnreachableException",
+  static(constructor(suppress, "PortUnreachableException()", comment("default deny")),
+    constructor(suppress, "PortUnreachableException(String)", comment("default deny"))))

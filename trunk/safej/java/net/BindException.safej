@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.net.BindException",
+  static(constructor(suppress, "BindException()", comment("default deny")),
+    constructor(suppress, "BindException(String)", comment("default deny"))))

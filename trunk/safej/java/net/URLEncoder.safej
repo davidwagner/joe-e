@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.net.URLEncoder",
+  static(method(suppress, "encode(String)", comment("default deny")),
+    method(suppress, "encode(String, String)", comment("default deny"))))

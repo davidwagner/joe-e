@@ -1,0 +1,13 @@
+# auto-generated safej: default deny everything
+class("java.net.InetSocketAddress",
+  static(constructor(suppress, "InetSocketAddress(InetAddress, int)", comment("default deny")),
+    constructor(suppress, "InetSocketAddress(String, int)", comment("default deny")),
+    constructor(suppress, "InetSocketAddress(int)", comment("default deny")),
+    method(suppress, "createUnresolved(String, int)", comment("default deny"))),
+  instance(method(suppress, "equals(Object)", comment("default deny")),
+    method(suppress, "getAddress()", comment("default deny")),
+    method(suppress, "getHostName()", comment("default deny")),
+    method(suppress, "getPort()", comment("default deny")),
+    method(suppress, "hashCode()", comment("default deny")),
+    method(suppress, "isUnresolved()", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

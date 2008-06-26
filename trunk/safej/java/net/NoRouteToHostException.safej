@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.net.NoRouteToHostException",
+  static(constructor(suppress, "NoRouteToHostException()", comment("default deny")),
+    constructor(suppress, "NoRouteToHostException(String)", comment("default deny"))))

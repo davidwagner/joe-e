@@ -1,0 +1,7 @@
+# auto-generated safej: default deny everything
+class("java.net.HttpRetryException",
+  static(constructor(suppress, "HttpRetryException(String, int)", comment("default deny")),
+    constructor(suppress, "HttpRetryException(String, int, String)", comment("default deny"))),
+  instance(method(suppress, "getLocation()", comment("default deny")),
+    method(suppress, "getReason()", comment("default deny")),
+    method(suppress, "responseCode()", comment("default deny"))))

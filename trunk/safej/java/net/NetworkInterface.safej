@@ -1,0 +1,11 @@
+# auto-generated safej: default deny everything
+class("java.net.NetworkInterface",
+  static(method(suppress, "getByInetAddress(InetAddress)", comment("default deny")),
+    method(suppress, "getByName(String)", comment("default deny")),
+    method(suppress, "getNetworkInterfaces()", comment("default deny"))),
+  instance(method(suppress, "equals(Object)", comment("default deny")),
+    method(suppress, "getDisplayName()", comment("default deny")),
+    method(suppress, "getInetAddresses()", comment("default deny")),
+    method(suppress, "getName()", comment("default deny")),
+    method(suppress, "hashCode()", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

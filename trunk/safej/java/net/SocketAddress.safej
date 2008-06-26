@@ -1,0 +1,3 @@
+# Manually audited.
+class("java.net.SocketAddress",
+  static(constructor(suppress, "SocketAddress()", comment("deny for now - only used to subclass anyway"))))

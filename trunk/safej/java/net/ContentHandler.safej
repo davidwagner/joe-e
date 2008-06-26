@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.net.ContentHandler",
+  static(constructor(suppress, "ContentHandler()", comment("default deny"))),
+  instance(method(suppress, "getContent(URLConnection)", comment("default deny")),
+    method(suppress, "getContent(URLConnection, Class[])", comment("default deny"))))

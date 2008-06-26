@@ -1,0 +1,3 @@
+# auto-generated safej: default deny everything
+class("java.net.SocketImplFactory",
+  instance(method(suppress, "createSocketImpl()", comment("default deny"))))

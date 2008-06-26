@@ -1,0 +1,16 @@
+# auto-generated safej: default deny everything
+class("java.net.Authenticator",
+  static(constructor(suppress, "Authenticator()", comment("default deny")),
+    method(suppress, "requestPasswordAuthentication(InetAddress, int, String, String, String)", comment("default deny")),
+    method(suppress, "requestPasswordAuthentication(String, InetAddress, int, String, String, String)", comment("default deny")),
+    method(suppress, "requestPasswordAuthentication(String, InetAddress, int, String, String, String, URL, RequestorType)", comment("default deny")),
+    method(suppress, "setDefault(Authenticator)", comment("default deny"))),
+  instance(method(suppress, "getPasswordAuthentication()", comment("default deny")),
+    method(suppress, "getRequestingHost()", comment("default deny")),
+    method(suppress, "getRequestingPort()", comment("default deny")),
+    method(suppress, "getRequestingPrompt()", comment("default deny")),
+    method(suppress, "getRequestingProtocol()", comment("default deny")),
+    method(suppress, "getRequestingScheme()", comment("default deny")),
+    method(suppress, "getRequestingSite()", comment("default deny")),
+    method(suppress, "getRequestingURL()", comment("default deny")),
+    method(suppress, "getRequestorType()", comment("default deny"))))

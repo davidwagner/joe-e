@@ -1,0 +1,5 @@
+# should all be fine
+class("java.io.IOException",
+  honorary("org.joe_e.Powerless"),
+  static(constructor("IOException()"),
+    constructor("IOException(String)")))

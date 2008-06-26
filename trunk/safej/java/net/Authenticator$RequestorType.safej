@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.net.Authenticator$RequestorType",
+  static(field(suppress, "PROXY", comment("default deny")),
+    field(suppress, "SERVER", comment("default deny")),
+    method(suppress, "valueOf(String)", comment("default deny")),
+    method(suppress, "values()", comment("default deny"))))

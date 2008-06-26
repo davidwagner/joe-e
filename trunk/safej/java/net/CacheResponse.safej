@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.net.CacheResponse",
+  static(constructor(suppress, "CacheResponse()", comment("default deny"))),
+  instance(method(suppress, "getBody()", comment("default deny")),
+    method(suppress, "getHeaders()", comment("default deny"))))

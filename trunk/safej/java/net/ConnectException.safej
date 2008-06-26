@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.net.ConnectException",
+  static(constructor(suppress, "ConnectException()", comment("default deny")),
+    constructor(suppress, "ConnectException(String)", comment("default deny"))))

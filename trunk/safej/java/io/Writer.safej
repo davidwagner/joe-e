@@ -1,0 +1,15 @@
+# Manually audited.
+class("java.io.Writer",
+  static(constructor("Writer()"),
+    constructor("Writer(Object)")),
+  instance(field(suppress, "lock", comment("default deny")),
+    method("append(CharSequence)"),
+    method("append(CharSequence, int, int)"),
+    method("append(char)"),
+    method("close()"),
+    method("flush()"),
+    method("write(String)"),
+    method("write(String, int, int)"),
+    method("write(char[])"),
+    method("write(char[], int, int)"),
+    method("write(int)")))
