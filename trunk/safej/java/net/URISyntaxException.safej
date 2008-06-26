@@ -1,5 +1,5 @@
 # auto-generated safej: default deny everything
-class("java.net.URISyntaxException",
+class("java.net.URISyntaxException", honorary("org.joe_e.Powerless"),
   static(constructor(suppress, "URISyntaxException(String, String)", comment("default deny")),
     constructor(suppress, "URISyntaxException(String, String, int)", comment("default deny"))),
   instance(method(suppress, "getIndex()", comment("default deny")),

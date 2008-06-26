@@ -1,6 +1,6 @@
 # auto-generated safej: default deny everything
 class("java.net.Inet4Address",
-  instance(method(suppress, "equals(Object)", comment("default deny")),
+  instance(method("equals(Object)"),
     method(suppress, "getAddress()", comment("default deny")),
     method(suppress, "getHostAddress()", comment("default deny")),
     method(suppress, "hashCode()", comment("default deny")),

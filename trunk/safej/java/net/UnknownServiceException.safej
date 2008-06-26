@@ -1,4 +1,4 @@
 # auto-generated safej: default deny everything
-class("java.net.UnknownServiceException",
+class("java.net.UnknownServiceException", honorary("org.joe_e.Powerless"),
   static(constructor(suppress, "UnknownServiceException()", comment("default deny")),
     constructor(suppress, "UnknownServiceException(String)", comment("default deny"))))
