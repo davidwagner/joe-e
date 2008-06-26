@@ -47,20 +47,25 @@ public class Introspection {
             assert false;
         } catch (NoSuchMethodException nsme) {
             
-        }
-        
+        }       
         
         try {
             Reflection.constructor(Token.class, new Class[]{});
         } catch (NoSuchMethodException nsme) {
             assert false;
         }
+        
+        try {
+            Reflection.constructor("foo".getClass(), new Class[]{});
+        } catch (NoSuchMethodException nsme) {
+            assert false;
+        }
     
-        PowerlessArray<Constructor> constArrayCtors = 
-            Reflection.constructors(ConstArray.class);
+        PowerlessArray<Constructor<?>> constArrayCtors = 
+            Reflection.constructors(ConstArray.array("a", "b").getClass());
         assert constArrayCtors.length() == 0;
         
-        PowerlessArray<Constructor> thisClassCtors = 
+        PowerlessArray<Constructor<?>> thisClassCtors = 
             Reflection.constructors(Introspection.class);
         assert thisClassCtors.length() == 1;
         assert thisClassCtors.get(0).getParameterTypes().length == 0;
