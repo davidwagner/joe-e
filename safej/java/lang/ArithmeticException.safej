@@ -1,5 +1,5 @@
-# auto-generated safej: default deny everything
+# should all be fine
 class("java.lang.ArithmeticException",
   honorary("org.joe_e.Powerless"),
-  static(constructor(suppress, "ArithmeticException()", comment("default deny")),
-    constructor(suppress, "ArithmeticException(String)", comment("default deny"))))
+  static(constructor("ArithmeticException()"),
+    constructor("ArithmeticException(String)")))
