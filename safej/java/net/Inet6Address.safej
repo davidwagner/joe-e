@@ -2,7 +2,7 @@
 class("java.net.Inet6Address",
   static(method(suppress, "getByAddress(String, byte[], NetworkInterface)", comment("default deny")),
     method(suppress, "getByAddress(String, byte[], int)", comment("default deny"))),
-  instance(method(suppress, "equals(Object)", comment("default deny")),
+  instance(method("equals(Object)"),
     method(suppress, "getAddress()", comment("default deny")),
     method(suppress, "getHostAddress()", comment("default deny")),
     method(suppress, "getScopeId()", comment("default deny")),

@@ -1,4 +1,4 @@
 # auto-generated safej: default deny everything
-class("java.net.MalformedURLException",
+class("java.net.MalformedURLException", honorary("org.joe_e.Powerless"),
   static(constructor(suppress, "MalformedURLException()", comment("default deny")),
     constructor(suppress, "MalformedURLException(String)", comment("default deny"))))

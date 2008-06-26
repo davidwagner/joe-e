@@ -1,4 +1,4 @@
 # auto-generated safej: default deny everything
-class("java.net.ProtocolException",
+class("java.net.ProtocolException", honorary("org.joe_e.Powerless"),
   static(constructor(suppress, "ProtocolException()", comment("default deny")),
     constructor(suppress, "ProtocolException(String)", comment("default deny"))))

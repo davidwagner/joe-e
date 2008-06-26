@@ -1,4 +1,4 @@
 # auto-generated safej: default deny everything
-class("java.net.SocketException",
+class("java.net.SocketException", honorary("org.joe_e.Powerless"),
   static(constructor(suppress, "SocketException()", comment("default deny")),
     constructor(suppress, "SocketException(String)", comment("default deny"))))

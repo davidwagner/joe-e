@@ -1,4 +1,4 @@
 # auto-generated safej: default deny everything
-class("java.net.BindException",
+class("java.net.BindException", honorary("org.joe_e.Powerless"),
   static(constructor(suppress, "BindException()", comment("default deny")),
     constructor(suppress, "BindException(String)", comment("default deny"))))
