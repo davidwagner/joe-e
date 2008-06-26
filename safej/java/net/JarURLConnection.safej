@@ -1,0 +1,12 @@
+# auto-generated safej: default deny everything
+class("java.net.JarURLConnection",
+  static(constructor(suppress, "JarURLConnection(URL)", comment("default deny"))),
+  instance(field(suppress, "jarFileURLConnection", comment("default deny")),
+    method(suppress, "getAttributes()", comment("default deny")),
+    method(suppress, "getCertificates()", comment("default deny")),
+    method(suppress, "getEntryName()", comment("default deny")),
+    method(suppress, "getJarEntry()", comment("default deny")),
+    method(suppress, "getJarFile()", comment("default deny")),
+    method(suppress, "getJarFileURL()", comment("default deny")),
+    method(suppress, "getMainAttributes()", comment("default deny")),
+    method(suppress, "getManifest()", comment("default deny"))))

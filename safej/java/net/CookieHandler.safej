@@ -1,0 +1,7 @@
+# auto-generated safej: default deny everything
+class("java.net.CookieHandler",
+  static(constructor(suppress, "CookieHandler()", comment("default deny")),
+    method(suppress, "getDefault()", comment("default deny")),
+    method(suppress, "setDefault(CookieHandler)", comment("default deny"))),
+  instance(method(suppress, "get(URI, Map<List<String>>)", comment("default deny")),
+    method(suppress, "put(URI, Map<List<String>>)", comment("default deny"))))

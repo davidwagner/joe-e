@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.net.SocketTimeoutException",
+  static(constructor(suppress, "SocketTimeoutException()", comment("default deny")),
+    constructor(suppress, "SocketTimeoutException(String)", comment("default deny"))))

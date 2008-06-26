@@ -1,0 +1,17 @@
+# manually generated
+class("java.lang.AbstractStringBuilder",
+  instance(method(suppress, "capacity()", comment("default deny")),
+    method("charAt(int)"),
+    method("codePointAt(int)"),
+    method("codePointBefore(int)"),
+    method("codePointCount(int, int)"),
+    method("ensureCapacity(int)"),
+    method("getChars(int, int, char[], int)"),
+    method("length()"),
+    method("offsetByCodePoints(int, int)"),
+    method("setCharAt(int, char)"),
+    method("setLength(int)"),
+    method("subSequence(int, int)"),
+    method("substring(int)"),
+    method("substring(int, int)"),
+    method("trimToSize()")))

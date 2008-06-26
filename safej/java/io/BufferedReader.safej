@@ -1,0 +1,13 @@
+# Audited.
+class("java.io.BufferedReader",
+  static(constructor(suppress, "BufferedReader(Reader)", comment("deny for now, default buffer size could be nondeterministic")),
+    constructor("BufferedReader(Reader, int)")),
+  instance(method("close()"),
+    method("mark(int)"),
+    method("markSupported()"),
+    method("read()"),
+    method("read(char[], int, int)"),
+    method("readLine()"),
+    method("ready()"),
+    method("reset()"),
+    method("skip(long)")))

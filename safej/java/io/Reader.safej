@@ -1,0 +1,15 @@
+# Manually audited.
+class("java.io.Reader",
+  static(constructor("Reader()"),
+    constructor("Reader(Object)")),
+  instance(field(suppress, "lock", comment("default deny")),
+    method("close()"),
+    method("mark(int)"),
+    method("markSupported()"),
+    method("read()"),
+    method("read(CharBuffer)"),
+    method("read(char[])"),
+    method("read(char[], int, int)"),
+    method("ready()"),
+    method("reset()"),
+    method("skip(long)")))

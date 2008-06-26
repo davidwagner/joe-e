@@ -1,0 +1,5 @@
+# should all be fine
+class("java.io.FileNotFoundException",
+  honorary("org.joe_e.Powerless"),
+  static(constructor("FileNotFoundException()"),
+    constructor("FileNotFoundException(String)")))

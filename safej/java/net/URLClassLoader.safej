@@ -1,0 +1,14 @@
+# auto-generated safej: default deny everything
+class("java.net.URLClassLoader",
+  static(constructor(suppress, "URLClassLoader(URL[])", comment("default deny")),
+    constructor(suppress, "URLClassLoader(URL[], ClassLoader)", comment("default deny")),
+    constructor(suppress, "URLClassLoader(URL[], ClassLoader, URLStreamHandlerFactory)", comment("default deny")),
+    method(suppress, "newInstance(URL[])", comment("default deny")),
+    method(suppress, "newInstance(URL[], ClassLoader)", comment("default deny"))),
+  instance(method(suppress, "addURL(URL)", comment("default deny")),
+    method(suppress, "definePackage(String, Manifest, URL)", comment("default deny")),
+    method(suppress, "findClass(String)", comment("default deny")),
+    method(suppress, "findResource(String)", comment("default deny")),
+    method(suppress, "findResources(String)", comment("default deny")),
+    method(suppress, "getPermissions(CodeSource)", comment("default deny")),
+    method(suppress, "getURLs()", comment("default deny"))))

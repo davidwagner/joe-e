@@ -1,0 +1,9 @@
+# Audited.
+class("java.io.BufferedOutputStream",
+  static(constructor(suppress, "BufferedOutputStream(OutputStream)", comment("deny for now, default buffer size could be nondeterministic")),
+    constructor("BufferedOutputStream(OutputStream, int)")),
+  instance(field("buf"),
+    field("count"),
+    method("flush()"),
+    method("write(byte[], int, int)"),
+    method("write(int)")))

@@ -1,0 +1,7 @@
+# auto-generated safej: default deny everything
+class("java.net.ResponseCache",
+  static(constructor(suppress, "ResponseCache()", comment("default deny")),
+    method(suppress, "getDefault()", comment("default deny")),
+    method(suppress, "setDefault(ResponseCache)", comment("default deny"))),
+  instance(method(suppress, "get(URI, String, Map<List<String>>)", comment("default deny")),
+    method(suppress, "put(URI, URLConnection)", comment("default deny"))))

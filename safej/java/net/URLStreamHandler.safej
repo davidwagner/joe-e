@@ -1,0 +1,15 @@
+# auto-generated safej: default deny everything
+class("java.net.URLStreamHandler",
+  static(constructor(suppress, "URLStreamHandler()", comment("default deny"))),
+  instance(method(suppress, "equals(URL, URL)", comment("default deny")),
+    method(suppress, "getDefaultPort()", comment("default deny")),
+    method(suppress, "getHostAddress(URL)", comment("default deny")),
+    method(suppress, "hashCode(URL)", comment("default deny")),
+    method(suppress, "hostsEqual(URL, URL)", comment("default deny")),
+    method(suppress, "openConnection(URL)", comment("default deny")),
+    method(suppress, "openConnection(URL, Proxy)", comment("default deny")),
+    method(suppress, "parseURL(URL, String, int, int)", comment("default deny")),
+    method(suppress, "sameFile(URL, URL)", comment("default deny")),
+    method(suppress, "setURL(URL, String, String, int, String, String)", comment("default deny")),
+    method(suppress, "setURL(URL, String, String, int, String, String, String, String, String)", comment("default deny")),
+    method(suppress, "toExternalForm(URL)", comment("default deny"))))

@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.net.URLDecoder",
+  static(constructor(suppress, "URLDecoder()", comment("default deny")),
+    method(suppress, "decode(String)", comment("default deny")),
+    method(suppress, "decode(String, String)", comment("default deny"))))

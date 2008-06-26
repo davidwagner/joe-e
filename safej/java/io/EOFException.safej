@@ -1,0 +1,5 @@
+# should all be fine
+class("java.io.EOFException",
+  honorary("org.joe_e.Powerless"),
+  static(constructor("EOFException()"),
+    constructor("EOFException(String)")))

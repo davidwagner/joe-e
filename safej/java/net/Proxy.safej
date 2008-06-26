@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("java.net.Proxy",
+  static(field(suppress, "NO_PROXY", comment("default deny")),
+    constructor(suppress, "Proxy(Type, SocketAddress)", comment("default deny"))),
+  instance(method(suppress, "address()", comment("default deny")),
+    method(suppress, "equals(Object)", comment("default deny")),
+    method(suppress, "hashCode()", comment("default deny")),
+    method(suppress, "toString()", comment("default deny")),
+    method(suppress, "type()", comment("default deny"))))

@@ -1,0 +1,18 @@
+# auto-generated safej: default deny everything
+class("java.net.SocketOptions",
+  static(field(suppress, "IP_MULTICAST_IF", comment("default deny")),
+    field(suppress, "IP_MULTICAST_IF2", comment("default deny")),
+    field(suppress, "IP_MULTICAST_LOOP", comment("default deny")),
+    field(suppress, "IP_TOS", comment("default deny")),
+    field(suppress, "SO_BINDADDR", comment("default deny")),
+    field(suppress, "SO_BROADCAST", comment("default deny")),
+    field(suppress, "SO_KEEPALIVE", comment("default deny")),
+    field(suppress, "SO_LINGER", comment("default deny")),
+    field(suppress, "SO_OOBINLINE", comment("default deny")),
+    field(suppress, "SO_RCVBUF", comment("default deny")),
+    field(suppress, "SO_REUSEADDR", comment("default deny")),
+    field(suppress, "SO_SNDBUF", comment("default deny")),
+    field(suppress, "SO_TIMEOUT", comment("default deny")),
+    field(suppress, "TCP_NODELAY", comment("default deny"))),
+  instance(method(suppress, "getOption(int)", comment("default deny")),
+    method(suppress, "setOption(int, Object)", comment("default deny"))))

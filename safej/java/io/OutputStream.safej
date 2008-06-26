@@ -1,0 +1,9 @@
+# Audited.  Methods should be ok, but instances of concrete subtypes 
+# should require appropriate capabilities to obtain
+class("java.io.OutputStream",
+  static(constructor("OutputStream()")),
+  instance(method("close()"),
+    method("flush()"),
+    method("write(byte[])"),
+    method("write(byte[], int, int)"),
+    method("write(int)")))
