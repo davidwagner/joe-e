@@ -35,7 +35,7 @@ public class ImmutableArray<E> extends ConstArray<E> implements Immutable {
      *     <code>values</code> is not immutable in the overlay type system
      */
     static public <E> ImmutableArray<E> array(final E... values) {
-        final Class e = values.getClass().getComponentType();
+        final Class<?> e = values.getClass().getComponentType();
         if (!JoeE.isSubtypeOf(e, Immutable.class)) {
             throw new ClassCastException(Reflection.getName(e) +
                                          " is not Immutable");
@@ -137,7 +137,7 @@ public class ImmutableArray<E> extends ConstArray<E> implements Immutable {
          *  maximum length of a Java array.  The builder is unmodified.
          */
         public void append(E[] newEs, int off, int len) {
-            final Class e = newEs.getClass().getComponentType();
+            final Class<?> e = newEs.getClass().getComponentType();
             if (!JoeE.isSubtypeOf(e, Immutable.class)) {
                 throw new ClassCastException(Reflection.getName(e) + 
                                              " is not Immutable");
