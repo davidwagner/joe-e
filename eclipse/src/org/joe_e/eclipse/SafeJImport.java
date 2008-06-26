@@ -412,15 +412,15 @@ public class SafeJImport {
                                         disabledMethods, honoraryTypes));
                         
                 for (String f : relevantFields.keySet()) {
-                    err.println("WARNING: Field " + f + " not mentioned " + 
+                    err.println("WARNING: Field " + className + "." + f + " not mentioned " + 
                                 "in safej.");
                 }
                 for (String c : relevantConstructors.keySet()) {
-                    err.println("WARNING: Constructor " + c + " not mentioned " + 
+                    err.println("WARNING: Constructor " + packageName + "." + c + " not mentioned " + 
                                 "in safej.");
                 }
                 for (String m : relevantMethods.keySet()) {
-                    err.println("WARNING: Method " + m + " not mentioned " + 
+                    err.println("WARNING: Method " + className + "." + m + " not mentioned " + 
                                 "in safej.");
                 }
             } catch (JavaModelException jme) {
