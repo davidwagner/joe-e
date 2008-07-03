@@ -127,7 +127,7 @@ public final class Reflection {
 //  anything with the result without casting it to just PowerlessArray<?> or
 //  suppressing an unchecked cast warning at the point of use.
 
-    static public <T> PowerlessArray<Constructor<?>> 
+    static public PowerlessArray<Constructor<?>> 
                                         constructors(final Class<?> type) {
     
         Constructor<?>[] cs = type.getConstructors();
