@@ -10,6 +10,11 @@ provides a brief overview to Joe-E
 
 The [http://www.cs.berkeley.edu/~daw/joe-e/spec-20080203.pdf latest draft of the language spec] is from Feb. 3, 2008.
 
+= Introduction to Object Capabilities =
+
+Joe-E is an object-capability system.  Want some background on object-capability systems?  A short [http://en.wikipedia.org/wiki/Object-capability_model overview of the object-capability model] is available on Wikipedia.  For a more detailed overview of some work in this area, you can watch [http://www.youtube.com/watch?v=EGX2I31OhBE a survey talk] by David Wagner, or read [http://www.cs.berkeley.edu/~daw/talks/TRUST07.pdf his annotated slides].  The [http://www.eros-os.org/mailman/listinfo/cap-talk cap-talk mailing list] is a good place to discuss the object-capability model, and the 
+[http://www.eros-os.org/mailman/listinfo/e-lang e-lang mailing list] is a good place to discuss language-based approaches to object-capabilities (such as Joe-E).
+
 = Historical Information =
 
 Older versions of the specifications, code, and other interest of solely
