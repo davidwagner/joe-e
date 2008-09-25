@@ -99,5 +99,73 @@ public class WithAndToArray { // also without()
                              tttff));
         assert(Arrays.equals(newBa.without(4).toBooleanArray(),
                              ttftf));
+        
+        /*
+         * tests for new helper methods -- mostly just to ensure that these all
+         * compile.
+         */       
+        ConstArray<ConstArray<Object>> cacao = ConstArray.array();
+        cacao.with(ConstArray.array((Object) 12));
+        cacao.with(ConstArray.array(12, (Object)"a"));
+        cacao.with(ConstArray.array(new Object(){}, new Error(), "í"));
+        cacao.with(ConstArray.array(4, 5.0, "e", new Object()));
+        
+        ImmutableArray<ImmutableArray<Object>> iaiao = ImmutableArray.array();
+        iaiao = ImmutableArray.array(ImmutableArray.array((Object)2));
+        iaiao = iaiao.with(ImmutableArray.array((Object)1, 2));
+        try {
+            iaiao.with(ImmutableArray.array(new Object(){}, new Error(), "í"));
+            assert false;
+        } catch (ClassCastException cce) {
+            
+        }
+        iaiao.with((ImmutableArray<Object>)ImmutableArray.array(4, 5.0, "e", new String()));
+        
+        PowerlessArray<PowerlessArray<Object>> papao = PowerlessArray.array();
+        papao = PowerlessArray.array(PowerlessArray.array((Object)2));
+        papao = papao.with(PowerlessArray.array((Object)1, 2));
+        try {
+            papao.with(PowerlessArray.array((Object)new org.joe_e.Token(), 5, "í"));
+            assert false;
+        } catch (ClassCastException cce) {
+            
+        }
+        papao.with((PowerlessArray<Object>)PowerlessArray.array(4, 5.0, "e", new String()));
+        
+        PowerlessArray<PowerlessArray<Integer>> papai = PowerlessArray.array();
+        papai = papai.with(IntArray.array());
+        papai.with(IntArray.array(1));
+        papai.with(IntArray.array(1, 2));
+        papai = papai.with(IntArray.array(1, 2, 3));
+        papai = papai.with(IntArray.array(1, 2, 3, 4));
+        papai = papai.with(IntArray.array(1, 2, 3, 4, 5));
+        
+        PowerlessArray<Integer> pai = PowerlessArray.array();       
+        PowerlessArray<PowerlessArray<Integer>> papai2 =
+            PowerlessArray.array(pai,
+                                 PowerlessArray.array(1, 2, 3),
+                                 PowerlessArray.array(1, 2, 3, 4),
+                                 PowerlessArray.array(1, 2, 3, 4, 5));
+        
+        assert papai.equals(papai2);
+        
+        PowerlessArray<PowerlessArray<Byte>> papab = PowerlessArray.array();
+        papab = papab.with(ByteArray.array());
+        papab.with(ByteArray.array((byte) 1));
+        papab.with(ByteArray.array((byte) 1, (byte) 2));
+        papab = papab.with(ByteArray.array((byte) 1, (byte) 2, (byte) 3));
+        papab = papab.with(ByteArray.array((byte) 1, (byte) 2, (byte) 3,
+                                           (byte) 4));
+        papab = papab.with(ByteArray.array((byte) 1, (byte) 2, (byte) 3,
+                                           (byte) 4, (byte) 5));
+        assert papab.equals(
+                    PowerlessArray.array(
+                        PowerlessArray.array(), 
+                        PowerlessArray.array((byte) 1, (byte) 2, (byte) 3),
+                        PowerlessArray.array((byte) 1, (byte) 2, (byte) 3,
+                                             (byte) 4),
+                        PowerlessArray.array((byte) 1, (byte) 2, (byte) 3,
+                                             (byte) 4, (byte) 5)));
+                                             
     }
 }

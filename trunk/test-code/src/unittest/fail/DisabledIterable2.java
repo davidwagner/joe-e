@@ -1,8 +1,10 @@
 package unittest.fail;
 
-public class DisabledIterator1 {
+import org.joe_e.testlib.DisabledIterable;
+
+public class DisabledIterable2 {
     public void foo() {
-    	Iterable<String> i = null;
+    	DisabledIterable<String> i = null;
     	
         for (String s : i) {
         	s.length();
