@@ -5,6 +5,5 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Joe-E Library"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/fake policy"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Joe-E testlib"/>
-	<classpathentry kind="lib" path="testlib.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
