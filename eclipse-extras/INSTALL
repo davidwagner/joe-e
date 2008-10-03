@@ -1,0 +1,29 @@
+Installation instructions for the Command Line Joe-E Verifier
+
+Requirements:
+(1) A working installation of eclipse (3.3.x)
+(2) The Joe-E for Eclipse plugin. This can be obtained from the joe-e 
+    website (www.joe-e.org)
+(3) The latest version of the Joe-E taming database and library files. 
+    These can also be obtained from the joe-e website.
+(4) The shell script "verify.sh". This is also available from the website.
+
+NOTE: (2)-(4) should all be inside this tarball, so you shouldn't have to
+      worry about them.
+
+Instructions:
+(1) You'll have to move the Joe-E for Eclipse plugin into a plugins directory
+    for Eclipse. This directory varies from distribution to distribution.
+    
+    On Debian: You should have a ~/.eclipse directory 
+       	       Or you can put it in your global eclipse installation directory
+
+    If you downloaded the eclipse tarball from the eclipse website, it will be
+    in the eclipse/plugins directory, in wherever you unpacked the tarball.
+
+    On OS X: Put the plugin file into /Applications/eclipse/plugins/
+
+(2) Edit verify.sh, and fill in the three variables at the top of the file.
+    For ECLIPSE_PLUGINS_DIR, make sure you put the global plugins directory,
+    which might be different from where you moved the Joe-E plugin to. For the
+    other to variables you can put the full path to the current directory
