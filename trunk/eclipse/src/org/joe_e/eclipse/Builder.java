@@ -41,7 +41,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
  */
 public class Builder extends IncrementalProjectBuilder {
     public static final String BUILDER_ID = "org.joe_e.JoeEBuilder";
-    private static final String MARKER_TYPE = "org.joe_e.JoeEProblem";
+    protected static final String MARKER_TYPE = "org.joe_e.JoeEProblem";
+    private static final boolean DEBUG = false;
 
     /**
      * Checks whether a Java file has compilation errors
@@ -53,13 +54,14 @@ public class Builder extends IncrementalProjectBuilder {
         IMarker[] jdtMarkers = 
             file.findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, 
                      IResource.DEPTH_ZERO);
+        boolean areErrors = false;
         for (IMarker marker : jdtMarkers) {
             Integer severity = (Integer) marker.getAttribute(IMarker.SEVERITY);
             if (severity == IMarker.SEVERITY_ERROR) {
-                return true;
+                areErrors = true;
             }
         }
-        return false;
+        return areErrors;
     }
     
     private BuildState state = null;	// empty until first full build
@@ -195,10 +197,12 @@ public class Builder extends IncrementalProjectBuilder {
                 recheck.addAll(state.updateTags(type, BuildState.UNVERIFIED));
             }
             
-            return recheck; 
+            return recheck;
         }
         
-        System.out.println("Checking file " + file.getFullPath() + ":");
+        if (DEBUG) {
+        	System.out.println("Checking file " + file.getFullPath() + ":");
+        }
         
         boolean jdtErrors = hasJavaErrors(file);
         
@@ -207,8 +211,8 @@ public class Builder extends IncrementalProjectBuilder {
             addMarker(file, new Problem("Joe-E verifier not run on this " +
         	    	                    "file due to compilation errors",
         	    	                    IMarker.SEVERITY_INFO), slc);
-            System.out.println("... file skipped due to Java compilation " +
-        	    	           "errors");
+            System.out.println("... file skipped due to Java compilation "
+            		+ "errors");
             return new LinkedList<ICompilationUnit>();
         } else {
             List<Problem> problems = new LinkedList<Problem>();
@@ -216,13 +220,18 @@ public class Builder extends IncrementalProjectBuilder {
             Collection<ICompilationUnit> recheck = 
         	verifier.checkICU(icu, problems);
 		
-            System.out.println("... found " + problems.size() + " problem" 
+            // conditional on debugging
+            if (DEBUG) {
+            	System.out.println("... found " + problems.size() + " problem" 
                                + (problems.size() == 1 ? "." : "s."));
-
+            }
             for (Problem problem : problems) {
                 addMarker(file, problem, slc);
             }
-        
+            // conditional on commandLine
+            if (Main.commandLine) {
+            	Printer.printErrors(file);
+            }
             return recheck;
         }
     }
@@ -418,7 +427,9 @@ public class Builder extends IncrementalProjectBuilder {
          *          true in order to visit children of this delta
          */
         public boolean visit(IResourceDelta delta) throws CoreException {
-            System.out.println("Delta! " + delta.toString());
+            if (DEBUG) {
+            	System.out.println("Delta! " + delta.toString());
+            }
             IResource resource = delta.getResource();           
             
             if (resource instanceof IFile) {
@@ -463,66 +474,4 @@ public class Builder extends IncrementalProjectBuilder {
     }
     
     
-    /**
-     * Class for computing line numbers for all characters in a file.  Lines
-     * are numbered starting with 1.
-     */
-    private class SourceLocationConverter{
-        Integer[] lineStarts; 
-		
-        /**
-         * Create a source location converter for the specified file.  The
-         * constructor reads the file and records the location of newlines
-         * to make calls to newLine() fast.
-         * 
-         * @param file the file for which to compute line numbers
-         */
-        SourceLocationConverter(IFile file) throws CoreException {
-            List<Integer> newLines = new LinkedList<Integer>();
-            newLines.add(0);
-            try {
-                java.io.InputStream contents = file.getContents();
-	       
-                int nextByte = contents.read();
-                for (int i = 0; nextByte >= 0; ++i) {
-                    if (nextByte == '\n') {
-                        newLines.add(i);
-                    }
-                    nextByte = contents.read();
-                }
-            } catch (java.io.IOException e) {
-                // Wrap the IOException in a CoreException.
-                throw new JavaModelException
-                    (e, IJavaModelStatusConstants.IO_EXCEPTION);
-            }
-	    
-            lineStarts = newLines.toArray(new Integer[]{});
-        }
-		
-        /**
-         * Get the line number for the specified character in the file
-         * associated with this SourceLocationConverter instance.
-         * 
-         * @param charNumber the position in the file for which to search
-         * @return the number of the line containing this character, starting
-         * 		   with line 1
-         */
-        int getLine(int charNumber) {
-            int low = 1;
-            int hi = lineStarts.length;
-			
-            // invariant: low <= answer <= hi
-            while (low < hi) {
-                //System.out.println("hi " + hi + ", low " + low);
-                int mid = (low + hi) / 2;
-                if (charNumber < lineStarts[mid]) {
-                    hi = mid;
-                } else { 
-                    low = mid + 1;
-                }
-            }
-			
-            return hi;
-        }
-    }
 }

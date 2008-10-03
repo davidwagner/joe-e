@@ -1002,7 +1002,7 @@ public class Verifier {
          *            the type to verify
          */
         void checkType(ITypeBinding itb) {
-            System.out.println(". type " + itb.getName());
+            //System.out.println(". type " + itb.getName());
                         
             // Add a deep dependency on supertype as it can affect method call
             // resolution, which is important for taming.  Also a flag 
