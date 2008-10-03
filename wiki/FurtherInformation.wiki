@@ -17,6 +17,6 @@ Joe-E is an object-capability system.  Want some background on object-capability
 
 = Historical Information =
 
-Older versions of the specifications, code, and other interest of solely
+Older versions of the specifications, code, and other info of solely
 historical interest are available at
 [http://www.cs.berkeley.edu/~daw/joe-e/historical.html the archive page].
