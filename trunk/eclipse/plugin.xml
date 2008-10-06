@@ -112,5 +112,37 @@
             nameFilter="*"
             objectClass="org.eclipse.core.resources.IProject"/>
    </extension>
+   <extension
+         id="CommandLineBuilder"
+         name="CommandLine-Builder"
+         point="org.eclipse.core.resources.builders">
+      <builder>
+         <run
+               class="org.joe_e.eclipse.CommandLineBuilder">
+         </run>
+      </builder>
+   </extension>
+   <extension
+         id="Main"
+         name="Main"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="org.joe_e.eclipse.Main">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="org.joe_e.Main"
+            name="JoeECommandLine">
+         <property
+               name="appName"
+               value="JoeECommandLine">
+         </property>
+      </product>
+   </extension>
 
 </plugin>
