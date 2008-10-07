@@ -87,11 +87,11 @@ class BuildState {
 			currentState.references.add(dependedOn);
 		}
 	}
-	*/
-    
+	    
     private boolean isFromProject(ITypeBinding itb) {
         return itb.getJavaElement().getJavaProject().equals(ijp);
     }
+    */
     
     void addFlagDependency(ICompilationUnit current, ITypeBinding dependedOn) {
         if (dependedOn.isFromSource() && !dependedOn.isTypeVariable()) {

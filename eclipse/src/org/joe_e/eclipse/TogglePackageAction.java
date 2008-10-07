@@ -88,7 +88,7 @@ public class TogglePackageAction implements IObjectActionDelegate {
         // Set the checkmark to checked only if all packages in selection
         // are Joe-E.
         if (selection instanceof IStructuredSelection) {
-            for (Iterator it = ((IStructuredSelection) selection).iterator(); 
+            for (Iterator<?> it = ((IStructuredSelection) selection).iterator(); 
                     it.hasNext(); ) {
                 Object element = it.next();
                 IPackageFragment pkg = null;
@@ -196,7 +196,7 @@ public class TogglePackageAction implements IObjectActionDelegate {
      * verifier for the project.
      * TODO: fix this (or remove)
      *   maybe only provide this feature if package-info doesn't already exist
-     */
+     *
     private void setJoeE(IPackageFragment pkg) {
         try {
             pkg.getCorrespondingResource().setPersistentProperty(SKIP_PKG, 
@@ -207,11 +207,11 @@ public class TogglePackageAction implements IObjectActionDelegate {
         }
     }
 
-    /*
+     *
      * Set the skip property for the specified project, i.e. disable the Joe-E
      * verifier for the project.
      * TODO: fix this (or remove)
-     */
+     *
     private void removeJoeE(IPackageFragment pkg) {
         try {
             pkg.getCorrespondingResource().setPersistentProperty(SKIP_PKG, 
@@ -221,4 +221,5 @@ public class TogglePackageAction implements IObjectActionDelegate {
             ce.printStackTrace(System.err);
         }
     }
+    */
 }
