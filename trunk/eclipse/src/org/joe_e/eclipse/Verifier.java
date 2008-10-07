@@ -822,7 +822,7 @@ public class Verifier {
             }
                 
             if (md.isConstructor()) {
-                List statements = md.getBody().statements();
+                List<?> statements = md.getBody().statements();
                            
                 if (statements.isEmpty() || 
                     !(statements.get(0) instanceof SuperConstructorInvocation))

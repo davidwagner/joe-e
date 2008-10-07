@@ -418,11 +418,6 @@ public class Taming {
         return result;
     }
     
-    private boolean isFromProject(ITypeBinding itb) {
-        return (itb.isFromSource() &&
-                itb.getJavaElement().getJavaProject().equals(project));
-    }
-    
     boolean isJoeE(ITypeBinding itb) {
         for (IAnnotationBinding iab : itb.getPackage().getAnnotations()) {
             if (iab.getAnnotationType().getQualifiedName()
