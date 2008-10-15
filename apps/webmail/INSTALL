@@ -1,0 +1,21 @@
+Setting up webmail as a tomcat web app
+
+1. check out source from svn. trunk/apps/webmail
+2. cd this directory
+3. mkdir build
+4. mkdir build/WEB-INF
+5. mkdir build/WEB-INF/classes
+6. mkdir build/WEB-INF/lib
+note: you may have to copy web/WEB-INF/web.xml into here. I'm not sure if ant will do it for you.
+
+7. make a build.xml file that is appropriate for your tomcat installation
+   There is probably a default one that you can just copy and make minor changes
+8. make a build.properties file that is referenced by your build.xml file
+
+9. ant compile
+10. start tomcat
+11. ant install
+
+12. ant remove when you are done
+
+note: some of this will depend on your tomcat installation
