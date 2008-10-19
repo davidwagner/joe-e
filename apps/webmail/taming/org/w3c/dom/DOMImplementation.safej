@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("org.w3c.dom.DOMImplementation",
+  instance(method(suppress, "createDocument(String, String, DocumentType)", comment("default deny")),
+    method(suppress, "createDocumentType(String, String, String)", comment("default deny")),
+    method(suppress, "getFeature(String, String)", comment("default deny")),
+    method(suppress, "hasFeature(String, String)", comment("default deny"))))

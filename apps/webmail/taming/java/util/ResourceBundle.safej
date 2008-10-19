@@ -1,0 +1,14 @@
+# auto-generated safej: default deny everything
+class("java.util.ResourceBundle",
+  static(constructor(suppress, "ResourceBundle()", comment("default deny")),
+    method(suppress, "getBundle(String)", comment("default deny")),
+    method(suppress, "getBundle(String, Locale)", comment("default deny")),
+    method(suppress, "getBundle(String, Locale, ClassLoader)", comment("default deny"))),
+  instance(field(suppress, "parent", comment("default deny")),
+    method(suppress, "getKeys()", comment("default deny")),
+    method(suppress, "getLocale()", comment("default deny")),
+    method(suppress, "getObject(String)", comment("default deny")),
+    method(suppress, "getString(String)", comment("default deny")),
+    method(suppress, "getStringArray(String)", comment("default deny")),
+    method(suppress, "handleGetObject(String)", comment("default deny")),
+    method(suppress, "setParent(ResourceBundle)", comment("default deny"))))

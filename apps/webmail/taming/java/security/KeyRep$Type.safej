@@ -1,0 +1,7 @@
+# auto-generated safej: default deny everything
+class("java.security.KeyRep$Type",
+  static(field(suppress, "PRIVATE", comment("default deny")),
+    field(suppress, "PUBLIC", comment("default deny")),
+    field(suppress, "SECRET", comment("default deny")),
+    method(suppress, "valueOf(String)", comment("default deny")),
+    method(suppress, "values()", comment("default deny"))))

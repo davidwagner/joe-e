@@ -1,0 +1,14 @@
+# auto-generated safej: default deny everything
+class("java.io.PipedInputStream",
+  static(field(suppress, "PIPE_SIZE", comment("default deny")),
+    constructor(suppress, "PipedInputStream()", comment("default deny")),
+    constructor(suppress, "PipedInputStream(PipedOutputStream)", comment("default deny"))),
+  instance(field(suppress, "buffer", comment("default deny")),
+    field(suppress, "in", comment("default deny")),
+    field(suppress, "out", comment("default deny")),
+    method(suppress, "available()", comment("default deny")),
+    method(suppress, "close()", comment("default deny")),
+    method(suppress, "connect(PipedOutputStream)", comment("default deny")),
+    method(suppress, "read()", comment("default deny")),
+    method(suppress, "read(byte[], int, int)", comment("default deny")),
+    method(suppress, "receive(int)", comment("default deny"))))

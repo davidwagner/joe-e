@@ -1,0 +1,16 @@
+# auto-generated safej for Joe-E code: allow everything.
+class("org.joe_e.array.BooleanArray",
+  static(method("array(boolean[])"),
+    method("builder()"),
+    method("builder(int)")),
+  instance(method("equals(Object)"),
+    method("get(int)"),
+    method("getBoolean(int)"),
+    method("hashCode()"),
+    method("length()"),
+    method("toArray(T[])"),
+    method("toBooleanArray()"),
+    method("toString()"),
+    method("with(Boolean)"),
+    method("with(boolean)"),
+    method("without(int)")))

@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.security.NoSuchAlgorithmException",
+  static(constructor(suppress, "NoSuchAlgorithmException()", comment("default deny")),
+    constructor(suppress, "NoSuchAlgorithmException(String)", comment("default deny")),
+    constructor(suppress, "NoSuchAlgorithmException(String, Throwable)", comment("default deny")),
+    constructor(suppress, "NoSuchAlgorithmException(Throwable)", comment("default deny"))))

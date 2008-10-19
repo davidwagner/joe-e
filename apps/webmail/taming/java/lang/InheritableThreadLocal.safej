@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.lang.InheritableThreadLocal",
+  static(constructor(suppress, "InheritableThreadLocal()", comment("default deny"))),
+  instance(method(suppress, "childValue(T)", comment("default deny"))))

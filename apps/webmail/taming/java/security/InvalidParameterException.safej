@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.security.InvalidParameterException",
+  static(constructor(suppress, "InvalidParameterException()", comment("default deny")),
+    constructor(suppress, "InvalidParameterException(String)", comment("default deny"))))

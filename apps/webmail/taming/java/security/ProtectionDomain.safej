@@ -1,0 +1,10 @@
+# auto-generated safej: default deny everything
+class("java.security.ProtectionDomain",
+  static(constructor(suppress, "ProtectionDomain(CodeSource, PermissionCollection)", comment("default deny")),
+    constructor(suppress, "ProtectionDomain(CodeSource, PermissionCollection, ClassLoader, Principal[])", comment("default deny"))),
+  instance(method(suppress, "getClassLoader()", comment("default deny")),
+    method(suppress, "getCodeSource()", comment("default deny")),
+    method(suppress, "getPermissions()", comment("default deny")),
+    method(suppress, "getPrincipals()", comment("default deny")),
+    method(suppress, "implies(Permission)", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

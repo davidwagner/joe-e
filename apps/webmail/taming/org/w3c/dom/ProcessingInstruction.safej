@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("org.w3c.dom.ProcessingInstruction",
+  instance(method(suppress, "getData()", comment("default deny")),
+    method(suppress, "getTarget()", comment("default deny")),
+    method(suppress, "setData(String)", comment("default deny"))))

@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.lang.NoClassDefFoundError",
+  honorary("org.joe_e.Powerless"),
+  static(constructor(suppress, "NoClassDefFoundError()", comment("default deny")),
+    constructor(suppress, "NoClassDefFoundError(String)", comment("default deny"))))

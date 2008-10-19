@@ -1,0 +1,11 @@
+# auto-generated safej: default deny everything
+class("java.security.Permission",
+  static(constructor(suppress, "Permission(String)", comment("default deny"))),
+  instance(method(suppress, "checkGuard(Object)", comment("default deny")),
+    method(suppress, "equals(Object)", comment("default deny")),
+    method(suppress, "getActions()", comment("default deny")),
+    method(suppress, "getName()", comment("default deny")),
+    method(suppress, "hashCode()", comment("default deny")),
+    method(suppress, "implies(Permission)", comment("default deny")),
+    method(suppress, "newPermissionCollection()", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

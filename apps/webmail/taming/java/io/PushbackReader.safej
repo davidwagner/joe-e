@@ -1,0 +1,15 @@
+# auto-generated safej: default deny everything
+class("java.io.PushbackReader",
+  static(constructor(suppress, "PushbackReader(Reader)", comment("default deny")),
+    constructor(suppress, "PushbackReader(Reader, int)", comment("default deny"))),
+  instance(method(suppress, "close()", comment("default deny")),
+    method(suppress, "mark(int)", comment("default deny")),
+    method(suppress, "markSupported()", comment("default deny")),
+    method(suppress, "read()", comment("default deny")),
+    method(suppress, "read(char[], int, int)", comment("default deny")),
+    method(suppress, "ready()", comment("default deny")),
+    method(suppress, "reset()", comment("default deny")),
+    method(suppress, "skip(long)", comment("default deny")),
+    method(suppress, "unread(char[])", comment("default deny")),
+    method(suppress, "unread(char[], int, int)", comment("default deny")),
+    method(suppress, "unread(int)", comment("default deny"))))

@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.lang.StackOverflowError",
+  honorary("org.joe_e.Powerless"),
+  static(constructor(suppress, "StackOverflowError()", comment("default deny")),
+    constructor(suppress, "StackOverflowError(String)", comment("default deny"))))

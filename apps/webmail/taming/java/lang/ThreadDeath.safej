@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.lang.ThreadDeath",
+  honorary("org.joe_e.Powerless"),
+  static(constructor(suppress, "ThreadDeath()", comment("default deny"))))

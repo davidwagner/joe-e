@@ -1,0 +1,16 @@
+# Manually edited but has not been audited yet.
+# Allowing things that we need for webmail
+class("java.io.Writer",
+  static(constructor(suppress, "Writer()", comment("default deny")),
+    constructor(suppress, "Writer(Object)", comment("default deny"))),
+  instance(field(suppress, "lock", comment("default deny")),
+    method(suppress, "append(CharSequence)", comment("default deny")),
+    method(suppress, "append(CharSequence, int, int)", comment("default deny")),
+    method(allow, "append(char)", comment("allowed for webmail")),
+    method(suppress, "close()", comment("default deny")),
+    method(allow, "flush()", comment("allowed for webmail")),
+    method(suppress, "write(String)", comment("default deny")),
+    method(suppress, "write(String, int, int)", comment("default deny")),
+    method(suppress, "write(char[])", comment("default deny")),
+    method(suppress, "write(char[], int, int)", comment("default deny")),
+    method(suppress, "write(int)", comment("default deny"))))

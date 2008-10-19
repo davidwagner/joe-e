@@ -1,0 +1,16 @@
+# auto-generated safej: default deny everything
+class("org.xml.sax.InputSource",
+  static(constructor(suppress, "InputSource()", comment("default deny")),
+    constructor(suppress, "InputSource(InputStream)", comment("default deny")),
+    constructor(suppress, "InputSource(Reader)", comment("default deny")),
+    constructor(suppress, "InputSource(String)", comment("default deny"))),
+  instance(method(suppress, "getByteStream()", comment("default deny")),
+    method(suppress, "getCharacterStream()", comment("default deny")),
+    method(suppress, "getEncoding()", comment("default deny")),
+    method(suppress, "getPublicId()", comment("default deny")),
+    method(suppress, "getSystemId()", comment("default deny")),
+    method(suppress, "setByteStream(InputStream)", comment("default deny")),
+    method(suppress, "setCharacterStream(Reader)", comment("default deny")),
+    method(suppress, "setEncoding(String)", comment("default deny")),
+    method(suppress, "setPublicId(String)", comment("default deny")),
+    method(suppress, "setSystemId(String)", comment("default deny"))))

@@ -1,0 +1,14 @@
+# auto-generated safej: default deny everything
+class("org.xml.sax.Attributes",
+  instance(method(suppress, "getIndex(String)", comment("default deny")),
+    method(suppress, "getIndex(String, String)", comment("default deny")),
+    method(suppress, "getLength()", comment("default deny")),
+    method(suppress, "getLocalName(int)", comment("default deny")),
+    method(suppress, "getQName(int)", comment("default deny")),
+    method(suppress, "getType(String)", comment("default deny")),
+    method(suppress, "getType(String, String)", comment("default deny")),
+    method(suppress, "getType(int)", comment("default deny")),
+    method(suppress, "getURI(int)", comment("default deny")),
+    method(suppress, "getValue(String)", comment("default deny")),
+    method(suppress, "getValue(String, String)", comment("default deny")),
+    method(suppress, "getValue(int)", comment("default deny"))))

@@ -1,0 +1,11 @@
+# auto-generated safej: default deny everything
+class("java.util.LinkedHashMap",
+  static(constructor(suppress, "LinkedHashMap()", comment("default deny")),
+    constructor(suppress, "LinkedHashMap(Map<? extends K,? extends V>)", comment("default deny")),
+    constructor(suppress, "LinkedHashMap(int)", comment("default deny")),
+    constructor(suppress, "LinkedHashMap(int, float)", comment("default deny")),
+    constructor(suppress, "LinkedHashMap(int, float, boolean)", comment("default deny"))),
+  instance(method(suppress, "clear()", comment("default deny")),
+    method(suppress, "containsValue(Object)", comment("default deny")),
+    method(suppress, "get(Object)", comment("default deny")),
+    method(suppress, "removeEldestEntry(Entry<K,V>)", comment("default deny"))))

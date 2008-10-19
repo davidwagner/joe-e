@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("org.w3c.dom.Attr",
+  instance(method(suppress, "getName()", comment("default deny")),
+    method(suppress, "getOwnerElement()", comment("default deny")),
+    method(suppress, "getSchemaTypeInfo()", comment("default deny")),
+    method(suppress, "getSpecified()", comment("default deny")),
+    method(suppress, "getValue()", comment("default deny")),
+    method(suppress, "isId()", comment("default deny")),
+    method(suppress, "setValue(String)", comment("default deny"))))

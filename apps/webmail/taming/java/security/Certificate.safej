@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("java.security.Certificate",
+  instance(method(suppress, "decode(InputStream)", comment("default deny")),
+    method(suppress, "encode(OutputStream)", comment("default deny")),
+    method(suppress, "getFormat()", comment("default deny")),
+    method(suppress, "getGuarantor()", comment("default deny")),
+    method(suppress, "getPrincipal()", comment("default deny")),
+    method(suppress, "getPublicKey()", comment("default deny")),
+    method(suppress, "toString(boolean)", comment("default deny"))))

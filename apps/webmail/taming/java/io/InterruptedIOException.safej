@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.io.InterruptedIOException",
+  static(constructor(suppress, "InterruptedIOException()", comment("default deny")),
+    constructor(suppress, "InterruptedIOException(String)", comment("default deny"))),
+  instance(field(suppress, "bytesTransferred", comment("default deny"))))

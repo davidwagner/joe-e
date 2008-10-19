@@ -1,0 +1,11 @@
+# auto-generated safej: default deny everything
+class("java.security.CodeSource",
+  static(constructor(suppress, "CodeSource(URL, Certificate[])", comment("default deny")),
+    constructor(suppress, "CodeSource(URL, CodeSigner[])", comment("default deny"))),
+  instance(method(suppress, "equals(Object)", comment("default deny")),
+    method(suppress, "getCertificates()", comment("default deny")),
+    method(suppress, "getCodeSigners()", comment("default deny")),
+    method(suppress, "getLocation()", comment("default deny")),
+    method(suppress, "hashCode()", comment("default deny")),
+    method(suppress, "implies(CodeSource)", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

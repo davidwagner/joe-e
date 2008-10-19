@@ -1,0 +1,14 @@
+# Manually audited: Enum for specifying rounding modes.  Everything looks OK.
+class("java.math.RoundingMode",
+  honorary("org.joe_e.Powerless", "org.joe_e.Equatable"),
+  static(field("CEILING"),
+    field("DOWN"),
+    field("FLOOR"),
+    field("HALF_DOWN"),
+    field("HALF_EVEN"),
+    field("HALF_UP"),
+    field("UNNECESSARY"),
+    field("UP"),
+    method("valueOf(String)"),
+    method("valueOf(int)"),
+    method("values()")))

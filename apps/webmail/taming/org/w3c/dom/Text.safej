@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("org.w3c.dom.Text",
+  instance(method(suppress, "getWholeText()", comment("default deny")),
+    method(suppress, "isElementContentWhitespace()", comment("default deny")),
+    method(suppress, "replaceWholeText(String)", comment("default deny")),
+    method(suppress, "splitText(int)", comment("default deny"))))

@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.lang.InternalError",
+  honorary("org.joe_e.Powerless"),
+  static(constructor(suppress, "InternalError()", comment("default deny")),
+    constructor(suppress, "InternalError(String)", comment("default deny"))))

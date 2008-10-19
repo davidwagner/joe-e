@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.util.Enumeration",
+  instance(method(suppress, "hasMoreElements()", comment("default deny")),
+    method(suppress, "nextElement()", comment("default deny"))))

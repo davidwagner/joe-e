@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("java.io.FilterWriter",
+  static(constructor(suppress, "FilterWriter(Writer)", comment("default deny"))),
+  instance(field(suppress, "out", comment("default deny")),
+    method(suppress, "close()", comment("default deny")),
+    method(suppress, "flush()", comment("default deny")),
+    method(suppress, "write(String, int, int)", comment("default deny")),
+    method(suppress, "write(char[], int, int)", comment("default deny")),
+    method(suppress, "write(int)", comment("default deny"))))

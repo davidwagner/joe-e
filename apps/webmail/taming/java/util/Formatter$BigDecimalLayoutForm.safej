@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.util.Formatter$BigDecimalLayoutForm",
+  static(field(suppress, "DECIMAL_FLOAT", comment("default deny")),
+    field(suppress, "SCIENTIFIC", comment("default deny")),
+    method(suppress, "valueOf(String)", comment("default deny")),
+    method(suppress, "values()", comment("default deny"))))

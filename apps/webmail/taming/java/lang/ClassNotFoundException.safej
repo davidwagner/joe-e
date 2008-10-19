@@ -1,0 +1,8 @@
+# Everything should be OK here
+class("java.lang.ClassNotFoundException",
+  honorary("org.joe_e.Powerless"),
+  static(constructor("ClassNotFoundException()"),
+    constructor("ClassNotFoundException(String)"),
+    constructor("ClassNotFoundException(String, Throwable)")),
+  instance(method("getCause()"),
+    method("getException()")))

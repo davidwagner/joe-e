@@ -1,0 +1,14 @@
+# auto-generated safej: default deny everything
+class("java.io.ObjectStreamField",
+  static(constructor(suppress, "ObjectStreamField(String, Class<?>)", comment("default deny")),
+    constructor(suppress, "ObjectStreamField(String, Class<?>, boolean)", comment("default deny"))),
+  instance(method(suppress, "compareTo(Object)", comment("default deny")),
+    method(suppress, "getName()", comment("default deny")),
+    method(suppress, "getOffset()", comment("default deny")),
+    method(suppress, "getType()", comment("default deny")),
+    method(suppress, "getTypeCode()", comment("default deny")),
+    method(suppress, "getTypeString()", comment("default deny")),
+    method(suppress, "isPrimitive()", comment("default deny")),
+    method(suppress, "isUnshared()", comment("default deny")),
+    method(suppress, "setOffset(int)", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

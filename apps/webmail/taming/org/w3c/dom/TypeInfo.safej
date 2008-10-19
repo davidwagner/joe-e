@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("org.w3c.dom.TypeInfo",
+  static(field(suppress, "DERIVATION_EXTENSION", comment("default deny")),
+    field(suppress, "DERIVATION_LIST", comment("default deny")),
+    field(suppress, "DERIVATION_RESTRICTION", comment("default deny")),
+    field(suppress, "DERIVATION_UNION", comment("default deny"))),
+  instance(method(suppress, "getTypeName()", comment("default deny")),
+    method(suppress, "getTypeNamespace()", comment("default deny")),
+    method(suppress, "isDerivedFrom(String, String, int)", comment("default deny"))))

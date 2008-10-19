@@ -1,0 +1,8 @@
+# auto-generated safej: default deny everything
+class("java.io.FileDescriptor",
+  static(field(suppress, "err", comment("default deny")),
+    field(suppress, "in", comment("default deny")),
+    field(suppress, "out", comment("default deny")),
+    constructor(suppress, "FileDescriptor()", comment("default deny"))),
+  instance(method(suppress, "sync()", comment("default deny")),
+    method(suppress, "valid()", comment("default deny"))))

@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("org.xml.sax.Locator",
+  instance(method(suppress, "getColumnNumber()", comment("default deny")),
+    method(suppress, "getLineNumber()", comment("default deny")),
+    method(suppress, "getPublicId()", comment("default deny")),
+    method(suppress, "getSystemId()", comment("default deny"))))

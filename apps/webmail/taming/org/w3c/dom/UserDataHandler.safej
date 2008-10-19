@@ -1,0 +1,8 @@
+# auto-generated safej: default deny everything
+class("org.w3c.dom.UserDataHandler",
+  static(field(suppress, "NODE_ADOPTED", comment("default deny")),
+    field(suppress, "NODE_CLONED", comment("default deny")),
+    field(suppress, "NODE_DELETED", comment("default deny")),
+    field(suppress, "NODE_IMPORTED", comment("default deny")),
+    field(suppress, "NODE_RENAMED", comment("default deny"))),
+  instance(method(suppress, "handle(short, String, Object, Node, Node)", comment("default deny"))))

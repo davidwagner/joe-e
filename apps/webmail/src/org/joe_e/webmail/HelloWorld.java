@@ -4,7 +4,6 @@ import java.io.*;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
-import org.apache.catalina.connector.RequestFacade;
 
 public class HelloWorld extends HttpServlet {
 
@@ -14,14 +13,13 @@ public class HelloWorld extends HttpServlet {
 		PrintWriter out = response.getWriter();
 		response.setContentType("text/html");
 		
-		String user = (String) request.getSession().getAttribute("user");
+		User user = (User) request.getSession().getAttribute("user");
 		
 		HtmlWriter.printHeader(out);
 		if (user != null) {
 			response.sendRedirect("/webmail/inbox");
 		}
 		out.println("<body><h1>Welcome to WebMail</h1>");
-		out.println("<p>"+request.getClass()+"</p>");
 		out.println("<a href=\"/webmail/create\">Create Account</a>");
 		out.println("<a href=\"/webmail/login\">Login</a>");
 		out.println("<a href=\"/webmail/webform\">Click Here</a>");

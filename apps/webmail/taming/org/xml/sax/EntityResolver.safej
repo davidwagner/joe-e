@@ -1,0 +1,3 @@
+# auto-generated safej: default deny everything
+class("org.xml.sax.EntityResolver",
+  instance(method(suppress, "resolveEntity(String, String)", comment("default deny"))))

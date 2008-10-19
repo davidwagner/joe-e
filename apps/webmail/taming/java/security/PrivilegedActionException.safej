@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.security.PrivilegedActionException",
+  static(constructor(suppress, "PrivilegedActionException(Exception)", comment("default deny"))),
+  instance(method(suppress, "getCause()", comment("default deny")),
+    method(suppress, "getException()", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

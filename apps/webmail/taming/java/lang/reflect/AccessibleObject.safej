@@ -1,0 +1,11 @@
+# auto-generated safej: default deny everything
+class("java.lang.reflect.AccessibleObject"
+,
+  static(constructor(suppress, "AccessibleObject()", comment("default deny")),
+    method(suppress, "setAccessible(AccessibleObject[], boolean)", comment("default deny"))),
+  instance(method(suppress, "getAnnotation(Class<T>)", comment("default deny")),
+    method(suppress, "getAnnotations()", comment("default deny")),
+    method(suppress, "getDeclaredAnnotations()", comment("default deny")),
+    method(suppress, "isAccessible()", comment("default deny")),
+    method(suppress, "isAnnotationPresent(Class<? extends Annotation>)", comment("default deny")),
+    method(suppress, "setAccessible(boolean)", comment("default deny"))))

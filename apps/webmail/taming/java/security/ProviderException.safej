@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.security.ProviderException",
+  static(constructor(suppress, "ProviderException()", comment("default deny")),
+    constructor(suppress, "ProviderException(String)", comment("default deny")),
+    constructor(suppress, "ProviderException(String, Throwable)", comment("default deny")),
+    constructor(suppress, "ProviderException(Throwable)", comment("default deny"))))

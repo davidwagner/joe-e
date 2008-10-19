@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.util.IllegalFormatPrecisionException",
+  static(constructor(suppress, "IllegalFormatPrecisionException(int)", comment("default deny"))),
+  instance(method(suppress, "getMessage()", comment("default deny")),
+    method(suppress, "getPrecision()", comment("default deny"))))

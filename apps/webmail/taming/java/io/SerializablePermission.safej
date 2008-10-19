@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.io.SerializablePermission",
+  static(constructor(suppress, "SerializablePermission(String)", comment("default deny")),
+    constructor(suppress, "SerializablePermission(String, String)", comment("default deny"))))

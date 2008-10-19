@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("javax.servlet.ServletContextAttributeEvent",
+  static(constructor(suppress, "ServletContextAttributeEvent(ServletContext, String, Object)", comment("default deny"))),
+  instance(method(suppress, "getName()", comment("default deny")),
+    method(suppress, "getValue()", comment("default deny"))))

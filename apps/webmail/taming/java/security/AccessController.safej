@@ -1,0 +1,8 @@
+# auto-generated safej: default deny everything
+class("java.security.AccessController",
+  static(method(suppress, "checkPermission(Permission)", comment("default deny")),
+    method(suppress, "doPrivileged(PrivilegedAction<T>)", comment("default deny")),
+    method(suppress, "doPrivileged(PrivilegedAction<T>, AccessControlContext)", comment("default deny")),
+    method(suppress, "doPrivileged(PrivilegedExceptionAction<T>)", comment("default deny")),
+    method(suppress, "doPrivileged(PrivilegedExceptionAction<T>, AccessControlContext)", comment("default deny")),
+    method(suppress, "getContext()", comment("default deny"))))

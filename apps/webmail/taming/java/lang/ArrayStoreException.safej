@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.lang.ArrayStoreException",
+  honorary("org.joe_e.Powerless"),
+  static(constructor(suppress, "ArrayStoreException()", comment("default deny")),
+    constructor(suppress, "ArrayStoreException(String)", comment("default deny"))))

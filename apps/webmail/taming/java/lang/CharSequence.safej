@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.lang.CharSequence",
+  instance(method(suppress, "charAt(int)", comment("default deny")),
+    method(suppress, "length()", comment("default deny")),
+    method(suppress, "subSequence(int, int)", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

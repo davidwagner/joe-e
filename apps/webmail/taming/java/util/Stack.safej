@@ -1,0 +1,8 @@
+# auto-generated safej: default deny everything
+class("java.util.Stack",
+  static(constructor(suppress, "Stack()", comment("default deny"))),
+  instance(method(suppress, "empty()", comment("default deny")),
+    method(suppress, "peek()", comment("default deny")),
+    method(suppress, "pop()", comment("default deny")),
+    method(suppress, "push(E)", comment("default deny")),
+    method(suppress, "search(Object)", comment("default deny"))))

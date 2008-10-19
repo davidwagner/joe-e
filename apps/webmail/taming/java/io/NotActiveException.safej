@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.io.NotActiveException",
+  static(constructor(suppress, "NotActiveException()", comment("default deny")),
+    constructor(suppress, "NotActiveException(String)", comment("default deny"))))

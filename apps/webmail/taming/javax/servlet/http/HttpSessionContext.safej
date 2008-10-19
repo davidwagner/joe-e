@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("javax.servlet.http.HttpSessionContext",
+  instance(method(suppress, "getIds()", comment("default deny")),
+    method(suppress, "getSession(String)", comment("default deny"))))

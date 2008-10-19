@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("javax.xml.parsers.ParserConfigurationException",
+  static(constructor(suppress, "ParserConfigurationException()", comment("default deny")),
+    constructor(suppress, "ParserConfigurationException(String)", comment("default deny"))))

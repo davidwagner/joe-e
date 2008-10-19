@@ -1,0 +1,20 @@
+# Manually edited but has not been audited yet. 
+# Allowing things that we need for webmail
+class("javax.servlet.http.HttpSession",
+  instance(method(allow, "getAttribute(String)", comment("allowed for webmail")),
+    method(allow, "getAttributeNames()", comment("allowed for webmail")),
+    method(suppress, "getCreationTime()", comment("default deny")),
+    method(suppress, "getId()", comment("default deny")),
+    method(suppress, "getLastAccessedTime()", comment("default deny")),
+    method(suppress, "getMaxInactiveInterval()", comment("default deny")),
+    method(suppress, "getServletContext()", comment("default deny")),
+    method(suppress, "getSessionContext()", comment("default deny")),
+    method(allow, "getValue(String)", comment("allowed for webmail")),
+    method(suppress, "getValueNames()", comment("default deny")),
+    method(allow, "invalidate()", comment("allowed for webmail")),
+    method(suppress, "isNew()", comment("default deny")),
+    method(allow, "putValue(String, Object)", comment("allowed for webmail")),
+    method(allow, "removeAttribute(String)", comment("allowed for webmail")),
+    method(suppress, "removeValue(String)", comment("default deny")),
+    method(allow, "setAttribute(String, Object)", comment("allowed for webmail")),
+    method(suppress, "setMaxInactiveInterval(int)", comment("default deny"))))

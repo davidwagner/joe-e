@@ -1,0 +1,8 @@
+# auto-generated safej: default deny everything
+class("org.w3c.dom.DocumentType",
+  instance(method(suppress, "getEntities()", comment("default deny")),
+    method(suppress, "getInternalSubset()", comment("default deny")),
+    method(suppress, "getName()", comment("default deny")),
+    method(suppress, "getNotations()", comment("default deny")),
+    method(suppress, "getPublicId()", comment("default deny")),
+    method(suppress, "getSystemId()", comment("default deny"))))

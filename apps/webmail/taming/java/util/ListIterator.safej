@@ -1,0 +1,11 @@
+# auto-generated safej: default deny everything
+class("java.util.ListIterator",
+  instance(method(suppress, "add(E)", comment("default deny")),
+    method(suppress, "hasNext()", comment("default deny")),
+    method(suppress, "hasPrevious()", comment("default deny")),
+    method(suppress, "next()", comment("default deny")),
+    method(suppress, "nextIndex()", comment("default deny")),
+    method(suppress, "previous()", comment("default deny")),
+    method(suppress, "previousIndex()", comment("default deny")),
+    method(suppress, "remove()", comment("default deny")),
+    method(suppress, "set(E)", comment("default deny"))))

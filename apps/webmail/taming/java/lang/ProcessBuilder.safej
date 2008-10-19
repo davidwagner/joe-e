@@ -1,0 +1,13 @@
+# auto-generated safej: default deny everything
+class("java.lang.ProcessBuilder",
+  static(constructor(suppress, "ProcessBuilder(List<String>)", comment("default deny")),
+    constructor(suppress, "ProcessBuilder(String[])", comment("default deny"))),
+  instance(method(suppress, "command()", comment("default deny")),
+    method(suppress, "command(List<String>)", comment("default deny")),
+    method(suppress, "command(String[])", comment("default deny")),
+    method(suppress, "directory()", comment("default deny")),
+    method(suppress, "directory(File)", comment("default deny")),
+    method(suppress, "environment()", comment("default deny")),
+    method(suppress, "redirectErrorStream()", comment("default deny")),
+    method(suppress, "redirectErrorStream(boolean)", comment("default deny")),
+    method(suppress, "start()", comment("default deny"))))

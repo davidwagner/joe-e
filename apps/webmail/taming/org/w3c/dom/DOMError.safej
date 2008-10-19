@@ -1,0 +1,11 @@
+# auto-generated safej: default deny everything
+class("org.w3c.dom.DOMError",
+  static(field(suppress, "SEVERITY_ERROR", comment("default deny")),
+    field(suppress, "SEVERITY_FATAL_ERROR", comment("default deny")),
+    field(suppress, "SEVERITY_WARNING", comment("default deny"))),
+  instance(method(suppress, "getLocation()", comment("default deny")),
+    method(suppress, "getMessage()", comment("default deny")),
+    method(suppress, "getRelatedData()", comment("default deny")),
+    method(suppress, "getRelatedException()", comment("default deny")),
+    method(suppress, "getSeverity()", comment("default deny")),
+    method(suppress, "getType()", comment("default deny"))))

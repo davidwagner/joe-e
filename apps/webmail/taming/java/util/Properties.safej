@@ -1,0 +1,17 @@
+# auto-generated safej: default deny everything
+class("java.util.Properties",
+  static(constructor(suppress, "Properties()", comment("default deny")),
+    constructor(suppress, "Properties(Properties)", comment("default deny"))),
+  instance(field(suppress, "defaults", comment("default deny")),
+    method(suppress, "getProperty(String)", comment("default deny")),
+    method(suppress, "getProperty(String, String)", comment("default deny")),
+    method(suppress, "list(PrintStream)", comment("default deny")),
+    method(suppress, "list(PrintWriter)", comment("default deny")),
+    method(suppress, "load(InputStream)", comment("default deny")),
+    method(suppress, "loadFromXML(InputStream)", comment("default deny")),
+    method(suppress, "propertyNames()", comment("default deny")),
+    method(suppress, "save(OutputStream, String)", comment("default deny")),
+    method(suppress, "setProperty(String, String)", comment("default deny")),
+    method(suppress, "store(OutputStream, String)", comment("default deny")),
+    method(suppress, "storeToXML(OutputStream, String)", comment("default deny")),
+    method(suppress, "storeToXML(OutputStream, String, String)", comment("default deny"))))

@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("org.xml.sax.XMLFilter",
+  instance(method(suppress, "getParent()", comment("default deny")),
+    method(suppress, "setParent(XMLReader)", comment("default deny"))))

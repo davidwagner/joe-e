@@ -1,0 +1,21 @@
+# Manually edited but has not been audited yet. 
+# Allowing things that we need for webmail
+class("java.util.AbstractList",
+  static(constructor(suppress, "AbstractList()", comment("default deny"))),
+  instance(field(suppress, "modCount", comment("default deny")),
+    method(suppress, "add(E)", comment("default deny")),
+    method(suppress, "add(int, E)", comment("default deny")),
+    method(suppress, "addAll(int, Collection<? extends E>)", comment("default deny")),
+    method(suppress, "clear()", comment("default deny")),
+    method(suppress, "equals(Object)", comment("default deny")),
+    method(suppress, "get(int)", comment("default deny")),
+    method(suppress, "hashCode()", comment("default deny")),
+    method(suppress, "indexOf(Object)", comment("default deny")),
+    method(allow, "iterator()", comment("allowed for webmail")),
+    method(suppress, "lastIndexOf(Object)", comment("default deny")),
+    method(suppress, "listIterator()", comment("default deny")),
+    method(suppress, "listIterator(int)", comment("default deny")),
+    method(suppress, "remove(int)", comment("default deny")),
+    method(suppress, "removeRange(int, int)", comment("default deny")),
+    method(suppress, "set(int, E)", comment("default deny")),
+    method(suppress, "subList(int, int)", comment("default deny"))))

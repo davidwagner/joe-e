@@ -1,0 +1,10 @@
+# auto-generated safej: default deny everything
+class("org.w3c.dom.NamedNodeMap",
+  instance(method(suppress, "getLength()", comment("default deny")),
+    method(suppress, "getNamedItem(String)", comment("default deny")),
+    method(suppress, "getNamedItemNS(String, String)", comment("default deny")),
+    method(suppress, "item(int)", comment("default deny")),
+    method(suppress, "removeNamedItem(String)", comment("default deny")),
+    method(suppress, "removeNamedItemNS(String, String)", comment("default deny")),
+    method(suppress, "setNamedItem(Node)", comment("default deny")),
+    method(suppress, "setNamedItemNS(Node)", comment("default deny"))))

@@ -1,0 +1,7 @@
+# auto-generated safej: default deny everything
+class("javax.servlet.ServletException",
+  static(constructor(suppress, "ServletException()", comment("default deny")),
+    constructor(suppress, "ServletException(String)", comment("default deny")),
+    constructor(suppress, "ServletException(String, Throwable)", comment("default deny")),
+    constructor(suppress, "ServletException(Throwable)", comment("default deny"))),
+  instance(method(suppress, "getRootCause()", comment("default deny"))))

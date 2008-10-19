@@ -1,0 +1,18 @@
+# Manually edited but has not been audited yet. 
+# Allowing things that we need for webmail
+class("javax.xml.parsers.DocumentBuilder",
+  static(constructor(suppress, "DocumentBuilder()", comment("default deny"))),
+  instance(method(suppress, "getDOMImplementation()", comment("default deny")),
+    method(suppress, "getSchema()", comment("default deny")),
+    method(suppress, "isNamespaceAware()", comment("default deny")),
+    method(suppress, "isValidating()", comment("default deny")),
+    method(suppress, "isXIncludeAware()", comment("default deny")),
+    method(suppress, "newDocument()", comment("default deny")),
+    method(allow, "parse(File)", comment("allowed for webmail")),
+    method(suppress, "parse(InputSource)", comment("default deny")),
+    method(suppress, "parse(InputStream)", comment("default deny")),
+    method(suppress, "parse(InputStream, String)", comment("default deny")),
+    method(suppress, "parse(String)", comment("default deny")),
+    method(suppress, "reset()", comment("default deny")),
+    method(suppress, "setEntityResolver(EntityResolver)", comment("default deny")),
+    method(suppress, "setErrorHandler(ErrorHandler)", comment("default deny"))))

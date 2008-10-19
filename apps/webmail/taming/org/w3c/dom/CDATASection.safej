@@ -1,0 +1,2 @@
+# auto-generated safej: default deny everything
+class("org.w3c.dom.CDATASection")

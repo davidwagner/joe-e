@@ -1,0 +1,6 @@
+# Manually edited but has not been audited yet.
+# Allowing things that we need for webmail
+class("java.io.FileReader",
+  static(constructor(allow, "FileReader(File)", comment("allowed for webmail")),
+    constructor(suppress, "FileReader(FileDescriptor)", comment("default deny")),
+    constructor(suppress, "FileReader(String)", comment("default deny"))))
