@@ -1,0 +1,8 @@
+# auto-generated safej: default deny everything
+class("org.w3c.dom.Entity",
+  instance(method(suppress, "getInputEncoding()", comment("default deny")),
+    method(suppress, "getNotationName()", comment("default deny")),
+    method(suppress, "getPublicId()", comment("default deny")),
+    method(suppress, "getSystemId()", comment("default deny")),
+    method(suppress, "getXmlEncoding()", comment("default deny")),
+    method(suppress, "getXmlVersion()", comment("default deny"))))

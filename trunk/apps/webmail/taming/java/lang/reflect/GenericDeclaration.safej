@@ -1,0 +1,3 @@
+# Manually audited.
+class("java.lang.reflect.GenericDeclaration",
+  instance(method("getTypeParameters()")))

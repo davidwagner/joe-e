@@ -1,0 +1,15 @@
+# auto-generated safej: default deny everything
+class("javax.xml.parsers.SAXParserFactory",
+  static(constructor(suppress, "SAXParserFactory()", comment("default deny")),
+    method(suppress, "newInstance()", comment("default deny"))),
+  instance(method(suppress, "getFeature(String)", comment("default deny")),
+    method(suppress, "getSchema()", comment("default deny")),
+    method(suppress, "isNamespaceAware()", comment("default deny")),
+    method(suppress, "isValidating()", comment("default deny")),
+    method(suppress, "isXIncludeAware()", comment("default deny")),
+    method(suppress, "newSAXParser()", comment("default deny")),
+    method(suppress, "setFeature(String, boolean)", comment("default deny")),
+    method(suppress, "setNamespaceAware(boolean)", comment("default deny")),
+    method(suppress, "setSchema(Schema)", comment("default deny")),
+    method(suppress, "setValidating(boolean)", comment("default deny")),
+    method(suppress, "setXIncludeAware(boolean)", comment("default deny"))))

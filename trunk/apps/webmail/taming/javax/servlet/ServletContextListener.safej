@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("javax.servlet.ServletContextListener",
+  instance(method(suppress, "contextDestroyed(ServletContextEvent)", comment("default deny")),
+    method(suppress, "contextInitialized(ServletContextEvent)", comment("default deny"))))

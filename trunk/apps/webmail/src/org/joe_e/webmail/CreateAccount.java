@@ -18,7 +18,8 @@ public class CreateAccount extends HttpServlet {
 		if (username != null && password != null) {
 			// here we need make a call to create their account
 			try {
-				Authentication.addAccount(username, password);
+				Authentication auth = (Authentication) request.getSession().getAttribute("auth");
+				auth.addAccount(username, password, request.getSession());
 				response.sendRedirect("/webmail/login");
 			} catch (Exception e) {
 				message = "unable to add account";
@@ -29,7 +30,7 @@ public class CreateAccount extends HttpServlet {
 		PrintWriter out = response.getWriter();
 		HtmlWriter.printHeader(out);
 		out.println("<body><h1>Create Account</h1>");
-		out.println("<form method=\"POST\" action=\"/webmail/create\">");
+		out.println("<form method=\"POST\" action=\"/webmail/authcreate\">");
 		out.println("<table border=\"0\"");
 		if (message != null) {
 			out.println("<b>" + message + "</b><br />");

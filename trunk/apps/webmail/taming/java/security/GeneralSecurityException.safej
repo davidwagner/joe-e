@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.security.GeneralSecurityException",
+  static(constructor(suppress, "GeneralSecurityException()", comment("default deny")),
+    constructor(suppress, "GeneralSecurityException(String)", comment("default deny")),
+    constructor(suppress, "GeneralSecurityException(String, Throwable)", comment("default deny")),
+    constructor(suppress, "GeneralSecurityException(Throwable)", comment("default deny"))))

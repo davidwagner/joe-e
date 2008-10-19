@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("org.w3c.dom.DOMConfiguration",
+  instance(method(suppress, "canSetParameter(String, Object)", comment("default deny")),
+    method(suppress, "getParameter(String)", comment("default deny")),
+    method(suppress, "getParameterNames()", comment("default deny")),
+    method(suppress, "setParameter(String, Object)", comment("default deny"))))

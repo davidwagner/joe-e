@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.security.SecureRandomSpi",
+  static(constructor(suppress, "SecureRandomSpi()", comment("default deny"))),
+  instance(method(suppress, "engineGenerateSeed(int)", comment("default deny")),
+    method(suppress, "engineNextBytes(byte[])", comment("default deny")),
+    method(suppress, "engineSetSeed(byte[])", comment("default deny"))))

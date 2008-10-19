@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.security.SignatureException",
+  static(constructor(suppress, "SignatureException()", comment("default deny")),
+    constructor(suppress, "SignatureException(String)", comment("default deny")),
+    constructor(suppress, "SignatureException(String, Throwable)", comment("default deny")),
+    constructor(suppress, "SignatureException(Throwable)", comment("default deny"))))

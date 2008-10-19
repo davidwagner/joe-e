@@ -32,12 +32,13 @@ public class WebForm extends HttpServlet {
 		PrintWriter out = response.getWriter();
 		HtmlWriter.printHeader(out);
 		out.println("<body><h1>Information</h1>");
-		Enumeration<String> params = request.getParameterNames();
+		//Enumeration<String> params = request.getParameterNames();
 		out.println("<ul>");
-		while (params.hasMoreElements()) {
+		/*while (params.hasMoreElements()) {
 			String param = params.nextElement();
 			out.println("<li>" + param + ": " + request.getParameter(param) + "</li>");
 		}
+		*/
 		out.println("</ul>");
 		HtmlWriter.printFooter(out);
 	}

@@ -1,0 +1,17 @@
+# auto-generated safej: default deny everything
+class("org.xml.sax.HandlerBase",
+  static(constructor(suppress, "HandlerBase()", comment("default deny"))),
+  instance(method(suppress, "characters(char[], int, int)", comment("default deny")),
+    method(suppress, "endDocument()", comment("default deny")),
+    method(suppress, "endElement(String)", comment("default deny")),
+    method(suppress, "error(SAXParseException)", comment("default deny")),
+    method(suppress, "fatalError(SAXParseException)", comment("default deny")),
+    method(suppress, "ignorableWhitespace(char[], int, int)", comment("default deny")),
+    method(suppress, "notationDecl(String, String, String)", comment("default deny")),
+    method(suppress, "processingInstruction(String, String)", comment("default deny")),
+    method(suppress, "resolveEntity(String, String)", comment("default deny")),
+    method(suppress, "setDocumentLocator(Locator)", comment("default deny")),
+    method(suppress, "startDocument()", comment("default deny")),
+    method(suppress, "startElement(String, AttributeList)", comment("default deny")),
+    method(suppress, "unparsedEntityDecl(String, String, String, String)", comment("default deny")),
+    method(suppress, "warning(SAXParseException)", comment("default deny"))))

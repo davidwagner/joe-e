@@ -16,10 +16,16 @@ public class Login extends HttpServlet {
 		if (username != null && password != null) {
 			// here we need to do some validation of username and password
 			// for now we assume that they're authenticated, so we should set their session
-			User u = Authentication.authenticate(username, password);
+			User u = null;
+			Authentication auth = (Authentication) request.getSession().getAttribute("auth");
+			if (auth == null) {
+				response.sendRedirect("/webmail/logout");
+			} else {
+				u = auth.authenticate(username, password, request.getSession());
+			}
 			if (u != null) {
 				HttpSession session = request.getSession();
-				if (session.getAttribute("user") ==  null || session.getAttribute("user") == username) {
+				if (session.getAttribute("user") ==  null || session.getAttribute("user") != u) {
 					session.setAttribute("user", u);
 					// then they were successfully logged in, so we should send them to their inbox
 					response.sendRedirect("/webmail/inbox");
@@ -33,7 +39,7 @@ public class Login extends HttpServlet {
 		PrintWriter out = response.getWriter();
 		HtmlWriter.printHeader(out);
 		out.println("<body><h1>Login</h1>");
-		out.println("<form method=\"POST\" action=\"/webmail/login\">");
+		out.println("<form method=\"POST\" action=\"/webmail/authlogin\">");
 		out.println("<table border=\"0\"");
 		if (message != null) {
 			out.println("<b>" + message + "</b><br />");

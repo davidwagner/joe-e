@@ -1,0 +1,7 @@
+# auto-generated safej: default deny everything
+class("org.w3c.dom.NameList",
+  instance(method(suppress, "contains(String)", comment("default deny")),
+    method(suppress, "containsNS(String, String)", comment("default deny")),
+    method(suppress, "getLength()", comment("default deny")),
+    method(suppress, "getName(int)", comment("default deny")),
+    method(suppress, "getNamespaceURI(int)", comment("default deny"))))

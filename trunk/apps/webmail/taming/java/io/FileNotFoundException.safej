@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.io.FileNotFoundException",
+  static(constructor(suppress, "FileNotFoundException()", comment("default deny")),
+    constructor(suppress, "FileNotFoundException(String)", comment("default deny"))))

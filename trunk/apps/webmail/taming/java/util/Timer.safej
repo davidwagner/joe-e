@@ -1,0 +1,14 @@
+# auto-generated safej: default deny everything
+class("java.util.Timer",
+  static(constructor(suppress, "Timer()", comment("default deny")),
+    constructor(suppress, "Timer(String)", comment("default deny")),
+    constructor(suppress, "Timer(String, boolean)", comment("default deny")),
+    constructor(suppress, "Timer(boolean)", comment("default deny"))),
+  instance(method(suppress, "cancel()", comment("default deny")),
+    method(suppress, "purge()", comment("default deny")),
+    method(suppress, "schedule(TimerTask, Date)", comment("default deny")),
+    method(suppress, "schedule(TimerTask, Date, long)", comment("default deny")),
+    method(suppress, "schedule(TimerTask, long)", comment("default deny")),
+    method(suppress, "schedule(TimerTask, long, long)", comment("default deny")),
+    method(suppress, "scheduleAtFixedRate(TimerTask, Date, long)", comment("default deny")),
+    method(suppress, "scheduleAtFixedRate(TimerTask, long, long)", comment("default deny"))))

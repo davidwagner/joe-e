@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.lang.reflect.TypeVariable",
+  honorary("org.joe_e.Powerless", "org.joe_e.Selfless"),
+  instance(method(suppress, "getBounds()", comment("default deny")),
+    method("getGenericDeclaration()"),
+    method("getName()")))

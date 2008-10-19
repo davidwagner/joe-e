@@ -1,0 +1,15 @@
+# auto-generated safej: default deny everything
+class("java.io.StringWriter",
+  static(constructor(suppress, "StringWriter()", comment("default deny")),
+    constructor(suppress, "StringWriter(int)", comment("default deny"))),
+  instance(method(suppress, "append(CharSequence)", comment("default deny")),
+    method(suppress, "append(CharSequence, int, int)", comment("default deny")),
+    method(suppress, "append(char)", comment("default deny")),
+    method(suppress, "close()", comment("default deny")),
+    method(suppress, "flush()", comment("default deny")),
+    method(suppress, "getBuffer()", comment("default deny")),
+    method(suppress, "toString()", comment("default deny")),
+    method(suppress, "write(String)", comment("default deny")),
+    method(suppress, "write(String, int, int)", comment("default deny")),
+    method(suppress, "write(char[], int, int)", comment("default deny")),
+    method(suppress, "write(int)", comment("default deny"))))

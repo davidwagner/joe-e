@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.io.Externalizable",
+  instance(method(suppress, "readExternal(ObjectInput)", comment("default deny")),
+    method(suppress, "writeExternal(ObjectOutput)", comment("default deny"))))

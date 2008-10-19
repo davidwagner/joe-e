@@ -1,0 +1,13 @@
+# auto-generated safej: default deny everything
+class("org.xml.sax.ContentHandler",
+  instance(method(suppress, "characters(char[], int, int)", comment("default deny")),
+    method(suppress, "endDocument()", comment("default deny")),
+    method(suppress, "endElement(String, String, String)", comment("default deny")),
+    method(suppress, "endPrefixMapping(String)", comment("default deny")),
+    method(suppress, "ignorableWhitespace(char[], int, int)", comment("default deny")),
+    method(suppress, "processingInstruction(String, String)", comment("default deny")),
+    method(suppress, "setDocumentLocator(Locator)", comment("default deny")),
+    method(suppress, "skippedEntity(String)", comment("default deny")),
+    method(suppress, "startDocument()", comment("default deny")),
+    method(suppress, "startElement(String, String, String, Attributes)", comment("default deny")),
+    method(suppress, "startPrefixMapping(String, String)", comment("default deny"))))

@@ -1,0 +1,12 @@
+# auto-generated safej: default deny everything
+class("java.util.Observable",
+  static(constructor(suppress, "Observable()", comment("default deny"))),
+  instance(method(suppress, "addObserver(Observer)", comment("default deny")),
+    method(suppress, "clearChanged()", comment("default deny")),
+    method(suppress, "countObservers()", comment("default deny")),
+    method(suppress, "deleteObserver(Observer)", comment("default deny")),
+    method(suppress, "deleteObservers()", comment("default deny")),
+    method(suppress, "hasChanged()", comment("default deny")),
+    method(suppress, "notifyObservers()", comment("default deny")),
+    method(suppress, "notifyObservers(Object)", comment("default deny")),
+    method(suppress, "setChanged()", comment("default deny"))))

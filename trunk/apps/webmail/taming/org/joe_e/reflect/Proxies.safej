@@ -1,0 +1,5 @@
+# auto-generated safej for Joe-E code: allow everything.
+class("org.joe_e.reflect.Proxies",
+  static(method("getHandler(Proxy)"),
+    method("isImplementable(Class)"),
+    method("proxy(InvocationHandler, Class[])")))

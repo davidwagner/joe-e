@@ -13,23 +13,12 @@ import org.joe_e.webmail.User;
  *
  */
 public class TestAuth extends TestCase {
-	
-	public void testInitMap() {
-		try {
-			Authentication.initMap();
-		} catch (IOException e) {
-			assertTrue("Caught IOException", false);
-		}
-		HashMap<String, String> accounts = Authentication.accounts;
-		assertFalse("accounts.isEmpty()", accounts.isEmpty());
-		assertTrue("ankit in accounts", accounts.keySet().contains("ankit"));
-		assertTrue("akshay in accounts", accounts.keySet().contains("akshay"));
-	}
-	
+		
 	public void testInsert() {
+		Authentication auth = new Authentication();
 		try {
-			Authentication.addAccount("kanav", "arora");
-			assertFalse(Authentication.addAccount("ankit", "desai"));
+			auth.addAccount("kanav", "arora", null);
+			assertFalse(auth.addAccount("ankit", "desai", null));
 		} catch (IOException e) {
 			assertTrue("Caught IOException", false);
 		} catch (NoSuchAlgorithmException e) {
@@ -38,10 +27,11 @@ public class TestAuth extends TestCase {
 	}
 
 	public void testLogin() {
+		Authentication auth = new Authentication();
 		try {
-			User u = Authentication.authenticate("ankit", "desai");
+			User u = auth.authenticate("ankit", "desai", null);
 			assertTrue(u.getUserName().equals("ankit"));
-			u = Authentication.authenticate("akshay", "krish");
+			u = auth.authenticate("akshay", "krish", null);
 			assertTrue(u.getUserName().equals("akshay"));
 		} catch (IOException e) {
 			assertTrue ("Caught IOException", false);

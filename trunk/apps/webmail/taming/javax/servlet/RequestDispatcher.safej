@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("javax.servlet.RequestDispatcher",
+  instance(method(suppress, "forward(ServletRequest, ServletResponse)", comment("default deny")),
+    method(suppress, "include(ServletRequest, ServletResponse)", comment("default deny"))))

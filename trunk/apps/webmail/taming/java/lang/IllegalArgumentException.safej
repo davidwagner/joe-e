@@ -1,0 +1,7 @@
+# Everything should be OK
+class("java.lang.IllegalArgumentException",
+  honorary("org.joe_e.Powerless"),
+  static(constructor("IllegalArgumentException()"),
+    constructor("IllegalArgumentException(String)"),
+    constructor("IllegalArgumentException(String, Throwable)"),
+    constructor("IllegalArgumentException(Throwable)")))

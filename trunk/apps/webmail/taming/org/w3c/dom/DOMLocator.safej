@@ -1,0 +1,8 @@
+# auto-generated safej: default deny everything
+class("org.w3c.dom.DOMLocator",
+  instance(method(suppress, "getByteOffset()", comment("default deny")),
+    method(suppress, "getColumnNumber()", comment("default deny")),
+    method(suppress, "getLineNumber()", comment("default deny")),
+    method(suppress, "getRelatedNode()", comment("default deny")),
+    method(suppress, "getUri()", comment("default deny")),
+    method(suppress, "getUtf16Offset()", comment("default deny"))))

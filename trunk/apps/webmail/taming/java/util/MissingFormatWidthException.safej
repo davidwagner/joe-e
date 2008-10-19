@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.util.MissingFormatWidthException",
+  static(constructor(suppress, "MissingFormatWidthException(String)", comment("default deny"))),
+  instance(method(suppress, "getFormatSpecifier()", comment("default deny")),
+    method(suppress, "getMessage()", comment("default deny"))))

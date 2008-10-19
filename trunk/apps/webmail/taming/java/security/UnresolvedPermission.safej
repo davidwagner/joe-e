@@ -1,0 +1,13 @@
+# auto-generated safej: default deny everything
+class("java.security.UnresolvedPermission",
+  static(constructor(suppress, "UnresolvedPermission(String, String, String, Certificate[])", comment("default deny"))),
+  instance(method(suppress, "equals(Object)", comment("default deny")),
+    method(suppress, "getActions()", comment("default deny")),
+    method(suppress, "getUnresolvedActions()", comment("default deny")),
+    method(suppress, "getUnresolvedCerts()", comment("default deny")),
+    method(suppress, "getUnresolvedName()", comment("default deny")),
+    method(suppress, "getUnresolvedType()", comment("default deny")),
+    method(suppress, "hashCode()", comment("default deny")),
+    method(suppress, "implies(Permission)", comment("default deny")),
+    method(suppress, "newPermissionCollection()", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

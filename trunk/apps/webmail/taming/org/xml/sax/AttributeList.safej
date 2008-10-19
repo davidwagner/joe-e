@@ -1,0 +1,8 @@
+# auto-generated safej: default deny everything
+class("org.xml.sax.AttributeList",
+  instance(method(suppress, "getLength()", comment("default deny")),
+    method(suppress, "getName(int)", comment("default deny")),
+    method(suppress, "getType(String)", comment("default deny")),
+    method(suppress, "getType(int)", comment("default deny")),
+    method(suppress, "getValue(String)", comment("default deny")),
+    method(suppress, "getValue(int)", comment("default deny"))))

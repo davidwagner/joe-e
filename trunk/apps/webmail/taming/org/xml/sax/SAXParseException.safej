@@ -1,0 +1,10 @@
+# auto-generated safej: default deny everything
+class("org.xml.sax.SAXParseException",
+  static(constructor(suppress, "SAXParseException(String, Locator)", comment("default deny")),
+    constructor(suppress, "SAXParseException(String, Locator, Exception)", comment("default deny")),
+    constructor(suppress, "SAXParseException(String, String, String, int, int)", comment("default deny")),
+    constructor(suppress, "SAXParseException(String, String, String, int, int, Exception)", comment("default deny"))),
+  instance(method(suppress, "getColumnNumber()", comment("default deny")),
+    method(suppress, "getLineNumber()", comment("default deny")),
+    method(suppress, "getPublicId()", comment("default deny")),
+    method(suppress, "getSystemId()", comment("default deny"))))

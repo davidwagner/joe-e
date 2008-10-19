@@ -1,0 +1,3 @@
+# auto-generated safej: default deny everything
+class("java.lang.reflect.Type"
+)

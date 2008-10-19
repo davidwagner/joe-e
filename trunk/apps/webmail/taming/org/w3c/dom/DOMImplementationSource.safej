@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("org.w3c.dom.DOMImplementationSource",
+  instance(method(suppress, "getDOMImplementation(String)", comment("default deny")),
+    method(suppress, "getDOMImplementationList(String)", comment("default deny"))))

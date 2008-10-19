@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.lang.reflect.ReflectPermission"
+,
+  static(constructor(suppress, "ReflectPermission(String)", comment("default deny")),
+    constructor(suppress, "ReflectPermission(String, String)", comment("default deny"))))

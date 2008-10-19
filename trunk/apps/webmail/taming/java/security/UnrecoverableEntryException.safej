@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.security.UnrecoverableEntryException",
+  static(constructor(suppress, "UnrecoverableEntryException()", comment("default deny")),
+    constructor(suppress, "UnrecoverableEntryException(String)", comment("default deny"))))

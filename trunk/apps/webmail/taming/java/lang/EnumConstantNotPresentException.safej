@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.lang.EnumConstantNotPresentException",
+  honorary("org.joe_e.Powerless"),
+  static(constructor(suppress, "EnumConstantNotPresentException(Class<? extends Enum>, String)", comment("default deny"))),
+  instance(method(suppress, "constantName()", comment("default deny")),
+    method(suppress, "enumType()", comment("default deny"))))

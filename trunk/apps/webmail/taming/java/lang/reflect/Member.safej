@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("java.lang.reflect.Member"
+,
+  static(field(suppress, "DECLARED", comment("default deny")),
+    field(suppress, "PUBLIC", comment("default deny"))),
+  instance(method(suppress, "getDeclaringClass()", comment("default deny")),
+    method(suppress, "getModifiers()", comment("default deny")),
+    method(suppress, "getName()", comment("default deny")),
+    method(suppress, "isSynthetic()", comment("default deny"))))

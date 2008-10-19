@@ -1,0 +1,8 @@
+# Manually audited.  Everything looks OK
+class("java.lang.annotation.RetentionPolicy",
+  honorary("org.joe_e.Powerless", "org.joe_e.Equatable"),
+  static(field("CLASS"),
+    field("RUNTIME"),
+    field("SOURCE"),
+    method("valueOf(String)"),
+    method("values()")))

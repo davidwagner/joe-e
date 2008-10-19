@@ -1,6 +1,7 @@
 package org.joe_e.webmail;
 
 import java.io.*;
+
 import javax.servlet.*;
 import javax.servlet.http.*;
 
@@ -18,6 +19,10 @@ public class Inbox extends HttpServlet {
 		User user = (User) request.getSession().getAttribute("user");
 		out.println("<body>");
 		out.println("<h1>Inbox of " + user.getUserName() + "</h1>");
+		
+		for(Message m : user.getMessages()) {
+			out.println("<p><a href=\"/webmail/read?id="+m.getId()+"\">"+m.getSubject() + "</a></p>");
+		}
 		out.println("<a href=\"/webmail/logout\">Logout</a>");
 		out.println("</body>");
 		HtmlWriter.printFooter(out);

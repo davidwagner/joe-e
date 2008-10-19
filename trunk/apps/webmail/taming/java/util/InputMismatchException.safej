@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.util.InputMismatchException",
+  static(constructor(suppress, "InputMismatchException()", comment("default deny")),
+    constructor(suppress, "InputMismatchException(String)", comment("default deny"))))

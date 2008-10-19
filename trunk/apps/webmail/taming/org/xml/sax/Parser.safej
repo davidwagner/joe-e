@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("org.xml.sax.Parser",
+  instance(method(suppress, "parse(InputSource)", comment("default deny")),
+    method(suppress, "parse(String)", comment("default deny")),
+    method(suppress, "setDTDHandler(DTDHandler)", comment("default deny")),
+    method(suppress, "setDocumentHandler(DocumentHandler)", comment("default deny")),
+    method(suppress, "setEntityResolver(EntityResolver)", comment("default deny")),
+    method(suppress, "setErrorHandler(ErrorHandler)", comment("default deny")),
+    method(suppress, "setLocale(Locale)", comment("default deny"))))

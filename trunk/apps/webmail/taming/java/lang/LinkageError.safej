@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.lang.LinkageError",
+  honorary("org.joe_e.Powerless"),
+  static(constructor(suppress, "LinkageError()", comment("default deny")),
+    constructor(suppress, "LinkageError(String)", comment("default deny"))))

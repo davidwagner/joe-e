@@ -1,0 +1,4 @@
+# Testlib taming file: allow default constructor and method
+class("org.joe_e.testlib.ContainsNonFinal",
+  static(constructor("ContainsNonFinal()")),
+  instance(method("getString()")))

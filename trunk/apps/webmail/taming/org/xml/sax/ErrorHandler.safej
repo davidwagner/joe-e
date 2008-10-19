@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("org.xml.sax.ErrorHandler",
+  instance(method(suppress, "error(SAXParseException)", comment("default deny")),
+    method(suppress, "fatalError(SAXParseException)", comment("default deny")),
+    method(suppress, "warning(SAXParseException)", comment("default deny"))))

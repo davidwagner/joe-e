@@ -1,0 +1,10 @@
+# auto-generated safej: default deny everything
+class("org.w3c.dom.CharacterData",
+  instance(method(suppress, "appendData(String)", comment("default deny")),
+    method(suppress, "deleteData(int, int)", comment("default deny")),
+    method(suppress, "getData()", comment("default deny")),
+    method(suppress, "getLength()", comment("default deny")),
+    method(suppress, "insertData(int, String)", comment("default deny")),
+    method(suppress, "replaceData(int, int, String)", comment("default deny")),
+    method(suppress, "setData(String)", comment("default deny")),
+    method(suppress, "substringData(int, int)", comment("default deny"))))

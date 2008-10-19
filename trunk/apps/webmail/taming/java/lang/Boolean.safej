@@ -1,0 +1,18 @@
+# Manually audited.  valueOf is deterministic for booleans; it always returns Boolean.TRUE or Booelan.FALSE
+class("java.lang.Boolean",
+  honorary("org.joe_e.Powerless", "org.joe_e.Selfless"),
+  static(field("FALSE"),
+    field("TRUE"),
+    field("TYPE"),
+    constructor("Boolean(String)"),
+    constructor("Boolean(boolean)"),
+    method(suppress, "getBoolean(String)", comment("gets a system property")),
+    method("parseBoolean(String)"),
+    method("toString(boolean)"),
+    method("valueOf(String)"),
+    method("valueOf(boolean)")),
+  instance(method("booleanValue()"),
+    method("compareTo(Boolean)"),
+    method("equals(Object)"),
+    method("hashCode()"),
+    method("toString()")))

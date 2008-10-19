@@ -1,0 +1,23 @@
+# Manually edited but has not been audited yet. 
+# Allowing things that we need for webmail
+class("org.w3c.dom.Element",
+  instance(method(allow, "getAttribute(String)", comment("allowed for webmail")),
+    method(suppress, "getAttributeNS(String, String)", comment("default deny")),
+    method(suppress, "getAttributeNode(String)", comment("default deny")),
+    method(suppress, "getAttributeNodeNS(String, String)", comment("default deny")),
+    method(allow, "getElementsByTagName(String)", comment("allowed for webmail")),
+    method(suppress, "getElementsByTagNameNS(String, String)", comment("default deny")),
+    method(suppress, "getSchemaTypeInfo()", comment("default deny")),
+    method(suppress, "getTagName()", comment("default deny")),
+    method(suppress, "hasAttribute(String)", comment("default deny")),
+    method(suppress, "hasAttributeNS(String, String)", comment("default deny")),
+    method(suppress, "removeAttribute(String)", comment("default deny")),
+    method(suppress, "removeAttributeNS(String, String)", comment("default deny")),
+    method(suppress, "removeAttributeNode(Attr)", comment("default deny")),
+    method(suppress, "setAttribute(String, String)", comment("default deny")),
+    method(suppress, "setAttributeNS(String, String, String)", comment("default deny")),
+    method(suppress, "setAttributeNode(Attr)", comment("default deny")),
+    method(suppress, "setAttributeNodeNS(Attr)", comment("default deny")),
+    method(suppress, "setIdAttribute(String, boolean)", comment("default deny")),
+    method(suppress, "setIdAttributeNS(String, String, boolean)", comment("default deny")),
+    method(suppress, "setIdAttributeNode(Attr, boolean)", comment("default deny"))))

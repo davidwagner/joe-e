@@ -1,0 +1,13 @@
+# Manually audited.  Everything looks OK
+class("java.lang.annotation.ElementType",
+  honorary("org.joe_e.Powerless", "org.joe_e.Equatable"),
+  static(field("ANNOTATION_TYPE"),
+    field("CONSTRUCTOR"),
+    field("FIELD"),
+    field("LOCAL_VARIABLE"),
+    field("METHOD"),
+    field("PACKAGE"),
+    field("PARAMETER"),
+    field("TYPE"),
+    method("valueOf(String)"),
+    method("values()")))

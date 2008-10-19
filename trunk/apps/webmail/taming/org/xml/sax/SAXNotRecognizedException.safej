@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("org.xml.sax.SAXNotRecognizedException",
+  static(constructor(suppress, "SAXNotRecognizedException()", comment("default deny")),
+    constructor(suppress, "SAXNotRecognizedException(String)", comment("default deny"))))

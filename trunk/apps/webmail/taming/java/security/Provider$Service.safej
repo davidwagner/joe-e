@@ -1,0 +1,11 @@
+# auto-generated safej: default deny everything
+class("java.security.Provider$Service",
+  static(constructor(suppress, "Service(Provider, String, String, String, List<String>, Map<String>)", comment("default deny"))),
+  instance(method(suppress, "getAlgorithm()", comment("default deny")),
+    method(suppress, "getAttribute(String)", comment("default deny")),
+    method(suppress, "getClassName()", comment("default deny")),
+    method(suppress, "getProvider()", comment("default deny")),
+    method(suppress, "getType()", comment("default deny")),
+    method(suppress, "newInstance(Object)", comment("default deny")),
+    method(suppress, "supportsParameter(Object)", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

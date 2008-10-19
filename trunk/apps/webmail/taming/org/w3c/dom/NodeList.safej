@@ -1,0 +1,5 @@
+# Manually edited but has not been audited yet. 
+# Allowing things that we need for webmail
+class("org.w3c.dom.NodeList",
+  instance(method(allow, "getLength()", comment("allowed for webmail")),
+    method(allow, "item(int)", comment("allowed for webmail"))))

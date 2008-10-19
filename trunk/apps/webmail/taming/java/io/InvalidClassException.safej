@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.io.InvalidClassException",
+  static(constructor(suppress, "InvalidClassException(String)", comment("default deny")),
+    constructor(suppress, "InvalidClassException(String, String)", comment("default deny"))),
+  instance(field(suppress, "classname", comment("default deny")),
+    method(suppress, "getMessage()", comment("default deny"))))

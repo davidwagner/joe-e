@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("org.xml.sax.SAXException",
+  static(constructor(suppress, "SAXException()", comment("default deny")),
+    constructor(suppress, "SAXException(Exception)", comment("default deny")),
+    constructor(suppress, "SAXException(String)", comment("default deny")),
+    constructor(suppress, "SAXException(String, Exception)", comment("default deny"))),
+  instance(method(suppress, "getException()", comment("default deny")),
+    method(suppress, "getMessage()", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

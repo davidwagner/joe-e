@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.security.KeyPairGeneratorSpi",
+  static(constructor(suppress, "KeyPairGeneratorSpi()", comment("default deny"))),
+  instance(method(suppress, "generateKeyPair()", comment("default deny")),
+    method(suppress, "initialize(AlgorithmParameterSpec, SecureRandom)", comment("default deny")),
+    method(suppress, "initialize(int, SecureRandom)", comment("default deny"))))

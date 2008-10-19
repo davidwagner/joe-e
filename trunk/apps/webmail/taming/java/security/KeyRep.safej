@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.security.KeyRep",
+  static(constructor(suppress, "KeyRep(Type, String, String, byte[])", comment("default deny"))),
+  instance(method(suppress, "readResolve()", comment("default deny"))))

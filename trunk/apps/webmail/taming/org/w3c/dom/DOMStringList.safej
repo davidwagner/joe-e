@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("org.w3c.dom.DOMStringList",
+  instance(method(suppress, "contains(String)", comment("default deny")),
+    method(suppress, "getLength()", comment("default deny")),
+    method(suppress, "item(int)", comment("default deny"))))

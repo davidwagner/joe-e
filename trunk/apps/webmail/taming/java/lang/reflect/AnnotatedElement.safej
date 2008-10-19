@@ -1,0 +1,7 @@
+# auto-generated safej: default deny everything
+class("java.lang.reflect.AnnotatedElement"
+,
+  instance(method(suppress, "getAnnotation(Class<T>)", comment("default deny")),
+    method(suppress, "getAnnotations()", comment("default deny")),
+    method(suppress, "getDeclaredAnnotations()", comment("default deny")),
+    method(suppress, "isAnnotationPresent(Class<? extends Annotation>)", comment("default deny"))))

@@ -1,0 +1,4 @@
+# Testlib taming file: allow one constructor, not the other
+class("org.joe_e.testlib.ContainsPowerless",
+  static(constructor(suppress, "ContainsPowerless(Object[])"),
+    constructor("ContainsPowerless(String[])")))

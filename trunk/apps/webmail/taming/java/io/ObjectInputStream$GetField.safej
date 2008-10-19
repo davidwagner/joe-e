@@ -1,0 +1,14 @@
+# auto-generated safej: default deny everything
+class("java.io.ObjectInputStream$GetField",
+  static(constructor(suppress, "GetField()", comment("default deny"))),
+  instance(method(suppress, "defaulted(String)", comment("default deny")),
+    method(suppress, "get(String, Object)", comment("default deny")),
+    method(suppress, "get(String, boolean)", comment("default deny")),
+    method(suppress, "get(String, byte)", comment("default deny")),
+    method(suppress, "get(String, char)", comment("default deny")),
+    method(suppress, "get(String, double)", comment("default deny")),
+    method(suppress, "get(String, float)", comment("default deny")),
+    method(suppress, "get(String, int)", comment("default deny")),
+    method(suppress, "get(String, long)", comment("default deny")),
+    method(suppress, "get(String, short)", comment("default deny")),
+    method(suppress, "getObjectStreamClass()", comment("default deny"))))

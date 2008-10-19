@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("org.xml.sax.DTDHandler",
+  instance(method(suppress, "notationDecl(String, String, String)", comment("default deny")),
+    method(suppress, "unparsedEntityDecl(String, String, String, String)", comment("default deny"))))

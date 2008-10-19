@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.lang.CloneNotSupportedException",
+  honorary("org.joe_e.Powerless"),
+  static(constructor(suppress, "CloneNotSupportedException()", comment("default deny")),
+    constructor(suppress, "CloneNotSupportedException(String)", comment("default deny"))))

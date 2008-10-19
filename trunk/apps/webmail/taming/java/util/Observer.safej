@@ -1,0 +1,3 @@
+# auto-generated safej: default deny everything
+class("java.util.Observer",
+  instance(method(suppress, "update(Observable, Object)", comment("default deny"))))

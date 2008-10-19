@@ -1,0 +1,7 @@
+# Manually audited.  Everything looks OK.
+class("java.lang.RuntimeException",
+  honorary("org.joe_e.Powerless"),
+  static(constructor("RuntimeException()"),
+    constructor("RuntimeException(String)"),
+    constructor("RuntimeException(String, Throwable)"),
+    constructor("RuntimeException(Throwable)")))

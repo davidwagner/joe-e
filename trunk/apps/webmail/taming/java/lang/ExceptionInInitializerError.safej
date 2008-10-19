@@ -1,0 +1,8 @@
+# Should all be OK
+class("java.lang.ExceptionInInitializerError",
+  honorary("org.joe_e.Powerless"),
+  static(constructor("ExceptionInInitializerError()"),
+    constructor("ExceptionInInitializerError(String)"),
+    constructor("ExceptionInInitializerError(Throwable)")),
+  instance(method("getCause()"),
+    method("getException()")))

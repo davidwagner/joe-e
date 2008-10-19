@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.util.LinkedHashSet",
+  static(constructor(suppress, "LinkedHashSet()", comment("default deny")),
+    constructor(suppress, "LinkedHashSet(Collection<? extends E>)", comment("default deny")),
+    constructor(suppress, "LinkedHashSet(int)", comment("default deny")),
+    constructor(suppress, "LinkedHashSet(int, float)", comment("default deny"))))

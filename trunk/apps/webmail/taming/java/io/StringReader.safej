@@ -1,0 +1,11 @@
+# auto-generated safej: default deny everything
+class("java.io.StringReader",
+  static(constructor(suppress, "StringReader(String)", comment("default deny"))),
+  instance(method(suppress, "close()", comment("default deny")),
+    method(suppress, "mark(int)", comment("default deny")),
+    method(suppress, "markSupported()", comment("default deny")),
+    method(suppress, "read()", comment("default deny")),
+    method(suppress, "read(char[], int, int)", comment("default deny")),
+    method(suppress, "ready()", comment("default deny")),
+    method(suppress, "reset()", comment("default deny")),
+    method(suppress, "skip(long)", comment("default deny"))))

@@ -1,0 +1,16 @@
+# auto-generated safej: default deny everything
+class("org.xml.sax.XMLReader",
+  instance(method(suppress, "getContentHandler()", comment("default deny")),
+    method(suppress, "getDTDHandler()", comment("default deny")),
+    method(suppress, "getEntityResolver()", comment("default deny")),
+    method(suppress, "getErrorHandler()", comment("default deny")),
+    method(suppress, "getFeature(String)", comment("default deny")),
+    method(suppress, "getProperty(String)", comment("default deny")),
+    method(suppress, "parse(InputSource)", comment("default deny")),
+    method(suppress, "parse(String)", comment("default deny")),
+    method(suppress, "setContentHandler(ContentHandler)", comment("default deny")),
+    method(suppress, "setDTDHandler(DTDHandler)", comment("default deny")),
+    method(suppress, "setEntityResolver(EntityResolver)", comment("default deny")),
+    method(suppress, "setErrorHandler(ErrorHandler)", comment("default deny")),
+    method(suppress, "setFeature(String, boolean)", comment("default deny")),
+    method(suppress, "setProperty(String, Object)", comment("default deny"))))

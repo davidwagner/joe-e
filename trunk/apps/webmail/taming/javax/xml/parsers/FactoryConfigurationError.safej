@@ -1,0 +1,8 @@
+# auto-generated safej: default deny everything
+class("javax.xml.parsers.FactoryConfigurationError",
+  static(constructor(suppress, "FactoryConfigurationError()", comment("default deny")),
+    constructor(suppress, "FactoryConfigurationError(Exception)", comment("default deny")),
+    constructor(suppress, "FactoryConfigurationError(Exception, String)", comment("default deny")),
+    constructor(suppress, "FactoryConfigurationError(String)", comment("default deny"))),
+  instance(method(suppress, "getException()", comment("default deny")),
+    method(suppress, "getMessage()", comment("default deny"))))
