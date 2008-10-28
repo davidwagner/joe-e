@@ -31,7 +31,7 @@ public class User implements org.joe_e.Equatable {
 	public String getUserName() {
 		return name;
 	}
-	
+		
 	public ArrayList<Message> getMessages() {
 		/** @TODO This is not OK! we can't just make an ArrayList **/
 		ArrayList<Message> out = new ArrayList<Message>();

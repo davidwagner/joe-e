@@ -140,6 +140,15 @@
     </servlet-mapping>
 
     <servlet>
+      <servlet-name>compose</servlet-name>
+      <servlet-class>org.joe_e.webmail.Compose</servlet-class>
+    </servlet>
+    <servlet-mapping>
+      <servlet-name>compose</servlet-name>
+      <url-pattern>/compose</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
       <servlet-name>create</servlet-name>
       <servlet-class>org.joe_e.webmail.notjoe_e.AuthDistributor</servlet-class>
     </servlet>

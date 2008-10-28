@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("javax.mail.QuotaAwareStore",
+  instance(method(suppress, "getQuota(String)", comment("default deny")),
+    method(suppress, "setQuota(Quota)", comment("default deny"))))

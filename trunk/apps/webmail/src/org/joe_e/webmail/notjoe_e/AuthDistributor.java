@@ -43,6 +43,10 @@ public class AuthDistributor extends HttpServlet {
 		throws IOException, ServletException {
 		HttpSession session = request.getSession();
 		Enumeration<String> e = session.getAttributeNames();
+		/*
+		 * Check that the session has no capabilities
+		 * For not we're just checking that it has no user capabilities
+		 */
 		while(e.hasMoreElements()) {
 			Object o = session.getAttribute(e.nextElement());
 			if (o instanceof User) {

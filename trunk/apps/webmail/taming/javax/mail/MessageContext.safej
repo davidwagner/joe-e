@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("javax.mail.MessageContext",
+  static(constructor(suppress, "MessageContext(Part)", comment("default deny"))),
+  instance(method(suppress, "getMessage()", comment("default deny")),
+    method(suppress, "getPart()", comment("default deny")),
+    method(suppress, "getSession()", comment("default deny"))))

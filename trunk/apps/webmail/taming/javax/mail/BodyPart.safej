@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("javax.mail.BodyPart",
+  static(constructor(suppress, "BodyPart()", comment("default deny"))),
+  instance(field(suppress, "parent", comment("default deny")),
+    method(suppress, "getParent()", comment("default deny"))))

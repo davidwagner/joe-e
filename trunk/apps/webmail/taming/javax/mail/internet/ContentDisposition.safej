@@ -1,0 +1,12 @@
+# auto-generated safej: default deny everything
+class("javax.mail.internet.ContentDisposition",
+  static(constructor(suppress, "ContentDisposition()", comment("default deny")),
+    constructor(suppress, "ContentDisposition(String)", comment("default deny")),
+    constructor(suppress, "ContentDisposition(String, ParameterList)", comment("default deny"))),
+  instance(method(suppress, "getDisposition()", comment("default deny")),
+    method(suppress, "getParameter(String)", comment("default deny")),
+    method(suppress, "getParameterList()", comment("default deny")),
+    method(suppress, "setDisposition(String)", comment("default deny")),
+    method(suppress, "setParameter(String, String)", comment("default deny")),
+    method(suppress, "setParameterList(ParameterList)", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

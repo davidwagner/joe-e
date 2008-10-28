@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("javax.mail.StoreClosedException",
+  static(constructor(suppress, "StoreClosedException(Store)", comment("default deny")),
+    constructor(suppress, "StoreClosedException(Store, String)", comment("default deny"))),
+  instance(method(suppress, "getStore()", comment("default deny"))))

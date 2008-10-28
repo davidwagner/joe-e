@@ -1,0 +1,16 @@
+# auto-generated safej: default deny everything
+class("javax.mail.internet.MimePart",
+  instance(method(suppress, "addHeaderLine(String)", comment("default deny")),
+    method(suppress, "getAllHeaderLines()", comment("default deny")),
+    method(suppress, "getContentID()", comment("default deny")),
+    method(suppress, "getContentLanguage()", comment("default deny")),
+    method(suppress, "getContentMD5()", comment("default deny")),
+    method(suppress, "getEncoding()", comment("default deny")),
+    method(suppress, "getHeader(String, String)", comment("default deny")),
+    method(suppress, "getMatchingHeaderLines(String[])", comment("default deny")),
+    method(suppress, "getNonMatchingHeaderLines(String[])", comment("default deny")),
+    method(suppress, "setContentLanguage(String[])", comment("default deny")),
+    method(suppress, "setContentMD5(String)", comment("default deny")),
+    method(suppress, "setText(String)", comment("default deny")),
+    method(suppress, "setText(String, String)", comment("default deny")),
+    method(suppress, "setText(String, String, String)", comment("default deny"))))

@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("javax.mail.UIDFolder$FetchProfileItem",
+  static(field(suppress, "UID", comment("default deny")),
+    constructor(suppress, "FetchProfileItem(String)", comment("default deny"))))

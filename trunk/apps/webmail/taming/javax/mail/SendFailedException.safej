@@ -1,0 +1,12 @@
+# auto-generated safej: default deny everything
+class("javax.mail.SendFailedException",
+  static(constructor(suppress, "SendFailedException()", comment("default deny")),
+    constructor(suppress, "SendFailedException(String)", comment("default deny")),
+    constructor(suppress, "SendFailedException(String, Exception)", comment("default deny")),
+    constructor(suppress, "SendFailedException(String, Exception, Address[], Address[], Address[])", comment("default deny"))),
+  instance(field(suppress, "invalid", comment("default deny")),
+    field(suppress, "validSent", comment("default deny")),
+    field(suppress, "validUnsent", comment("default deny")),
+    method(suppress, "getInvalidAddresses()", comment("default deny")),
+    method(suppress, "getValidSentAddresses()", comment("default deny")),
+    method(suppress, "getValidUnsentAddresses()", comment("default deny"))))

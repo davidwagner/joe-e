@@ -1,0 +1,12 @@
+# auto-generated safej: default deny everything
+class("javax.mail.internet.ParameterList",
+  static(constructor(suppress, "ParameterList()", comment("default deny")),
+    constructor(suppress, "ParameterList(String)", comment("default deny"))),
+  instance(method(suppress, "get(String)", comment("default deny")),
+    method(suppress, "getNames()", comment("default deny")),
+    method(suppress, "remove(String)", comment("default deny")),
+    method(suppress, "set(String, String)", comment("default deny")),
+    method(suppress, "set(String, String, String)", comment("default deny")),
+    method(suppress, "size()", comment("default deny")),
+    method(suppress, "toString()", comment("default deny")),
+    method(suppress, "toString(int)", comment("default deny"))))

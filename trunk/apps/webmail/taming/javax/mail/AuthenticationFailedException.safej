@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("javax.mail.AuthenticationFailedException",
+  static(constructor(suppress, "AuthenticationFailedException()", comment("default deny")),
+    constructor(suppress, "AuthenticationFailedException(String)", comment("default deny"))))

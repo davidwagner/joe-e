@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("javax.mail.MultipartDataSource",
+  instance(method(suppress, "getBodyPart(int)", comment("default deny")),
+    method(suppress, "getCount()", comment("default deny"))))

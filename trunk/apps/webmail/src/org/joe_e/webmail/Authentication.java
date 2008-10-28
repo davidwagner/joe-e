@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import javax.servlet.http.HttpSession;
+
+import org.joe_e.charset.ASCII;
 // import java.nio.ByteBuffer;
 
 public class Authentication implements org.joe_e.Equatable {
@@ -18,11 +20,21 @@ public class Authentication implements org.joe_e.Equatable {
 	
 	
 	public Authentication() {
+		this.mailboxes = new File(mailboxesRoot);
 		try {
-			this.initMap();
-			this.mailboxes = new File(mailboxesRoot);
+			accounts = new HashMap<String, String>();
+			File inputFile = new File(accountsFile);
+			BufferedReader in = new BufferedReader(new FileReader(inputFile));
+			String line = "";
+			while ((line = in.readLine()) != null) {
+				//System.out.println(line);
+				String[] arr = line.split(" ");
+				if (arr.length == 2) {
+					accounts.put(arr[0], arr[1]);
+				}
+			}
+		} catch (FileNotFoundException e) {
 		} catch (IOException e) {
-			
 		}
 	}
 	
@@ -43,10 +55,6 @@ public class Authentication implements org.joe_e.Equatable {
 			// illegal usage of authentication agent
 			return null;
 		}
-		
-		if (accounts == null) {
-			initMap();
-		}
 		MessageDigest digest = null;
 		try {
 			digest = MessageDigest.getInstance("md5");
@@ -59,13 +67,11 @@ public class Authentication implements org.joe_e.Equatable {
 		 * @TODO: hash multiple times
 		 * @TODO: can't use String.getBytes(), so we need a workaround to update
 		 * 		  the digest.
+		 * @TODO: not sure this is workaround is ok... it still reveals default charset
 		 **/
-		//ByteBuffer buf = ByteBuffer.allocate(password.length());
-		//for (char c: password.toCharArray()) {
-		//	buf.putChar(c);
-		//}
-		//digest.update(buf);
-		digest.update(password.getBytes());
+		
+		byte[] bytes = ASCII.encode(password);
+		digest.update(bytes);
 		String hashedPassword = new BigInteger(1,digest.digest()).toString(16);
 		if (accounts.get(username) != null && accounts.get(username).equals(hashedPassword)) {
 			// then we can authenticate the user
@@ -75,7 +81,6 @@ public class Authentication implements org.joe_e.Equatable {
 			File child = new File(mailboxes, username);
 			return new User(username, child);
 		}
-		
 		return null;
 	}
 	
@@ -93,10 +98,6 @@ public class Authentication implements org.joe_e.Equatable {
 			// account not created b/c illegal use of auth agent
 			return false;
 		}
-		
-		if (accounts == null) {
-			initMap();
-		}
 		if (accounts.containsKey(username)) {
 			return false;
 		}
@@ -107,7 +108,9 @@ public class Authentication implements org.joe_e.Equatable {
 		}
 		file.append(' ');
 		MessageDigest digest = MessageDigest.getInstance("md5");
-		digest.update(password.getBytes());
+		byte[] bytes = ASCII.encode(password);
+		
+		digest.update(bytes);
 		String hashedPassword = new BigInteger(1,digest.digest()).toString(16);
 		
 		for (char c : hashedPassword.toCharArray()) {
@@ -115,28 +118,13 @@ public class Authentication implements org.joe_e.Equatable {
 		}
 		file.append('\n');
 		file.flush();
-		accounts = null;
-		initMap();
+		
 		
 		File mailbox = new File(mailboxes, username);
 		mailbox.createNewFile();
+		
+		// destroy this authentication agent
+		session.removeAttribute("auth");
 		return true;
-	}
-	
-	public void initMap() throws IOException {
-		try {
-			accounts = new HashMap<String, String>();
-			File inputFile = new File(accountsFile);
-			BufferedReader in = new BufferedReader(new FileReader(inputFile));
-			String line = "";
-			while ((line = in.readLine()) != null) {
-				//System.out.println(line);
-				String[] arr = line.split(" ");
-				if (arr.length == 2) {
-					accounts.put(arr[0], arr[1]);
-				}
-			}
-		} catch (FileNotFoundException e) {
-		}
 	}
 }

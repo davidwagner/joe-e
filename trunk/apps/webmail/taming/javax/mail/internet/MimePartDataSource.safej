@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("javax.mail.internet.MimePartDataSource",
+  static(constructor(suppress, "MimePartDataSource(MimePart)", comment("default deny"))),
+  instance(field(suppress, "part", comment("default deny")),
+    method(suppress, "getContentType()", comment("default deny")),
+    method(suppress, "getInputStream()", comment("default deny")),
+    method(suppress, "getMessageContext()", comment("default deny")),
+    method(suppress, "getName()", comment("default deny")),
+    method(suppress, "getOutputStream()", comment("default deny"))))

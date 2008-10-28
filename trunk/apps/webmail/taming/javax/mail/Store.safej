@@ -1,0 +1,16 @@
+# auto-generated safej: default deny everything
+class("javax.mail.Store",
+  static(constructor(suppress, "Store(Session, URLName)", comment("default deny"))),
+  instance(method(suppress, "addFolderListener(FolderListener)", comment("default deny")),
+    method(suppress, "addStoreListener(StoreListener)", comment("default deny")),
+    method(suppress, "getDefaultFolder()", comment("default deny")),
+    method(suppress, "getFolder(String)", comment("default deny")),
+    method(suppress, "getFolder(URLName)", comment("default deny")),
+    method(suppress, "getPersonalNamespaces()", comment("default deny")),
+    method(suppress, "getSharedNamespaces()", comment("default deny")),
+    method(suppress, "getUserNamespaces(String)", comment("default deny")),
+    method(suppress, "notifyFolderListeners(int, Folder)", comment("default deny")),
+    method(suppress, "notifyFolderRenamedListeners(Folder, Folder)", comment("default deny")),
+    method(suppress, "notifyStoreListeners(int, String)", comment("default deny")),
+    method(suppress, "removeFolderListener(FolderListener)", comment("default deny")),
+    method(suppress, "removeStoreListener(StoreListener)", comment("default deny"))))

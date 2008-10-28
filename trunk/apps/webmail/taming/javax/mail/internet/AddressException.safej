@@ -1,0 +1,11 @@
+# auto-generated safej: default deny everything
+class("javax.mail.internet.AddressException",
+  static(constructor(suppress, "AddressException()", comment("default deny")),
+    constructor(suppress, "AddressException(String)", comment("default deny")),
+    constructor(suppress, "AddressException(String, String)", comment("default deny")),
+    constructor(suppress, "AddressException(String, String, int)", comment("default deny"))),
+  instance(field(suppress, "pos", comment("default deny")),
+    field(suppress, "ref", comment("default deny")),
+    method(suppress, "getPos()", comment("default deny")),
+    method(suppress, "getRef()", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

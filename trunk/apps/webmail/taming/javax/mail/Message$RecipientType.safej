@@ -1,0 +1,10 @@
+# Manually edited but has not been audited yet. 
+# Allowing things that we need for webmail
+class("javax.mail.Message$RecipientType",
+  static(field(allow, "BCC", comment("allowed for webmail")),
+    field(allow, "CC", comment("allowed for webmail")),
+    field(allow, "TO", comment("allowed for webmail")),
+    constructor(suppress, "RecipientType(String)", comment("default deny"))),
+  instance(field(suppress, "type", comment("default deny")),
+    method(suppress, "readResolve()", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))
