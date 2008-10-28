@@ -1,0 +1,7 @@
+# auto-generated safej: default deny everything
+class("javax.mail.Header",
+  static(constructor(suppress, "Header(String, String)", comment("default deny"))),
+  instance(field(suppress, "name", comment("default deny")),
+    field(suppress, "value", comment("default deny")),
+    method(suppress, "getName()", comment("default deny")),
+    method(suppress, "getValue()", comment("default deny"))))

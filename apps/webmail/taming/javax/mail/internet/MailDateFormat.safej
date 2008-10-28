@@ -1,0 +1,7 @@
+# auto-generated safej: default deny everything
+class("javax.mail.internet.MailDateFormat",
+  static(constructor(suppress, "MailDateFormat()", comment("default deny"))),
+  instance(method(suppress, "format(Date, StringBuffer, FieldPosition)", comment("default deny")),
+    method(suppress, "parse(String, ParsePosition)", comment("default deny")),
+    method(suppress, "setCalendar(Calendar)", comment("default deny")),
+    method(suppress, "setNumberFormat(NumberFormat)", comment("default deny"))))

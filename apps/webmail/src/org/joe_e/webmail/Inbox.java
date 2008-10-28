@@ -9,6 +9,7 @@ public class Inbox extends HttpServlet {
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response) 
 		throws IOException, ServletException {
+		
 		if (request.getSession().getAttribute("user") == null) {
 			response.sendRedirect("/webmail/");
 		}
@@ -20,6 +21,7 @@ public class Inbox extends HttpServlet {
 		out.println("<body>");
 		out.println("<h1>Inbox of " + user.getUserName() + "</h1>");
 		
+		out.println("<a href=\"/webmail/compose\">Compose</a><br />");
 		for(Message m : user.getMessages()) {
 			out.println("<p><a href=\"/webmail/read?id="+m.getId()+"\">"+m.getSubject() + "</a></p>");
 		}

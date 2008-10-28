@@ -29,11 +29,13 @@ public class Message implements org.joe_e.Immutable {
 		timeStamp = "";
 	}
 	
-	public Message(String subject, String body, String sender, String recipient) {
+	public Message(User sender, String recipient, String subject, String body) {
+		//doesn't have an ID yet
 		id = -1;
 		this.subject = subject;
 		this.body = body;
-		this.sender = sender;
+		/** @TODO: add the correct domain name here **/
+		this.sender = sender.getUserName() + "@local";
 		this.recipient = recipient;
 		this.timeStamp = "Current Time";
 	}

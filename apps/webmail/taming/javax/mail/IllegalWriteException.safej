@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("javax.mail.IllegalWriteException",
+  static(constructor(suppress, "IllegalWriteException()", comment("default deny")),
+    constructor(suppress, "IllegalWriteException(String)", comment("default deny"))))

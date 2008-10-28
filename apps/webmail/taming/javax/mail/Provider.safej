@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("javax.mail.Provider",
+  static(constructor(suppress, "Provider(Type, String, String, String, String)", comment("default deny"))),
+  instance(method(suppress, "getClassName()", comment("default deny")),
+    method(suppress, "getProtocol()", comment("default deny")),
+    method(suppress, "getType()", comment("default deny")),
+    method(suppress, "getVendor()", comment("default deny")),
+    method(suppress, "getVersion()", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

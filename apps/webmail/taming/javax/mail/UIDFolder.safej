@@ -1,0 +1,8 @@
+# auto-generated safej: default deny everything
+class("javax.mail.UIDFolder",
+  static(field(suppress, "LASTUID", comment("default deny"))),
+  instance(method(suppress, "getMessageByUID(long)", comment("default deny")),
+    method(suppress, "getMessagesByUID(long, long)", comment("default deny")),
+    method(suppress, "getMessagesByUID(long[])", comment("default deny")),
+    method(suppress, "getUID(Message)", comment("default deny")),
+    method(suppress, "getUIDValidity()", comment("default deny"))))

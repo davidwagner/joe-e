@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("javax.mail.MethodNotSupportedException",
+  static(constructor(suppress, "MethodNotSupportedException()", comment("default deny")),
+    constructor(suppress, "MethodNotSupportedException(String)", comment("default deny"))))

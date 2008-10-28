@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("javax.mail.FetchProfile",
+  static(constructor(suppress, "FetchProfile()", comment("default deny"))),
+  instance(method(suppress, "add(Item)", comment("default deny")),
+    method(suppress, "add(String)", comment("default deny")),
+    method(suppress, "contains(Item)", comment("default deny")),
+    method(suppress, "contains(String)", comment("default deny")),
+    method(suppress, "getHeaderNames()", comment("default deny")),
+    method(suppress, "getItems()", comment("default deny"))))

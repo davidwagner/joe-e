@@ -1,0 +1,7 @@
+# auto-generated safej: default deny everything
+class("javax.mail.FolderNotFoundException",
+  static(constructor(suppress, "FolderNotFoundException()", comment("default deny")),
+    constructor(suppress, "FolderNotFoundException(Folder)", comment("default deny")),
+    constructor(suppress, "FolderNotFoundException(Folder, String)", comment("default deny")),
+    constructor(suppress, "FolderNotFoundException(String, Folder)", comment("default deny"))),
+  instance(method(suppress, "getFolder()", comment("default deny"))))

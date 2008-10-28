@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("javax.mail.Provider$Type",
+  static(field(suppress, "STORE", comment("default deny")),
+    field(suppress, "TRANSPORT", comment("default deny"))),
+  instance(method(suppress, "toString()", comment("default deny"))))

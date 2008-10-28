@@ -1,0 +1,7 @@
+# Manually edited but has not been audited yet. 
+# Allowing things that we need for webmail
+class("javax.mail.Address",
+  static(constructor(allow, "Address()", comment("allowed for webmail"))),
+  instance(method(suppress, "equals(Object)", comment("default deny")),
+    method(suppress, "getType()", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

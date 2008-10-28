@@ -1,0 +1,18 @@
+# auto-generated safej: default deny everything
+class("javax.mail.internet.InternetHeaders",
+  static(constructor(suppress, "InternetHeaders()", comment("default deny")),
+    constructor(suppress, "InternetHeaders(InputStream)", comment("default deny"))),
+  instance(field(suppress, "headers", comment("default deny")),
+    method(suppress, "addHeader(String, String)", comment("default deny")),
+    method(suppress, "addHeaderLine(String)", comment("default deny")),
+    method(suppress, "getAllHeaderLines()", comment("default deny")),
+    method(suppress, "getAllHeaders()", comment("default deny")),
+    method(suppress, "getHeader(String)", comment("default deny")),
+    method(suppress, "getHeader(String, String)", comment("default deny")),
+    method(suppress, "getMatchingHeaderLines(String[])", comment("default deny")),
+    method(suppress, "getMatchingHeaders(String[])", comment("default deny")),
+    method(suppress, "getNonMatchingHeaderLines(String[])", comment("default deny")),
+    method(suppress, "getNonMatchingHeaders(String[])", comment("default deny")),
+    method(suppress, "load(InputStream)", comment("default deny")),
+    method(suppress, "removeHeader(String)", comment("default deny")),
+    method(suppress, "setHeader(String, String)", comment("default deny"))))

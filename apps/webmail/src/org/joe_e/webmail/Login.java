@@ -32,6 +32,8 @@ public class Login extends HttpServlet {
 				} else {
 					message = "Session was already set to " + ((User)session.getAttribute("user")).getUserName() + "<a href=\"/webmail/logout\">Logout</a> first";
 				}
+			} else {
+				message = "Invalid username or password";
 			}
 		}
 		
