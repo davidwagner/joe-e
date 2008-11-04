@@ -119,18 +119,18 @@ public class WithAndToArray { // also without()
         } catch (ClassCastException cce) {
             
         }
-        iaiao.with((ImmutableArray<Object>)ImmutableArray.array(4, 5.0, "e", new String()));
+        iaiao.with(ImmutableArray.array((Object) 4, 5.0, "e", new String()));
         
         PowerlessArray<PowerlessArray<Object>> papao = PowerlessArray.array();
         papao = PowerlessArray.array(PowerlessArray.array((Object)2));
         papao = papao.with(PowerlessArray.array((Object)1, 2));
         try {
-            papao.with(PowerlessArray.array((Object)new org.joe_e.Token(), 5, "í"));
+            papao.with(PowerlessArray.array((Object) new org.joe_e.Token(), 5, "í"));
             assert false;
         } catch (ClassCastException cce) {
             
         }
-        papao.with((PowerlessArray<Object>)PowerlessArray.array(4, 5.0, "e", new String()));
+        papao.with(PowerlessArray.array((Object) 4, 5.0, "e", new String()));
         
         PowerlessArray<PowerlessArray<Integer>> papai = PowerlessArray.array();
         papai = papai.with(IntArray.array());
