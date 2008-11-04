@@ -8,17 +8,17 @@ import org.joe_e.Powerless;
 public class HonorariesCheck {
     public static void test() {
         try {
-            ImmutableArray<Object> iao = ImmutableArray.array(new Object());
+            ImmutableArray.array(new Object());
             assert false;
         } catch(ClassCastException cce) { }
         
         try {
-            PowerlessArray<Token> pao = PowerlessArray.array(new Token());
+            PowerlessArray.array(new Token());
             assert false;
         } catch(ClassCastException cce) { }
         
         try {
-            ImmutableArray<char[]> iao = ImmutableArray.array(new char[]{'a', 'b'});
+            ImmutableArray.array(new char[]{'a', 'b'});
             assert false;
         } catch(ClassCastException cce) { }
             
@@ -26,7 +26,7 @@ public class HonorariesCheck {
         class BooStruct extends Struct {}
         
         try {
-            PowerlessArray<Struct> iao = PowerlessArray.array((Struct[]) new BooStruct[] {new BooStruct()});
+            PowerlessArray.array((Struct[]) new BooStruct[] {new BooStruct()});
             assert false;
         } catch(ClassCastException cce) { }
         
