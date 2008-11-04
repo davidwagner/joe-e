@@ -1,5 +1,11 @@
-package org.joe_e.eclipse;
+// Copyright 2005-06 Regents of the University of California.  May be used 
+// under the terms of the revised BSD license.  See LICENSING for details.
+/** 
+ * @author Akshay Krishnamurthy
+ * @author Kanav Arora
+ */
 
+package org.joe_e.eclipse;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
@@ -7,24 +13,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.net.URL;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 /**
