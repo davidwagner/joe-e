@@ -27,7 +27,12 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 
-
+/*
+ * The core functionality of this class (allowing Joe-E status of packages to
+ * be toggled) is currently disabled.
+ * The isJoeE stuff is I think still used though.
+ */
+@SuppressWarnings("unused")
 public class TogglePackageAction implements IObjectActionDelegate {
     static final QualifiedName SKIP_PKG = new QualifiedName("org.joe_e", "skip-package");
 	private ISelection selection;

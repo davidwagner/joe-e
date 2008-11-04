@@ -17,8 +17,6 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-//import org.eclipse.core.runtime.Path;
-//import org.eclipse.core.runtime.QualifiedName;
 
 /**
  * The main class for the Joe-E verifier implementation.  The Eclipse framework
@@ -42,7 +40,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 public class Builder extends IncrementalProjectBuilder {
     public static final String BUILDER_ID = "org.joe_e.JoeEBuilder";
     protected static final String MARKER_TYPE = "org.joe_e.JoeEProblem";
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     /**
      * Checks whether a Java file has compilation errors
@@ -95,6 +93,8 @@ public class Builder extends IncrementalProjectBuilder {
      *          if a problem arises during the build that cannot be indicated
      *          by adding an Error marker to a source file being built.
      */
+    // this really should not warn about the raw Map, as there is no way to fix
+    // it;  I am overriding an existing method
     protected IProject[] build(int kind, Map args, IProgressMonitor monitor) 
         throws CoreException {
         System.out.println("Build request issued.");
