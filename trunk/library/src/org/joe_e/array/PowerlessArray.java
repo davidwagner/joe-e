@@ -33,13 +33,13 @@ public class PowerlessArray<E> extends ImmutableArray<E> implements Powerless {
      * @throws ClassCastException if the runtime component type of 
      *     <code>values</code> is not powerless in the overlay type system
      */
-    static public <E> PowerlessArray<E> array(final E... values) {
+    static public <T> PowerlessArray<T> array(final T... values) {
         final Class<?> e = values.getClass().getComponentType();
         if (!JoeE.isSubtypeOf(e, Powerless.class)) {
             throw new ClassCastException(Reflection.getName(e) + 
                                          " is not Powerless");
         }
-        return new PowerlessArray<E>(values.clone());
+        return new PowerlessArray<T>(values.clone());
     }
     
     /* 
