@@ -34,13 +34,13 @@ public class ImmutableArray<E> extends ConstArray<E> implements Immutable {
      * @throws ClassCastException if the runtime component type of 
      *     <code>values</code> is not immutable in the overlay type system
      */
-    static public <E> ImmutableArray<E> array(final E... values) {
+    static public <T> ImmutableArray<T> array(final T... values) {
         final Class<?> e = values.getClass().getComponentType();
         if (!JoeE.isSubtypeOf(e, Immutable.class)) {
             throw new ClassCastException(Reflection.getName(e) +
                                          " is not Immutable");
         }
-        return new ImmutableArray<E>(values.clone());
+        return new ImmutableArray<T>(values.clone());
     }
     
     /* 
