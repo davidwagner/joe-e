@@ -1103,25 +1103,27 @@ public class Verifier {
                                " not explicitly implemented", type);
                 }
                 
-                // If the class has no explicit constructors, verify that
-                // implicit superconstructor is permitted by taming.
-                boolean defaultConstructor = true;
-                for (IMethodBinding m : itb.getDeclaredMethods()) {
-                    if (m.isDefaultConstructor()) {
-                        break;
+                // For non-anonymous classes with no explicit constructors,
+                // verify that the default constructor's implicit call to its
+                // the superconstructor is permitted by taming.
+                if (!itb.isAnonymous()) {
+                    boolean defaultConstructor = true;
+                    for (IMethodBinding m : itb.getDeclaredMethods()) {
+                        if (m.isDefaultConstructor()) {
+                            break;
+                        }
+                        else if (m.isConstructor() && !m.isSynthetic()) {
+                            defaultConstructor = false;
+                            break;
+                        }
                     }
-                    else if (m.isConstructor() && !m.isSynthetic()) {
-                        defaultConstructor = false;
-                        break;
+                    if (defaultConstructor) {
+                        String problem = checkDefaultSuper(itb);
+                        if (problem != null) {
+                            addProblem(problem, type);
+                        }
                     }
                 }
-                if (defaultConstructor) {
-                    String problem = checkDefaultSuper(itb);
-                    if (problem != null) {
-                        addProblem(problem, type);
-                    }
-                }
-                 
                 // Selfless checks: Must extend Object and override
                 // equals(Object), or extend another selfless class
                 if (isSelfless) {
@@ -1208,8 +1210,9 @@ public class Verifier {
                             // the "subsignature" relation is used to determine
                             // interface implementation: JLS3 8.4.2.  A generic
                             // method signature can be overriden by its
-                            // erasure, but not vice-versa.
-                            if (have.isSubsignature(need)) {
+                            // erasure, but not vice-versa. (counterintuitively,
+                            // the subsignature corresponds to the superclass)
+                            if (need.isSubsignature(have)) {
                                 needFilled = true;
                                 //System.out.println("have: " + have);
                                 //System.out.println("need: " + need);
