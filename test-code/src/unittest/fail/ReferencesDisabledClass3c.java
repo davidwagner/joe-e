@@ -7,5 +7,5 @@ class Holder {
 }
 
 public class ReferencesDisabledClass3c {
-	Holder h = new <java.net.ServerSocket>Holder();
+	Holder h = new <java.awt.AWTPermission>Holder();
 }

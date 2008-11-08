@@ -1,6 +1,6 @@
 package unittest.fail;
 
-import java.net.ServerSocket;
+import java.awt.AWTPermission;
 
 public class ReferencesDisabledClass8 {
 
