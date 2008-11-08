@@ -1,7 +1,7 @@
 package unittest.fail;
 
-import java.net.*;
+import java.awt.*;
 
 public class ReferencesDisabledClass6a {
-	ServerSocket ss = null;
+	AWTPermission ss = null;
 }
