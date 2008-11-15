@@ -1,0 +1,11 @@
+# auto-generated safej: default deny everything
+class("java.io.StringBufferInputStream",
+  static(constructor(suppress, "StringBufferInputStream(String)", comment("default deny"))),
+  instance(field(suppress, "buffer", comment("default deny")),
+    field(suppress, "count", comment("default deny")),
+    field(suppress, "pos", comment("default deny")),
+    method("available()"),
+    method("read()"),
+    method("read(byte[], int, int)"),
+    method("reset()"),
+    method("skip(long)")))

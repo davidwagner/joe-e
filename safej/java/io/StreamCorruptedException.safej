@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.io.StreamCorruptedException",
+  honorary("org.joe_e.Powerless"),
+  static(constructor(suppress, "StreamCorruptedException()", comment("default deny")),
+    constructor(suppress, "StreamCorruptedException(String)", comment("default deny"))))

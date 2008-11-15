@@ -1,0 +1,14 @@
+# auto-generated safej: default deny everything
+class("java.io.FileInputStream",
+  static(constructor(suppress, "FileInputStream(File)", comment("default deny")),
+    constructor(suppress, "FileInputStream(FileDescriptor)", comment("default deny")),
+    constructor(suppress, "FileInputStream(String)", comment("default deny"))),
+  instance(method("available()"),
+    method("close()"),
+    method(suppress, "finalize()", comment("default deny")),
+    method(suppress, "getChannel()", comment("default deny")),
+    method(suppress, "getFD()", comment("default deny")),
+    method("read()"),
+    method("read(byte[])"),
+    method("read(byte[], int, int)"),
+    method("skip(long)")))

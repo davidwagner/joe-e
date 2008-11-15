@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.io.ObjectStreamException",
+  honorary("org.joe_e.Powerless"),
+  static(constructor(suppress, "ObjectStreamException()", comment("default deny")),
+    constructor(suppress, "ObjectStreamException(String)", comment("default deny"))))

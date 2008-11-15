@@ -1,4 +1,4 @@
 # class with a disabled iterator, for testing
-class("org.joe_e.testlib.DisabledIterator",
-  static(constructor("DisabledIterator()")),
+class("org.joe_e.testlib.DisabledIterable",
+  static(constructor("DisabledIterable()")),
   instance(method(suppress, "iterator()")))

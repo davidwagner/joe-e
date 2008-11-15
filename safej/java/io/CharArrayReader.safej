@@ -1,0 +1,16 @@
+# auto-generated safej: default deny everything
+class("java.io.CharArrayReader",
+  static(constructor(suppress, "CharArrayReader(char[])", comment("default deny")),
+    constructor(suppress, "CharArrayReader(char[], int, int)", comment("default deny"))),
+  instance(field(suppress, "buf", comment("default deny")),
+    field(suppress, "count", comment("default deny")),
+    field(suppress, "markedPos", comment("default deny")),
+    field(suppress, "pos", comment("default deny")),
+    method("close()"),
+    method("mark(int)"),
+    method("markSupported()"),
+    method("read()"),
+    method("read(char[], int, int)"),
+    method("ready()"),
+    method("reset()"),
+    method("skip(long)")))

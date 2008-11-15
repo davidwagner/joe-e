@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("java.io.PipedOutputStream",
+  static(constructor(suppress, "PipedOutputStream()", comment("default deny")),
+    constructor(suppress, "PipedOutputStream(PipedInputStream)", comment("default deny"))),
+  instance(method("close()"),
+    method(suppress, "connect(PipedInputStream)", comment("default deny")),
+    method("flush()"),
+    method("write(byte[], int, int)"),
+    method("write(int)")))

@@ -1,0 +1,8 @@
+# auto-generated safej: default deny everything
+class("java.io.FilePermission",
+  static(constructor(suppress, "FilePermission(String, String)", comment("default deny"))),
+  instance(method("equals(Object)"),
+    method(suppress, "getActions()", comment("default deny")),
+    method(suppress, "hashCode()", comment("default deny")),
+    method(suppress, "implies(Permission)", comment("default deny")),
+    method(suppress, "newPermissionCollection()", comment("default deny"))))

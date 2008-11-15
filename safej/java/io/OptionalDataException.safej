@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.io.OptionalDataException",
+  honorary("org.joe_e.Powerless"),
+  instance(field(suppress, "eof", comment("default deny")),
+    field(suppress, "length", comment("default deny"))))

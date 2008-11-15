@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.io.NotSerializableException",
+  honorary("org.joe_e.Powerless"),
+  static(constructor(suppress, "NotSerializableException()", comment("default deny")),
+    constructor(suppress, "NotSerializableException(String)", comment("default deny"))))

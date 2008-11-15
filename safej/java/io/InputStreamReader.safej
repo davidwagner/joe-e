@@ -1,0 +1,11 @@
+# auto-generated safej: default deny everything
+class("java.io.InputStreamReader",
+  static(constructor(suppress, "InputStreamReader(InputStream)", comment("default deny")),
+    constructor(suppress, "InputStreamReader(InputStream, Charset)", comment("default deny")),
+    constructor(suppress, "InputStreamReader(InputStream, CharsetDecoder)", comment("default deny")),
+    constructor(suppress, "InputStreamReader(InputStream, String)", comment("default deny"))),
+  instance(method("close()"),
+    method(suppress, "getEncoding()", comment("default deny")),
+    method("read()"),
+    method("read(char[], int, int)"),
+    method("ready()")))

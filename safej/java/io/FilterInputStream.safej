@@ -1,0 +1,13 @@
+# auto-generated safej: default deny everything
+class("java.io.FilterInputStream",
+  static(constructor(suppress, "FilterInputStream(InputStream)", comment("default deny"))),
+  instance(field(suppress, "in", comment("default deny")),
+    method("available()"),
+    method("close()"),
+    method("mark(int)"),
+    method("markSupported()"),
+    method("read()"),
+    method("read(byte[])"),
+    method("read(byte[], int, int)"),
+    method("reset()"),
+    method("skip(long)")))

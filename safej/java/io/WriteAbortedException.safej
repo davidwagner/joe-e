@@ -1,0 +1,7 @@
+# auto-generated safej: default deny everything
+class("java.io.WriteAbortedException",
+  honorary("org.joe_e.Powerless"),
+  static(constructor(suppress, "WriteAbortedException(String, Exception)", comment("default deny"))),
+  instance(field(suppress, "detail", comment("default deny")),
+    method("getCause()"),
+    method(suppress, "getMessage()", comment("default deny"))))

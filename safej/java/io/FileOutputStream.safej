@@ -1,0 +1,14 @@
+# auto-generated safej: default deny everything
+class("java.io.FileOutputStream",
+  static(constructor(suppress, "FileOutputStream(File)", comment("default deny")),
+    constructor(suppress, "FileOutputStream(File, boolean)", comment("default deny")),
+    constructor(suppress, "FileOutputStream(FileDescriptor)", comment("default deny")),
+    constructor(suppress, "FileOutputStream(String)", comment("default deny")),
+    constructor(suppress, "FileOutputStream(String, boolean)", comment("default deny"))),
+  instance(method("close()"),
+    method(suppress, "finalize()", comment("default deny")),
+    method(suppress, "getChannel()", comment("default deny")),
+    method(suppress, "getFD()", comment("default deny")),
+    method("write(byte[])"),
+    method("write(byte[], int, int)"),
+    method("write(int)")))

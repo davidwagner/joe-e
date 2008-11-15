@@ -1,0 +1,10 @@
+# auto-generated safej: default deny everything
+class("java.io.BufferedWriter",
+  static(constructor(suppress, "BufferedWriter(Writer)", comment("default deny")),
+    constructor(suppress, "BufferedWriter(Writer, int)", comment("default deny"))),
+  instance(method("close()"),
+    method("flush()"),
+    method(suppress, "newLine()", comment("default deny")),
+    method("write(String, int, int)"),
+    method("write(char[], int, int)"),
+    method("write(int)")))

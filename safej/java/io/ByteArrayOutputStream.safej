@@ -1,0 +1,16 @@
+# auto-generated safej: default deny everything
+class("java.io.ByteArrayOutputStream",
+  static(constructor(suppress, "ByteArrayOutputStream()", comment("default deny")),
+    constructor(suppress, "ByteArrayOutputStream(int)", comment("default deny"))),
+  instance(field(suppress, "buf", comment("default deny")),
+    field(suppress, "count", comment("default deny")),
+    method("close()"),
+    method(suppress, "reset()", comment("default deny")),
+    method(suppress, "size()", comment("default deny")),
+    method(suppress, "toByteArray()", comment("default deny")),
+    method(suppress, "toString()", comment("default deny")),
+    method(suppress, "toString(String)", comment("default deny")),
+    method(suppress, "toString(int)", comment("default deny")),
+    method("write(byte[], int, int)"),
+    method("write(int)"),
+    method(suppress, "writeTo(OutputStream)", comment("default deny"))))
