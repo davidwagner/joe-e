@@ -262,20 +262,24 @@ public class SafeJImport {
                         if (field == null) {
                             failImporting("Error: unknown or duplicate field " + 
                                           m.identifier);
-                        } else if (isStatic 
-                                   && !Flags.isStatic(field.getFlags())) {
-                            failImporting("Instance field " + m.identifier +
-                                        " in static member list");
-                        } else if (!isStatic 
-                                   && Flags.isStatic(field.getFlags())) {
-                            failImporting("Static field " + m.identifier +
-                                          " in instance member list");
-                        }
+                        } else {
+                            boolean actuallyStatic = 
+                                Flags.isStatic(field.getFlags())
+                                || field.isEnumConstant();                     
+                            
+                            if (isStatic && !actuallyStatic) {
+                                failImporting("Instance field " + m.identifier +
+                                              " in static member list");
+                            } else if (!isStatic && actuallyStatic) {
+                                failImporting("Static field " + m.identifier +
+                                              " in instance member list");
+                            }
                         
-                        if (m.allowed) {
-                            allowedFields.put(field, m.comment);
-                        } else if (m.comment != null) {
-                            disabledFields.put(field, m.comment);
+                            if (m.allowed) {
+                                allowedFields.put(field, m.comment);
+                            } else if (m.comment != null) {
+                                disabledFields.put(field, m.comment);
+                            }
                         }
                         break;
                          
