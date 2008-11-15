@@ -80,6 +80,10 @@ public class Taming {
      */    
     static boolean isRelevant(IType type, IField field) 
                                         throws JavaModelException {
+        if (field.isEnumConstant()) {
+            return true;
+        }
+        
         int typeFlags = type.getFlags();
         int flags = field.getFlags();
         return ((type.isInterface() || Flags.isPublic(flags) 
@@ -89,7 +93,7 @@ public class Taming {
     
 
     /**
-     * Check whether a field should be included in the taming database; i.e.
+     * Check whether a method should be included in the taming database; i.e.
      * whether it may be visible to a type in another package.  This is true
      * if the field is public, or is protected and the type is non-final.
      * Members of interfaces are implicitly public and are correctly handled
