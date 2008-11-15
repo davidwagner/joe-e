@@ -7,5 +7,5 @@ class Holder {
 }
 
 public class ReferencesDisabledClass3c {
-	Holder h = new <java.awt.AWTPermission>Holder();
+	Holder h = new <org.joe_e.testlib.DisabledEnum>Holder();
 }
