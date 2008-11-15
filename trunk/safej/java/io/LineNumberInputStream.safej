@@ -1,0 +1,11 @@
+# auto-generated safej: default deny everything
+class("java.io.LineNumberInputStream",
+  static(constructor(suppress, "LineNumberInputStream(InputStream)", comment("default deny"))),
+  instance(method("available()"),
+    method(suppress, "getLineNumber()", comment("default deny")),
+    method("mark(int)"),
+    method("read()"),
+    method("read(byte[], int, int)"),
+    method("reset()"),
+    method(suppress, "setLineNumber(int)", comment("default deny")),
+    method("skip(long)")))

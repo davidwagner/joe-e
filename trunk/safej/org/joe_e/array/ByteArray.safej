@@ -1,6 +1,11 @@
 # auto-generated safej for Joe-E code: allow everything.
 class("org.joe_e.array.ByteArray",
   static(method("array(byte[])"),
+    method("array()"),
+    method("array(byte)"),
+    method("array(byte, byte)"),
+    method("array(byte, byte, byte)"),
+    method("array(byte, byte, byte, byte)"),
     method("builder()"),
     method("builder(int)")),
   instance(method("asInputStream()"),

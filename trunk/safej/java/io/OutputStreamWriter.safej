@@ -1,0 +1,12 @@
+# auto-generated safej: default deny everything
+class("java.io.OutputStreamWriter",
+  static(constructor(suppress, "OutputStreamWriter(OutputStream)", comment("default deny")),
+    constructor(suppress, "OutputStreamWriter(OutputStream, Charset)", comment("default deny")),
+    constructor(suppress, "OutputStreamWriter(OutputStream, CharsetEncoder)", comment("default deny")),
+    constructor(suppress, "OutputStreamWriter(OutputStream, String)", comment("default deny"))),
+  instance(method("close()"),
+    method("flush()", comment("default deny")),
+    method(suppress, "getEncoding()"),
+    method("write(String, int, int)"),
+    method("write(char[], int, int)"),
+    method("write(int)")))

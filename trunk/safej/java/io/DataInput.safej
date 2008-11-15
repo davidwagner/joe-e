@@ -1,0 +1,17 @@
+# auto-generated safej: default deny everything
+class("java.io.DataInput",
+  instance(method(suppress, "readBoolean()", comment("default deny")),
+    method(suppress, "readByte()", comment("default deny")),
+    method(suppress, "readChar()", comment("default deny")),
+    method(suppress, "readDouble()", comment("default deny")),
+    method(suppress, "readFloat()", comment("default deny")),
+    method(suppress, "readFully(byte[])", comment("default deny")),
+    method(suppress, "readFully(byte[], int, int)", comment("default deny")),
+    method(suppress, "readInt()", comment("default deny")),
+    method(suppress, "readLine()", comment("default deny")),
+    method(suppress, "readLong()", comment("default deny")),
+    method(suppress, "readShort()", comment("default deny")),
+    method(suppress, "readUTF()", comment("default deny")),
+    method(suppress, "readUnsignedByte()", comment("default deny")),
+    method(suppress, "readUnsignedShort()", comment("default deny")),
+    method(suppress, "skipBytes(int)", comment("default deny"))))

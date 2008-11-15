@@ -1,0 +1,5 @@
+# class with one honorary (to avoid multiple errors in unit test)
+class("org.joe_e.testlib.EnumSomeEntriesDisabled",
+  honorary("org.joe_e.Equatable", "org.joe_e.Powerless"),
+  static(field("FOO"),
+	 field(suppress, "BAR", comment("access to whole filesystem"))))

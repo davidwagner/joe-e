@@ -1,0 +1,8 @@
+# auto-generated safej: default deny everything
+class("java.io.SequenceInputStream",
+  static(constructor(suppress, "SequenceInputStream(Enumeration<? extends InputStream>)", comment("default deny")),
+    constructor(suppress, "SequenceInputStream(InputStream, InputStream)", comment("default deny"))),
+  instance(method("available()"),
+    method("close()"),
+    method("read()"),
+    method("read(byte[], int, int)")))

@@ -1,0 +1,17 @@
+# auto-generated safej: default deny everything
+class("java.io.BufferedInputStream",
+  static(constructor(suppress, "BufferedInputStream(InputStream)", comment("default deny")),
+    constructor(suppress, "BufferedInputStream(InputStream, int)", comment("default deny"))),
+  instance(field(suppress, "buf", comment("default deny")),
+    field(suppress, "count", comment("default deny")),
+    field(suppress, "marklimit", comment("default deny")),
+    field(suppress, "markpos", comment("default deny")),
+    field(suppress, "pos", comment("default deny")),
+    method("available()"),
+    method("close()"),
+    method("mark(int)"),
+    method("markSupported()"),
+    method("read()"),
+    method("read(byte[], int, int)"),
+    method("reset()"),
+    method("skip(long)")))

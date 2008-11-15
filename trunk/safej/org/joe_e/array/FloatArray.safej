@@ -1,6 +1,11 @@
 # auto-generated safej for Joe-E code: allow everything.
 class("org.joe_e.array.FloatArray",
   static(method("array(float[])"),
+    method("array()"),
+    method("array(float)"),
+    method("array(float, float)"),
+    method("array(float, float, float)"),
+    method("array(float, float, float, float)"),
     method("builder()"),
     method("builder(int)")),
   instance(method("equals(Object)"),

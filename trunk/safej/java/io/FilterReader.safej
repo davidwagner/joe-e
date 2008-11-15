@@ -1,0 +1,12 @@
+# auto-generated safej: default deny everything
+class("java.io.FilterReader",
+  static(constructor(suppress, "FilterReader(Reader)", comment("default deny"))),
+  instance(field(suppress, "in", comment("default deny")),
+    method("close()"),
+    method("mark(int)"),
+    method("markSupported()"),
+    method("read()"),
+    method("read(char[], int, int)"),
+    method("ready()"),
+    method("reset()"),
+    method("skip(long)")))

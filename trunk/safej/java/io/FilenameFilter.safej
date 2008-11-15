@@ -1,0 +1,3 @@
+# auto-generated safej: default deny everything
+class("java.io.FilenameFilter",
+  instance(method(suppress, "accept(File, String)", comment("default deny"))))
