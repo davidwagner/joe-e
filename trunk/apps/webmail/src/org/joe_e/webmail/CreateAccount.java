@@ -15,6 +15,7 @@ public class CreateAccount extends HttpServlet {
 		String password = request.getParameter("password");
 		String message = null;
 		
+		
 		if (username != null && password != null) {
 			// here we need make a call to create their account
 			try {
@@ -22,7 +23,7 @@ public class CreateAccount extends HttpServlet {
 				auth.addAccount(username, password, request.getSession());
 				response.sendRedirect("/webmail/login");
 			} catch (Exception e) {
-				message = "unable to add account";
+				message = "unable to add account. Most likely your username has already been taken. Try a different username";
 			}
 		}
 		

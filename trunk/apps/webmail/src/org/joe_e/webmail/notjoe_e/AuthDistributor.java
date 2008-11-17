@@ -1,6 +1,10 @@
 package org.joe_e.webmail.notjoe_e;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Enumeration;
 
 import javax.servlet.*;
@@ -21,6 +25,10 @@ import org.joe_e.webmail.User;
  */
 public class AuthDistributor extends HttpServlet {
 
+	private final String accountsFile = "/Users/akshay/Desktop/accounts/";
+	private final String mailboxesRoot = "/Users/akshay/Desktop/mailboxes/";
+	private final String postfixRecipients = "/etc/postfix/virtual_mailbox_recipients";
+	
 	public void doGet(HttpServletRequest request, HttpServletResponse response) 
 		throws IOException, ServletException {
 		doPost(request, response);
@@ -55,7 +63,15 @@ public class AuthDistributor extends HttpServlet {
 		}
 		
 		// then we can give out the authentication agent.
-		session.setAttribute("auth", new Authentication());
+		
+		try {
+			session.setAttribute("auth", new Authentication(new File(accountsFile), 
+										 	new File(mailboxesRoot), 
+										 	new File(postfixRecipients), 
+										 	MessageDigest.getInstance("md5")));
+		} catch (NoSuchAlgorithmException e1) {
+			// TODO Auto-generated catch block
+		}
 		
 		// then redirect as appropriate
 		if (request.getServletPath().equals("/create")) {

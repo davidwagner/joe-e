@@ -15,7 +15,7 @@ public class Compose extends HttpServlet {
 		throws IOException, ServletException {
 		/*
 		 * first check that the session is properly set.
-		 * @TODO: this doesn't actually check what we want
+		 * TODO this doesn't actually check what we want
 		 */
 		if (request.getSession().getAttribute("user") == null) {
 			response.sendRedirect("/webmail/login");
@@ -66,9 +66,11 @@ public class Compose extends HttpServlet {
 			//Message message = new Message(user, to, subject, body);
 			Properties props = new Properties();
 			// fill props with whatever we wat
-			// @TODO: what are we supposed to put in properties?
-			// @TODO: for now we aren't using an Authenticator
+			// TODO what are we supposed to put in properties?
+			// TODO for now we aren't using an Authenticator
 			// because users have already been authenticated
+			
+			props.put("mail.smtp.host", "localhost");
 			Session session = Session.getDefaultInstance(props, null);
 			javax.mail.Message msg = new MimeMessage(session);
 			try {
@@ -84,7 +86,7 @@ public class Compose extends HttpServlet {
 			}
 			
 			try {
-				Transport.send(msg);
+		        Transport.send(msg);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				errorMessage = "error in sending";
