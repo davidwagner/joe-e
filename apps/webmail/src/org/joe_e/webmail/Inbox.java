@@ -5,6 +5,8 @@ import java.io.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
+import org.joe_e.array.ImmutableArray;
+
 public class Inbox extends HttpServlet {
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response) 
@@ -22,7 +24,8 @@ public class Inbox extends HttpServlet {
 		out.println("<h1>Inbox of " + user.getUserName() + "</h1>");
 		
 		out.println("<a href=\"/webmail/compose\">Compose</a><br />");
-		for(Message m : user.getMessages()) {
+		ImmutableArray<Message> messages = user.getMessages();
+		for(Message m : messages) {
 			out.println("<p><a href=\"/webmail/read?id="+m.getId()+"\">"+m.getSubject() + "</a></p>");
 		}
 		out.println("<a href=\"/webmail/logout\">Logout</a>");

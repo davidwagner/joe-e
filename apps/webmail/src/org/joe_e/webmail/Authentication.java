@@ -2,40 +2,33 @@ package org.joe_e.webmail;
 
 import java.io.*;
 import java.math.BigInteger;
-import java.util.HashMap;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import javax.servlet.http.HttpSession;
 
 import org.joe_e.charset.ASCII;
-// import java.nio.ByteBuffer;
+import org.joe_e.file.Filesystem;
 
+
+
+/**
+ * @TODO: we need to be careful about synchronized access to mailboxes file
+ * @author akshay
+ *
+ */
 public class Authentication implements org.joe_e.Equatable {
 	
 	
-	private HashMap<String, String> accounts = null;
-	private final String accountsFile = "/Users/akshay/Desktop/accounts";
-	private final String mailboxesRoot = "/Users/akshay/Desktop/mailboxes/";
 	private File mailboxes;
+	private File accounts;
+	private File postfixRecipients;
+	private MessageDigest digest;
 	
-	
-	public Authentication() {
-		this.mailboxes = new File(mailboxesRoot);
-		try {
-			accounts = new HashMap<String, String>();
-			File inputFile = new File(accountsFile);
-			BufferedReader in = new BufferedReader(new FileReader(inputFile));
-			String line = "";
-			while ((line = in.readLine()) != null) {
-				//System.out.println(line);
-				String[] arr = line.split(" ");
-				if (arr.length == 2) {
-					accounts.put(arr[0], arr[1]);
-				}
-			}
-		} catch (FileNotFoundException e) {
-		} catch (IOException e) {
-		}
+	public Authentication(File accountsRoot, File mailboxesRoot, File postfix, MessageDigest d) {
+		accounts = accountsRoot;
+		mailboxes = mailboxesRoot;
+		postfixRecipients = postfix;
+		digest = d;
 	}
 	
 	/**
@@ -55,12 +48,6 @@ public class Authentication implements org.joe_e.Equatable {
 			// illegal usage of authentication agent
 			return null;
 		}
-		MessageDigest digest = null;
-		try {
-			digest = MessageDigest.getInstance("md5");
-		} catch (NoSuchAlgorithmException e) {
-			return null;
-		}
 
 		/** 
 		 * @TODO: add a salt
@@ -69,19 +56,24 @@ public class Authentication implements org.joe_e.Equatable {
 		 * 		  the digest.
 		 * @TODO: not sure this is workaround is ok... it still reveals default charset
 		 **/
-		
-		byte[] bytes = ASCII.encode(password);
-		digest.update(bytes);
-		String hashedPassword = new BigInteger(1,digest.digest()).toString(16);
-		if (accounts.get(username) != null && accounts.get(username).equals(hashedPassword)) {
-			// then we can authenticate the user
-			// but we must also remove the authentication agent from the session
-			// so that it cannot authenticate another user.
-			session.removeAttribute("auth");
-			File child = new File(mailboxes, username);
-			return new User(username, child);
+		try {
+			byte[] bytes = ASCII.encode(password);
+			digest.update(bytes);
+			String hashedPassword = new BigInteger(1,digest.digest()).toString(16);
+
+			Reader reader = ASCII.input(Filesystem.read(Filesystem.file(accounts, username)));
+
+			BufferedReader in = new BufferedReader(reader);
+			if (hashedPassword.equals(in.readLine())) {
+				session.removeAttribute("auth");
+				File mailbox = Filesystem.file(mailboxes, username);
+				return new User(username, mailbox);
+			}
+		} catch (FileNotFoundException e) {
+			return null;
 		}
 		return null;
+		
 	}
 	
 	/**
@@ -98,30 +90,29 @@ public class Authentication implements org.joe_e.Equatable {
 			// account not created b/c illegal use of auth agent
 			return false;
 		}
-		if (accounts.containsKey(username)) {
-			return false;
-		}
 		
-		FileWriter file = new FileWriter(new File(accountsFile), true);
-		for (char c : username.toCharArray()) {
-			file.append(c);
-		}
-		file.append(' ');
-		MessageDigest digest = MessageDigest.getInstance("md5");
+		Writer out = ASCII.output(Filesystem.writeNew(Filesystem.file(accounts, username)));
 		byte[] bytes = ASCII.encode(password);
 		
 		digest.update(bytes);
 		String hashedPassword = new BigInteger(1,digest.digest()).toString(16);
 		
 		for (char c : hashedPassword.toCharArray()) {
-			file.append(c);
+			out.append(c);
 		}
-		file.append('\n');
-		file.flush();
+		out.flush();
 		
+		// once we have the accounts file then we need to update
+		// postfix databases so that postfix knows about this new
+		// account
+		/*Writer rec = ASCII.output(Filesystem.writeNew(postfixRecipients));
+		for char(c : username.toCharArray()) {
+			
+		}*/
 		
-		File mailbox = new File(mailboxes, username);
-		mailbox.createNewFile();
+		// TODO do we have to createnewfile here?
+		// if so then we have to tame File class
+		File mailbox = Filesystem.file(mailboxes, username);
 		
 		// destroy this authentication agent
 		session.removeAttribute("auth");

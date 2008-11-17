@@ -2,9 +2,10 @@ package org.joe_e.webmail;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import javax.xml.parsers.*;
 
+import org.joe_e.array.ConstArray;
+import org.joe_e.array.ImmutableArray;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -32,17 +33,17 @@ public class User implements org.joe_e.Equatable {
 		return name;
 	}
 		
-	public ArrayList<Message> getMessages() {
-		/** @TODO This is not OK! we can't just make an ArrayList **/
-		ArrayList<Message> out = new ArrayList<Message>();
+	public ImmutableArray<Message> getMessages() {
+		// TODO: check this usage with Adrian
+		ImmutableArray<Message> out = ImmutableArray.array();
+		
 		try {
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			Document document = builder.parse(inbox);
 			NodeList messages = document.getElementsByTagName("message");
-			
 			for (int i = 0; i < messages.getLength(); i++) {
-				/** @TODO: can't just make a new message **/
-				out.add(new Message((Element) messages.item(i)));
+				// TODO: can we just make a new element?
+				out = out.with(new Message((Element) messages.item(i)));
 			}
 		} catch (ParserConfigurationException p) {
 			return out;
