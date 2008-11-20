@@ -8,9 +8,6 @@ import org.joe_e.array.ConstArray;
 import org.joe_e.array.PowerlessArray;
 import org.joe_e.reflect.Reflection;
 
-/*
- * This class is not Joe-E verifiable since it uses java.io.ObjectOutputStream.class
- */
 public class Introspection {
     public int dummy = 5;
     
@@ -30,7 +27,7 @@ public class Introspection {
         
         try {
             Reflection.field(Introspection.class, "dummy");
-        } catch (NoSuchFieldException nsme) {
+        } catch (NoSuchFieldException nsfe) {
             assert false;
         }
                 
@@ -89,5 +86,4 @@ public class Introspection {
             assert false;
         }        
     }
-
 }

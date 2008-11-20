@@ -1,7 +1,5 @@
 package test.library.reflect;
 
-import test.library.reflect2.Invocation;
-import test.library.reflect2.Proxying;
 
 public class RunTests {
     

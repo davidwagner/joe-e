@@ -1,4 +1,4 @@
-package test.library.reflect2;
+package test.library.reflect;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
