@@ -12,7 +12,7 @@ class Outer2 {
 
 
 class ExtendsOuter extends Outer2 implements org.joe_e.Powerless {
-	class ExtendsInner extends Inner implements ImmutablePlus2 {
+	class ExtendsInner extends Inner implements ImmutablePlus4 {
 		ExtendsInner() {}
 		
 		ExtendsInner(Outer2 o) {
