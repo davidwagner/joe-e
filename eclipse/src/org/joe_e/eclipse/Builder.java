@@ -228,10 +228,7 @@ public class Builder extends IncrementalProjectBuilder {
             for (Problem problem : problems) {
                 addMarker(file, problem, slc);
             }
-            // conditional on commandLine
-            if (Main.commandLine) {
-            	Printer.printErrors(file);
-            }
+            
             return recheck;
         }
     }

@@ -166,14 +166,14 @@ public class SafeJImport {
          * @param subtype the subtype being checked
          */
         void checkHonoraries(IType supertype, IType subtype, ITypeHierarchy sth) {
-            for (IType honorary : taming.db.get(supertype).honoraries) {
-                if (!sth.contains(honorary) &&
-                    !taming.db.get(subtype).honoraries.contains(honorary)) {
-                    err.println("ERROR: type " + subtype.getFullyQualifiedName()
-                                + " does not inherit honorary interface " + 
-                                honorary.getElementName() + " from supertype "
-                                + supertype.getElementName() + ".");
-                }
+            int uninherited = taming.db.get(supertype).honoraries 
+                              & ~taming.db.get(subtype).honoraries;
+            
+            for (IType honorary : taming.detag(uninherited)) {
+                err.println("ERROR: type " + subtype.getFullyQualifiedName()
+                            + " does not inherit honorary interface " + 
+                            honorary.getElementName() + " from supertype "
+                            + supertype.getElementName() + ".");
             }
         }
         
@@ -340,9 +340,7 @@ public class SafeJImport {
                     err.println("WARNING: Type " + className + " not found!");
                     throw new ImportFailure();
                 }
-                
-                Set<IType> honoraryTypes = new HashSet<IType>();
-                       
+                                      
                 IField[] typeFields = type.getFields();
                 IMethod[] typeMethods = type.getMethods();
                         
@@ -384,12 +382,10 @@ public class SafeJImport {
                     mp.processMember(m, false);
                 }
                 
+                int honoraryTypes = 0;
                 for (String s : honoraries) {
                     IType honorary = project.findType(s);
-                    ITypeHierarchy sth = honorary.newSupertypeHierarchy(null);
-                    for (IType superHonorary : sth.getAllInterfaces()) {
-                        honoraryTypes.add(superHonorary);
-                    }
+                    honoraryTypes |= taming.tag(honorary);
                 }
                 
                 /*

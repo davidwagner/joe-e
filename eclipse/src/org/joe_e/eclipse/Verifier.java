@@ -995,6 +995,8 @@ public class Verifier {
             // codeContext.push(acd);
         }
         
+
+                
         /**
          * Verify an ITypeBinding, updating the list of dependents and problems.
          * 
@@ -1019,26 +1021,13 @@ public class Verifier {
             
             try {
                 // taming.processJoeEType(type);
+                             
+                int tags = taming.markerInterfaces(itb);
                 
-                ITypeHierarchy sth;
-                if (type.isEnum() && type.isAnonymous()) {
-                    // workaround for an Eclipse bug(?): anonymous type of a
-                    // constant-specific class body of an Enum gives a bogus
-                    // supertype hierarchy, so use the enclosing class instead
-                    sth = type.getDeclaringType().newSupertypeHierarchy(null);
-                } else {
-                    sth = type.newSupertypeHierarchy(null);
-                }
-                
-                boolean isSelfless = sth.contains(taming.SELFLESS);
-                boolean isImmutable = sth.contains(taming.IMMUTABLE);
-                boolean isPowerless = sth.contains(taming.POWERLESS);
-                boolean isEquatable = sth.contains(taming.EQUATABLE);
-
-                int tags = isSelfless ? BuildState.IMPL_SELFLESS : 0;
-                tags |= isImmutable ? BuildState.IMPL_IMMUTABLE : 0;
-                tags |= isPowerless ? BuildState.IMPL_POWERLESS : 0;
-                tags |= isEquatable ? BuildState.IS_EQUATABLE : 0;
+                boolean isSelfless = BuildState.isSelfless(tags);
+                boolean isImmutable = BuildState.isImmutable(tags);
+                boolean isPowerless = BuildState.isPowerless(tags);
+                boolean isEquatable = BuildState.isEquatable(tags);
 
                 // put tags in classTags
                 classTags.add(tags);
@@ -1096,7 +1085,7 @@ public class Verifier {
                 // TODO: If supertype is Joe-E, the error will be caught there,
                 // except for honoraries from interfaces we implement.
                 // Could refactor to avoid double-errors here.
-                Set<IType> unimp = taming.unimplementedHonoraries(sth);
+                List<IType> unimp = taming.unimplementedHonoraries(itb);
                 for (IType i : unimp) {
                     addProblem("Honorary interface " + i.getElementName() +
                                " inherited from " + superTB.getName() + 
@@ -1150,15 +1139,19 @@ public class Verifier {
                         }
                     }
                 }
-                
+                               
                 // Powerless check for Token, checks on fields
                 if (isPowerless 
                     /* && !taming.isDeemed(type, taming.POWERLESS) */) {
-                    if (sth.contains(taming.TOKEN)) {
+                    ITypeBinding current = itb;
+                    while (current != null) {
+                        if (current.getQualifiedName()
+                                .equals("org.joe_e.Token")) {
                             addProblem("Powerless class " + itb.getName() +
-                                       " can't extend Token", type);
+                                    " can't extend Token", type);
+                        }
+                        current = current.getSuperclass();
                     }
-
                     verifyAllFieldsAre(itb, taming.POWERLESS);
 
                 } else if (isImmutable 
@@ -1285,6 +1278,7 @@ public class Verifier {
          */
         void verifyAllFieldsAre(ITypeBinding itb, IType mi)
                 throws JavaModelException {
+            //System.out.println("baz");
             Set<ITypeBinding> needCheck = findClassesToCheck(itb, mi);
             for (ITypeBinding i : needCheck) {
                 verifyFieldsAre(i, mi, itb);
