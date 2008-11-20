@@ -7,11 +7,9 @@ package org.joe_e.eclipse;
 
 import java.io.File;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.List;
 import java.util.LinkedList;
 
 import org.eclipse.core.runtime.CoreException;
@@ -163,7 +161,6 @@ public class Taming {
     /*
      *  Types with significance to the verifier.
      */
-    // final IType OBJECT;
     // final IType ENUM;
     final IType IS_JOE_E;
     
@@ -299,7 +296,39 @@ public class Taming {
         return current.getFile("Policy.java");
     }
     
-       
+    int tag(IType honorary) {
+        String name = honorary.getFullyQualifiedName();
+        if (name.equals("org.joe_e.Powerless")) {
+            return BuildState.IMPL_POWERLESS;
+        } else if (name.equals("org.joe_e.Immutable")) {
+            return BuildState.IMPL_IMMUTABLE;
+        } else if (name.equals("org.joe_e.Selfless")) {
+            return BuildState.IMPL_SELFLESS;
+        } else if (name.equals("org.joe_e.Equatable")) {
+            return BuildState.IS_EQUATABLE;
+        } else {
+            return 0;
+        }
+    }
+    
+    List<IType> detag(int tags) {
+        LinkedList<IType> honoraries = new LinkedList<IType>();
+        if (BuildState.isImmutable(tags)) {
+            honoraries.add(IMMUTABLE);
+        }
+        if (BuildState.isPowerless(tags)) {
+            honoraries.add(POWERLESS);
+        }
+        if (BuildState.isSelfless(tags)) {
+            honoraries.add(SELFLESS);
+        }
+        if (BuildState.isEquatable(tags)) {
+            honoraries.add(EQUATABLE);
+        }
+        return honoraries;
+    }
+    
+           
     class Entry {
         final boolean enabled;
         final String comment;
@@ -307,7 +336,7 @@ public class Taming {
         final Map<IMethod, String> allowedMethods;
         final Map<IField, String> disabledFields;
         final Map<IMethod, String> disabledMethods;
-        final Set<IType> honoraries;
+        final int honoraries;
         // final Set<IType> deemings;        
         
         
@@ -318,14 +347,15 @@ public class Taming {
               Map<IMethod, String> allowedMethods,
               Map<IField, String> disabledFields,
               Map<IMethod, String> disabledMethods,
-              Set<IType> honoraries /*, Set<IType> deemings*/) {
+              int honoraries /*, Set<IType> deemings*/) {
             enabled = true;
             this.comment = comment;
             this.allowedFields = allowedFields;
             this.allowedMethods = allowedMethods;
             this.disabledFields = disabledFields;
             this.disabledMethods = disabledMethods;
-            this.honoraries = honoraries;
+            this.honoraries = (BuildState.isPowerless(honoraries)) ? 
+                    honoraries | BuildState.IMPL_IMMUTABLE : honoraries;
             // this.deemings = deemings;
         }
         
@@ -340,7 +370,7 @@ public class Taming {
               this.allowedMethods = allowedMethods;
               disabledFields = null;
               disabledMethods = null;
-              honoraries = null;
+              honoraries = 0;
               // this.deemings = deemings;
         }
         
@@ -352,7 +382,7 @@ public class Taming {
             this.comment = comment;
             allowedFields = disabledFields = null;
             allowedMethods = disabledMethods = null;
-            honoraries = null;
+            honoraries = 0;
         }
     }
     
@@ -360,27 +390,50 @@ public class Taming {
      * Query methods on the database
      */
     
-    Collection<IType> getHonorariesFor(IType type) {
-        Entry e = db.get(type);
-        if (e == null || e.honoraries == null) {
-            return new LinkedList<IType>();
+    int getHonorariesFor(ITypeBinding type) {
+        Entry e = db.get((IType) type.getJavaElement());
+        if (e == null) {
+            return 0;
         } else {
             return e.honoraries;
         }
     }
     
+    /*
     boolean implementsOverlay(IType subtype, IType mi) throws JavaModelException {
-        ITypeHierarchy sth = subtype.newSupertypeHierarchy(null);
-        if (sth.contains(mi)) {
-            return true;
-        } else {
-            Collection<IType> h = getHonorariesFor(subtype);
-            if (h.contains(mi)) {
-                return true;
             }
-        }
-        return false;
+    */
+
+    /**
+     * Return the tags corresponding to the marker interfaces
+     * implemented by a Joe-E class.
+     * We reimplement the interface-finding functionality here instead of
+     * using SuperTypeHierarchy because the latter has worthless semantics
+     * -- it may silently be out of date, even on a whole project build!
+     * This would be a soundness hole as it can prevent the verifier from
+     * noticing that a type implements a marker interface.
+     */
+    int markerInterfaces(ITypeBinding root) {
+        // Check for methods implemented
+        LinkedList<ITypeBinding> toProcess = new LinkedList<ITypeBinding>();
+        toProcess.add(root);
+        int tags = 0;
+        
+        while (!toProcess.isEmpty()) {
+            ITypeBinding current = toProcess.remove();
+            tags |= tag((IType) current.getJavaElement());
+            for (ITypeBinding i : current.getInterfaces()) {
+                toProcess.add(i);
+            }
+            if (current.getSuperclass() != null) {
+                toProcess.add(current.getSuperclass());
+            }
+        } 
+        
+        return tags;
     }
+    
+    
     
     /*
      * Returns whether the type specified by itb implements the marker
@@ -399,27 +452,34 @@ public class Taming {
             return false;
         } else if (itb.isClass() || itb.isInterface() || itb.isEnum()
                    || itb.isTypeVariable()) {
-            // System.out.println("is called on type " + n1);
-            IType type = (IType) (itb.getErasure()).getJavaElement();
-            return implementsOverlay(type, mi);
+            ITypeBinding erased = itb.getErasure();
+            int tag = tag(mi);
+            
+            return (tag & markerInterfaces(erased)) != 0
+                || (tag & getHonorariesFor(erased)) != 0;
         } else {
             throw new IllegalArgumentException("unhandled binding type!");
         }
     }
           
-    Set<IType> unimplementedHonoraries(ITypeHierarchy sth) {
-        Set<IType> result = new HashSet<IType>();
+    List<IType> unimplementedHonoraries(ITypeBinding itb) {
+        int honoraries = 0;
         
-        for (IType t : sth.getAllTypes()) {
-            Collection<IType> h = getHonorariesFor(t); 
-            for (IType ht : h) {
-                if (!sth.contains(ht)) {
-                    result.add(ht);
-                }
+        LinkedList<ITypeBinding> toProcess = new LinkedList<ITypeBinding>();
+        toProcess.add(itb);
+        while (!toProcess.isEmpty()) {        
+            ITypeBinding current = toProcess.remove();
+            honoraries |= getHonorariesFor(current);
+            
+            for (ITypeBinding i : current.getInterfaces()) {
+                toProcess.add(i);
             }
-        }
-        
-        return result;
+            if (current.getSuperclass() != null) {
+                toProcess.add(current.getSuperclass());
+            }
+        } 
+            
+        return detag(honoraries & ~markerInterfaces(itb));
     }
     
     boolean isJoeE(ITypeBinding itb) {
@@ -591,7 +651,7 @@ public class Taming {
             // TODO: handle state transition of this option better -- this
             // test requires clean build and reconstruction of this class
             // for the change to take effect
-            PolicyWriter.write(db, policyFile);
+            PolicyWriter.write(this, policyFile);
         }
     }
 }

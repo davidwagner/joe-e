@@ -28,6 +28,10 @@ class BuildState {
     static boolean isPowerless(int tags) {
         return ((tags & IMPL_POWERLESS) != 0);
     }    
+    static boolean isEquatable(int tags) {
+        return ((tags & IS_EQUATABLE) != 0);
+    }    
+    
     
     /*
     static final int VERIFY_SELFLESS =   0x0100;

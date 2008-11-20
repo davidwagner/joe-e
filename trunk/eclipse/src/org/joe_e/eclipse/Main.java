@@ -1,8 +1,9 @@
-// Copyright 2005-06 Regents of the University of California.  May be used 
+// Copyright 2008 Regents of the University of California.  May be used 
 // under the terms of the revised BSD license.  See LICENSING for details.
 /** 
  * @author Akshay Krishnamurthy
  * @author Kanav Arora
+ * @author Adrian Mettler
  */
 
 package org.joe_e.eclipse;
@@ -27,10 +28,13 @@ import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.jface.preference.IPreferenceStore;
 
+import static java.io.File.separator;
+import static java.io.File.pathSeparator;
+
 /**
  * Main class of the Joe-E command line verifier tool.
- * When run, the specified project is verified using the standard Joe-E verifier and
- * any java or Joe-E warnings and errors are displayed on the command line.
+ * When run, the specified project is verified using the standard Joe-E verifier
+ * and any java or Joe-E warnings and errors are displayed on the command line.
  * Successful verifications return 0 and unsuccessful verifications return 1.
  * 
  * @author Akshay Krishnamurthy
@@ -38,36 +42,43 @@ import org.eclipse.jface.preference.IPreferenceStore;
  */
 public class Main implements IApplication {
 
-	String projectRoot;				// the root directory name of the project we're verifying
-	boolean markAsJoeE = false; 	// for debugging, but also a command line option. default false.
-	boolean failIfNotJoeE = false; 	// command line option to fail if any package isn't marked as joe-e
-	boolean build = true;			// should we build or not? changed to false if any package isn't marked as joe-e and fail is set
-	boolean help = false;			// if set to true then print usageString and exit.
-	static boolean commandLine = false; // default false. We'll manually set to commandLine if Main is run.
-	static boolean errors = false;		// are there errors?
-	String tamingPath = "";				// where is the taming database
-	String libraryJar = "";				// where is the joe-e library
-	static String usageString = "options:\n\t --project x. The path to the Project to be verified. (required)\n\t --taming x. Set the location of the taming database. (specified in shell script)\n\t --library x. Set the location of the Joe-E library. (specified in shell script)\n\t --markasjoee mark all packages as joe-e packages\n\t --fail. Fail if any package isn't joe-e"; 
+	String projectRoot = ".";		// the root directory name of the project
+	                                //   we're verifying
+	boolean markAsJoeE = false; 	// treat all packages as Joe-E
+	boolean failIfNotJoeE = false; 	// fail if any package isn't marked as Joe-E
+	boolean build = true;			// should we build or not? changed to
+	                                //   false if any package isn't marked as
+	                                //   joe-e and fail is set
+	boolean help = false;			// if true then print usageString and exit.
+	String tamingPath = null;				// where is the taming database
+	String[] classPathEntries = null;   // location of the joe-e library and
+	                                    //   other external classes
+	static final String usageString = 
+	    "Usage:\n" +
+	    " -source PATH.   The path to the source classes to be verified.\n" +
+	    "                 Defaults to the current directory.\n" +
+	    " -taming PATH.   The location of the taming database.  Required.\n" +
+	    " -classpath PATH_OR_JAR[:PATH_OR_JAR]...\n" +
+	    "                 The compilation classpath, which must include\n" + 
+	    "                 the Joe-E library.  Required.\n" +
+	    " -markasjoee     Mark all packages as Joe-E packages\n" +
+	    " -fail.          Fail if any package isn't Joe-E\n\n" +
+	    "The options -taming and -classpath may be set in the wrapper " +
+	    "script verify.sh"; 
 
 	/**
-	 * Main method of the command line Joe-E verifier
-	 * Command line arguments are
-	 * input folder - the location of where the project to verify is.
-	 * taming database - the location of where the Joe-E taming database is
-	 * markasjoe-e - should the verify mark everything in the project as Joe-E (used mostly for debugging)
-	 * fail - fail if any packages isn't marked as Joe-E
+	 * Main method of the command-line Joe-E verifier
 	 */
 	public Object start(IApplicationContext context) throws Exception {
 
 		// Get command line args from the ApplicationContext
-		String[] args = (String[]) context.getArguments().get("application.args");
+		String[] args = 
+		    (String[]) context.getArguments().get("application.args");
 		
 		// parse arguments
 		for (int i = 0; i < args.length; i++) {
-			if (args[i].equals("--help")) {
-				help = true;
-			} else if (args[i].equals("--taming")) {
-				if(i+1 < args.length && !(args[i+1].startsWith("--"))) {
+			if (args[i].equals("-taming")) {
+				if(i+1 < args.length && !(args[i+1].startsWith("-/-"))) {
 					File taming = new File(args[i+1]);
 					if (taming.exists() && taming.isDirectory()) {
 						tamingPath = taming.getAbsolutePath();
@@ -76,14 +87,18 @@ public class Main implements IApplication {
 						System.out.println("ERROR: did you specify your taming database correctly?");
 					}
 				}
-			} else if (args[i].equals("--markasjoee")) {
+			} else if (args[i].equals("-markasjoee")) {
 				markAsJoeE = true;
-			} else if (args[i].equals("--fail")) {
+			} else if (args[i].equals("-fail")) {
 				failIfNotJoeE = true;
-			} else if (args[i].equals("--library")) {
-				if (i+1 < args.length && !(args[i+1].startsWith("--"))) {
-					File library = new File(args[i+1]);
-					String ext = library.toString().substring(library.toString().lastIndexOf('.')+1, library.toString().length());
+			} else if (args[i].equals("-classpath")) {
+				if (i + 1 < args.length && !(args[i + 1].startsWith("-"))) {
+					classPathEntries = args[i + 1].split(pathSeparator);
+					i++;
+				}	
+				/*	    
+					    File library = new File(args[i+1]);
+					String ext = library.toString().substring(library.toString().lastIndexOf('.')+1);
 					if (library.exists() && ext.trim().equals("jar")){
 						libraryJar = new File(args[i+1]).getAbsolutePath();
 						i++;
@@ -91,9 +106,11 @@ public class Main implements IApplication {
 						System.out.println("ERROR: is your library file the correct jar file?");
 					}
 				}
-			} else if (args[i].equals("--project")) {
-				if (i+1 < args.length && !(args[i+1].startsWith("--"))) {
-					projectRoot = args[i+1] + ((args[i+1].charAt(args[i+1].length() - 1) == File.separatorChar) ? "" : File.separatorChar);
+				*/
+			} else if (args[i].equals("-source")) {
+				if (i+1 < args.length && !(args[i+1].startsWith("-"))) {
+					projectRoot = args[i+1] + 
+					    (args[i+1].endsWith(separator) ? "" : separator);
 					i++;
 				}
 			} else {
@@ -103,20 +120,16 @@ public class Main implements IApplication {
 		}
 		
 		// Verify args and don't run if required args are not passed in.
-		if (projectRoot == null) {
-			System.out.println("ERROR: no project specified.");
+		if (tamingPath == null) {
+			System.out.println("ERROR: taming database location not specified");
+			help = true;
 		}
-		if (tamingPath == null || tamingPath.equals("")) {
-			System.out.println("ERROR: taming database not specified or specified incorrectly. Check the variables in verify.sh");
-		}
-		if (libraryJar == null || libraryJar.equals("")) {
-			System.out.println("ERROR: Joe-E library not specified or specified incorrectly. Check the variables in verify.sh");
+		if (classPathEntries == null) {
+			System.out.println("ERROR: the classpath must include at least the Joe-E library");
+			help = true;
 		}
 		
-		if (help || projectRoot == null || 
-				projectRoot.equals("") || 
-				tamingPath.equals("") || 
-				libraryJar.equals("")) {
+		if (help) {
 				// then the user needs some help
 			System.out.println (usageString);
 			return 1;
@@ -128,19 +141,17 @@ public class Main implements IApplication {
 		if (markAsJoeE && failIfNotJoeE) {
 			markAsJoeE = false; // these two options are contradictory, so if both are on turn markAsJoeE off.
 		}
-		Main.commandLine = true; // we are running the command line version
 		
-		File f = new File (projectRoot);
+		File projectRootDir = new File(projectRoot);
 		
 		try {
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			IWorkspaceRoot root = workspace.getRoot();
 			
-			// we're going to make a random project in the workspace and move everything into that.
-			IProject proj = root.getProject("verification" + Math.random());
+			// we're going to make a random project in the workspace and copy everything into that.
+			IProject proj = root.getProject("verification" + new java.util.Date().getTime());
 			if (proj.exists()) {
-				//proj.build(IncrementalProjectBuilder.FULL_BUILD, null);
-				// the project shouldn't exist
+			    throw new AssertionError("project already exists");
 			}
 			else {
 				proj.create(null); // create the project
@@ -150,8 +161,9 @@ public class Main implements IApplication {
 				proj.open(null); // open the project
 			}
 			
-			for (File child : f.listFiles()) {
-				putFolderIntoProject(proj, child); // recursively move everything from projectRoot to the project
+			for (File child : projectRootDir.listFiles()) {
+				putFolderIntoProject(proj, child); 
+				    // recursively copy everything from projectRoot to the project
 			}
 			
 			modifyDotProjectFile(proj); //HACK, assign the appropriate builders to the project
@@ -166,40 +178,42 @@ public class Main implements IApplication {
 
 			if (build) {
 				// if we haven't had any problems so far, build the project
-				proj.build(IncrementalProjectBuilder.FULL_BUILD, null);
-			} else {
+				proj.build(IncrementalProjectBuilder.FULL_BUILD, null);		
+				int errors = Printer.printErrors(proj);		
+		        
+		        // refresh the project -- why?
+	            proj.close(null);
+	            proj.open(null);
+	            
+	            // delete the project, save the workspace and then return.
+	            proj.delete(true, true, null);
+	            workspace.save(true, null);
+
+                if (errors > 0) {
+                    System.out.println("Build terminated with " + errors + " errors");
+                    return 1;
+                }
+                else {
+                    System.out.println("Build terminated with no errors");
+                    return 0;
+                }
+            } else {
 				// we've had some problems so don't build, delete the project, and return failure.
-				System.out.println("Project not built because some packages weren't marked as joe-e.");
+				System.out.println("Project not built because some packages weren't marked as Joe-E.");
 				proj.delete(true, true, null);
 				workspace.save(true, null);
-				return 1;
+				return 2;
 			}
-			// refresh the project
-			proj.close(null);
-			proj.open(null);
-			
-			// delete the project, save the workspace and then return.
-			proj.delete(true, true, null);
-			workspace.save(true, null);
-			
-			
+					
 		} catch (Throwable t) {
-			System.out.println(t);
+		    System.out.println(t);
 			t.printStackTrace();
-		}
-		
-		if (Main.errors) {
-			System.out.println("Build terminated with " + Printer.totalErrors + " errors");
-			return 1;
-		}
-		else {
-			System.out.println("Build terminated with no errors");
-			return 0;
-		}
+			return 3;
+		}	
 	}
 
 	public void stop() {
-		// do nothing.
+		// do nothing.  cancelling cleanly not supported.
 	}
 	
 	
@@ -280,7 +294,7 @@ public class Main implements IApplication {
 			}
 			boolean hasPackageInfo = false;
 			for (File sub : f.listFiles()) {
-				hasPackageInfo = (sub.getName().equals("package-info.java")) ? true : hasPackageInfo;
+				hasPackageInfo |= (sub.getName().equals("package-info.java"));
 				putFileIntoFolder(newfold, sub);
 			}
 			if (!hasPackageInfo && markAsJoeE) {
@@ -343,54 +357,77 @@ public class Main implements IApplication {
 	}
 		
 	/**
-	 * adds a package-info.java file to the given folder. The file has only the Joe-E annotation.
+	 * adds a package-info.java file to the given folder. The file has only the
+	 * Joe-E annotation.
 	 * 
 	 * @param f
 	 * @param packagename
 	 * @throws IOException
 	 * @throws CoreException
 	 */
-	public void addPackageInfo(IFolder f, String packagename) throws IOException, CoreException {
+	public void addPackageInfo(IFolder f, String packagename) 
+	                                    throws IOException, CoreException {
 		String contents = "@org.joe_e.IsJoeE package " + packagename + ";";
 		IFile newFile = f.getFile("package-info.java");
 		newFile.create(new ByteArrayInputStream(contents.getBytes()), true, null);
 	}
 	
 	/**
-	 * HACK!
-	 * adds the java builder and the Joe-E builder to this projects build configuration
+	 * Adds the Java and Joe-E builders and natures to the specified
+	 * project's <code>.project</code> file.
 	 * 
 	 * @param project
 	 * @throws IOException
 	 */
 	public void modifyDotProjectFile(IProject project) throws IOException {
-		String contents ="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\t<projectDescription>\n\t\t<name>" + project.getName() + "</name><comment></comment><projects></projects><buildSpec><buildCommand>";
-		contents += "<name>org.eclipse.jdt.core.javabuilder</name><arguments></arguments></buildCommand>";
-		contents += "<buildCommand><name>org.joe_e.JoeEBuilder</name><arguments></arguments></buildCommand>";
-		contents += "</buildSpec><natures>";
-		contents += "<nature>org.eclipse.jdt.core.javanature</nature>";
-		contents += "<nature>org.joe_e.JoeENature</nature>";
-		contents += "</natures></projectDescription>";
+		String contents =
+		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+		    "<projectDescription>\n" + 
+		    "\t<name>" + project.getName() + "</name>\n" +
+		    "\t<comment></comment>\n" + 
+		    "\t<projects></projects>\n" +
+		    "\t<buildSpec>\n" +
+		    "\t\t<buildCommand>\n" +
+		    "\t\t\t<name>org.eclipse.jdt.core.javabuilder</name>\n" +
+		    "\t\t\t<arguments></arguments>\n" + 
+		    "\t\t</buildCommand>\n" +
+		    "\t\t<buildCommand>\n" + 
+		    "\t\t\t<name>org.joe_e.JoeEBuilder</name>\n" +
+		    "\t\t\t<arguments></arguments>\n" +
+		    "\t\t</buildCommand>\n" +
+		    "\t</buildSpec>\n" +
+		    "\t<natures>\n" + 
+		    "\t\t<nature>org.eclipse.jdt.core.javanature</nature>\n" +
+		    "\t\t<nature>org.joe_e.JoeENature</nature>\n" +
+		    "\t</natures>\n" +
+		    "</projectDescription>";
 		IPath location = project.getLocation();
-		BufferedWriter out = new BufferedWriter(new FileWriter(location.toOSString() + "/.project"));
+		BufferedWriter out = 
+		    new BufferedWriter(new FileWriter(location.toOSString()
+		                                      + separator +  ".project"));
 		out.write(contents);
 		out.close();
 	}
 
 	/**
-	 * HACK!
-	 * adds the Joe-E library jar file, and the runtime JRE_CONTAINER to the projects classpath
+	 * Adds the container for the runtime JRE and entries specified with
+	 * <code>-classpath</code> to the Eclipse <code>.classpath</code> file
+	 * of the specified project
 	 * 
 	 * @param proj
 	 * @throws IOException
 	 */
 	public void modifyDotClasspathFile(IProject proj) throws IOException {
-		String contents = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-		contents += "<classpath>\n";
-		contents += "<classpathentry kind=\"src\" path=\"\"/>\n";
-		contents += "<classpathentry kind=\"con\" path=\"org.eclipse.jdt.launching.JRE_CONTAINER\"/>\n";
-		contents += "<classpathentry kind=\"output\" path=\"\"/>\n";
-		contents += "<classpathentry kind=\"lib\" path=\"" + libraryJar + "\"/>\n";
+		String contents = 
+		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+		    "<classpath>\n" +
+		    "\t<classpathentry kind=\"src\" path=\"\"/>\n" +
+		    "\t<classpathentry kind=\"con\" path=\"org.eclipse.jdt.launching.JRE_CONTAINER\"/>\n" +
+		    "\t<classpathentry kind=\"output\" path=\"\"/>\n";
+		for (String entry : classPathEntries) {
+		    contents += "<classpathentry kind=\"lib\" path=\"" 
+		        + new File(entry).getAbsolutePath() + "\"/>\n";
+		}
 		contents += "</classpath>\n";
 		
 		IPath location = proj.getLocation();
