@@ -438,7 +438,7 @@ public class SafeJImport {
                 IType type = project.findType(className);
          
                 if (type == null) {
-                    err.println("WARNING: Type " + className + " not found!");
+                    warn("Type " + className + " not found!");
                     throw new ImportFailure();
                 }
                 
