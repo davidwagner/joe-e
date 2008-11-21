@@ -40,7 +40,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 public class Builder extends IncrementalProjectBuilder {
     public static final String BUILDER_ID = "org.joe_e.JoeEBuilder";
     protected static final String MARKER_TYPE = "org.joe_e.JoeEProblem";
-    private static final boolean DEBUG = true;
+    // private static final boolean DEBUG = false;
 
     /**
      * Checks whether a Java file has compilation errors
@@ -97,8 +97,9 @@ public class Builder extends IncrementalProjectBuilder {
     // it;  I am overriding an existing method
     protected IProject[] build(int kind, Map args, IProgressMonitor monitor) 
         throws CoreException {
-        System.out.println("Build request issued.");
-        
+        if (Preferences.isDebugEnabled()) {
+            System.out.println("Build request issued.");
+        }
         // Check if the Java compiler posted an error indicating that it wasn't run.
         // If so, we shouldn't run either.
         IProject project = getProject();
@@ -200,7 +201,7 @@ public class Builder extends IncrementalProjectBuilder {
             return recheck;
         }
         
-        if (DEBUG) {
+        if (Preferences.isDebugEnabled()) {
         	System.out.println("Checking file " + file.getFullPath() + ":");
         }
         
@@ -211,8 +212,10 @@ public class Builder extends IncrementalProjectBuilder {
             addMarker(file, new Problem("Joe-E verifier not run on this " +
         	    	                    "file due to compilation errors",
         	    	                    IMarker.SEVERITY_INFO), slc);
-            System.out.println("... file skipped due to Java compilation "
-            		+ "errors");
+            if (Preferences.isDebugEnabled()) {
+                System.out.println("... file skipped due to Java compilation " +
+                                   "errors");
+            }
             return new LinkedList<ICompilationUnit>();
         } else {
             List<Problem> problems = new LinkedList<Problem>();
@@ -221,7 +224,7 @@ public class Builder extends IncrementalProjectBuilder {
         	verifier.checkICU(icu, problems);
 		
             // conditional on debugging
-            if (DEBUG) {
+            if (Preferences.isDebugEnabled()) {
             	System.out.println("... found " + problems.size() + " problem" 
                                + (problems.size() == 1 ? "." : "s."));
             }
@@ -424,7 +427,7 @@ public class Builder extends IncrementalProjectBuilder {
          *          true in order to visit children of this delta
          */
         public boolean visit(IResourceDelta delta) throws CoreException {
-            if (DEBUG) {
+            if (Preferences.isDebugEnabled()) {
             	System.out.println("Delta! " + delta.toString());
             }
             IResource resource = delta.getResource();           
@@ -469,6 +472,4 @@ public class Builder extends IncrementalProjectBuilder {
             return true;
         }
     }
-    
-    
 }

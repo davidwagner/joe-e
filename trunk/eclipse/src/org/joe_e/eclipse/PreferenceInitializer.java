@@ -23,5 +23,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	public void initializeDefaultPreferences() {
 		IPreferenceStore store = Plugin.getDefault().getPreferenceStore();
 		store.setDefault(Preferences.P_ENABLE_TAMING, true);
+		store.setDefault(Preferences.P_ENABLE_DEBUG, false);
 	}
 }

@@ -49,6 +49,7 @@ public class Main implements IApplication {
 	boolean build = true;			// should we build or not? changed to
 	                                //   false if any package isn't marked as
 	                                //   joe-e and fail is set
+	boolean debug = false;
 	boolean help = false;			// if true then print usageString and exit.
 	String tamingPath = null;				// where is the taming database
 	String[] classPathEntries = null;   // location of the joe-e library and
@@ -62,7 +63,8 @@ public class Main implements IApplication {
 	    "                 The compilation classpath, which must include\n" + 
 	    "                 the Joe-E library.  Required.\n" +
 	    " -markasjoee     Mark all packages as Joe-E packages\n" +
-	    " -fail.          Fail if any package isn't Joe-E\n\n" +
+	    " -fail           Fail if any package isn't Joe-E\n" +
+	    " -debug          Enable additional debugging output\n\n" +
 	    "The options -taming and -classpath may be set in the wrapper " +
 	    "script verify.sh"; 
 
@@ -91,7 +93,9 @@ public class Main implements IApplication {
 				markAsJoeE = true;
 			} else if (args[i].equals("-fail")) {
 				failIfNotJoeE = true;
-			} else if (args[i].equals("-classpath")) {
+			} else if (args[i].equals("-debug")) {
+                debug = true;
+            } else if (args[i].equals("-classpath")) {
 				if (i + 1 < args.length && !(args[i + 1].startsWith("-"))) {
 					classPathEntries = args[i + 1].split(pathSeparator);
 					i++;
@@ -175,7 +179,8 @@ public class Main implements IApplication {
 			
 			IPreferenceStore store = Plugin.getDefault().getPreferenceStore();
 			store.putValue(Preferences.P_TAMING_PATH, tamingPath); // update the tamingPath in the PreferenceStore
-
+			store.setValue(Preferences.P_ENABLE_DEBUG, debug);
+			
 			if (build) {
 				// if we haven't had any problems so far, build the project
 				proj.build(IncrementalProjectBuilder.FULL_BUILD, null);		

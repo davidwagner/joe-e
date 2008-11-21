@@ -33,6 +33,7 @@ public class SafeJImport {
     static void importTaming(PrintStream err, File dir, Taming taming,
                              IJavaProject project) throws JavaModelException {
         new Consumer(err, dir, taming, project).process();
+        err.println("Taming database imported.");
     }
    
     static class Consumer implements SafeJConsumer {
@@ -91,9 +92,9 @@ public class SafeJImport {
                 while (superclass != null 
                        && !taming.db.containsKey(superclass)) {
                     left.add(superclass);
-                    err.println("WARNING: type " + type.getFullyQualifiedName()
-                                + "'s superclass " + superclass.getElementName()
-                                + " is not in taming database.");
+                    warn("Type " + type.getFullyQualifiedName() +
+                         "'s superclass " + superclass.getElementName() + 
+                         " is not in taming database.");
                     superclass = sth.getSuperclass(superclass);
                 }
 
@@ -125,10 +126,9 @@ public class SafeJImport {
                     if (taming.db.containsKey(current)) {
                         checkHonoraries(current, type, sth);
                     } else {
-                        err.println("WARNING: type " + 
-                                    type.getFullyQualifiedName() + "'s " +
-                                    "superinterface " + current.getElementName()
-                                    + " is not in taming database.");
+                        warn("Type " + type.getFullyQualifiedName() +
+                             "'s superinterface " + current.getElementName() +
+                             " is not in taming database.");
                         for (IType iface : sth.getSuperInterfaces(current)) {
                             superInterfaces.add(iface);
                         }
@@ -170,10 +170,12 @@ public class SafeJImport {
                               & ~taming.db.get(subtype).honoraries;
             
             for (IType honorary : taming.detag(uninherited)) {
-                err.println("ERROR: type " + subtype.getFullyQualifiedName()
-                            + " does not inherit honorary interface " + 
-                            honorary.getElementName() + " from supertype "
-                            + supertype.getElementName() + ".");
+                if (!sth.contains(honorary)) {
+                    err.println("ERROR: type " + subtype.getFullyQualifiedName()
+                                + " does not inherit honorary interface " + 
+                                honorary.getElementName() + " from supertype "
+                                + supertype.getElementName() + ".");
+                }
             }
         }
         
@@ -337,7 +339,7 @@ public class SafeJImport {
                 IType type = project.findType(packageName, typeQualifiedName);
 
                 if (type == null || !type.exists()) {
-                    err.println("WARNING: Type " + className + " not found!");
+                    warn("Type " + className + " not found!");
                     throw new ImportFailure();
                 }
                                       
@@ -411,17 +413,17 @@ public class SafeJImport {
                                         allowedMethods, disabledFields, 
                                         disabledMethods, honoraryTypes));
                         
-                for (String f : relevantFields.keySet()) {
-                    err.println("WARNING: Field " + className + "." + f + " not mentioned " + 
-                                "in safej.");
+                for (String f : relevantFields.keySet()) {                  
+                    warn("Field " + className + "." + f + " not mentioned " +
+                         "in safej.");
                 }
                 for (String c : relevantConstructors.keySet()) {
-                    err.println("WARNING: Constructor " + packageName + "." + c + " not mentioned " + 
-                                "in safej.");
+                    warn("Constructor " + packageName + "." + c + 
+                         " not mentioned in safej.");
                 }
                 for (String m : relevantMethods.keySet()) {
-                    err.println("WARNING: Method " + className + "." + m + " not mentioned " + 
-                                "in safej.");
+                    warn("Method " + className + "." + m + " not mentioned " + 
+                         "in safej.");
                 }
             } catch (JavaModelException jme) {
                 jme.printStackTrace(err);
@@ -553,6 +555,12 @@ public class SafeJImport {
         private void failImporting(String problem) throws ImportFailure {
             err.println( "Importing failed: " + problem);
             throw new ImportFailure();
+        }
+        
+        private void warn(String problem) {
+            if (Preferences.isDebugEnabled()) {
+                err.println("WARNING: " + problem);
+            }
         }
     }
 }
