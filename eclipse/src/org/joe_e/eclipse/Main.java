@@ -55,16 +55,16 @@ public class Main implements IApplication {
 	String[] classPathEntries = null;   // location of the joe-e library and
 	                                    //   other external classes
 	static final String usageString = 
-	    "Usage:\n" +
-	    " -source PATH.   The path to the source classes to be verified.\n" +
+	    "Command-line options for the Joe-E verifier:\n" +
+	    " -source PATH    The path to the source classes to be verified.\n" +
 	    "                 Defaults to the current directory.\n" +
-	    " -taming PATH.   The location of the taming database.  Required.\n" +
-	    " -classpath PATH_OR_JAR[:PATH_OR_JAR]...\n" +
+	    " -taming PATH    The location of the taming database.  Required.\n" +
+	    " -classpath PATH_OR_JAR[" + pathSeparator + "PATH_OR_JAR]...\n" +
 	    "                 The compilation classpath, which must include\n" + 
 	    "                 the Joe-E library.  Required.\n" +
-	    " -markasjoee     Mark all packages as Joe-E packages\n" +
-	    " -fail           Fail if any package isn't Joe-E\n" +
-	    " -verbose        Enable additional debugging output\n\n" +
+	    " -markasjoee     Mark all packages as Joe-E packages.\n" +
+	    " -fail           Fail if any package isn't Joe-E.\n" +
+	    " -verbose        Enable additional debugging output.\n\n" +
 	    "The options -taming and -classpath may be set in the wrapper " +
 	    "script verify.sh"; 
 
