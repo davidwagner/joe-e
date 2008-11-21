@@ -64,7 +64,7 @@ public class Main implements IApplication {
 	    "                 the Joe-E library.  Required.\n" +
 	    " -markasjoee     Mark all packages as Joe-E packages\n" +
 	    " -fail           Fail if any package isn't Joe-E\n" +
-	    " -debug          Enable additional debugging output\n\n" +
+	    " -verbose        Enable additional debugging output\n\n" +
 	    "The options -taming and -classpath may be set in the wrapper " +
 	    "script verify.sh"; 
 
@@ -93,7 +93,7 @@ public class Main implements IApplication {
 				markAsJoeE = true;
 			} else if (args[i].equals("-fail")) {
 				failIfNotJoeE = true;
-			} else if (args[i].equals("-debug")) {
+			} else if (args[i].equals("-verbose")) {
                 debug = true;
             } else if (args[i].equals("-classpath")) {
 				if (i + 1 < args.length && !(args[i + 1].startsWith("-"))) {
