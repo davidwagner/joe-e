@@ -2,7 +2,7 @@
 <feature
       id="org.joe_e"
       label="Joe-E Verifier"
-      version="2.1.0"
+      version="2.2.0"
       provider-name="joe-e.org">
 
    <description url="http://www.joe-e.org">
@@ -64,7 +64,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
 
    <plugin
          id="org.joe_e"
-         download-size="77"
+         download-size="83"
          install-size="1"
          version="0.0.0"
          unpack="false"/>
