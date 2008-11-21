@@ -67,7 +67,8 @@ public class Printer {
         	     marker.getAttribute(IMarker.LINE_NUMBER) + ")");
         	String sourceString = 
         	     slc.getSourceCode((Integer) marker.getAttribute(IMarker.CHAR_START));
-        	System.out.println("\t" + sourceString);
+        	System.out.print("\t" + sourceString + 
+        	                (sourceString.endsWith("\n") ? "" : "\n"));
         	System.out.println("\t" +
         	     slc.makeDashes(sourceString,
         	         (Integer) marker.getAttribute(IMarker.CHAR_START),

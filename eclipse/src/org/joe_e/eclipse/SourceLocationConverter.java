@@ -29,7 +29,7 @@ public class SourceLocationConverter {
             int nextByte = contents.read();
             for (int i = 0; nextByte >= 0; ++i) {
                 if (nextByte == '\n') {
-                    newLines.add(i);
+                    newLines.add(i + 1);
                 }
                 nextByte = contents.read();
             }
@@ -71,27 +71,33 @@ public class SourceLocationConverter {
     
     String getSourceCode(int charNumber) throws CoreException {
     	int lineNumber = getLine(charNumber);
-    	int start = lineStarts[lineNumber-1];
-    	int end = lineStarts[lineNumber];
-    	int length = end - start - 1;
+    	int start = lineStarts[lineNumber - 1];
+    	byte[] arr;
     	
-        java.io.InputStream contents = file.getContents();
-        byte[] arr = new byte[length];
-        try {
-        	contents.skip(start+1);
-        	contents.read(arr, 0, length);
-        } catch (IOException e) {
-        	return "";
-        }
-        return new String(arr);
-        
+    	try { 
+    	   	java.io.InputStream contents = file.getContents();
+    	   	int length;
+    	   	if (lineNumber < lineStarts.length) {
+    	   	    int end = lineStarts[lineNumber];
+    	   	    length = end - start;
+    	   	} else {
+    	   	    length = contents.available();
+    	   	}
+   	
+    	   	arr = new byte[length];
+    	   	contents.skip(start);
+    	   	contents.read(arr, 0, length);
+    	} catch (IOException e) {
+    	   	return "";
+    	}
+    	return new String(arr);
     }
     
     String makeDashes(String source, int start, int end) {
     	String toReturn = "";
     	int lineNumber = getLine(start);
-    	start = start - lineStarts[lineNumber-1]-1;
-    	end = end - lineStarts[lineNumber-1]-1;
+    	start = start - lineStarts[lineNumber - 1];
+    	end = end - lineStarts[lineNumber - 1];
     	
     	for (int i = 0; i < source.length() && i < end; i++) {
     		if (i >= start) {

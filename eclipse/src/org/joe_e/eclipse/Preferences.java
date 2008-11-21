@@ -30,6 +30,7 @@ public class Preferences
 
     static final String P_TAMING_PATH = "tamingPathPreference";
     static final String P_ENABLE_TAMING = "enableTamingPreference";
+    static final String P_ENABLE_DEBUG = "enableDebugPreference";
     
 	public Preferences() {
 		super(GRID);
@@ -45,11 +46,11 @@ public class Preferences
 	 */
 	public void createFieldEditors() {
 		addField(new DirectoryFieldEditor(P_TAMING_PATH, 
-				"Taming &database:", getFieldEditorParent()));
-		addField(
-			new BooleanFieldEditor(P_ENABLE_TAMING,
-				"&Enable Taming checks",
-				getFieldEditorParent()));
+				     "&Taming database:", getFieldEditorParent()));
+		addField(new BooleanFieldEditor(P_ENABLE_TAMING,
+				     "&Enable Taming checks", getFieldEditorParent()));
+        addField(new BooleanFieldEditor(P_ENABLE_DEBUG,
+                     "Enable &debug output",  getFieldEditorParent()));
 
         /*
 		addField(new RadioGroupFieldEditor(
@@ -78,5 +79,10 @@ public class Preferences
     static String getTamingPath() {
         IPreferenceStore store = Plugin.getDefault().getPreferenceStore();
         return store.getString(P_TAMING_PATH);
+    }
+    
+    static boolean isDebugEnabled() {
+        IPreferenceStore store = Plugin.getDefault().getPreferenceStore();
+        return store.getBoolean(P_ENABLE_DEBUG);
     }
 }

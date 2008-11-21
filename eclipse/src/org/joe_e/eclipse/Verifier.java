@@ -384,7 +384,10 @@ public class Verifier {
             } else if (ib instanceof IMethodBinding) {
                 // Handled elsewhere since we wish to record the lexical type
                 // as well as resolve the binding.
-            } else {
+            } else if (ib instanceof IPackageBinding) {
+                // Don't worry about these.
+            } else if (ib == null) {
+                System.out.println("null binding for " + sn);
                 assert (ib == null || ib instanceof IPackageBinding);
                 // Don't worry about these.
             }
@@ -444,6 +447,12 @@ public class Verifier {
          */
         public boolean visit(ClassInstanceCreation cic) {
             IMethodBinding actualCtor = cic.resolveConstructorBinding();
+            if (actualCtor == null) {
+                addProblem("BUG in eclipse: unresolved superclass.  To " +
+                        "avoid, don't use classes hidden in other files.",
+                        cic);
+                return false;
+            }
             ITypeBinding actualClass = actualCtor.getDeclaringClass();
             // The lexical class may differ from the actual class in the case
             // of anonymous types
@@ -963,16 +972,39 @@ public class Verifier {
             // Bail out early in the case of a type defined in an initializer.
             // These trigger an Eclipse bug when I ask for their JavaElement (I
             // get the initializer instead!!)
+            if (typeDeclarationIsSane(td)) {        
+                checkType((ITypeBinding) td.resolveBinding());
+                return true;
+            } else {
+                classTags.push(null); // bogus item to be popped off by endVisit
+                return false;
+            }
+        }
+        
+        boolean typeDeclarationIsSane(TypeDeclaration td) {
             if (inInitializer()) {
                 addProblem("Definition of local type " + td.getName() + " not " +
                             "allowed in an initializer (due to bug in Eclipse)",
                             td.getName());
                 return false; // avoid encountering eclipse bugs
-            } else {
-                checkType((ITypeBinding) td.resolveBinding());
-                return true;
+            } 
+            
+            Type superType = td.getSuperclassType();
+            if (superType != null && superType.resolveBinding() == null) {
+                addProblem("BUG in eclipse: unresolved superclass.  To " +
+                           "avoid, don't use classes hidden in other files.",
+                           superType);
+                return false;
             }
-            // codeContext.push(td);
+            for (Object si : td.superInterfaceTypes()) {
+                if (((Type) si).resolveBinding() == null) {
+                     addProblem("BUG in eclipse: unresolved superinterface.  " +
+                                "To avoid, don't use classes hidden in other " +
+                                "files.", (Type) si);
+                    return false;
+                }
+            }
+            return true;
         }
 
         public boolean visit(AnonymousClassDeclaration acd) {
@@ -987,12 +1019,12 @@ public class Verifier {
                                "an initializer.  (Locals defined in an " +
                                "initializer are not supported.)", acd);
                 }
+                classTags.push(null); // bogus item to be popped off by endVisit
                 return false; // avoid encountering eclipse bugs
             } else {
                 checkType((ITypeBinding) acd.resolveBinding());
                 return true;
             }
-            // codeContext.push(acd);
         }
         
 
@@ -1010,6 +1042,17 @@ public class Verifier {
             // resolution, which is important for taming.  Also a flag 
             // dependency on superinterfaces, in case marker interfaces change. 
             ITypeBinding superTB = itb.getSuperclass(); // don't need for Enum
+            
+            //System.out.println("superclass for " + itb.getName() 
+            //                   + ": " + (superTB == null ? "null" : superTB.getName()));
+                        
+            //ITypeBinding[] interfaces = itb.getInterfaces();
+            //System.out.print("interfaces: [ ");
+            //for (ITypeBinding b : interfaces) {
+            //    System.out.print(b.getName() + " ");
+            //}
+            //System.out.println("]");
+                        
             if (superTB != null) {
                 state.addDeepDependency(icu, superTB);    
             }
@@ -1769,21 +1812,11 @@ public class Verifier {
         }
 
         public void endVisit(TypeDeclaration td) {
-            // Bail out early in the case of a type defined in an initializer.
-            // These trigger an Eclipse bug when I ask for their JavaElement
-            // (I get the initializer instead!!)
-            if (!inInitializer()) {
-                classTags.pop();
-            }
+            classTags.pop();
         }
         
         public void endVisit(AnonymousClassDeclaration acd) {
-            // Bail out early in the case of a type defined in an initializer.
-            // These trigger an Eclipse bug when I ask for their JavaElement
-            // (I get the initializer instead!!)
-            if (!inInitializer()) {
-                classTags.pop();
-            }
+            classTags.pop();
         }
         
         /*
