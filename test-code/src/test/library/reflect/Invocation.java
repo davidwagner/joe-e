@@ -75,15 +75,15 @@ public class Invocation {
 
         // construct()
         try {
-            Constructor publicCtor = 
+            Constructor<Token> publicCtor = 
                 Reflection.constructor(Token.class, new Class[] {});
-            Token t = (Token) Reflection.construct(publicCtor, new Object[] {});
+            Token t = Reflection.construct(publicCtor, new Object[] {});
         } catch (Exception e) {
             assert false;
         }
 
         try {
-            Constructor notReallyPublic = 
+            Constructor<NotPublic> notReallyPublic = 
                 Reflection.constructor(NotPublic.class, new Class[] {});
             Reflection.construct(notReallyPublic, new Object[] {});
             assert false;
