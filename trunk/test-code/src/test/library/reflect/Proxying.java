@@ -80,7 +80,7 @@ public class Proxying {
         // that does not meet the specification of the associated marker
         // interfaces.
         try {
-            Constructor c = Reflection.constructor(pow1.getClass(), 
+            Constructor<?> c = Reflection.constructor(pow1.getClass(), 
                                                    InvocationHandler.class);
             Reflection.construct(c, new Bar());
             // One or the other of the above should fail to prevent unsafety
