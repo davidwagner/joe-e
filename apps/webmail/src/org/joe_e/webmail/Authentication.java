@@ -102,17 +102,12 @@ public class Authentication implements org.joe_e.Equatable {
 		}
 		out.flush();
 		
-		// once we have the accounts file then we need to update
-		// postfix databases so that postfix knows about this new
-		// account
-		/*Writer rec = ASCII.output(Filesystem.writeNew(postfixRecipients));
-		for char(c : username.toCharArray()) {
-			
-		}*/
 		
-		// TODO do we have to createnewfile here?
-		// if so then we have to tame File class
-		File mailbox = Filesystem.file(mailboxes, username);
+		// TODO: once we have the accounts file then we need to update
+		// postfix databases so that postfix knows about this new
+		// account. This is challenging because I think we need to append to
+		// /etc/postfix/virtual_mailbox_recipients
+		
 		
 		// destroy this authentication agent
 		session.removeAttribute("auth");

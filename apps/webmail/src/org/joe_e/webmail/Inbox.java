@@ -25,7 +25,7 @@ public class Inbox extends HttpServlet {
 		
 		out.println("<a href=\"/webmail/compose\">Compose</a><br />");
 		ImmutableArray<Message> messages = user.getMessages();
-		for(Message m : messages) {
+		for (Message m : messages) {
 			out.println("<p><a href=\"/webmail/read?id="+m.getId()+"\">"+m.getSubject() + "</a></p>");
 		}
 		out.println("<a href=\"/webmail/logout\">Logout</a>");

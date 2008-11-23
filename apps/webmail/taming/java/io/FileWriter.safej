@@ -2,7 +2,7 @@
 # Allowing things that we need for webmail
 class("java.io.FileWriter",
   static(constructor(suppress, "FileWriter(File)", comment("default deny")),
-    constructor(allow, "FileWriter(File, boolean)", comment("allowed for webmail")),
+    constructor(suppress, "FileWriter(File, boolean)", comment("allowed for webmail")),
     constructor(suppress, "FileWriter(FileDescriptor)", comment("default deny")),
     constructor(suppress, "FileWriter(String)", comment("default deny")),
     constructor(suppress, "FileWriter(String, boolean)", comment("default deny"))))

@@ -2,7 +2,7 @@
 # Allowing things that we need for webmail
 class("java.security.MessageDigest",
   static(constructor(suppress, "MessageDigest(String)", comment("default deny")),
-    method(allow, "getInstance(String)", comment("allowed for webmail")),
+    method(suppress, "getInstance(String)", comment("arbitrary encryption shouldn't be allowed")),
     method(suppress, "getInstance(String, Provider)", comment("default deny")),
     method(suppress, "getInstance(String, String)", comment("default deny")),
     method(suppress, "isEqual(byte[], byte[])", comment("default deny"))),
