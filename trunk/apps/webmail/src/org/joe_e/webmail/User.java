@@ -1,11 +1,17 @@
 package org.joe_e.webmail;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.Reader;
+
 import javax.xml.parsers.*;
 
 import org.joe_e.array.ConstArray;
 import org.joe_e.array.ImmutableArray;
+import org.joe_e.charset.ASCII;
+import org.joe_e.file.Filesystem;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -34,8 +40,33 @@ public class User implements org.joe_e.Equatable {
 	}
 		
 	public ImmutableArray<Message> getMessages() {
+		ImmutableArray<Message> out = null;
+		File maildir = Filesystem.file(inbox, "Maildir");
+		File newFolder = Filesystem.file(maildir, "new");
+		if (newFolder.exists()) {
+			for (File message : newFolder.listFiles()) {
+				try {
+					Reader reader = ASCII.input(Filesystem.read(message));
+					BufferedReader in = new BufferedReader(reader);
+					String string = "";
+					String s = "";
+					while (( s = in.readLine()) != null) {
+						string += s + "\n";
+					}
+					Message msg = new Message(string);
+					if (out == null) {
+						out = ImmutableArray.array(msg);
+					} else {
+						out = out.with(msg);
+					}
+				} catch (FileNotFoundException f) {
+				} catch (IOException e) {
+				}
+			}
+		}
+		return out;
 		// TODO: check this usage with Adrian
-		ImmutableArray<Message> out = ImmutableArray.array();
+		/*ImmutableArray<Message> out = ImmutableArray.array();
 		
 		try {
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -53,7 +84,7 @@ public class User implements org.joe_e.Equatable {
 			return out;
 		}
 		
-		return out;
+		return out;*/
 	}
 	public Message getMessage(int id) {
 		for (Message m : this.getMessages()) {

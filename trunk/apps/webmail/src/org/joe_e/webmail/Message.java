@@ -29,6 +29,15 @@ public class Message implements org.joe_e.Immutable {
 		timeStamp = "";
 	}
 	
+	public Message(String body) {
+		this.id = -1;
+		this.subject = "";
+		this.sender = "";
+		this.recipient = "";
+		this.body = body;
+		this.timeStamp = "";
+	}
+	
 	public Message(User sender, String recipient, String subject, String body) {
 		//doesn't have an ID yet
 		id = -1;

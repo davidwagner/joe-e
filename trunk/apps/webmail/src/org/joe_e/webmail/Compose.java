@@ -68,15 +68,18 @@ public class Compose extends HttpServlet {
 			// fill props with whatever we wat
 			// TODO what are we supposed to put in properties?
 			// TODO for now we aren't using an Authenticator
+			// TODO to accept mail from outside we need to get postfix to listen on port 25
 			// because users have already been authenticated
 			
 			props.put("mail.smtp.host", "localhost");
+			props.put("mail.smtp.port", "10025");
+			
 			Session session = Session.getDefaultInstance(props, null);
 			javax.mail.Message msg = new MimeMessage(session);
 			try {
 				msg.setText(body);
 				msg.setSubject(subject);
-				msg.setFrom(new InternetAddress(user.getUserName() + "@joe-email.com"));
+				msg.setFrom(new InternetAddress(user.getUserName() + "@boink.joe-e.org"));
 				msg.addRecipient(javax.mail.Message.RecipientType.TO, new InternetAddress(to));
 			} catch (Exception e) {
 				errorMessage = "There something wrong, please try again";
@@ -88,7 +91,6 @@ public class Compose extends HttpServlet {
 			try {
 		        Transport.send(msg);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				errorMessage = "error in sending";
 				response.sendRedirect("/webmail/compose");
 				return;
