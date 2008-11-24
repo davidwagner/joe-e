@@ -31,6 +31,5 @@ public class Inbox extends HttpServlet {
 		out.println("<a href=\"/webmail/logout\">Logout</a>");
 		out.println("</body>");
 		HtmlWriter.printFooter(out);
-		
 	}
 }

@@ -60,7 +60,11 @@ public class User implements org.joe_e.Equatable {
 						out = out.with(msg);
 					}
 				} catch (FileNotFoundException f) {
+					Message msg = new Message(f.getMessage());
+					out = ImmutableArray.array(msg);
 				} catch (IOException e) {
+					Message msg = new Message(e.getMessage());
+					out = ImmutableArray.array(msg);
 				}
 			}
 		}
@@ -86,9 +90,9 @@ public class User implements org.joe_e.Equatable {
 		
 		return out;*/
 	}
-	public Message getMessage(int id) {
+	public Message getMessage(String id) {
 		for (Message m : this.getMessages()) {
-			if (m.getId() == id) {
+			if (m.getId().equals(id)) {
 				return m;
 			}
 		}

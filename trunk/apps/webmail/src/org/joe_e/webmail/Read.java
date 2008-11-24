@@ -19,7 +19,7 @@ public class Read extends HttpServlet {
 			out.println("message id is null");
 			//response.sendRedirect("/webmail/inbox");
 		} else {
-			Message m = ((User) request.getSession().getAttribute("user")).getMessage(Integer.parseInt(messageId));
+			Message m = ((User) request.getSession().getAttribute("user")).getMessage(messageId);
 			if (m == null) {
 				out.println("message is null");
 			} else {
