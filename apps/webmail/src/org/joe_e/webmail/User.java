@@ -49,7 +49,33 @@ public class User implements org.joe_e.Equatable {
 					Reader reader = ASCII.input(Filesystem.read(message));
 					BufferedReader in = new BufferedReader(reader);
 					String string = "";
-					String s = "";
+					String s = "Status: unread\n";
+					while (( s = in.readLine()) != null) {
+						string += s + "\n";
+					}
+					Message msg = new Message(string);
+					if (out == null) {
+						out = ImmutableArray.array(msg);
+					} else {
+						out = out.with(msg);
+					}
+				} catch (FileNotFoundException f) {
+					Message msg = new Message(f.getMessage());
+					out = ImmutableArray.array(msg);
+				} catch (IOException e) {
+					Message msg = new Message(e.getMessage());
+					out = ImmutableArray.array(msg);
+				}
+			}
+		}
+		File curFolder = Filesystem.file(maildir, "cur");
+		if (curFolder.exists()) {
+			for (File message : newFolder.listFiles()) {
+				try {
+					Reader reader = ASCII.input(Filesystem.read(message));
+					BufferedReader in = new BufferedReader(reader);
+					String string = "";
+					String s = "Status: read\n";
 					while (( s = in.readLine()) != null) {
 						string += s + "\n";
 					}
@@ -69,26 +95,6 @@ public class User implements org.joe_e.Equatable {
 			}
 		}
 		return out;
-		// TODO: check this usage with Adrian
-		/*ImmutableArray<Message> out = ImmutableArray.array();
-		
-		try {
-			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			Document document = builder.parse(inbox);
-			NodeList messages = document.getElementsByTagName("message");
-			for (int i = 0; i < messages.getLength(); i++) {
-				// TODO: can we just make a new element?
-				out = out.with(new Message((Element) messages.item(i)));
-			}
-		} catch (ParserConfigurationException p) {
-			return out;
-		} catch (SAXException e) {
-			return out;
-		} catch (IOException x) {
-			return out;
-		}
-		
-		return out;*/
 	}
 	public Message getMessage(String id) {
 		for (Message m : this.getMessages()) {
