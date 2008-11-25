@@ -15,7 +15,7 @@ public class Read extends HttpServlet {
 		PrintWriter out = response.getWriter();
 		HtmlWriter.printHeader(out);
 		String messageId = request.getParameter("id");
-		if (messageId == null) {
+		if (messageId == null || messageId.equals("")) {
 			out.println("message id is null");
 			//response.sendRedirect("/webmail/inbox");
 		} else {
@@ -24,6 +24,10 @@ public class Read extends HttpServlet {
 				out.println("message is null");
 			} else {
 				out.println("<h3>" + m.getSubject() + "</h3>");
+				out.println("<h4>From: " + m.getSender() + "</h4>");
+				out.println("<h4>Timestamp: " + m.getTimeStamp() + "</h4>");
+				out.println("<h4>Id: " + m.getId() + "</h4>");
+				out.println("<h4>Status: " + m.getStatus() + "</h4>");
 				out.println("<p>" + m.getBody() + "</p>");
 			}
 		}
