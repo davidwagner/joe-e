@@ -4,8 +4,21 @@ import java.io.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
+/**
+ * Servlet instance that displays an email message in the browser.
+ * @author akshay
+ *
+ */
 public class Read extends HttpServlet {
 
+	/**
+	 * Takes a message id as a GET parameter and prints out the 
+	 * message corresponding to that id. 
+	 * 
+	 * Note: this method is part of the UI, it contains no
+	 * security sensitive operations and thus can be modified in 
+	 * its entirety
+	 */
 	public void doGet(HttpServletRequest request, HttpServletResponse response) 
 		throws IOException, ServletException {
 		if (request.getSession().getAttribute("user") == null) {

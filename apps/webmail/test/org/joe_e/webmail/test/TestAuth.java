@@ -10,7 +10,7 @@ import org.joe_e.webmail.User;
 
 /**
  * @author akshay
- *
+ * @deprecated don't use this ever it doesn't work
  */
 public class TestAuth extends TestCase {
 		

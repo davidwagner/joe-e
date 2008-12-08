@@ -25,14 +25,13 @@ import org.joe_e.webmail.User;
  */
 public class AuthDistributor extends HttpServlet {
 
-	private final String accountsFile = "/Users/akshay/Desktop/accounts/";
-	private final String mailboxesRoot = "/Users/akshay/Desktop/mailboxes/";
+	private final String accountsFile = "/home/akshayk/accounts/";
+	private final String mailboxesRoot = "/var/mail/vhosts/boink.joe-e.org/";
 	private final String postfixRecipients = "/etc/postfix/virtual_mailbox_recipients";
 	
 	public void doGet(HttpServletRequest request, HttpServletResponse response) 
 		throws IOException, ServletException {
 		doPost(request, response);
-		
 	}
 	/**
 	 * Hand out a capability to an Authentication agent by setting a field in the
@@ -68,9 +67,9 @@ public class AuthDistributor extends HttpServlet {
 			session.setAttribute("auth", new Authentication(new File(accountsFile), 
 										 	new File(mailboxesRoot), 
 										 	new File(postfixRecipients), 
-										 	MessageDigest.getInstance("md5")));
+										 	MessageDigest.getInstance("md5"),
+										 	new PostfixClient()));
 		} catch (NoSuchAlgorithmException e1) {
-			// TODO Auto-generated catch block
 		}
 		
 		// then redirect as appropriate

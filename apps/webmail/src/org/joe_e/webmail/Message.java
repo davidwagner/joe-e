@@ -5,7 +5,6 @@ import org.w3c.dom.Element;
 
 
 /**
- * @TODO: should implement immutable or powerless, then we can maybe call new
  * @author akshay
  */
 public class Message implements org.joe_e.Immutable {
@@ -17,9 +16,6 @@ public class Message implements org.joe_e.Immutable {
 	private final String recipient;
 	private final String status;
 	
-	/** @TODO: can we get the timeStamp 
-	 * I think not!
-	 **/
 	private final String timeStamp;
 	
 	
@@ -43,7 +39,7 @@ public class Message implements org.joe_e.Immutable {
 	public Message(String input) {
 		ImmutableArray<String> message = ImmutableArray.array(input.split("\n\n"));
 		this.body = message.get(1);
-		message = ImmutableArray.array((message.get(1)).split("\n"));
+		message = ImmutableArray.array((message.get(0)).split("\n"));
 		
 		String sender = "";
 		String recipient = "";
@@ -58,7 +54,7 @@ public class Message implements org.joe_e.Immutable {
 			} else if (line.length() > 12 && line.substring(0, 12).equals("Delivered-To")) {
 				recipient = line.substring(13);
 			} else if (line.length() > 10 && (line.substring(0, 10).equals("Message-Id")
-		|| line.substring(0, 10).equals("Message-ID"))) {
+					|| line.substring(0, 10).equals("Message-ID"))) {
 				id = line.substring(13, line.length()-1);
 			} else if (line.length() > 7 && line.substring(0, 7).equals("Subject")) {
 				subject = line.substring(8);
@@ -95,5 +91,8 @@ public class Message implements org.joe_e.Immutable {
 	}
 	public String getStatus() {
 		return this.status;
+	}
+	public String toString() {
+		return "ID: " + this.id + " status: " + this.status;
 	}
 }
