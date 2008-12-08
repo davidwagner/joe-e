@@ -12,6 +12,7 @@ import org.joe_e.array.ConstArray;
 import org.joe_e.array.ImmutableArray;
 import org.joe_e.charset.ASCII;
 import org.joe_e.file.Filesystem;
+import org.joe_e.file.InvalidFilenameException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -29,7 +30,7 @@ public class User implements org.joe_e.Equatable {
 	private String name;
 	File inbox;
 	// capability to send out email
-	
+
 	public User (String username, File box) {
 		name = username;
 		inbox = box;
@@ -38,18 +39,18 @@ public class User implements org.joe_e.Equatable {
 	public String getUserName() {
 		return name;
 	}
-		
+
 	public ImmutableArray<Message> getMessages() {
 		ImmutableArray<Message> out = null;
-		File maildir = Filesystem.file(inbox, "Maildir");
-		File newFolder = Filesystem.file(maildir, "new");
-		if (newFolder.exists()) {
-			for (File message : newFolder.listFiles()) {
+		try {
+			File maildir = Filesystem.file(inbox, "Maildir");
+			File newFolder = Filesystem.file(maildir, "new");
+			for (File message : Filesystem.list(newFolder)) {
 				try {
 					Reader reader = ASCII.input(Filesystem.read(message));
 					BufferedReader in = new BufferedReader(reader);
-					String string = "";
-					String s = "Status: unread\n";
+					String string = "Status: unread\n";
+					String s = "";
 					while (( s = in.readLine()) != null) {
 						string += s + "\n";
 					}
@@ -60,22 +61,16 @@ public class User implements org.joe_e.Equatable {
 						out = out.with(msg);
 					}
 				} catch (FileNotFoundException f) {
-					Message msg = new Message(f.getMessage());
-					out = ImmutableArray.array(msg);
 				} catch (IOException e) {
-					Message msg = new Message(e.getMessage());
-					out = ImmutableArray.array(msg);
 				}
 			}
-		}
-		File curFolder = Filesystem.file(maildir, "cur");
-		if (curFolder.exists()) {
-			for (File message : newFolder.listFiles()) {
+			File curFolder = Filesystem.file(maildir, "cur");
+			for (File message : Filesystem.list(curFolder)) {
 				try {
 					Reader reader = ASCII.input(Filesystem.read(message));
 					BufferedReader in = new BufferedReader(reader);
-					String string = "";
-					String s = "Status: read\n";
+					String string = "Status: read\n";
+					String s = "";
 					while (( s = in.readLine()) != null) {
 						string += s + "\n";
 					}
@@ -86,13 +81,11 @@ public class User implements org.joe_e.Equatable {
 						out = out.with(msg);
 					}
 				} catch (FileNotFoundException f) {
-					Message msg = new Message(f.getMessage());
-					out = ImmutableArray.array(msg);
 				} catch (IOException e) {
-					Message msg = new Message(e.getMessage());
-					out = ImmutableArray.array(msg);
 				}
 			}
+		} catch (InvalidFilenameException e) {
+		} catch (IOException e) {
 		}
 		return out;
 	}
@@ -104,7 +97,7 @@ public class User implements org.joe_e.Equatable {
 		}
 		return null;
 	}
-	
+
 	public boolean equals(Object o) {
 		try {
 			User u = (User) o;
@@ -116,5 +109,5 @@ public class User implements org.joe_e.Equatable {
 		}
 		return false;
 	}
-	
+
 }

@@ -8,11 +8,11 @@ import javax.servlet.http.HttpSession;
 
 import org.joe_e.charset.ASCII;
 import org.joe_e.file.Filesystem;
+import org.joe_e.webmail.notjoe_e.PostfixClient;
 
 
 
 /**
- * @TODO: we need to be careful about synchronized access to mailboxes file
  * @author akshay
  *
  */
@@ -23,12 +23,15 @@ public class Authentication implements org.joe_e.Equatable {
 	private File accounts;
 	private File postfixRecipients;
 	private MessageDigest digest;
+	private PostfixClient client;
 	
-	public Authentication(File accountsRoot, File mailboxesRoot, File postfix, MessageDigest d) {
+	public Authentication(File accountsRoot, File mailboxesRoot, File postfix, MessageDigest d,
+							PostfixClient c) {
 		accounts = accountsRoot;
 		mailboxes = mailboxesRoot;
 		postfixRecipients = postfix;
 		digest = d;
+		client = c;
 	}
 	
 	/**
@@ -52,9 +55,6 @@ public class Authentication implements org.joe_e.Equatable {
 		/** 
 		 * @TODO: add a salt
 		 * @TODO: hash multiple times
-		 * @TODO: can't use String.getBytes(), so we need a workaround to update
-		 * 		  the digest.
-		 * @TODO: not sure this is workaround is ok... it still reveals default charset
 		 **/
 		try {
 			byte[] bytes = ASCII.encode(password);
@@ -91,6 +91,8 @@ public class Authentication implements org.joe_e.Equatable {
 			return false;
 		}
 		
+		// TODO: can we do this? what if the username is something malicious?
+		// I think we'll need to add some sort of checking here.
 		Writer out = ASCII.output(Filesystem.writeNew(Filesystem.file(accounts, username)));
 		byte[] bytes = ASCII.encode(password);
 		
@@ -103,14 +105,15 @@ public class Authentication implements org.joe_e.Equatable {
 		out.flush();
 		
 		
-		// TODO: once we have the accounts file then we need to update
+		// Once we have the accounts file then we need to update
 		// postfix databases so that postfix knows about this new
 		// account. This is challenging because I think we need to append to
 		// /etc/postfix/virtual_mailbox_recipients
-		
-		
-		// destroy this authentication agent
-		session.removeAttribute("auth");
-		return true;
+		if (client.updateDatabase(username)) {	
+			// destroy this authentication agent
+			session.removeAttribute("auth");
+			return true;
+		}
+		return false;
 	}
 }

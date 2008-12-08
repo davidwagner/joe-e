@@ -1,4 +1,4 @@
-# auto-generated safej: default deny everything
+# Manually edited
 class("java.util.Hashtable",
   static(constructor(suppress, "Hashtable()", comment("default deny")),
     constructor(suppress, "Hashtable(Map<? extends K,? extends V>)", comment("default deny")),
@@ -17,7 +17,7 @@ class("java.util.Hashtable",
     method(suppress, "isEmpty()", comment("default deny")),
     method(suppress, "keySet()", comment("default deny")),
     method(suppress, "keys()", comment("default deny")),
-    method(suppress, "put(K, V)", comment("default deny")),
+    method(allow, "put(K, V)", comment("allowed since hashtables are just dictionaries.")),
     method(suppress, "putAll(Map<? extends K,? extends V>)", comment("default deny")),
     method(suppress, "rehash()", comment("default deny")),
     method(suppress, "remove(Object)", comment("default deny")),

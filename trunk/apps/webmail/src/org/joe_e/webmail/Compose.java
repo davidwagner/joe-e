@@ -15,10 +15,10 @@ public class Compose extends HttpServlet {
 		throws IOException, ServletException {
 		/*
 		 * first check that the session is properly set.
-		 * TODO this doesn't actually check what we want
 		 */
 		if (request.getSession().getAttribute("user") == null) {
 			response.sendRedirect("/webmail/login");
+			return;
 		}
 		
 		User user = (User) request.getSession().getAttribute("user");
@@ -65,11 +65,6 @@ public class Compose extends HttpServlet {
 			 */
 			//Message message = new Message(user, to, subject, body);
 			Properties props = new Properties();
-			// fill props with whatever we wat
-			// TODO what are we supposed to put in properties?
-			// TODO for now we aren't using an Authenticator
-			// TODO to accept mail from outside we need to get postfix to listen on port 25
-			// because users have already been authenticated
 			
 			props.put("mail.smtp.host", "localhost");
 			props.put("mail.smtp.port", "10025");
