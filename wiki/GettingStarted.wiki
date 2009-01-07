@@ -44,9 +44,17 @@ To install Joe-E, you can use either the web-based Eclipse Updates magic, or sim
 
 == Installing from the Update Wizard ==
 
+*When upgrading Joe-E, it is recommended to uninstall it first*; see details in ChangeLog.
+We also recommend disabling the Joe-E verifier before uninstalling
+the old version and re-enabling it after installing the new one.  Forgetting to
+do so won't break anything, but it will leave unnecessary traces of the old one
+in the .project files.
+
 open Eclipse and from the menu bar invoke
 
+{{{
 Help -> Software Updates -> Find and Install...
+}}}
 
 This brings up a wizard interface.
 Click "Search for new features to install" and then "Next" to proceed.
@@ -59,14 +67,6 @@ Click "Finish".
 
 Dig down and select the "org.joe_e" / "Joe-E Verifer" feature (or just select
 the whole site - there's only one feature in it at present) and click Next.
-
-*Note: the Plug-in name has been changed to be more standard -- from "Joe_E"
-to "org.joe_e".  We recommend uninstalling before upgrading to the new one,
-otherwise you will have two Joe-E plugins with different names.  Sorry for the
-confusion.  We also recommend disabling the Joe-E verifier before uninstalling
-the old version and re-enabling it after installing the new one.  Forgetting to
-do so won't break anything, but it will leave unnecessary traces of the old one
-in the .project file.*
 
 Accept the license agreement.  (Believe it or not, it's impossible to
 distribute anything via Eclipse Update _without_ a clickthrough agreement; if
