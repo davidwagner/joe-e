@@ -2,6 +2,8 @@
 
 *See ChangeLog if you have used Joe-E before.*
 
+<wiki:toc/>
+
 = How it works =
 
 Joe-E behaves as a source-level code checker: it examines the source tree and checks that the all the security invariants from [http://www.cs.berkeley.edu/~daw/joe-e/spec-20080203.pdf the Joe-E specification] are respected.
