@@ -21,7 +21,7 @@ Note that other than providing some Java code with the Joe-E library, Joe-E does
 
 Joe-E requires Java 1.5 (not Java 6). Using a later version would require a compatible version of the taming database, as a few additional methods were genericized between 1.5 and 1.6. The taming database provided only works for the Java 1.5 class library.
 
-Joe-E also requires [http://www.eclipse.org/ Eclipse], the popular IDE for Java. There is a command-line version of the verifier too, but it (currently) consists of a wrapper around the Eclipse runtime... In other words, *you have to download and install Eclipse, even if you are not going to use it as an IDE for Joe-E development.* Version 3.3 or greater is required (ie codenames "Europa" or "Ganymede"); if you don't have Eclipse yet, we recommend [http://www.eclipse.org/downloads/packages/eclipse-ide-java-developers/ganymedesr1 Eclipse IDE for Java Developers] which is the smallest download with everything you need.  *note that Debian stable currently only includes Eclipse 3.2, which is too old to work with the current version*.  See the [http://wiki.eclipse.org/Eclipse/Installation Eclipse wiki] for instructions on how to install Eclipse.
+Joe-E also requires [http://www.eclipse.org/ Eclipse], the popular IDE for Java. There is a command-line version of the verifier too, but it (currently) consists of a wrapper around the Eclipse runtime... In other words, *you have to download and install Eclipse, even if you are not going to use it as an IDE for Joe-E development.* Version 3.3 or greater is required (ie codenames "Europa" or "Ganymede"); if you don't have Eclipse yet, we recommend [http://www.eclipse.org/downloads/packages/eclipse-ide-java-developers/ganymedesr1 Eclipse Ganymede SR1 IDE for Java Developers] which is the smallest download with everything you need.  *note that Debian stable currently only includes Eclipse 3.2, which is too old to work with the current version*.  See the [http://wiki.eclipse.org/Eclipse/Installation Eclipse wiki] for instructions on how to install Eclipse.
 
 = Download and install Joe-E =
 
@@ -33,6 +33,8 @@ The Joe-E distribution provides a shell script that scans your source tree and p
 
   # Edit the `verify.sh` script from the directory where you untarred Joe-E, and fill in the three variables at the top of the file. For ECLIPSE_PLUGINS_DIR, make sure you put the *global* plugins directory (ie the location of the file `org.eclipse.equinox.launcher.<someversion>.jar`), not a per-user directory.  For the other two variables, use the full path to the respective file names from the tarball (ie `/some/where/library-2.x.x.jar` and `/some/where/taming-200xxxxx` respectively).
   # Try it out from a command prompt: {{{ ./verify.sh -source /your/source/directory }}} This should produce a list of errors on the standard output.
+
+See CommandLine for more details on how to operate the command-line verifier.
 
 = Using Joe-E with Eclipse =
 
