@@ -25,7 +25,7 @@ Joe-E also requires [http://www.eclipse.org/ Eclipse], the popular IDE for Java.
 
 = Download and install Joe-E =
 
-All components of Joe-E are now available in a single tarball named something like `commandline-x.y.z.tar.gz`.  Get the most recent one from the [/p/joe-e/downloads/list downloads page] and untar it somewhere convenient.
+All components of Joe-E are now available in a single tarball named something like `commandline-x.y.z.tar.gz`.  Get the most recent one from the [http://code.google.com/p/joe-e/downloads/list downloads page] and untar it somewhere convenient.
 
 = Set up the command line verifier =
 
@@ -83,21 +83,29 @@ installed.
 
 == Installing manually ==
 
-The automatic installation has been known to have issues with Eclipse Ganymede in the past.  If that happens, just copy the `org.joe_e_2.x.x.jar` file from the tarball into the `eclipse/dropins` directory of Eclipse 3.4 "Ganymede".  (Eclipse 3.3 "Europa" doesn't have a `dropins` directory, use `eclipse/plugins` instead.)
+The automatic installation has been known to have issues with Eclipse 3.4 "Ganymede" in the past.  If that happens, just copy the `org.joe_e_2.x.x.jar` file from the tarball into the `eclipse/dropins` directory.  (Eclipse 3.3 "Europa" doesn't have a `dropins` directory, use `eclipse/plugins` instead.)
 
 == Configuration ==
 
-Before using the plugin, you must tell it the location of the taming database.
-Choose "Window -> Preferences" ("Eclipse -> Preferences" on a Mac) from the menu
-bar, select the Joe-E pane, and select the directory where you placed the taming
-files.
+Before enabling the plug-in for a project, the project must have the
+Joe-E library and an instance of the `org.joe_e.taming.Policy` class
+on the classpath. This is necessary both for running the verifier from
+Eclipse, and for linking and running the project's code itself.  Add
+library-2.x.x.jar as an External JAR in the project's classpath.  This
+is set in the project's Properties window (obtained by right-clicking
+and selecting Properties).  Select "Java Build Path" on the left, the
+"Libraries" tab at the top, and then "Add External JARs..." on the
+right.
+
+Before using the plugin, you must also tell it the location of the
+taming database.  Choose "Window -> Preferences" ("Eclipse ->
+Preferences" on a Mac) from the menu bar, select the Joe-E pane, and
+select the directory where you placed the taming files.  This is a
+global setting that doesn't have to be repeated for each project
+(unless you are using custom-made taming databases, which is beyond
+the scope of this document).
 
 == Using the Verifier ==
-
-Before enabling the plug-in for a project, the project must have the Joe-E
-library in its classpath.  Add library-2.x.x.jar as an External JAR in the
-project's classpath.  This is set in the project's Properties window (obtained by right-clicking and selecting Properties).  Select "Java Build Path" on the left,
-the "Libraries" tab at the top, and then "Add External JARs..." on the right.
 
 To enable Joe-E for a project, right-click on it and select 
 "Enable Joe-E Verifier".  This is a toggle option, and is checked
@@ -106,14 +114,6 @@ of the verifier.  The verifier is configured as a builder in Eclipse, so it
 will be run the same way as you run the Java compiler in Eclipse.  If
 Auto-Build is on (the default), it will run automatically on a file when it is
 modified and saved, or when changes to other files necessitate re-verification.
-
-== Running Joe-E Code ==
-
-To run Joe-E code, you will need to have the Joe-E library and an instance of the
-`org.joe_e.taming.Policy` class on the classpath.  This can be added to a Joe-E project
-by enabling "Automatically build Policy class" from the project's properties window.
-A "standard" version for if you don't have custom taming decisons
-will be made available soon as a downloadable JAR.
 
 == Quirks and Tips ==
 
@@ -138,7 +138,7 @@ The Filter function in the Problems tab is helpful for searching through a
 large number of errors or hiding some of them.  (It's that funky icon with
 the three arrows.)
 
-== Uninstallation ==
+= Uninstallation =
 
 You can completely disable or uninstall the verifier by running the inverse maneuver that you used to install it: that is from
 "Help -> Software Updates -> Manage Configuration", or by removing the copy of `org.joe_e_2.x.x.jar` file, respectively.
