@@ -1,46 +1,11 @@
 #summary Installation and Use instructions for the command-line version of the Joe-E verifier
 
-== Requirements ==
- # Java 1.5 (not Java 6).  Using a later version requires a compatible version of the taming database, as a few additional methods were genericized between 1.5 and 1.6.  The taming database provided assumes a Java 1.5 class library.
- # An installation of Eclipse 3.3. or later including the Java development tools.  Any download from eclipse.org will work except the one that is specifically for C and C++ development, but [http://www.eclipse.org/downloads/packages/eclipse-ide-java-developers/ganymedesr1 Eclipse IDE for Java Developers] is the smallest download with everything you need.
+== Installation and Configuration ==
 
-== Included in the tarball ==
-
- # The Joe-E for Eclipse plugin.
- # The Joe-E library
- # The latest version of the Joe-E taming database
- # The shell script `verify.sh`
-
-== Installation ==
-You need to install the Joe-E eclipse plugin somewhere that Eclipse
-can find it.  The easiest way to do this is to drop the
-`org.joe_e_2.x.x.jar` file into the `eclipse/dropins` directory of an unpacked
-Eclipse 3.4 (Ganymede) tarball from eclipse.org.
-[http://www.eclipse.org/downloads/packages/eclipse-ide-java-developers/ganymedesr1 Eclipse IDE for Java Developers] is the smallest download with everything you need.
-Eclipse 3.3 doesn't have a `dropins` directory, but you can place it in the
-`eclipse/plugins` directory.
-
-For installer or package-manager installed Eclipse installation, the
-location for added plugins varies between distributions.  (On Debian,
-and possibly other Linux distributions,
-plugins can be added on a per-user basis in the
-~/.eclipse/org.eclipse.sdk.ide/updates/eclipse/plugins directory
-*but note that Debian currently only includes Eclipse 3.2, which is too old 
-to work with the command-line verifier*.  If you have Debian, you'll
-have to download a newer version from eclipse.org.
-
-On OS X (for sytemwide installation): Put the plugin file into
-/Applications/eclipse/dropins or /Applications/eclipse/plugins
-
-== Configuration ==
-Edit verify.sh, and fill in the three variables at the top of the file.
-For `ECLIPSE_PLUGINS_DIR`, make sure you put the global plugins directory,
-which might be different from where you moved the Joe-E plugin to. For the
-other two variables, unless you move the library and taming database
-elsewhere, use the full path to this directory, followed by the file names
-(`library-2.x.x.jar` and `taming-200xxxxx` respectively).
+See GettingStarted for all the details.
 
 == Use ==
+
 Invoke the `verify.sh` script from the root of the directory containing Joe-E
 source code to verify, or use the `-source` option to specify a directory
 root for the source code.  You may use the `CLASSPATH` environment variable
