@@ -1,27 +1,47 @@
 #summary Instructions for installing and getting started with Joe-E
 
-= Introduction =
-In order to use Joe-E, you will need
-  # the Joe-E library, for use by your Joe-E application
-  # the taming database, specifying what Java library methods are safe to call
-  # the Joe-E verifier for Eclipse, to verify that a program is Joe-E compliant.
+*See ChangeLog if you have used Joe-E before.*
 
-= Details =
+= How it works =
 
-== The Joe-E library == 
-The library is a JAR file that can be downloaded in the Downloads section.
-It provides marker interfaces and utility classes that are useful for Joe-E programs.
-Some of the classes are required to be on the build path of a Joe-E application, or else the verifier will refuse to run.
+Joe-E behaves as a source-level code checker: it examines the source tree and checks that the all the security invariants from [http://www.cs.berkeley.edu/~daw/joe-e/spec-20080203.pdf the Joe-E specification] are respected.
 
-Download the JAR file to a convenient location.  You will need to add it as an external JAR in the build path of any Java project that you use the Joe-E verifier with.
+Joe-E consists of the following main parts:
+  # the Joe-E library, to link with your Joe-E application;
+  # the taming database, specifying what Java library methods are safe to call;
+  # the verifier program itself, (currently) implemented as an Eclipse plugin.
 
-== The taming database ==
-This is a collection of files specifying policy on which Java constructors, methods, and fields are allowable for Joe-E code to access.  Since the Java libraries were not designed with capability-security in mind, many of the methods provide ambient authority or ambient nondeterminism.  Without a taming database, you will not be able to access any classes from the Java libraries.  Since java.lang.Object is part of the library, this would be very restrictive indeed.
+The library is an ordinary JAR file.  It provides marker interfaces and utility classes that are useful for Joe-E programs.
 
-Download one of the archives containing the taming database and decompress it somewhere.  You'll need to tell Eclipse where it is later.
+The taming database is a collection of files specifying policy on which Java constructors, methods, and fields are allowable for Joe-E code to access.  Since the Java libraries were not designed with capability-security in mind, many of the methods provide ambient authority or ambient nondeterminism.  Without a taming database, you will not be able to access any classes from the Java libraries.  Since java.lang.Object is part of the library, this would be very restrictive indeed.
 
-== Installing the actual plug-in ==
-To install Joe-E, now with magical web-based Eclipse Updates magic,
+Note that other than providing some Java code with the Joe-E library, Joe-E does not pre-process the source code or intervene in any way in the compilation process, which is carried out by the Java compiler as usual.  As a consequence, *Joe-E will not prevent you from writing insecure code* unless you take special measures otherwise (such as a unit test that systematically runs the verifier against your codebase).
+
+= Requirements =
+
+Joe-E requires Java 1.5 (not Java 6). Using a later version would require a compatible version of the taming database, as a few additional methods were genericized between 1.5 and 1.6. The taming database provided only works for the Java 1.5 class library.
+
+Joe-E also requires [http://www.eclipse.org/ Eclipse], the popular IDE for Java. There is a command-line version of the verifier too, but it (currently) consists of a wrapper around the Eclipse runtime... In other words, *you have to download and install Eclipse, even if you are not going to use it as an IDE for Joe-E development.* Version 3.3 or greater is required (ie codenames "Europa" or "Ganymede"); if you don't have Eclipse yet, we recommend [http://www.eclipse.org/downloads/packages/eclipse-ide-java-developers/ganymedesr1 Eclipse IDE for Java Developers] which is the smallest download with everything you need.  *note that Debian stable currently only includes Eclipse 3.2, which is too old to work with the current version*.  See the [http://wiki.eclipse.org/Eclipse/Installation Eclipse wiki] for instructions on how to install Eclipse.
+
+= Download and install Joe-E =
+
+All components of Joe-E are now available in a single tarball named something like `commandline-x.y.z.tar.gz`.  Get the most recent one from the [/p/joe-e/downloads/list downloads page] and untar it somewhere convenient.
+
+= Set up the command line verifier =
+
+The Joe-E distribution provides a shell script that scans your source tree and produces a plain-text report of all Joe-E security violations found.  This is useful for unit testing (as explained above), or if you won't be using Eclipse for programming; some IDEs, such as Emacs, might be able to process the output of this script directly.
+
+  # Edit the `verify.sh` script from the directory where you untarred Joe-E, and fill in the three variables at the top of the file. For ECLIPSE_PLUGINS_DIR, make sure you put the *global* plugins directory (ie the location of the file `org.eclipse.equinox.launcher.<someversion>.jar`), not a per-user directory.  For the other two variables, use the full path to the respective file names from the tarball (ie `/some/where/library-2.x.x.jar` and `/some/where/taming-200xxxxx` respectively).
+  # Try it out from a command prompt: {{{ ./verify.sh -source /your/source/directory }}} This should produce a list of errors on the standard output.
+
+= Using Joe-E with Eclipse =
+
+A much more comfortable way of using Joe-E is from within Eclipse: Joe-E then behaves as another source of compile-time errors that pop up in the edit window and other navigational tools in Eclipse.
+
+To install Joe-E, you can use either the web-based Eclipse Updates magic, or simply copy over some files from the tarball into the Eclipse directories.
+
+== Installing from the Update Wizard ==
+
 open Eclipse and from the menu bar invoke
 
 Help -> Software Updates -> Find and Install...
@@ -58,6 +78,10 @@ Click Install to choose convenience over security (wins every time!).
 Eclipse recommends that you restart.  I just tested it, and it does appear
 necessary to do so.  After restarting, you should have the Eclipse plug-in
 installed.
+
+== Installing manually ==
+
+The automatic installation has been known to have issues with Eclipse Ganymede in the past.  If that happens, just copy the `org.joe_e_2.x.x.jar` file from the tarball into the `eclipse/dropins` directory of Eclipse 3.4 "Ganymede".  (Eclipse 3.3 "Europa" doesn't have a `dropins` directory, use `eclipse/plugins` instead.)
 
 == Configuration ==
 
