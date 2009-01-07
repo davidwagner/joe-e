@@ -105,19 +105,10 @@ will be run the same way as you run the Java compiler in Eclipse.  If
 Auto-Build is on (the default), it will run automatically on a file when it is
 modified and saved, or when changes to other files necessitate re-verification.
 
-*Joe-E code is now identified by whether or not the package is annotated with
-the org.joe_e.IsJoeE annotation type!*  This can be added to a package by creating a file
-named package-info.java in the package directory containing the line
-"@org.joe_e.IsJoeE package package.name;" where package.name is the name of the package.
-Once you've created this file once, you can copy and paste the file to other projects; Eclipse
-is smart enough to fix the package name.  This approach allows Joe-E code to be recognized
-efficiently at runtime and eliminates the need to add Joe-E code to the taming database if
-shared between projects.
-
 == Running Joe-E Code ==
 
 To run Joe-E code, you will need to have the Joe-E library and an instance of the
-org.joe_e.taming.Policy class on the classpath.  This can be added to a Joe-E project
+`org.joe_e.taming.Policy` class on the classpath.  This can be added to a Joe-E project
 by enabling "Automatically build Policy class" from the project's properties window.
 A "standard" version for if you don't have custom taming decisons
 will be made available soon as a downloadable JAR.
@@ -147,5 +138,5 @@ the three arrows.)
 
 == Uninstallation ==
 
-You can completely disable or uninstall the verifier from
-"Help -> Software Updates -> Manage Configuration".
+You can completely disable or uninstall the verifier by running the inverse maneuver that you used to install it: that is from
+"Help -> Software Updates -> Manage Configuration", or by removing the copy of `org.joe_e_2.x.x.jar` file, respectively.
