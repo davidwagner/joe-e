@@ -8,8 +8,12 @@ Note that this change log is incomplete, as it focuses on the changes that impac
    * Eclipse 3.4 "Ganymede" is supported.
    * A command-line version is provided, which is useful for other IDEs than Eclipse (eg Emacs).  You still need a copy of Eclipse to run the verifier though, even in command-line mode!
 
-= New in version 2.1 =
+= New in version 2.1 or before =
 
+   * the Plug-in name has been changed to be more standard -- from "Joe_E"
+to "org.joe_e".  *We recommend uninstalling before upgrading to the new one,
+otherwise you will have two Joe-E plugins with different names.*  Sorry for the
+confusion.
    * *Joe-E code is now identified by whether or not the package is annotated with
 the org.joe_e.IsJoeE annotation type!*  This can be added to a package by creating a file
 named package-info.java in the package directory containing the line
