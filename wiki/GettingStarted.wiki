@@ -100,8 +100,7 @@ taming database.  Choose "Window -> Preferences" ("Eclipse ->
 Preferences" on a Mac) from the menu bar, select the Joe-E pane, and
 select the directory where you placed the taming files.  This is a
 global setting that doesn't have to be repeated for each project
-(unless you are using custom-made taming databases, which is beyond
-the scope of this document).
+(unless you are using custom-made taming databases, as explained below).
 
 == Using the Verifier ==
 
