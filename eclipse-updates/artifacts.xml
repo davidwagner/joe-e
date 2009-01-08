@@ -11,24 +11,11 @@
     <rule filter='(&amp; (classifier=org.eclipse.update.feature))' output='${repoUrl}/features/${id}_${version}.jar'/>
   </mappings>
   <artifacts size='18'>
-    <artifact classifier='osgi.bundle' id='Joe_E' version='0.5.0'>
-      <properties size='3'>
-        <property name='artifact.size' value='36515'/>
-        <property name='download.size' value='36515'/>
-        <property name='download.contentType' value='application/zip'/>
-      </properties>
-    </artifact>
     <artifact classifier='osgi.bundle' id='org.joe_e' version='2.1.0'>
       <properties size='3'>
         <property name='artifact.size' value='76541'/>
         <property name='download.size' value='76541'/>
         <property name='download.contentType' value='application/zip'/>
-      </properties>
-    </artifact>
-    <artifact classifier='org.eclipse.update.feature' id='Joe_E' version='0.5.0'>
-      <properties size='2'>
-        <property name='artifact.size' value='1350'/>
-        <property name='download.size' value='1350'/>
       </properties>
     </artifact>
     <artifact classifier='osgi.bundle' id='org.joe_e' version='2.2.0'>
@@ -45,48 +32,16 @@
         <property name='download.contentType' value='application/zip'/>
       </properties>
     </artifact>
-    <artifact classifier='osgi.bundle' id='Joe_E' version='2.0.0'>
-      <properties size='3'>
-        <property name='artifact.size' value='73776'/>
-        <property name='download.size' value='73776'/>
-        <property name='download.contentType' value='application/zip'/>
-      </properties>
-    </artifact>
     <artifact classifier='org.eclipse.update.feature' id='org.joe_e' version='2.1.0'>
       <properties size='2'>
         <property name='artifact.size' value='1393'/>
         <property name='download.size' value='1393'/>
       </properties>
     </artifact>
-    <artifact classifier='org.eclipse.update.feature' id='Joe_E' version='2.0.0'>
-      <properties size='2'>
-        <property name='artifact.size' value='1392'/>
-        <property name='download.size' value='1392'/>
-      </properties>
-    </artifact>
-    <artifact classifier='org.eclipse.update.feature' id='Joe_E' version='1.0.0'>
-      <properties size='2'>
-        <property name='artifact.size' value='1387'/>
-        <property name='download.size' value='1387'/>
-      </properties>
-    </artifact>
     <artifact classifier='org.eclipse.update.feature' id='org.joe_e' version='2.2.0'>
       <properties size='2'>
         <property name='artifact.size' value='1703'/>
         <property name='download.size' value='1703'/>
-      </properties>
-    </artifact>
-    <artifact classifier='osgi.bundle' id='Joe_E' version='1.0.1'>
-      <properties size='3'>
-        <property name='artifact.size' value='44562'/>
-        <property name='download.size' value='44562'/>
-        <property name='download.contentType' value='application/zip'/>
-      </properties>
-    </artifact>
-    <artifact classifier='org.eclipse.update.feature' id='Joe_E' version='1.0.1'>
-      <properties size='2'>
-        <property name='artifact.size' value='1387'/>
-        <property name='download.size' value='1387'/>
       </properties>
     </artifact>
     <artifact classifier='osgi.bundle' id='org.joe_e' version='2.2.0'>
@@ -121,13 +76,6 @@
       <properties size='3'>
         <property name='artifact.size' value='84671'/>
         <property name='download.size' value='84671'/>
-        <property name='download.contentType' value='application/zip'/>
-      </properties>
-    </artifact>
-    <artifact classifier='osgi.bundle' id='Joe_E' version='1.0.0'>
-      <properties size='3'>
-        <property name='artifact.size' value='44446'/>
-        <property name='download.size' value='44446'/>
         <property name='download.contentType' value='application/zip'/>
       </properties>
     </artifact>
