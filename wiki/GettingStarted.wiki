@@ -25,7 +25,7 @@ Joe-E requires Java 1.5 (not Java 6). The code is compatible, but using a later 
 
 Joe-E also requires [http://www.eclipse.org/ Eclipse], the popular IDE for Java. There is a command-line version of the verifier too, but it (currently) consists of a wrapper around the Eclipse runtime... In other words, *you have to download and install Eclipse, even if you are not going to use it as an IDE for Joe-E development.* Version 3.3 or greater is required for the command line version (i.e., codenames "Europa" or "Ganymede"); older versions (3.x) should work with the interactive plugin.
 
-If you don't have Eclipse yet, we recommend [http://www.eclipse.org/downloads/packages/eclipse-ide-java-developers/ganymedesr1 Eclipse Ganymede SR1 IDE for Java Developers] which is the smallest download with everything you need.  *note that Debian only includes Eclipse 3.2, which is too old to work with the command-line version*.  See the [http://wiki.eclipse.org/Eclipse/Installation Eclipse wiki] for instructions on how to install Eclipse.
+If you don't have Eclipse yet, we recommend [http://www.eclipse.org/downloads/packages/eclipse-ide-java-developers/ganymedesr1 Eclipse Ganymede SR1 IDE for Java Developers] which is the smallest download with everything you need.  *Note that Debian only includes Eclipse 3.2, which is too old to work with the command-line version.*  See the [http://wiki.eclipse.org/Eclipse/Installation Eclipse wiki] for instructions on how to install Eclipse.
 
 = Download and install Joe-E =
 
