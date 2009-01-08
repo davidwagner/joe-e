@@ -87,8 +87,7 @@ To manually install the plugin, copy the `org.joe_e_2.x.x.jar` file from the tar
 == Configuration ==
 
 Before enabling the plug-in for a project, the project must have the
-Joe-E library and an instance of the `org.joe_e.taming.Policy` class
-on the classpath. This is necessary both for running the verifier from
+Joe-E library on the classpath. This is necessary both for running the verifier from
 Eclipse, and for linking and running the project's code itself.  Add
 library-2.x.x.jar as an External JAR in the project's classpath.  This
 is set in the project's Properties window (obtained by right-clicking
@@ -114,6 +113,14 @@ will be run the same way as you run the Java compiler in Eclipse.  If
 Auto-Build is on (the default), it will run automatically on a file when it is
 modified and saved, or when changes to other files necessitate re-verification.
 
+To *run* a Joe-E program it is necessary to have a copy of the `org.joe_e.taming.Policy` class which contains the runtime taming database, on the classpath.  If you are using the taming database from this site unmodified, you can just download the JAR containing this class, org.joe_e.taming-200xxxxx.jar; it is also included in the commandline tarball starting with version 2.2.0a.
+
+If you make any custom taming decisions (e.g. to allow the use of a third-party library by Joe-E code), you can generate the `org.joe_e.taming.Policy` class from the taming database using the interactive verifier.  This is done by 
+  # selecting a Joe-E project where you want this class to be generated
+  # right-clicking the project and selecting "Properties"
+  # selecting "Joe-E" on the left
+  # enabling the option "Automatically build Policy class"
+
 == Quirks and Tips ==
 
 Immediately after starting Eclipse, the plug-in may seem dead
@@ -133,11 +140,14 @@ necessary, however, as the Joe-E builder tries to automatically re-check files
 if a change to some other file could affect the set of errors the verifer will
 generate.  Please let me know if there is a case that isn't handled here.
 
-The Filter function in the Problems tab is helpful for searching through a 
-large number of errors or hiding some of them.  (It's that funky icon with
-the three arrows.)
+In order to see the Joe-E errors, you may need to change the viewing preferences for the Problems pane.  From the downward-pointing triangle menu, select an appropriate configuration, like "All Errors", or set up a new one by selecting "Configure Contents...".  We find a configuration "All on Selection" to be the most useful.
+  # set Scope to "On selected element and its children"
+  # enable all severities
+  # select all types (or at least include "Joe-E Problem")
+
+In older versions of Eclipse, clicking the icon with three arrows brings up the Filters dialog with similar options.
 
 = Uninstallation =
 
-You can completely disable or uninstall the verifier by running the inverse maneuver that you used to install it: that is from
+You can completely uninstall the verifier by running the inverse maneuver that you used to install it: that is from
 "Help -> Software Updates -> Manage Configuration", or by removing the copy of `org.joe_e_2.x.x.jar` file, respectively.
