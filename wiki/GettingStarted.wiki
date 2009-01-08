@@ -21,9 +21,11 @@ Note that other than providing some Java code with the Joe-E library, Joe-E does
 
 = Requirements =
 
-Joe-E requires Java 1.5 (not Java 6). Using a later version would require a compatible version of the taming database, as a few additional methods were genericized between 1.5 and 1.6. The taming database provided only works for the Java 1.5 class library.
+Joe-E requires Java 1.5 (not Java 6). The code is compatible, but using a later version would require a compatible version of the taming database, as a few additional methods were genericized between 1.5 and 1.6. The taming database provided only works for the Java 1.5 class library.
 
-Joe-E also requires [http://www.eclipse.org/ Eclipse], the popular IDE for Java. There is a command-line version of the verifier too, but it (currently) consists of a wrapper around the Eclipse runtime... In other words, *you have to download and install Eclipse, even if you are not going to use it as an IDE for Joe-E development.* Version 3.3 or greater is required (ie codenames "Europa" or "Ganymede"); if you don't have Eclipse yet, we recommend [http://www.eclipse.org/downloads/packages/eclipse-ide-java-developers/ganymedesr1 Eclipse Ganymede SR1 IDE for Java Developers] which is the smallest download with everything you need.  *note that Debian stable currently only includes Eclipse 3.2, which is too old to work with the current version*.  See the [http://wiki.eclipse.org/Eclipse/Installation Eclipse wiki] for instructions on how to install Eclipse.
+Joe-E also requires [http://www.eclipse.org/ Eclipse], the popular IDE for Java. There is a command-line version of the verifier too, but it (currently) consists of a wrapper around the Eclipse runtime... In other words, *you have to download and install Eclipse, even if you are not going to use it as an IDE for Joe-E development.* Version 3.3 or greater is required for the command line version (i.e., codenames "Europa" or "Ganymede"); older versions (3.x) should work with the interactive plugin.
+
+If you don't have Eclipse yet, we recommend [http://www.eclipse.org/downloads/packages/eclipse-ide-java-developers/ganymedesr1 Eclipse Ganymede SR1 IDE for Java Developers] which is the smallest download with everything you need.  *note that Debian only includes Eclipse 3.2, which is too old to work with the command-line version*.  See the [http://wiki.eclipse.org/Eclipse/Installation Eclipse wiki] for instructions on how to install Eclipse.
 
 = Download and install Joe-E =
 
@@ -42,12 +44,11 @@ See CommandLine for more details on how to operate the command-line verifier.
 
 A much more comfortable way of using Joe-E is from within Eclipse: Joe-E then behaves as another source of compile-time errors that pop up in the edit window and other navigational tools in Eclipse.
 
-To install Joe-E, you can use either the web-based Eclipse Updates magic, or simply copy over some files from the tarball into the Eclipse directories.
+To install Joe-E, you can can use the web-based Eclipse Updates magic, copy the plugin jar from tarball into the appropriate Eclipse directory.  In either case, you will need some other files which are all included in the the tarball and can also be downloaded separately.
 
 == Installing from the Update Wizard ==
 
-*When upgrading Joe-E, it is recommended to uninstall it first*; see details in ChangeLog.
-We also recommend disabling the Joe-E verifier before uninstalling
+*When upgrading Joe-E from 2.0 or earlier, it is necessary to uninstall it first*; see details in ChangeLog.  We also recommend disabling the Joe-E verifier before uninstalling
 the old version and re-enabling it after installing the new one.  Forgetting to
 do so won't break anything, but it will leave unnecessary traces of the old one
 in the .project files.
@@ -61,8 +62,7 @@ Help -> Software Updates -> Find and Install...
 This brings up a wizard interface.
 Click "Search for new features to install" and then "Next" to proceed.
 
-Click "New Remote Site..." and put in a title like "eclipse.joe-e.org"
-and for the URL put "http://eclipse.joe-e.org".  Click "OK" to add
+Click "Add Site..." and for the URL put "http://eclipse.joe-e.org".  Click "OK" to add
 it to the list of sites.
 
 Click "Finish".
@@ -76,16 +76,13 @@ you leave it blank, Eclipse refuses to install it.)
 
 Accept the default install location (or change it), and click Finish.
 
-You will get a nasty warning that the plug-in is not cryptographically signed.
-Click Install to choose convenience over security (wins every time!).
-
-Eclipse recommends that you restart.  I just tested it, and it does appear
+Eclipse recommends that you restart.  It does appear
 necessary to do so.  After restarting, you should have the Eclipse plug-in
 installed.
 
 == Installing manually ==
 
-The automatic installation has been known to have issues with Eclipse 3.4 "Ganymede" in the past.  If that happens, just copy the `org.joe_e_2.x.x.jar` file from the tarball into the `eclipse/dropins` directory.  (Eclipse 3.3 "Europa" doesn't have a `dropins` directory, use `eclipse/plugins` instead.)
+To manually install the plugin, copy the `org.joe_e_2.x.x.jar` file from the tarball into the `eclipse/dropins` directory.  (Eclipse 3.3 "Europa" and earlier don't have a `dropins` directory, use `eclipse/plugins` instead.)
 
 == Configuration ==
 
