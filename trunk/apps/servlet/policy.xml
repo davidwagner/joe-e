@@ -1,11 +1,11 @@
 <web-app>
 <servlet>
   <servlet-name>index</servlet-name>
-  <servlet-class>org.joe_e.servlet.JoeEServlet</servlet-class>
+  <servlet-class>org.joe_e.servlet.mail.IndexServlet</servlet-class>
 </servlet>
 <servlet>
   <servlet-name>login</servlet-name>
-  <servlet-class>org.joe_e.servlet.LoginServlet</servlet-class>
+  <servlet-class>org.joe_e.servlet.mail.LoginServlet</servlet-class>
 </servlet>
 <servlet-mapping>
   <servlet-name>index</servlet-name>
