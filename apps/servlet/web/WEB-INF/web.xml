@@ -89,7 +89,8 @@
        <servlet-class>org.joe_e.servlet.Dispatcher</servlet-class>
        <init-param>
          <param-name>policy</param-name>
-         <param-value>/Users/akshay/Documents/workspace/ServletFramework/policy.xml</param-value>
+         <!-- TODO: needs to be updated for each app -->
+         <param-value>/Users/akshay/Documents/workspace/servlet/policy.xml</param-value>
        </init-param>
        <load-on-startup>1</load-on-startup>
     </servlet>
@@ -115,7 +116,7 @@
       </description>
        <init-param>
          <param-name>policy</param-name>
-         <param-value>/Users/akshay/Documents/workspace/ServletFramework/policy.xml</param-value>
+         <param-value>/Users/akshay/Documents/workspace/servlet/policy.xml</param-value>
        </init-param>
       <servlet-class>org.joe_e.servlet.Dispatcher</servlet-class>
       <!-- Load this servlet at server startup time-->

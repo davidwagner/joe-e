@@ -18,15 +18,35 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+/**
+ * Joe-E Servlet Dispatcher. This class is the core of the Joe-E Servlet Framework. 
+ * It is responsible for reading and parsing the policy.xml file for the webapp, and
+ * for dispatching specific requests to the actual JoeEServlet instances. Every request
+ * goes through the dispatcher, which looks up which servlet to forward the request to
+ * and performs the necessary session subsetting as specified by that servlet's 
+ * SessionView object.
+ * @author akshay
+ *
+ */
 public class Dispatcher extends HttpServlet {
 
+	// The map that contains url to servlet mappings
+	// TODO: does the map work if we have complex url-patterns? (i.e. regex stuff)
 	private HashMap<String, JoeEServlet> map;
 	
-	public void init() throws ServletException {
-		// TODO: get policy.xml and parse it
-		// TODO: this is currently a naive policy.xml file
-		// set up data structure containing url->servlet mappings
-		// and set up the data structure with servlet->policy mappings
+	/**
+	 * initializes the Dispatcher by reading and parsing
+	 * the policy.xml file and making the url->servlet 
+	 * mappings.
+	 * @throws ServletException if the policy file cannot
+	 * be found or if the class loader was unable to load the
+	 * JoeEServlet instances.
+	 * TODO we should probably do session initialization here
+	 * TODO exceptions should have meaningful messages
+	 * TODO clean up the logging stuff.
+	 *
+	 */
+	 	public void init() throws ServletException {
 		try {
 			File policy = new File((String) getServletConfig().getInitParameter("policy"));
 			if (policy.exists()) {
@@ -34,6 +54,8 @@ public class Dispatcher extends HttpServlet {
 				for (String s : map.keySet()) {
 					getServletConfig().getServletContext().log(s + ": " + map.get(s).toString());
 				}
+			} else {
+				throw new ServletException();
 			}
 		} catch (ServletException e) {
 			getServletConfig().getServletContext().log("caught exception... probably due to class loader issues");
@@ -41,40 +63,90 @@ public class Dispatcher extends HttpServlet {
 		}
 	}
 	
+	/**
+	 * Handle an HTTP GET request by finding the correct servlet
+	 * and forwarding the request to it. Also restricts access
+	 * to the HttpSession members as specified by the servlet's
+	 * SessionView inner class.
+	 * @throws ServletException if unable to dynamically instantiate
+	 * the SessionView object and populate its members. Or if there
+	 * are any other reflection problems
+	 * TODO: exceptions should have meaningful messages
+	 * TODO: clean up the logging stuff 
+	 * TODO: should we allow GET requests to modify the session? 
+	 * aren't they not supposed to change state?
+	 */
 	public void doGet(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
-		// 1. figure out what servlet to dispatch to
-		getServletConfig().getServletContext().log("request for: " + req.getServletPath());
-		String dispatchTo = req.getServletPath();
-		
-		req.getSession().setAttribute("name", "Akshay");
-		// 2. subset req.getSession()
-		// TODO: need to check that this is fine
-		JoeEServlet servlet = map.get(dispatchTo);
+		JoeEServlet servlet = findServlet(req.getServletPath());
 		SessionView s = null;
 		try {
 			s = servlet.getSessionView();
 			if (s != null) {
 				s.fillSessionView(req.getSession());
+				servlet.doGet(req, response, s);
+				s.fillHttpSession(req.getSession());
 			}
 		} catch(IllegalAccessException i) {
 			throw new ServletException();
 		} catch(InstantiationException i) {
-			getServletConfig().getServletContext().log(i.getMessage());
 			throw new ServletException();
 		} catch(InvocationTargetException i) {
 			throw new ServletException();
 		}
-		
-		// TODO: 3. pull out the print writer
-		// TODO: 4. call appServlet.doGet(sessionSubset, printWriter)
-		getServletConfig().getServletContext().log("session type: " + s.getClass());
-		servlet.doGet(req, response, s);	
 	}
 	
 	
+	/**
+	 * Handle an HTTP POST request by finding the correct servlet
+	 * and forwarding the request to it. Also restricts access
+	 * to the HttpSession members as specified by the servlet's
+	 * SessionView inner class.
+	 * @throws ServletException if unable to dynamically instantiate
+	 * the SessionView object and populate its members. Or if there
+	 * are any other reflection problems
+	 * TODO: exceptions should have meaningful messages
+	 * TODO: clean up the logging stuff
+	 * TODO: what are the differences between GET and POST methods from
+	 * the point of view of the dispatcher?
+	 */
 	public void doPost(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
+		JoeEServlet servlet = findServlet(req.getServletPath());
+		SessionView s = null;
+		try {
+			s = servlet.getSessionView();
+			if (s != null) {
+				s.fillSessionView(req.getSession());
+				servlet.doPost(req, response, s);
+				s.fillHttpSession(req.getSession());
+				getServletConfig().getServletContext().log((String) req.getSession().getAttribute("name"));
+			}
+		} catch(IllegalAccessException i) {
+			throw new ServletException();
+		} catch(InstantiationException i) {
+			throw new ServletException();
+		} catch(InvocationTargetException i) {
+			throw new ServletException();
+		}
 	}
 	
+	/**
+	 * perform a lookup in the url->servlet map for the string s
+	 * @param s
+	 * @return the JoeEServlet corresponding to the url s
+	 */
+	private JoeEServlet findServlet(String s) {
+		getServletConfig().getServletContext().log("request for: " + s);
+		return map.get(s);
+	}
+	
+	
+	/**
+	 * Parses the policy file and fills the map with the url->servlet
+	 * mappings.
+	 * @param File policy
+	 * @throws ServletException if anything goes wrong in the parsing
+	 * TODO: this may need some cleaning up
+	 */
 	private void parsePolicy(File policy) throws ServletException {
 		try {
 			SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
@@ -91,6 +163,14 @@ public class Dispatcher extends HttpServlet {
 		}
 	}
 	
+	/**
+	 * The call back class for the SAXParser. This implements the actual 
+	 * functionality of the parser that finds the url mappings and puts
+	 * them in the map. The details of implementation or not entirely 
+	 * important and this should only be used to parse the policy file
+	 * @author akshay
+	 *
+	 */
 	private class PolicyHandler extends DefaultHandler {
 		
 		HashMap<String, String> servletMappings = new HashMap<String, String>();
