@@ -51,7 +51,9 @@ public class SessionView {
 	 */
 	public void fillHttpSession(HttpSession ses) throws IllegalAccessException {
 		for (Field f : this.getClass().getDeclaredFields()) {
-			if (!f.isSynthetic() && !f.isAccessible()) {
+			// TODO: HACK! ask adrian what's going on here
+			f.setAccessible(true);
+			if (!f.isSynthetic() && f.isAccessible()) {
 				ses.setAttribute(f.getName(), f.get(this));
 			}
 		}
