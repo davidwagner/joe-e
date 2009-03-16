@@ -14,7 +14,7 @@ import org.joe_e.servlet.SessionView;
 public class LoginServlet extends JoeEServlet {
 
 	public class SessionView extends org.joe_e.servlet.SessionView {
-		String name;
+		public String name;
 	}
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse res,  org.joe_e.servlet.SessionView ses) throws ServletException, IOException {

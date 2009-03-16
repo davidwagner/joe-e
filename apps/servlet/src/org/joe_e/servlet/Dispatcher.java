@@ -3,13 +3,14 @@ package org.joe_e.servlet;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -46,7 +47,7 @@ public class Dispatcher extends HttpServlet {
 	 * TODO clean up the logging stuff.
 	 *
 	 */
-	 	public void init() throws ServletException {
+	public void init() throws ServletException {
 		try {
 			File policy = new File((String) getServletConfig().getInitParameter("policy"));
 			if (policy.exists()) {
@@ -63,6 +64,7 @@ public class Dispatcher extends HttpServlet {
 		}
 	}
 	
+	 	
 	/**
 	 * Handle an HTTP GET request by finding the correct servlet
 	 * and forwarding the request to it. Also restricts access
@@ -85,6 +87,8 @@ public class Dispatcher extends HttpServlet {
 				s.fillSessionView(req.getSession());
 				servlet.doGet(req, response, s);
 				s.fillHttpSession(req.getSession());
+				//TODO: remove later
+				logSession(req.getSession());
 			}
 		} catch(IllegalAccessException i) {
 			throw new ServletException();
@@ -118,7 +122,8 @@ public class Dispatcher extends HttpServlet {
 				s.fillSessionView(req.getSession());
 				servlet.doPost(req, response, s);
 				s.fillHttpSession(req.getSession());
-				getServletConfig().getServletContext().log((String) req.getSession().getAttribute("name"));
+				// TODO: remove later
+				logSession(req.getSession());
 			}
 		} catch(IllegalAccessException i) {
 			throw new ServletException();
@@ -137,6 +142,20 @@ public class Dispatcher extends HttpServlet {
 	private JoeEServlet findServlet(String s) {
 		getServletConfig().getServletContext().log("request for: " + s);
 		return map.get(s);
+	}
+	
+	
+	/**
+	 * Write the context of the HttpSession to the tomcat logs
+	 * for debugging purposes only
+	 * @param ses
+	 */
+	private void logSession(HttpSession ses) {
+		Enumeration e = ses.getAttributeNames();
+		while (e.hasMoreElements()) {
+			String s = (String) e.nextElement();
+			getServletConfig().getServletContext().log(s + ": " + ses.getAttribute(s));
+		}
 	}
 	
 	
@@ -162,6 +181,7 @@ public class Dispatcher extends HttpServlet {
 			throw new ServletException();
 		}
 	}
+	
 	
 	/**
 	 * The call back class for the SAXParser. This implements the actual 
