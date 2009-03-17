@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.security.GuardedObject",
+  static(constructor(suppress, "GuardedObject(Object, Guard)", comment("default deny"))),
+  instance(method(suppress, "getObject()", comment("default deny"))))

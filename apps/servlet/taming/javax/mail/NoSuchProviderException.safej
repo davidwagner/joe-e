@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("javax.mail.NoSuchProviderException",
+  static(constructor(suppress, "NoSuchProviderException()", comment("default deny")),
+    constructor(suppress, "NoSuchProviderException(String)", comment("default deny"))))

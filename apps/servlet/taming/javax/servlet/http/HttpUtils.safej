@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("javax.servlet.http.HttpUtils",
+  static(constructor(suppress, "HttpUtils()", comment("default deny")),
+    method(suppress, "getRequestURL(HttpServletRequest)", comment("default deny")),
+    method(suppress, "parsePostData(int, ServletInputStream)", comment("default deny")),
+    method(suppress, "parseQueryString(String)", comment("default deny"))))

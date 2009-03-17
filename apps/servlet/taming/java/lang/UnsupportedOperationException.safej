@@ -1,0 +1,7 @@
+# Everything should be OK
+class("java.lang.UnsupportedOperationException",
+  honorary("org.joe_e.Powerless"),
+  static(constructor("UnsupportedOperationException()"),
+    constructor("UnsupportedOperationException(String)"),
+    constructor("UnsupportedOperationException(String, Throwable)"),
+    constructor("UnsupportedOperationException(Throwable)")))

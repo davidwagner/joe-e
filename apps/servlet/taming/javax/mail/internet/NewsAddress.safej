@@ -1,0 +1,17 @@
+# auto-generated safej: default deny everything
+class("javax.mail.internet.NewsAddress",
+  static(constructor(suppress, "NewsAddress()", comment("default deny")),
+    constructor(suppress, "NewsAddress(String)", comment("default deny")),
+    constructor(suppress, "NewsAddress(String, String)", comment("default deny")),
+    method(suppress, "parse(String)", comment("default deny")),
+    method(suppress, "toString(Address[])", comment("default deny"))),
+  instance(field(suppress, "host", comment("default deny")),
+    field(suppress, "newsgroup", comment("default deny")),
+    method(suppress, "equals(Object)", comment("default deny")),
+    method(suppress, "getHost()", comment("default deny")),
+    method(suppress, "getNewsgroup()", comment("default deny")),
+    method(suppress, "getType()", comment("default deny")),
+    method(suppress, "hashCode()", comment("default deny")),
+    method(suppress, "setHost(String)", comment("default deny")),
+    method(suppress, "setNewsgroup(String)", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

@@ -1,0 +1,13 @@
+# auto-generated safej: default deny everything
+class("java.io.ObjectOutputStream$PutField",
+  static(constructor(suppress, "PutField()", comment("default deny"))),
+  instance(method(suppress, "put(String, Object)", comment("default deny")),
+    method(suppress, "put(String, boolean)", comment("default deny")),
+    method(suppress, "put(String, byte)", comment("default deny")),
+    method(suppress, "put(String, char)", comment("default deny")),
+    method(suppress, "put(String, double)", comment("default deny")),
+    method(suppress, "put(String, float)", comment("default deny")),
+    method(suppress, "put(String, int)", comment("default deny")),
+    method(suppress, "put(String, long)", comment("default deny")),
+    method(suppress, "put(String, short)", comment("default deny")),
+    method(suppress, "write(ObjectOutput)", comment("default deny"))))

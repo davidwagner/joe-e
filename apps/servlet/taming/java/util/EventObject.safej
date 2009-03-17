@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.util.EventObject",
+  static(constructor(suppress, "EventObject(Object)", comment("default deny"))),
+  instance(field(suppress, "source", comment("default deny")),
+    method(suppress, "getSource()", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

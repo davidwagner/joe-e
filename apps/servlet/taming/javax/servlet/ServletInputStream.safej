@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("javax.servlet.ServletInputStream",
+  static(constructor(suppress, "ServletInputStream()", comment("default deny"))),
+  instance(method(suppress, "readLine(byte[], int, int)", comment("default deny"))))

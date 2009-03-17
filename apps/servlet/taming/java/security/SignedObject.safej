@@ -1,0 +1,7 @@
+# auto-generated safej: default deny everything
+class("java.security.SignedObject",
+  static(constructor(suppress, "SignedObject(Serializable, PrivateKey, Signature)", comment("default deny"))),
+  instance(method(suppress, "getAlgorithm()", comment("default deny")),
+    method(suppress, "getObject()", comment("default deny")),
+    method(suppress, "getSignature()", comment("default deny")),
+    method(suppress, "verify(PublicKey, Signature)", comment("default deny"))))

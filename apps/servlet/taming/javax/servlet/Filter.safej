@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("javax.servlet.Filter",
+  instance(method(suppress, "destroy()", comment("default deny")),
+    method(suppress, "doFilter(ServletRequest, ServletResponse, FilterChain)", comment("default deny")),
+    method(suppress, "init(FilterConfig)", comment("default deny"))))

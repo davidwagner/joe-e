@@ -1,0 +1,8 @@
+# auto-generated safej: default deny everything
+class("java.security.Timestamp",
+  static(constructor(suppress, "Timestamp(Date, CertPath)", comment("default deny"))),
+  instance(method(suppress, "equals(Object)", comment("default deny")),
+    method(suppress, "getSignerCertPath()", comment("default deny")),
+    method(suppress, "getTimestamp()", comment("default deny")),
+    method(suppress, "hashCode()", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("javax.servlet.http.HttpSessionAttributeListener",
+  instance(method(suppress, "attributeAdded(HttpSessionBindingEvent)", comment("default deny")),
+    method(suppress, "attributeRemoved(HttpSessionBindingEvent)", comment("default deny")),
+    method(suppress, "attributeReplaced(HttpSessionBindingEvent)", comment("default deny"))))

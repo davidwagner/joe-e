@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("javax.mail.MessageRemovedException",
+  static(constructor(suppress, "MessageRemovedException()", comment("default deny")),
+    constructor(suppress, "MessageRemovedException(String)", comment("default deny"))))

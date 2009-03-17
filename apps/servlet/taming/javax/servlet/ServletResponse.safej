@@ -1,0 +1,17 @@
+# auto-generated safej: default deny everything
+class("javax.servlet.ServletResponse",
+  instance(method(suppress, "flushBuffer()", comment("default deny")),
+    method(suppress, "getBufferSize()", comment("default deny")),
+    method(suppress, "getCharacterEncoding()", comment("default deny")),
+    method(suppress, "getContentType()", comment("default deny")),
+    method(suppress, "getLocale()", comment("default deny")),
+    method(suppress, "getOutputStream()", comment("default deny")),
+    method(suppress, "getWriter()", comment("default deny")),
+    method(suppress, "isCommitted()", comment("default deny")),
+    method(suppress, "reset()", comment("default deny")),
+    method(suppress, "resetBuffer()", comment("default deny")),
+    method(suppress, "setBufferSize(int)", comment("default deny")),
+    method(suppress, "setCharacterEncoding(String)", comment("default deny")),
+    method(suppress, "setContentLength(int)", comment("default deny")),
+    method(suppress, "setContentType(String)", comment("default deny")),
+    method(suppress, "setLocale(Locale)", comment("default deny"))))

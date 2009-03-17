@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("java.io.BufferedOutputStream",
+  static(constructor(suppress, "BufferedOutputStream(OutputStream)", comment("default deny")),
+    constructor(suppress, "BufferedOutputStream(OutputStream, int)", comment("default deny"))),
+  instance(field(suppress, "buf", comment("default deny")),
+    field(suppress, "count", comment("default deny")),
+    method(suppress, "flush()", comment("default deny")),
+    method(suppress, "write(byte[], int, int)", comment("default deny")),
+    method(suppress, "write(int)", comment("default deny"))))

@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.security.AlgorithmParameterGeneratorSpi",
+  static(constructor(suppress, "AlgorithmParameterGeneratorSpi()", comment("default deny"))),
+  instance(method(suppress, "engineGenerateParameters()", comment("default deny")),
+    method(suppress, "engineInit(AlgorithmParameterSpec, SecureRandom)", comment("default deny")),
+    method(suppress, "engineInit(int, SecureRandom)", comment("default deny"))))

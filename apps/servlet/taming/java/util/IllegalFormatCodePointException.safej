@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.util.IllegalFormatCodePointException",
+  static(constructor(suppress, "IllegalFormatCodePointException(int)", comment("default deny"))),
+  instance(method(suppress, "getCodePoint()", comment("default deny")),
+    method(suppress, "getMessage()", comment("default deny"))))

@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.lang.reflect.GenericArrayType"
+,
+  instance(method(suppress, "getGenericComponentType()", comment("default deny"))))

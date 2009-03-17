@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("javax.mail.Message$RecipientType",
+  static(field(suppress, "BCC", comment("default deny")),
+    field(suppress, "CC", comment("default deny")),
+    field(suppress, "TO", comment("default deny")),
+    constructor(suppress, "RecipientType(String)", comment("default deny"))),
+  instance(field(suppress, "type", comment("default deny")),
+    method(suppress, "readResolve()", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

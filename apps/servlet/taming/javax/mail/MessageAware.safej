@@ -1,0 +1,3 @@
+# auto-generated safej: default deny everything
+class("javax.mail.MessageAware",
+  instance(method(suppress, "getMessageContext()", comment("default deny"))))

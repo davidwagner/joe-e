@@ -1,0 +1,18 @@
+# auto-generated safej: default deny everything
+class("javax.servlet.ServletOutputStream",
+  static(constructor(suppress, "ServletOutputStream()", comment("default deny"))),
+  instance(method(suppress, "print(String)", comment("default deny")),
+    method(suppress, "print(boolean)", comment("default deny")),
+    method(suppress, "print(char)", comment("default deny")),
+    method(suppress, "print(double)", comment("default deny")),
+    method(suppress, "print(float)", comment("default deny")),
+    method(suppress, "print(int)", comment("default deny")),
+    method(suppress, "print(long)", comment("default deny")),
+    method(suppress, "println()", comment("default deny")),
+    method(suppress, "println(String)", comment("default deny")),
+    method(suppress, "println(boolean)", comment("default deny")),
+    method(suppress, "println(char)", comment("default deny")),
+    method(suppress, "println(double)", comment("default deny")),
+    method(suppress, "println(float)", comment("default deny")),
+    method(suppress, "println(int)", comment("default deny")),
+    method(suppress, "println(long)", comment("default deny"))))

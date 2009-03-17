@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("javax.mail.internet.HeaderTokenizer$Token",
+  static(field(suppress, "ATOM", comment("default deny")),
+    field(suppress, "COMMENT", comment("default deny")),
+    field(suppress, "EOF", comment("default deny")),
+    field(suppress, "QUOTEDSTRING", comment("default deny")),
+    constructor(suppress, "Token(int, String)", comment("default deny"))),
+  instance(method(suppress, "getType()", comment("default deny")),
+    method(suppress, "getValue()", comment("default deny"))))

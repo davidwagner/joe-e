@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.util.ConcurrentModificationException",
+  static(constructor(suppress, "ConcurrentModificationException()", comment("default deny")),
+    constructor(suppress, "ConcurrentModificationException(String)", comment("default deny"))))

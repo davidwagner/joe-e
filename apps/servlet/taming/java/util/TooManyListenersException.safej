@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.util.TooManyListenersException",
+  static(constructor(suppress, "TooManyListenersException()", comment("default deny")),
+    constructor(suppress, "TooManyListenersException(String)", comment("default deny"))))

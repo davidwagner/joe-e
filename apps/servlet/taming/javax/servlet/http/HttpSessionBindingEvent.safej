@@ -1,0 +1,7 @@
+# auto-generated safej: default deny everything
+class("javax.servlet.http.HttpSessionBindingEvent",
+  static(constructor(suppress, "HttpSessionBindingEvent(HttpSession, String)", comment("default deny")),
+    constructor(suppress, "HttpSessionBindingEvent(HttpSession, String, Object)", comment("default deny"))),
+  instance(method(suppress, "getName()", comment("default deny")),
+    method(suppress, "getSession()", comment("default deny")),
+    method(suppress, "getValue()", comment("default deny"))))

@@ -1,0 +1,3 @@
+# auto-generated safej: default deny everything
+class("java.io.InvalidObjectException",
+  static(constructor(suppress, "InvalidObjectException(String)", comment("default deny"))))

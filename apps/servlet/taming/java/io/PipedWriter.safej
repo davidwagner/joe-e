@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("java.io.PipedWriter",
+  static(constructor(suppress, "PipedWriter()", comment("default deny")),
+    constructor(suppress, "PipedWriter(PipedReader)", comment("default deny"))),
+  instance(method(suppress, "close()", comment("default deny")),
+    method(suppress, "connect(PipedReader)", comment("default deny")),
+    method(suppress, "flush()", comment("default deny")),
+    method(suppress, "write(char[], int, int)", comment("default deny")),
+    method(suppress, "write(int)", comment("default deny"))))

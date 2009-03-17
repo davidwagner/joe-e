@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("javax.mail.ReadOnlyFolderException",
+  static(constructor(suppress, "ReadOnlyFolderException(Folder)", comment("default deny")),
+    constructor(suppress, "ReadOnlyFolderException(Folder, String)", comment("default deny"))),
+  instance(method(suppress, "getFolder()", comment("default deny"))))

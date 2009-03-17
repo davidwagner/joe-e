@@ -1,0 +1,6 @@
+# Manually audited.  things look OK
+class("java.lang.reflect.ParameterizedType",
+  honorary("org.joe_e.Powerless"),
+  instance(method("getActualTypeArguments()"),
+    method("getOwnerType()"),
+    method("getRawType()")))

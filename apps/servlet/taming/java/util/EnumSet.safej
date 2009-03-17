@@ -1,0 +1,15 @@
+# auto-generated safej: default deny everything
+class("java.util.EnumSet",
+  static(method(suppress, "allOf(Class<E>)", comment("default deny")),
+    method(suppress, "complementOf(EnumSet<E>)", comment("default deny")),
+    method(suppress, "copyOf(Collection<E>)", comment("default deny")),
+    method(suppress, "copyOf(EnumSet<E>)", comment("default deny")),
+    method(suppress, "noneOf(Class<E>)", comment("default deny")),
+    method(suppress, "of(E)", comment("default deny")),
+    method(suppress, "of(E, E)", comment("default deny")),
+    method(suppress, "of(E, E, E)", comment("default deny")),
+    method(suppress, "of(E, E, E, E)", comment("default deny")),
+    method(suppress, "of(E, E, E, E, E)", comment("default deny")),
+    method(suppress, "of(E, E[])", comment("default deny")),
+    method(suppress, "range(E, E)", comment("default deny"))),
+  instance(method(suppress, "clone()", comment("default deny"))))

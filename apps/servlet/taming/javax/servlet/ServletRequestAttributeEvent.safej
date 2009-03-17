@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("javax.servlet.ServletRequestAttributeEvent",
+  static(constructor(suppress, "ServletRequestAttributeEvent(ServletContext, ServletRequest, String, Object)", comment("default deny"))),
+  instance(method(suppress, "getName()", comment("default deny")),
+    method(suppress, "getValue()", comment("default deny"))))

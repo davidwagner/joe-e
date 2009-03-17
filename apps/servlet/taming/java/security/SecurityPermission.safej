@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.security.SecurityPermission",
+  static(constructor(suppress, "SecurityPermission(String)", comment("default deny")),
+    constructor(suppress, "SecurityPermission(String, String)", comment("default deny"))))

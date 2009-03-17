@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.io.FileReader",
+  static(constructor(suppress, "FileReader(File)", comment("default deny")),
+    constructor(suppress, "FileReader(FileDescriptor)", comment("default deny")),
+    constructor(suppress, "FileReader(String)", comment("default deny"))))

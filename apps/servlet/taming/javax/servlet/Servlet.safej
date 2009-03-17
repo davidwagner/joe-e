@@ -1,0 +1,7 @@
+# auto-generated safej: default deny everything
+class("javax.servlet.Servlet",
+  instance(method(suppress, "destroy()", comment("default deny")),
+    method(suppress, "getServletConfig()", comment("default deny")),
+    method(suppress, "getServletInfo()", comment("default deny")),
+    method(suppress, "init(ServletConfig)", comment("default deny")),
+    method(suppress, "service(ServletRequest, ServletResponse)", comment("default deny"))))

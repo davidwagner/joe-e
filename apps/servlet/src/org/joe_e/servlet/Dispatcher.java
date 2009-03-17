@@ -45,7 +45,6 @@ public class Dispatcher extends HttpServlet {
 	 * TODO we should probably do session initialization here
 	 * TODO exceptions should have meaningful messages
 	 * TODO clean up the logging stuff.
-	 *
 	 */
 	public void init() throws ServletException {
 		try {
@@ -53,13 +52,13 @@ public class Dispatcher extends HttpServlet {
 			if (policy.exists()) {
 				this.parsePolicy(policy);
 				for (String s : map.keySet()) {
-					getServletConfig().getServletContext().log(s + ": " + map.get(s).toString());
+					log(s + ": " + map.get(s).toString());
 				}
 			} else {
 				throw new ServletException();
 			}
 		} catch (ServletException e) {
-			getServletConfig().getServletContext().log("caught exception... probably due to class loader issues");
+			log("caught ServletException probably caused by class loader issues", e);
 			throw new ServletException();
 		}
 	}
@@ -154,7 +153,7 @@ public class Dispatcher extends HttpServlet {
 		Enumeration e = ses.getAttributeNames();
 		while (e.hasMoreElements()) {
 			String s = (String) e.nextElement();
-			getServletConfig().getServletContext().log(s + ": " + ses.getAttribute(s));
+			log(s + ": " + ses.getAttribute(s));
 		}
 	}
 	
@@ -171,13 +170,13 @@ public class Dispatcher extends HttpServlet {
 			SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
 			parser.parse(policy, new PolicyHandler());
 		} catch (SAXException s) {
-			getServletConfig().getServletContext().log("SAXException " + s.getMessage());
+			log("SAXException " + s.getMessage(), s);
 			throw new ServletException();
 		} catch (ParserConfigurationException p) {
-			getServletConfig().getServletContext().log("ParserConfigurationException " + p.getMessage());
+			log("ParserConfigurationException " + p.getMessage(), p);
 			throw new ServletException();
 		} catch (IOException i) {
-			getServletConfig().getServletContext().log("couldn't read policy file");
+			log("couldn't read policy file", i);
 			throw new ServletException();
 		}
 	}
@@ -235,13 +234,13 @@ public class Dispatcher extends HttpServlet {
 					Class<?> cl = this.getClass().getClassLoader().loadClass(servletMappings.get(servletName));
 					map.put(urlPattern, (JoeEServlet) cl.newInstance());
 				} catch (ClassNotFoundException c) {
-					getServletConfig().getServletContext().log("caught exception... probably due to class loader issues");
+					log("caught exception... probably due to class loader issues", c);
 					throw new SAXException();
 				} catch (InstantiationException i) {
-					getServletConfig().getServletContext().log("caught exception... probably due to class loader issues");
+					log("caught exception... probably due to class loader issues", i);
 					throw new SAXException();
 				} catch (IllegalAccessException a) {
-					getServletConfig().getServletContext().log("caught exception... probably due to class loader issues");
+					log("caught exception... probably due to class loader issues", a);
 					throw new SAXException();
 				}
 			}
@@ -259,5 +258,12 @@ public class Dispatcher extends HttpServlet {
 		
 		public void endDocument() {
 		}
+	}
+	
+	public void log(String s) {
+		getServletConfig().getServletContext().log("Joe-E DISPATCHER: " + s);
+	}
+	public void log(String s, Throwable t) {
+		getServletConfig().getServletContext().log("Joe-E DISPATCHER: " + s, t);
 	}
 }

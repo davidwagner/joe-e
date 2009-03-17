@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.security.AuthProvider",
+  static(constructor(suppress, "AuthProvider(String, double, String)", comment("default deny"))),
+  instance(method(suppress, "login(Subject, CallbackHandler)", comment("default deny")),
+    method(suppress, "logout()", comment("default deny")),
+    method(suppress, "setCallbackHandler(CallbackHandler)", comment("default deny"))))

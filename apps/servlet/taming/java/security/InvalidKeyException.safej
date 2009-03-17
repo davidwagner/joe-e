@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.security.InvalidKeyException",
+  static(constructor(suppress, "InvalidKeyException()", comment("default deny")),
+    constructor(suppress, "InvalidKeyException(String)", comment("default deny")),
+    constructor(suppress, "InvalidKeyException(String, Throwable)", comment("default deny")),
+    constructor(suppress, "InvalidKeyException(Throwable)", comment("default deny"))))

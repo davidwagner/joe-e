@@ -1,0 +1,15 @@
+# auto-generated safej: default deny everything
+class("javax.servlet.GenericServlet",
+  static(constructor(suppress, "GenericServlet()", comment("default deny"))),
+  instance(method(suppress, "destroy()", comment("default deny")),
+    method(suppress, "getInitParameter(String)", comment("default deny")),
+    method(suppress, "getInitParameterNames()", comment("default deny")),
+    method(suppress, "getServletConfig()", comment("default deny")),
+    method(suppress, "getServletContext()", comment("default deny")),
+    method(suppress, "getServletInfo()", comment("default deny")),
+    method(suppress, "getServletName()", comment("default deny")),
+    method(suppress, "init()", comment("default deny")),
+    method(suppress, "init(ServletConfig)", comment("default deny")),
+    method(suppress, "log(String)", comment("default deny")),
+    method(suppress, "log(String, Throwable)", comment("default deny")),
+    method(suppress, "service(ServletRequest, ServletResponse)", comment("default deny"))))

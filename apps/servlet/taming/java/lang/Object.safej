@@ -1,0 +1,14 @@
+# Manually audited.
+class("java.lang.Object",
+  static(constructor("Object()")),
+  instance(method("clone()", comment("Allowed for now.")),
+    method("equals(Object)", comment("assumes no non-deterministic equals methods in libraries")),
+    method(suppress, "finalize()", comment("causes user code to run in multiple threads, leading to nondeterminism")),
+    method("getClass()", comment("Class objects are Powerless")),
+    method(suppress, "hashCode()", comment("reveals non-deterministic address of object")),
+    method(suppress, "notify()", comment("useless anyway, if threading not allowed")),
+    method(suppress, "notifyAll()", comment("useless anyway, if threading not allowed")),
+    method(suppress, "toString()", comment("calls hashCode(), which may be nondeterministic")),
+    method(suppress, "wait()", comment("useless anyway, if threading not allowed")),
+    method(suppress, "wait(long)", comment("deny for now; is it of any use?")),
+    method(suppress, "wait(long, int)", comment("deny for now; is it of any use?"))))

@@ -1,0 +1,10 @@
+# auto-generated safej: default deny everything
+class("java.util.AbstractSequentialList",
+  static(constructor(suppress, "AbstractSequentialList()", comment("default deny"))),
+  instance(method(suppress, "add(int, E)", comment("default deny")),
+    method(suppress, "addAll(int, Collection<? extends E>)", comment("default deny")),
+    method(suppress, "get(int)", comment("default deny")),
+    method(suppress, "iterator()", comment("default deny")),
+    method(suppress, "listIterator(int)", comment("default deny")),
+    method(suppress, "remove(int)", comment("default deny")),
+    method(suppress, "set(int, E)", comment("default deny"))))

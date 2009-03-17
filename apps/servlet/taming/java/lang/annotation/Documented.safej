@@ -1,0 +1,2 @@
+# Manually audited.  No public members = easy to do!
+class("java.lang.annotation.Documented")

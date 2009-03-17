@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("javax.mail.internet.InternetHeaders$InternetHeader",
+  static(constructor(suppress, "InternetHeader(String)", comment("default deny")),
+    constructor(suppress, "InternetHeader(String, String)", comment("default deny"))),
+  instance(method(suppress, "getValue()", comment("default deny"))))

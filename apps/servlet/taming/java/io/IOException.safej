@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.io.IOException",
+  static(constructor(suppress, "IOException()", comment("default deny")),
+    constructor(suppress, "IOException(String)", comment("default deny"))))

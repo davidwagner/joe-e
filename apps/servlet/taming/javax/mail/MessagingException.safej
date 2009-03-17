@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("javax.mail.MessagingException",
+  static(constructor(suppress, "MessagingException()", comment("default deny")),
+    constructor(suppress, "MessagingException(String)", comment("default deny")),
+    constructor(suppress, "MessagingException(String, Exception)", comment("default deny"))),
+  instance(method(suppress, "getCause()", comment("default deny")),
+    method(suppress, "getNextException()", comment("default deny")),
+    method(suppress, "setNextException(Exception)", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

@@ -1,0 +1,10 @@
+# auto-generated safej: default deny everything
+class("java.security.AlgorithmParametersSpi",
+  static(constructor(suppress, "AlgorithmParametersSpi()", comment("default deny"))),
+  instance(method(suppress, "engineGetEncoded()", comment("default deny")),
+    method(suppress, "engineGetEncoded(String)", comment("default deny")),
+    method(suppress, "engineGetParameterSpec(Class<T>)", comment("default deny")),
+    method(suppress, "engineInit(AlgorithmParameterSpec)", comment("default deny")),
+    method(suppress, "engineInit(byte[])", comment("default deny")),
+    method(suppress, "engineInit(byte[], String)", comment("default deny")),
+    method(suppress, "engineToString()", comment("default deny"))))

@@ -1,0 +1,5 @@
+# Testlib taming file: class deemed to honorarily implement Immutable
+# even though it has non-final fields
+class("org.joe_e.testlib.GrandfatheredImmutable",
+  honorary("org.joe_e.Immutable"),
+  static(constructor("GrandfatheredImmutable()")))

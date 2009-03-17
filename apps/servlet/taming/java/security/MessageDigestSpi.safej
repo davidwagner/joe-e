@@ -1,0 +1,11 @@
+# auto-generated safej: default deny everything
+class("java.security.MessageDigestSpi",
+  static(constructor(suppress, "MessageDigestSpi()", comment("default deny"))),
+  instance(method(suppress, "clone()", comment("default deny")),
+    method(suppress, "engineDigest()", comment("default deny")),
+    method(suppress, "engineDigest(byte[], int, int)", comment("default deny")),
+    method(suppress, "engineGetDigestLength()", comment("default deny")),
+    method(suppress, "engineReset()", comment("default deny")),
+    method(suppress, "engineUpdate(ByteBuffer)", comment("default deny")),
+    method(suppress, "engineUpdate(byte)", comment("default deny")),
+    method(suppress, "engineUpdate(byte[], int, int)", comment("default deny"))))

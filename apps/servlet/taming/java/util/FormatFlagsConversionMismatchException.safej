@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.util.FormatFlagsConversionMismatchException",
+  static(constructor(suppress, "FormatFlagsConversionMismatchException(String, char)", comment("default deny"))),
+  instance(method(suppress, "getConversion()", comment("default deny")),
+    method(suppress, "getFlags()", comment("default deny")),
+    method(suppress, "getMessage()", comment("default deny"))))

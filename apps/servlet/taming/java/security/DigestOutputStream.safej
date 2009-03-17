@@ -1,0 +1,10 @@
+# auto-generated safej: default deny everything
+class("java.security.DigestOutputStream",
+  static(constructor(suppress, "DigestOutputStream(OutputStream, MessageDigest)", comment("default deny"))),
+  instance(field(suppress, "digest", comment("default deny")),
+    method(suppress, "getMessageDigest()", comment("default deny")),
+    method(suppress, "on(boolean)", comment("default deny")),
+    method(suppress, "setMessageDigest(MessageDigest)", comment("default deny")),
+    method(suppress, "toString()", comment("default deny")),
+    method(suppress, "write(byte[], int, int)", comment("default deny")),
+    method(suppress, "write(int)", comment("default deny"))))

@@ -1,0 +1,8 @@
+# auto-generated safej: default deny everything
+class("java.io.ObjectOutput",
+  instance(method(suppress, "close()", comment("default deny")),
+    method(suppress, "flush()", comment("default deny")),
+    method(suppress, "write(byte[])", comment("default deny")),
+    method(suppress, "write(byte[], int, int)", comment("default deny")),
+    method(suppress, "write(int)", comment("default deny")),
+    method(suppress, "writeObject(Object)", comment("default deny"))))

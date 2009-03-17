@@ -1,0 +1,2 @@
+# safej for Joe-E library: allow everything.
+class("org.joe_e.IsJoeE")

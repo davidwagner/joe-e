@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("javax.mail.internet.ParseException",
+  static(constructor(suppress, "ParseException()", comment("default deny")),
+    constructor(suppress, "ParseException(String)", comment("default deny"))))

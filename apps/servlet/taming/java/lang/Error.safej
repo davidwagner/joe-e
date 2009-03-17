@@ -1,0 +1,7 @@
+# Manually audited.
+class("java.lang.Error",
+  honorary("org.joe_e.Powerless"),
+  static(constructor("Error()"),
+    constructor("Error(String)"),
+    constructor("Error(String, Throwable)"),
+    constructor("Error(Throwable)")))

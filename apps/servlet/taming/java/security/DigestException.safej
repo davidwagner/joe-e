@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.security.DigestException",
+  static(constructor(suppress, "DigestException()", comment("default deny")),
+    constructor(suppress, "DigestException(String)", comment("default deny")),
+    constructor(suppress, "DigestException(String, Throwable)", comment("default deny")),
+    constructor(suppress, "DigestException(Throwable)", comment("default deny"))))

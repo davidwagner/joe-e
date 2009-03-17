@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.io.UTFDataFormatException",
+  static(constructor(suppress, "UTFDataFormatException()", comment("default deny")),
+    constructor(suppress, "UTFDataFormatException(String)", comment("default deny"))))
