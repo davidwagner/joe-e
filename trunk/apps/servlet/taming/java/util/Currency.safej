@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("java.util.Currency",
+  static(method(suppress, "getInstance(Locale)", comment("default deny")),
+    method(suppress, "getInstance(String)", comment("default deny"))),
+  instance(method(suppress, "getCurrencyCode()", comment("default deny")),
+    method(suppress, "getDefaultFractionDigits()", comment("default deny")),
+    method(suppress, "getSymbol()", comment("default deny")),
+    method(suppress, "getSymbol(Locale)", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

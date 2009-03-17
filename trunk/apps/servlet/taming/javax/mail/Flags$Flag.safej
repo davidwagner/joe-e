@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("javax.mail.Flags$Flag",
+  static(field(suppress, "ANSWERED", comment("default deny")),
+    field(suppress, "DELETED", comment("default deny")),
+    field(suppress, "DRAFT", comment("default deny")),
+    field(suppress, "FLAGGED", comment("default deny")),
+    field(suppress, "RECENT", comment("default deny")),
+    field(suppress, "SEEN", comment("default deny")),
+    field(suppress, "USER", comment("default deny"))))

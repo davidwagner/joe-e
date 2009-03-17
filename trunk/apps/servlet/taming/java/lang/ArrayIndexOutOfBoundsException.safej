@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.lang.ArrayIndexOutOfBoundsException",
+  honorary("org.joe_e.Powerless"),
+  static(constructor(suppress, "ArrayIndexOutOfBoundsException()", comment("default deny")),
+    constructor(suppress, "ArrayIndexOutOfBoundsException(String)", comment("default deny")),
+    constructor(suppress, "ArrayIndexOutOfBoundsException(int)", comment("default deny"))))

@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.io.EOFException",
+  static(constructor(suppress, "EOFException()", comment("default deny")),
+    constructor(suppress, "EOFException(String)", comment("default deny"))))

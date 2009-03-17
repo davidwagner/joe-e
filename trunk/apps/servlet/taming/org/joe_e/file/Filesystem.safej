@@ -1,0 +1,8 @@
+# auto-generated safej for Joe-E code: allow everything.
+class("org.joe_e.file.Filesystem",
+  static(method("checkName(String)"),
+    method("file(File, String)"),
+    method("length(File)"),
+    method("list(File)"),
+    method("read(File)"),
+    method("writeNew(File)")))

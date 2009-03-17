@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.security.KeyPair",
+  static(constructor(suppress, "KeyPair(PublicKey, PrivateKey)", comment("default deny"))),
+  instance(method(suppress, "getPrivate()", comment("default deny")),
+    method(suppress, "getPublic()", comment("default deny"))))

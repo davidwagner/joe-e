@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("javax.mail.FetchProfile$Item",
+  static(field(suppress, "CONTENT_INFO", comment("default deny")),
+    field(suppress, "ENVELOPE", comment("default deny")),
+    field(suppress, "FLAGS", comment("default deny")),
+    constructor(suppress, "Item(String)", comment("default deny"))))

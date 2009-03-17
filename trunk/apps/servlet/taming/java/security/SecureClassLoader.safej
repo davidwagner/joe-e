@@ -1,0 +1,7 @@
+# auto-generated safej: default deny everything
+class("java.security.SecureClassLoader",
+  static(constructor(suppress, "SecureClassLoader()", comment("default deny")),
+    constructor(suppress, "SecureClassLoader(ClassLoader)", comment("default deny"))),
+  instance(method(suppress, "defineClass(String, ByteBuffer, CodeSource)", comment("default deny")),
+    method(suppress, "defineClass(String, byte[], int, int, CodeSource)", comment("default deny")),
+    method(suppress, "getPermissions(CodeSource)", comment("default deny"))))

@@ -1,0 +1,8 @@
+# auto-generated safej: default deny everything
+class("java.security.AccessControlContext",
+  static(constructor(suppress, "AccessControlContext(AccessControlContext, DomainCombiner)", comment("default deny")),
+    constructor(suppress, "AccessControlContext(ProtectionDomain[])", comment("default deny"))),
+  instance(method(suppress, "checkPermission(Permission)", comment("default deny")),
+    method(suppress, "equals(Object)", comment("default deny")),
+    method(suppress, "getDomainCombiner()", comment("default deny")),
+    method(suppress, "hashCode()", comment("default deny"))))

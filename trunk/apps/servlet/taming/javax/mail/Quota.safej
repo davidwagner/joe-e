@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("javax.mail.Quota",
+  static(constructor(suppress, "Quota(String)", comment("default deny"))),
+  instance(field(suppress, "quotaRoot", comment("default deny")),
+    field(suppress, "resources", comment("default deny")),
+    method(suppress, "setResourceLimit(String, long)", comment("default deny"))))

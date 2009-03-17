@@ -9,6 +9,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.joe_e.servlet.JoeEServlet;
 
+/**
+ * TODO: we need to do taming data for a lot of stuff
+ *       to make a meaningful app.
+ * @author akshay
+ *
+ */
 public class IndexServlet extends JoeEServlet {
 
 	public class SessionView extends org.joe_e.servlet.SessionView {

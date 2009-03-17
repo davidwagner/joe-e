@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("javax.servlet.http.HttpSessionActivationListener",
+  instance(method(suppress, "sessionDidActivate(HttpSessionEvent)", comment("default deny")),
+    method(suppress, "sessionWillPassivate(HttpSessionEvent)", comment("default deny"))))

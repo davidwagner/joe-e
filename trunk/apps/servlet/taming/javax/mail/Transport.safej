@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("javax.mail.Transport",
+  static(constructor(suppress, "Transport(Session, URLName)", comment("default deny")),
+    method(suppress, "send(Message)", comment("default deny")),
+    method(suppress, "send(Message, Address[])", comment("default deny"))),
+  instance(method(suppress, "addTransportListener(TransportListener)", comment("default deny")),
+    method(suppress, "notifyTransportListeners(int, Address[], Address[], Address[], Message)", comment("default deny")),
+    method(suppress, "removeTransportListener(TransportListener)", comment("default deny")),
+    method(suppress, "sendMessage(Message, Address[])", comment("default deny"))))

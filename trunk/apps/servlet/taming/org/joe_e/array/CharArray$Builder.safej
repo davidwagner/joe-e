@@ -1,0 +1,9 @@
+# auto-generated safej for Joe-E code: allow everything.
+class("org.joe_e.array.CharArray$Builder",
+  instance(method("append(Character)"),
+    method("append(Character[])"),
+    method("append(Character[], int, int)"),
+    method("append(char)"),
+    method("append(char[])"),
+    method("append(char[], int, int)"),
+    method("snapshot()")))

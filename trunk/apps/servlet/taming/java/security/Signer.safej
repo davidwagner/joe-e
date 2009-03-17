@@ -1,0 +1,8 @@
+# auto-generated safej: default deny everything
+class("java.security.Signer",
+  static(constructor(suppress, "Signer()", comment("default deny")),
+    constructor(suppress, "Signer(String)", comment("default deny")),
+    constructor(suppress, "Signer(String, IdentityScope)", comment("default deny"))),
+  instance(method(suppress, "getPrivateKey()", comment("default deny")),
+    method(suppress, "setKeyPair(KeyPair)", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("javax.mail.internet.MimeMessage$RecipientType",
+  static(field(suppress, "NEWSGROUPS", comment("default deny")),
+    constructor(suppress, "RecipientType(String)", comment("default deny"))),
+  instance(method(suppress, "readResolve()", comment("default deny"))))

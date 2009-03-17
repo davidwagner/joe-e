@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.lang.OutOfMemoryError",
+  honorary("org.joe_e.Powerless"),
+  static(constructor(suppress, "OutOfMemoryError()", comment("default deny")),
+    constructor(suppress, "OutOfMemoryError(String)", comment("default deny"))))

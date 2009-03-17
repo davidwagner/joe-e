@@ -1,0 +1,16 @@
+# auto-generated safej for Joe-E code: allow everything.
+class("org.joe_e.array.IntArray",
+  static(method("array(int[])"),
+    method("builder()"),
+    method("builder(int)")),
+  instance(method("equals(Object)"),
+    method("get(int)"),
+    method("getInt(int)"),
+    method("hashCode()"),
+    method("length()"),
+    method("toArray(T[])"),
+    method("toIntArray()"),
+    method("toString()"),
+    method("with(Integer)"),
+    method("with(int)"),
+    method("without(int)")))

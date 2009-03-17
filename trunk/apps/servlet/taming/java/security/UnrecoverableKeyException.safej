@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.security.UnrecoverableKeyException",
+  static(constructor(suppress, "UnrecoverableKeyException()", comment("default deny")),
+    constructor(suppress, "UnrecoverableKeyException(String)", comment("default deny"))))

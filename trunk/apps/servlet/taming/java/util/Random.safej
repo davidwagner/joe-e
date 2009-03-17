@@ -1,0 +1,14 @@
+# auto-generated safej: default deny everything
+class("java.util.Random",
+  static(constructor(suppress, "Random()", comment("default deny")),
+    constructor(suppress, "Random(long)", comment("default deny"))),
+  instance(method(suppress, "next(int)", comment("default deny")),
+    method(suppress, "nextBoolean()", comment("default deny")),
+    method(suppress, "nextBytes(byte[])", comment("default deny")),
+    method(suppress, "nextDouble()", comment("default deny")),
+    method(suppress, "nextFloat()", comment("default deny")),
+    method(suppress, "nextGaussian()", comment("default deny")),
+    method(suppress, "nextInt()", comment("default deny")),
+    method(suppress, "nextInt(int)", comment("default deny")),
+    method(suppress, "nextLong()", comment("default deny")),
+    method(suppress, "setSeed(long)", comment("default deny"))))

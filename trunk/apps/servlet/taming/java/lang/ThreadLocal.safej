@@ -1,0 +1,7 @@
+# auto-generated safej: default deny everything
+class("java.lang.ThreadLocal",
+  static(constructor(suppress, "ThreadLocal()", comment("default deny"))),
+  instance(method(suppress, "get()", comment("default deny")),
+    method(suppress, "initialValue()", comment("default deny")),
+    method(suppress, "remove()", comment("default deny")),
+    method(suppress, "set(T)", comment("default deny"))))

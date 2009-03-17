@@ -1,0 +1,10 @@
+# auto-generated safej: default deny everything
+class("javax.mail.internet.HeaderTokenizer",
+  static(field(suppress, "MIME", comment("default deny")),
+    field(suppress, "RFC822", comment("default deny")),
+    constructor(suppress, "HeaderTokenizer(String)", comment("default deny")),
+    constructor(suppress, "HeaderTokenizer(String, String)", comment("default deny")),
+    constructor(suppress, "HeaderTokenizer(String, String, boolean)", comment("default deny"))),
+  instance(method(suppress, "getRemainder()", comment("default deny")),
+    method(suppress, "next()", comment("default deny")),
+    method(suppress, "peek()", comment("default deny"))))

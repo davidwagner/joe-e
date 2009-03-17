@@ -1,0 +1,10 @@
+# auto-generated safej for Joe-E code: allow everything.
+class("org.joe_e.array.ByteArray$BuilderOutputStream",
+  static(constructor("BuilderOutputStream()"),
+    constructor("BuilderOutputStream(int)"),
+    constructor("BuilderOutputStream(Builder)")),
+  instance(method("length()"),
+    method("snapshot()"),
+    method("write(byte[])"),
+    method("write(byte[], int, int)"),
+    method("write(int)")))

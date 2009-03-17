@@ -1,0 +1,7 @@
+# auto-generated safej: default deny everything
+class("java.io.FileWriter",
+  static(constructor(suppress, "FileWriter(File)", comment("default deny")),
+    constructor(suppress, "FileWriter(File, boolean)", comment("default deny")),
+    constructor(suppress, "FileWriter(FileDescriptor)", comment("default deny")),
+    constructor(suppress, "FileWriter(String)", comment("default deny")),
+    constructor(suppress, "FileWriter(String, boolean)", comment("default deny"))))

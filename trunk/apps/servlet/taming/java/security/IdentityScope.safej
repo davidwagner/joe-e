@@ -1,0 +1,15 @@
+# auto-generated safej: default deny everything
+class("java.security.IdentityScope",
+  static(constructor(suppress, "IdentityScope()", comment("default deny")),
+    constructor(suppress, "IdentityScope(String)", comment("default deny")),
+    constructor(suppress, "IdentityScope(String, IdentityScope)", comment("default deny")),
+    method(suppress, "getSystemScope()", comment("default deny")),
+    method(suppress, "setSystemScope(IdentityScope)", comment("default deny"))),
+  instance(method(suppress, "addIdentity(Identity)", comment("default deny")),
+    method(suppress, "getIdentity(Principal)", comment("default deny")),
+    method(suppress, "getIdentity(PublicKey)", comment("default deny")),
+    method(suppress, "getIdentity(String)", comment("default deny")),
+    method(suppress, "identities()", comment("default deny")),
+    method(suppress, "removeIdentity(Identity)", comment("default deny")),
+    method(suppress, "size()", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

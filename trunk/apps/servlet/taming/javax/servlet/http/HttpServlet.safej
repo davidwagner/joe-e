@@ -1,0 +1,13 @@
+# auto-generated safej: default deny everything
+class("javax.servlet.http.HttpServlet",
+  static(constructor(suppress, "HttpServlet()", comment("default deny"))),
+  instance(method(suppress, "doDelete(HttpServletRequest, HttpServletResponse)", comment("default deny")),
+    method(suppress, "doGet(HttpServletRequest, HttpServletResponse)", comment("default deny")),
+    method(suppress, "doHead(HttpServletRequest, HttpServletResponse)", comment("default deny")),
+    method(suppress, "doOptions(HttpServletRequest, HttpServletResponse)", comment("default deny")),
+    method(suppress, "doPost(HttpServletRequest, HttpServletResponse)", comment("default deny")),
+    method(suppress, "doPut(HttpServletRequest, HttpServletResponse)", comment("default deny")),
+    method(suppress, "doTrace(HttpServletRequest, HttpServletResponse)", comment("default deny")),
+    method(suppress, "getLastModified(HttpServletRequest)", comment("default deny")),
+    method(suppress, "service(HttpServletRequest, HttpServletResponse)", comment("default deny")),
+    method(suppress, "service(ServletRequest, ServletResponse)", comment("default deny"))))

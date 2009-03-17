@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("javax.mail.FolderClosedException",
+  static(constructor(suppress, "FolderClosedException(Folder)", comment("default deny")),
+    constructor(suppress, "FolderClosedException(Folder, String)", comment("default deny"))),
+  instance(method(suppress, "getFolder()", comment("default deny"))))

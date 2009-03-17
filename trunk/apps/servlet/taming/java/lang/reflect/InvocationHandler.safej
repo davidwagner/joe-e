@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.lang.reflect.InvocationHandler"
+,
+  instance(method(suppress, "invoke(Object, Method, Object[])", comment("default deny"))))

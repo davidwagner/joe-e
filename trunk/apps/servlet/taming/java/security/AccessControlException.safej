@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.security.AccessControlException",
+  static(constructor(suppress, "AccessControlException(String)", comment("default deny")),
+    constructor(suppress, "AccessControlException(String, Permission)", comment("default deny"))),
+  instance(method(suppress, "getPermission()", comment("default deny"))))

@@ -1,0 +1,7 @@
+# auto-generated safej: default deny everything
+class("java.lang.reflect.UndeclaredThrowableException",
+  honorary("org.joe_e.Powerless"),
+  static(constructor("UndeclaredThrowableException(Throwable)"),
+    constructor("UndeclaredThrowableException(Throwable, String)")),
+  instance(method("getCause()"),
+    method("getUndeclaredThrowable()")))

@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.security.KeyManagementException",
+  static(constructor(suppress, "KeyManagementException()", comment("default deny")),
+    constructor(suppress, "KeyManagementException(String)", comment("default deny")),
+    constructor(suppress, "KeyManagementException(String, Throwable)", comment("default deny")),
+    constructor(suppress, "KeyManagementException(Throwable)", comment("default deny"))))

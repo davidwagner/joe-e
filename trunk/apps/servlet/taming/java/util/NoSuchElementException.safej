@@ -1,0 +1,5 @@
+# Manually audited.  Looks OK.
+class("java.util.NoSuchElementException",
+  honorary("org.joe_e.Powerless"),
+  static(constructor("NoSuchElementException()"),
+    constructor("NoSuchElementException(String)")))

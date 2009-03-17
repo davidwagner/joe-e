@@ -1,0 +1,19 @@
+# Manually audited.  Not sure how to handle chained throwables; getCause may be OK.
+# Stack traces look like a bad idea, as they allow apparent nondeterminism.
+class("java.lang.Throwable",
+  honorary("org.joe_e.Powerless"),
+  static(constructor("Throwable()"),
+    constructor("Throwable(String)"),
+    constructor("Throwable(String, Throwable)"),
+    constructor("Throwable(Throwable)")),
+  instance(method(suppress, "fillInStackTrace()", comment("modifies object that should be immutable")),
+    method("getCause()"),
+    method(suppress, "getLocalizedMessage()", comment("can be nondeterministic, e.g. for ClassCastException")),
+    method(suppress, "getMessage()", comment("can be nondeterministic, e.g. for ClassCastException")),
+    method(suppress, "getStackTrace()", comment("stack trace is nondeterministic")),
+    method(suppress, "initCause(Throwable)", comment("modifies object that should be immutable")),
+    method(suppress, "printStackTrace()", comment("stack trace is nondeterministic, writes to standard out")),
+    method(suppress, "printStackTrace(PrintStream)", comment("stack trace is nondeterministic")),
+    method(suppress, "printStackTrace(PrintWriter)", comment("stack trace is nondeterministic")),
+    method(suppress, "setStackTrace(StackTraceElement[])", comment("modifies object that should be immutable")),
+    method(suppress, "toString()", comment("can be nondeterministic, e.g. for ClassCastException"))))

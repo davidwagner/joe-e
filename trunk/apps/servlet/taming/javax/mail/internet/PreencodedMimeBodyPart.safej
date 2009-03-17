@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("javax.mail.internet.PreencodedMimeBodyPart",
+  static(constructor(suppress, "PreencodedMimeBodyPart(String)", comment("default deny"))),
+  instance(method(suppress, "getEncoding()", comment("default deny")),
+    method(suppress, "updateHeaders()", comment("default deny")),
+    method(suppress, "writeTo(OutputStream)", comment("default deny"))))

@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.util.FormattableFlags",
+  static(field(suppress, "ALTERNATE", comment("default deny")),
+    field(suppress, "LEFT_JUSTIFY", comment("default deny")),
+    field(suppress, "UPPERCASE", comment("default deny"))))

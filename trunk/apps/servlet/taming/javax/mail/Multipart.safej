@@ -1,0 +1,17 @@
+# auto-generated safej: default deny everything
+class("javax.mail.Multipart",
+  static(constructor(suppress, "Multipart()", comment("default deny"))),
+  instance(field(suppress, "contentType", comment("default deny")),
+    field(suppress, "parent", comment("default deny")),
+    field(suppress, "parts", comment("default deny")),
+    method(suppress, "addBodyPart(BodyPart)", comment("default deny")),
+    method(suppress, "addBodyPart(BodyPart, int)", comment("default deny")),
+    method(suppress, "getBodyPart(int)", comment("default deny")),
+    method(suppress, "getContentType()", comment("default deny")),
+    method(suppress, "getCount()", comment("default deny")),
+    method(suppress, "getParent()", comment("default deny")),
+    method(suppress, "removeBodyPart(BodyPart)", comment("default deny")),
+    method(suppress, "removeBodyPart(int)", comment("default deny")),
+    method(suppress, "setMultipartDataSource(MultipartDataSource)", comment("default deny")),
+    method(suppress, "setParent(Part)", comment("default deny")),
+    method(suppress, "writeTo(OutputStream)", comment("default deny"))))

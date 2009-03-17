@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.lang.Character$Subset",
+  static(constructor(suppress, "Subset(String)", comment("default deny"))),
+  instance(method("equals(Object)"),
+    method(suppress, "hashCode()", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

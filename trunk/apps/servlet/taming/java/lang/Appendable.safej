@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.lang.Appendable",
+  instance(method(suppress, "append(CharSequence)", comment("default deny")),
+    method(suppress, "append(CharSequence, int, int)", comment("default deny")),
+    method(suppress, "append(char)", comment("default deny"))))

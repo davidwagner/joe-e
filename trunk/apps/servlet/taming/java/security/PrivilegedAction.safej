@@ -1,0 +1,3 @@
+# auto-generated safej: default deny everything
+class("java.security.PrivilegedAction",
+  instance(method(suppress, "run()", comment("default deny"))))

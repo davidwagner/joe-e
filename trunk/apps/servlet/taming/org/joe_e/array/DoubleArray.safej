@@ -1,0 +1,16 @@
+# auto-generated safej for Joe-E code: allow everything.
+class("org.joe_e.array.DoubleArray",
+  static(method("array(double[])"),
+    method("builder()"),
+    method("builder(int)")),
+  instance(method("equals(Object)"),
+    method("get(int)"),
+    method("getDouble(int)"),
+    method("hashCode()"),
+    method("length()"),
+    method("toArray(T[])"),
+    method("toDoubleArray()"),
+    method("toString()"),
+    method("with(Double)"),
+    method("with(double)"),
+    method("without(int)")))

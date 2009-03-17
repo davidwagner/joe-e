@@ -1,0 +1,5 @@
+# Manually audited; everything should be OK
+class("java.lang.ClassCastException",
+  honorary("org.joe_e.Powerless"),
+  static(constructor("ClassCastException()"),
+    constructor("ClassCastException(String)")))

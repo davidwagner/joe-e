@@ -1,0 +1,8 @@
+# auto-generated safej: default deny everything
+class("java.util.SortedSet",
+  instance(method(suppress, "comparator()", comment("default deny")),
+    method(suppress, "first()", comment("default deny")),
+    method(suppress, "headSet(E)", comment("default deny")),
+    method(suppress, "last()", comment("default deny")),
+    method(suppress, "subSet(E, E)", comment("default deny")),
+    method(suppress, "tailSet(E)", comment("default deny"))))

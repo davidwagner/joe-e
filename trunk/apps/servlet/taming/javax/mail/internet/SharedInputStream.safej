@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("javax.mail.internet.SharedInputStream",
+  instance(method(suppress, "getPosition()", comment("default deny")),
+    method(suppress, "newStream(long, long)", comment("default deny"))))

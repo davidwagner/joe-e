@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("javax.servlet.UnavailableException",
+  static(constructor(suppress, "UnavailableException(Servlet, String)", comment("default deny")),
+    constructor(suppress, "UnavailableException(String)", comment("default deny")),
+    constructor(suppress, "UnavailableException(String, int)", comment("default deny")),
+    constructor(suppress, "UnavailableException(int, Servlet, String)", comment("default deny"))),
+  instance(method(suppress, "getServlet()", comment("default deny")),
+    method(suppress, "getUnavailableSeconds()", comment("default deny")),
+    method(suppress, "isPermanent()", comment("default deny"))))

@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.io.UnsupportedEncodingException",
+  static(constructor(suppress, "UnsupportedEncodingException()", comment("default deny")),
+    constructor(suppress, "UnsupportedEncodingException(String)", comment("default deny"))))

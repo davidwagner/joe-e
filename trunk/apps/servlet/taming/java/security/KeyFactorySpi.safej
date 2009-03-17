@@ -1,0 +1,7 @@
+# auto-generated safej: default deny everything
+class("java.security.KeyFactorySpi",
+  static(constructor(suppress, "KeyFactorySpi()", comment("default deny"))),
+  instance(method(suppress, "engineGeneratePrivate(KeySpec)", comment("default deny")),
+    method(suppress, "engineGeneratePublic(KeySpec)", comment("default deny")),
+    method(suppress, "engineGetKeySpec(Key, Class<T>)", comment("default deny")),
+    method(suppress, "engineTranslateKey(Key)", comment("default deny"))))

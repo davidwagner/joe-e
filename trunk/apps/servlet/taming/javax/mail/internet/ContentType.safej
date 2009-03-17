@@ -1,0 +1,17 @@
+# auto-generated safej: default deny everything
+class("javax.mail.internet.ContentType",
+  static(constructor(suppress, "ContentType()", comment("default deny")),
+    constructor(suppress, "ContentType(String)", comment("default deny")),
+    constructor(suppress, "ContentType(String, String, ParameterList)", comment("default deny"))),
+  instance(method(suppress, "getBaseType()", comment("default deny")),
+    method(suppress, "getParameter(String)", comment("default deny")),
+    method(suppress, "getParameterList()", comment("default deny")),
+    method(suppress, "getPrimaryType()", comment("default deny")),
+    method(suppress, "getSubType()", comment("default deny")),
+    method(suppress, "match(ContentType)", comment("default deny")),
+    method(suppress, "match(String)", comment("default deny")),
+    method(suppress, "setParameter(String, String)", comment("default deny")),
+    method(suppress, "setParameterList(ParameterList)", comment("default deny")),
+    method(suppress, "setPrimaryType(String)", comment("default deny")),
+    method(suppress, "setSubType(String)", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

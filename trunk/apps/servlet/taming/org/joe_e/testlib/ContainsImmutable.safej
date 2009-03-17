@@ -1,0 +1,5 @@
+# Testlib taming file: enable constructor but disable fields
+class("org.joe_e.testlib.ContainsImmutable",
+  static(constructor("ContainsImmutable(Token, String, int)")),
+  instance(field(suppress, "iat"),
+    field(suppress, "tok")))

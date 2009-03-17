@@ -1,0 +1,13 @@
+# auto-generated safej: default deny everything
+class("java.security.Security",
+  static(method(suppress, "addProvider(Provider)", comment("default deny")),
+    method(suppress, "getAlgorithmProperty(String, String)", comment("default deny")),
+    method(suppress, "getAlgorithms(String)", comment("default deny")),
+    method(suppress, "getProperty(String)", comment("default deny")),
+    method(suppress, "getProvider(String)", comment("default deny")),
+    method(suppress, "getProviders()", comment("default deny")),
+    method(suppress, "getProviders(Map<String>)", comment("default deny")),
+    method(suppress, "getProviders(String)", comment("default deny")),
+    method(suppress, "insertProviderAt(Provider, int)", comment("default deny")),
+    method(suppress, "removeProvider(String)", comment("default deny")),
+    method(suppress, "setProperty(String, String)", comment("default deny"))))

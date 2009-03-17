@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("javax.mail.Authenticator",
+  static(constructor(suppress, "Authenticator()", comment("default deny"))),
+  instance(method(suppress, "getDefaultUserName()", comment("default deny")),
+    method(suppress, "getPasswordAuthentication()", comment("default deny")),
+    method(suppress, "getRequestingPort()", comment("default deny")),
+    method(suppress, "getRequestingPrompt()", comment("default deny")),
+    method(suppress, "getRequestingProtocol()", comment("default deny")),
+    method(suppress, "getRequestingSite()", comment("default deny"))))

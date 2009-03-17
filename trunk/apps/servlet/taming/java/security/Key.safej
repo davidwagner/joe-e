@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.security.Key",
+  static(field(suppress, "serialVersionUID", comment("default deny"))),
+  instance(method(suppress, "getAlgorithm()", comment("default deny")),
+    method(suppress, "getEncoded()", comment("default deny")),
+    method(suppress, "getFormat()", comment("default deny"))))

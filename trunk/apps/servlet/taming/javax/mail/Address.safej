@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("javax.mail.Address",
+  static(constructor(suppress, "Address()", comment("default deny"))),
+  instance(method(suppress, "equals(Object)", comment("default deny")),
+    method(suppress, "getType()", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

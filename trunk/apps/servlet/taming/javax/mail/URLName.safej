@@ -1,0 +1,18 @@
+# auto-generated safej: default deny everything
+class("javax.mail.URLName",
+  static(constructor(suppress, "URLName(String)", comment("default deny")),
+    constructor(suppress, "URLName(String, String, int, String, String, String)", comment("default deny")),
+    constructor(suppress, "URLName(URL)", comment("default deny"))),
+  instance(field(suppress, "fullURL", comment("default deny")),
+    method(suppress, "equals(Object)", comment("default deny")),
+    method(suppress, "getFile()", comment("default deny")),
+    method(suppress, "getHost()", comment("default deny")),
+    method(suppress, "getPassword()", comment("default deny")),
+    method(suppress, "getPort()", comment("default deny")),
+    method(suppress, "getProtocol()", comment("default deny")),
+    method(suppress, "getRef()", comment("default deny")),
+    method(suppress, "getURL()", comment("default deny")),
+    method(suppress, "getUsername()", comment("default deny")),
+    method(suppress, "hashCode()", comment("default deny")),
+    method(suppress, "parseString(String)", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

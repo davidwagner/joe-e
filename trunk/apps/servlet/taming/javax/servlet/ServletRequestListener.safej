@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("javax.servlet.ServletRequestListener",
+  instance(method(suppress, "requestDestroyed(ServletRequestEvent)", comment("default deny")),
+    method(suppress, "requestInitialized(ServletRequestEvent)", comment("default deny"))))

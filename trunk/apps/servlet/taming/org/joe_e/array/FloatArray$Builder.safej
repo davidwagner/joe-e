@@ -1,0 +1,9 @@
+# auto-generated safej for Joe-E code: allow everything.
+class("org.joe_e.array.FloatArray$Builder",
+  instance(method("append(Float)"),
+    method("append(Float[])"),
+    method("append(Float[], int, int)"),
+    method("append(float)"),
+    method("append(float[])"),
+    method("append(float[], int, int)"),
+    method("snapshot()")))

@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.io.CharConversionException",
+  static(constructor(suppress, "CharConversionException()", comment("default deny")),
+    constructor(suppress, "CharConversionException(String)", comment("default deny"))))

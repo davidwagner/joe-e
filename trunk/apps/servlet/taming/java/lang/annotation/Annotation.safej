@@ -1,0 +1,6 @@
+# Manually audited.
+class("java.lang.annotation.Annotation",
+  instance(method("annotationType()"),
+    method("equals(Object)"),
+    method(suppress, "hashCode()", comment("actually probably OK, since as long as annotations are immutable it can't be a dynamically generated class")),
+    method(suppress, "toString()", comment("default deny"))))
