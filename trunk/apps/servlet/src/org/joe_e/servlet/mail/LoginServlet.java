@@ -7,17 +7,18 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.JoeEServlet;
-import org.joe_e.servlet.SessionView;
 
 
 public class LoginServlet extends JoeEServlet {
 
-	public class SessionView extends org.joe_e.servlet.SessionView {
+	public class SessionView extends AbstractSessionView {
 		public String name;
+		// TODO: read only? maybe reflective constructor
 	}
 	
-	public void doGet(HttpServletRequest req, HttpServletResponse res,  org.joe_e.servlet.SessionView ses) throws ServletException, IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse res,  AbstractSessionView ses) throws ServletException, IOException {
 		SessionView session = (SessionView) ses;
 		PrintWriter out = res.getWriter();
 		if (session.name == null) {
@@ -31,7 +32,7 @@ public class LoginServlet extends JoeEServlet {
 		out.flush();
 	}
 	
-	public void doPost(HttpServletRequest req, HttpServletResponse res, org.joe_e.servlet.SessionView ses) throws ServletException, IOException {
+	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses) throws ServletException, IOException {
 		SessionView session = (SessionView) ses;
 		String name = req.getParameter("name");
 		if (name != null) {
