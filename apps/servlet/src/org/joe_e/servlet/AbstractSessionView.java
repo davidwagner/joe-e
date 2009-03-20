@@ -5,7 +5,7 @@ import java.lang.reflect.Field;
 import javax.servlet.http.HttpSession;
 
 /**
- * "Abstract" class whose subclass represent session instances for 
+ * Abstract class whose subclass represent session instances for 
  * servlets. The SessionView is in fact the policy regarding what
  * subset of the session the servlet has access to. Members specified
  * in the SessionView will be visible from within the servlet's 
@@ -13,14 +13,13 @@ import javax.servlet.http.HttpSession;
  * will be hidden from the servlet's methods. All JoeEServlets must
  * have an inner class called SessionView that extends this class.
  * @author akshay
- *
  */
-public class SessionView {
+public abstract class AbstractSessionView {
 
 	/**
 	 * default constructor
 	 */
-	public SessionView() {
+	public AbstractSessionView() {
 		
 	}
 	
@@ -47,11 +46,11 @@ public class SessionView {
 	 * get written.
 	 * @param ses - the HttpSession
 	 * @throws IllegalAccessException - if Reflection stuff goes wrong.
-	 * TODO: I don't think this works actually. Need to test it on a servlet
 	 */
 	public void fillHttpSession(HttpSession ses) throws IllegalAccessException {
 		for (Field f : this.getClass().getDeclaredFields()) {
-			// TODO: HACK! ask adrian what's going on here
+			// TODO: HACK! ask adrian what's going on here. Fix.
+			// shouldn't have to setAccessible each attribute
 			f.setAccessible(true);
 			if (!f.isSynthetic() && f.isAccessible()) {
 				ses.setAttribute(f.getName(), f.get(this));

@@ -27,6 +27,10 @@ import org.xml.sax.helpers.DefaultHandler;
  * and performs the necessary session subsetting as specified by that servlet's 
  * SessionView object.
  * @author akshay
+ * TODO: read only by annotation, just don't write it back
+ * TODO: debug mode: warn if read only field gets modified
+ * TODO: maybe clone if read only... so deep write doesn't actually modify
+ *  anything marked with @readonly has to be cloneable or immutable. 
  *
  */
 public class Dispatcher extends HttpServlet {
@@ -34,6 +38,7 @@ public class Dispatcher extends HttpServlet {
 	// The map that contains url to servlet mappings
 	// TODO: does the map work if we have complex url-patterns? (i.e. regex stuff)
 	private HashMap<String, JoeEServlet> map;
+	private SessionInitializer initializer;
 	
 	/**
 	 * initializes the Dispatcher by reading and parsing
@@ -42,9 +47,7 @@ public class Dispatcher extends HttpServlet {
 	 * @throws ServletException if the policy file cannot
 	 * be found or if the class loader was unable to load the
 	 * JoeEServlet instances.
-	 * TODO we should probably do session initialization here
 	 * TODO exceptions should have meaningful messages
-	 * TODO clean up the logging stuff.
 	 */
 	public void init() throws ServletException {
 		try {
@@ -73,13 +76,16 @@ public class Dispatcher extends HttpServlet {
 	 * the SessionView object and populate its members. Or if there
 	 * are any other reflection problems
 	 * TODO: exceptions should have meaningful messages
-	 * TODO: clean up the logging stuff 
 	 * TODO: should we allow GET requests to modify the session? 
 	 * aren't they not supposed to change state?
 	 */
 	public void doGet(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
 		JoeEServlet servlet = findServlet(req.getServletPath());
-		SessionView s = null;
+		AbstractSessionView s = null;
+		if (req.getSession().isNew()) {
+			log("new Session");
+			initializer.fillHttpSession(req.getSession());
+		}
 		try {
 			s = servlet.getSessionView();
 			if (s != null) {
@@ -108,13 +114,16 @@ public class Dispatcher extends HttpServlet {
 	 * the SessionView object and populate its members. Or if there
 	 * are any other reflection problems
 	 * TODO: exceptions should have meaningful messages
-	 * TODO: clean up the logging stuff
 	 * TODO: what are the differences between GET and POST methods from
 	 * the point of view of the dispatcher?
 	 */
 	public void doPost(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
 		JoeEServlet servlet = findServlet(req.getServletPath());
-		SessionView s = null;
+		AbstractSessionView s = null;
+		if (req.getSession().isNew()) {
+			log("new Session");
+			initializer.fillHttpSession(req.getSession());
+		}
 		try {
 			s = servlet.getSessionView();
 			if (s != null) {
@@ -199,6 +208,8 @@ public class Dispatcher extends HttpServlet {
 		boolean inServletClass = false;
 		String urlPattern = null;
 		boolean inUrlPattern = false;
+		String sessionClass = null;
+		boolean sessionInit = false;
 		
 		public void startDocument() {
 			map = new HashMap<String, JoeEServlet> ();
@@ -217,6 +228,8 @@ public class Dispatcher extends HttpServlet {
 				urlPattern = null;
 			} else if (qName.equals("url-pattern") && urlPattern == null && inUrlPattern == false) {
 				inUrlPattern = true;
+			} else if (qName.equals("session-init")) {
+				sessionInit = true;
 			}
 		}
 		
@@ -243,6 +256,20 @@ public class Dispatcher extends HttpServlet {
 					log("caught exception... probably due to class loader issues", a);
 					throw new SAXException();
 				}
+			} else if (qName.equals("session-init")) {
+				try {
+					Class<?> cl = this.getClass().getClassLoader().loadClass(sessionClass);
+					initializer = (SessionInitializer) cl.newInstance();
+				} catch (ClassNotFoundException c) {
+					log("caught exception... probably due to class loader issues", c);
+					throw new SAXException();
+				} catch (InstantiationException i) {
+					log("caught exception... probably due to class loader issues", i);
+					throw new SAXException();
+				} catch (IllegalAccessException a) {
+					log("caught exception... probably due to class loader issues", a);
+					throw new SAXException();
+				}
 			}
 		}
 		
@@ -253,6 +280,8 @@ public class Dispatcher extends HttpServlet {
 				servletClass = new String(ch, start, length);
 			} else if (inUrlPattern) {
 				urlPattern = new String(ch, start, length);
+			} else if (sessionInit) {
+				sessionClass = new String(ch, start, length);
 			}
 		}
 		

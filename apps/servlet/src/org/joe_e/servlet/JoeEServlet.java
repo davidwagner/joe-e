@@ -31,7 +31,7 @@ public class JoeEServlet extends HttpServlet {
 	 * @author akshay
 	 *
 	 */
-	public class SessionView extends org.joe_e.servlet.SessionView {
+	public class SessionView extends AbstractSessionView {
 	}
 	
 	/**
@@ -42,7 +42,7 @@ public class JoeEServlet extends HttpServlet {
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	public void doGet(HttpServletRequest req, HttpServletResponse res, org.joe_e.servlet.SessionView ses) throws ServletException, IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses) throws ServletException, IOException {
 		throw new ServletException("Unimplemented method in servlet");
 	}
 	
@@ -54,7 +54,7 @@ public class JoeEServlet extends HttpServlet {
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	public void doPost(HttpServletRequest req, HttpServletResponse res, org.joe_e.servlet.SessionView ses) throws ServletException, IOException {
+	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses) throws ServletException, IOException {
 		throw new ServletException("Unimplemented method in servlet");	
 	}
 	
@@ -67,11 +67,11 @@ public class JoeEServlet extends HttpServlet {
 	 * @throws IllegalAccessException if reflection stuff goes wrong
 	 * @throws InvocationTargetException if reflection stuff goes wrong
 	 */
-	public org.joe_e.servlet.SessionView getSessionView() throws InstantiationException, IllegalAccessException, InvocationTargetException {
+	public AbstractSessionView getSessionView() throws InstantiationException, IllegalAccessException, InvocationTargetException {
 		for (Class c : this.getClass().getClasses()) {
 			if (c.getName().equals(this.getClass().getName() + "$SessionView")) {
 				for (Constructor cr : c.getConstructors()) {
-					return (org.joe_e.servlet.SessionView) cr.newInstance(this);
+					return (AbstractSessionView) cr.newInstance(this);
 				}
 			}
 		}
