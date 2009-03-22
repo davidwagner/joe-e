@@ -13,9 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionContext;
-import javax.servlet.ServletContext;
 
-import org.joe_e.servlet.SessionView;
+import org.joe_e.servlet.AbstractSessionView;
 
 import junit.framework.TestCase;
 
@@ -42,7 +41,7 @@ public class Session extends TestCase {
 		 * @author akshay
 		 *
 		 */
-		public class SessionView extends org.joe_e.servlet.SessionView {
+		public class SessionView extends AbstractSessionView {
 			public String name;
 			public File mailbox;
 		}
@@ -53,7 +52,7 @@ public class Session extends TestCase {
 		/**
 		 * Basic GET method that does simple interactions with the session
 		 */
-		public void doGet(HttpServletRequest req, HttpServletResponse res, org.joe_e.servlet.SessionView ses) throws ServletException, IOException {
+		public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses) throws ServletException, IOException {
 			SessionView session = (SessionView) ses;
 			this.file = session.mailbox;
 			this.string = session.name;
@@ -62,7 +61,7 @@ public class Session extends TestCase {
 		/**
 		 * basic POST method that modifies session variables and creates a new one.
 		 */
-		public void doPost(HttpServletRequest req, HttpServletResponse res, org.joe_e.servlet.SessionView ses) throws ServletException, IOException {
+		public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses) throws ServletException, IOException {
 			SessionView session = (SessionView) ses;
 			this.string = session.name;
 			session.name = "krishnamurthy";
@@ -141,7 +140,7 @@ public class Session extends TestCase {
 		session.setAttribute("name", "akshay");
 		TestServlet s = new TestServlet();
 		try {
-			SessionView ses = s.getSessionView();
+			AbstractSessionView ses = s.getSessionView();
 			ses.fillSessionView(session);
 			s.doGet(null, null, ses);
 			ses.fillHttpSession(session);
@@ -175,7 +174,7 @@ public class Session extends TestCase {
 		session.setAttribute("name", "akshay");
 		TestServlet s = new TestServlet();
 		try {
-			SessionView ses = s.getSessionView();
+			AbstractSessionView ses = s.getSessionView();
 			ses.fillSessionView(session);
 			s.doPost(null, null, ses);
 			ses.fillHttpSession(session);
