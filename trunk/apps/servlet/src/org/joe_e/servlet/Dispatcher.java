@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -39,6 +40,8 @@ public class Dispatcher extends HttpServlet {
 	// TODO: does the map work if we have complex url-patterns? (i.e. regex stuff)
 	private HashMap<String, JoeEServlet> map;
 	private SessionInitializer initializer;
+	
+	public static Logger logger = Logger.getLogger(Dispatcher.class.getName());
 	
 	/**
 	 * initializes the Dispatcher by reading and parsing
@@ -290,9 +293,9 @@ public class Dispatcher extends HttpServlet {
 	}
 	
 	public void log(String s) {
-		getServletConfig().getServletContext().log("Joe-E DISPATCHER: " + s);
+		logger.fine(s);
 	}
 	public void log(String s, Throwable t) {
-		getServletConfig().getServletContext().log("Joe-E DISPATCHER: " + s, t);
+		logger.severe(s + t.getLocalizedMessage());
 	}
 }
