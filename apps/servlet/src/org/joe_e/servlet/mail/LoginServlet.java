@@ -1,5 +1,6 @@
 package org.joe_e.servlet.mail;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -9,12 +10,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.JoeEServlet;
+import org.joe_e.servlet.readonly;
 
 
 public class LoginServlet extends JoeEServlet {
 
 	public class SessionView extends AbstractSessionView {
 		public String name;
+		@readonly public File mailbox;
 		// TODO: read only? maybe reflective constructor
 	}
 	
@@ -38,6 +41,7 @@ public class LoginServlet extends JoeEServlet {
 		if (name != null) {
 			session.name = name;
 		}
+		session.mailbox = new File("/");
 		doGet(req, res, session);
 	}
 }
