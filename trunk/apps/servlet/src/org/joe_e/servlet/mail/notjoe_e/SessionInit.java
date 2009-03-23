@@ -17,6 +17,7 @@ public class SessionInit implements SessionInitializer {
 	
 	public void fillHttpSession(HttpSession session) {
 		try {
+			Dispatcher.logger.finer("Initializing session with AuthenticationAgent and AccountManager");
 			session.setAttribute("auth", new AuthenticationAgent(MessageDigest.getInstance("md5"), new File(accountsFile)));
 			session.setAttribute("manager", new AccountManager(MessageDigest.getInstance("md5"), new File(accountsFile)));
 		} catch (NoSuchAlgorithmException e) {

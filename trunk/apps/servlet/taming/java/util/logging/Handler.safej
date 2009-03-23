@@ -1,0 +1,18 @@
+# auto-generated safej: default deny everything
+class("java.util.logging.Handler",
+  static(constructor(suppress, "Handler()", comment("default deny"))),
+  instance(method(suppress, "close()", comment("default deny")),
+    method(suppress, "flush()", comment("default deny")),
+    method(suppress, "getEncoding()", comment("default deny")),
+    method(suppress, "getErrorManager()", comment("default deny")),
+    method(suppress, "getFilter()", comment("default deny")),
+    method(suppress, "getFormatter()", comment("default deny")),
+    method(suppress, "getLevel()", comment("default deny")),
+    method(suppress, "isLoggable(LogRecord)", comment("default deny")),
+    method(suppress, "publish(LogRecord)", comment("default deny")),
+    method(suppress, "reportError(String, Exception, int)", comment("default deny")),
+    method(suppress, "setEncoding(String)", comment("default deny")),
+    method(suppress, "setErrorManager(ErrorManager)", comment("default deny")),
+    method(suppress, "setFilter(Filter)", comment("default deny")),
+    method(suppress, "setFormatter(Formatter)", comment("default deny")),
+    method(suppress, "setLevel(Level)", comment("default deny"))))

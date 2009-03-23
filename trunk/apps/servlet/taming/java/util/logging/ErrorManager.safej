@@ -1,0 +1,10 @@
+# auto-generated safej: default deny everything
+class("java.util.logging.ErrorManager",
+  static(field(suppress, "CLOSE_FAILURE", comment("default deny")),
+    field(suppress, "FLUSH_FAILURE", comment("default deny")),
+    field(suppress, "FORMAT_FAILURE", comment("default deny")),
+    field(suppress, "GENERIC_FAILURE", comment("default deny")),
+    field(suppress, "OPEN_FAILURE", comment("default deny")),
+    field(suppress, "WRITE_FAILURE", comment("default deny")),
+    constructor(suppress, "ErrorManager()", comment("default deny"))),
+  instance(method(suppress, "error(String, Exception, int)", comment("default deny"))))

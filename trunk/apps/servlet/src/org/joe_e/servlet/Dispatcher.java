@@ -58,14 +58,13 @@ public class Dispatcher extends HttpServlet {
 			if (policy.exists()) {
 				this.parsePolicy(policy);
 				for (String s : map.keySet()) {
-					log(s + ": " + map.get(s).toString());
+					log("Loaded mapping: " + s + ": " + map.get(s).toString());
 				}
 			} else {
-				throw new ServletException();
+				throw new ServletException("Unspecified Policy File");
 			}
 		} catch (ServletException e) {
-			log("caught ServletException probably caused by class loader issues", e);
-			throw new ServletException();
+			throw new ServletException(e.getMessage());
 		}
 	}
 	
@@ -78,7 +77,6 @@ public class Dispatcher extends HttpServlet {
 	 * @throws ServletException if unable to dynamically instantiate
 	 * the SessionView object and populate its members. Or if there
 	 * are any other reflection problems
-	 * TODO: exceptions should have meaningful messages
 	 * TODO: should we allow GET requests to modify the session? 
 	 * aren't they not supposed to change state?
 	 */
@@ -86,22 +84,23 @@ public class Dispatcher extends HttpServlet {
 		JoeEServlet servlet = findServlet(req.getServletPath());
 		AbstractSessionView s = null;
 		if (req.getSession().isNew()) {
-			log("new Session");
+			log("New session instance");
 			initializer.fillHttpSession(req.getSession());
 		}
 		try {
 			s = servlet.getSessionView();
 			if (s != null) {
 				s.fillSessionView(req.getSession());
+				log("Dispatching request for " + req.getServletPath() + " to " + servlet.getClass().getName());
 				servlet.doGet(req, response, s);
 				s.fillHttpSession(req.getSession());
 			}
 		} catch(IllegalAccessException i) {
-			throw new ServletException();
+			throw new ServletException(i.getMessage());
 		} catch(InstantiationException i) {
-			throw new ServletException();
+			throw new ServletException(i.getMessage());
 		} catch(InvocationTargetException i) {
-			throw new ServletException();
+			throw new ServletException(i.getMessage());
 		}
 	}
 	
@@ -122,13 +121,14 @@ public class Dispatcher extends HttpServlet {
 		JoeEServlet servlet = findServlet(req.getServletPath());
 		AbstractSessionView s = null;
 		if (req.getSession().isNew()) {
-			log("new Session");
+			log("New session instance");
 			initializer.fillHttpSession(req.getSession());
 		}
 		try {
 			s = servlet.getSessionView();
 			if (s != null) {
 				s.fillSessionView(req.getSession());
+				log("Dispatching request for " + req.getServletPath() + " to " + servlet.getClass().getName());
 				servlet.doPost(req, response, s);
 				s.fillHttpSession(req.getSession());
 			}
@@ -147,7 +147,6 @@ public class Dispatcher extends HttpServlet {
 	 * @return the JoeEServlet corresponding to the url s
 	 */
 	private JoeEServlet findServlet(String s) {
-		getServletConfig().getServletContext().log("request for: " + s);
 		return map.get(s);
 	}
 	
@@ -291,6 +290,7 @@ public class Dispatcher extends HttpServlet {
 	public void log(String s) {
 		logger.fine(s);
 	}
+	
 	public void log(String s, Throwable t) {
 		logger.severe(s + t.getLocalizedMessage());
 	}

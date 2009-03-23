@@ -43,8 +43,11 @@ public abstract class AbstractSessionView {
 					Object o = ses.getAttribute(f.getName());
 					try {
 						f.set(this, Cloner.deepCopy(o));
+						Dispatcher.logger.finest("Deep copy on " + f.getName() + " successful");
 					} catch (Exception e) {
 						// deep copy failed
+						Dispatcher.logger.warning("Failed to deep copy " + f.getName() + 
+								". Check that " + f.getClass().getName() + " is serializable");
 						f.set(this, o);
 					} 
 				} else {
@@ -69,12 +72,13 @@ public abstract class AbstractSessionView {
 			// TODO: HACK! ask adrian what's going on here. Fix.
 			// shouldn't have to setAccessible each attribute
 			if (f.getName().equals("invalidate") && f.getBoolean(this)) {
+				Dispatcher.logger.fine("invalidating session after successful dispatch");
 				ses.invalidate();
 				return;
 			}
 			f.setAccessible(true);
 			if (f.isAnnotationPresent(readonly.class)) {
-				Dispatcher.logger.fine(f.getName() + " marked as readonly");
+				Dispatcher.logger.fine(f.getName() + " is marked as readonly and was not copied to HttpSession");
 			}
 			if (!f.isSynthetic() && f.isAccessible() && !f.isAnnotationPresent(readonly.class)) {
 				ses.setAttribute(f.getName(), f.get(this));

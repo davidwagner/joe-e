@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.util.logging.ConsoleHandler",
+  static(constructor(suppress, "ConsoleHandler()", comment("default deny"))),
+  instance(method(suppress, "close()", comment("default deny")),
+    method(suppress, "publish(LogRecord)", comment("default deny"))))

@@ -8,6 +8,7 @@ import java.security.MessageDigest;
 
 import org.joe_e.charset.ASCII;
 import org.joe_e.file.Filesystem;
+import org.joe_e.servlet.Dispatcher;
 
 public class AccountManager {
 	
@@ -20,9 +21,11 @@ public class AccountManager {
 	}
 	
 	public boolean addAccount(String username, String password) {
+		Dispatcher.logger.finest("Request to create account for: " + username);
 		try {
 			for (File f : Filesystem.list(accounts)) {
 				if (f.getName().equals(username)) {
+					Dispatcher.logger.fine("Username " + username + " already exists");
 					return false;
 				}
 			}
@@ -46,11 +49,14 @@ public class AccountManager {
 						f.delete();
 					}
 				}
+				Dispatcher.logger.finest("Caught an exception, either IO or crypto related, unable to create account");
 				return false;
 			} catch (IOException e1) {
+				Dispatcher.logger.finest("Caught an exception, either IO or crypto related, unable to create account");
 				return false;
 			}
 		}
+		Dispatcher.logger.finest("Successfully created account for " + username);
 		return true;
 	}
 }

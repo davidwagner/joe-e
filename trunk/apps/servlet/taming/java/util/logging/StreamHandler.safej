@@ -1,0 +1,10 @@
+# auto-generated safej: default deny everything
+class("java.util.logging.StreamHandler",
+  static(constructor(suppress, "StreamHandler()", comment("default deny")),
+    constructor(suppress, "StreamHandler(OutputStream, Formatter)", comment("default deny"))),
+  instance(method(suppress, "close()", comment("default deny")),
+    method(suppress, "flush()", comment("default deny")),
+    method(suppress, "isLoggable(LogRecord)", comment("default deny")),
+    method(suppress, "publish(LogRecord)", comment("default deny")),
+    method(suppress, "setEncoding(String)", comment("default deny")),
+    method(suppress, "setOutputStream(OutputStream)", comment("default deny"))))
