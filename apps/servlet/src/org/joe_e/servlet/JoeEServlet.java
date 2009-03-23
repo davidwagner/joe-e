@@ -62,7 +62,7 @@ public class JoeEServlet extends HttpServlet {
 	 * creates an instance of the SessionView for this specific JoeEServlet.
 	 * Returns an empty SessionView, which should then be filled by the 
 	 * SessionView.fillSession(HttpSession) method.
-	 * @return org.joe_e.servlet.SessionView object (but really it's a subclass of this)
+	 * @return AbstractSessionView object (but really it's a subclass of this)
 	 * @throws InstantiationException if reflection stuff goes wrong
 	 * @throws IllegalAccessException if reflection stuff goes wrong
 	 * @throws InvocationTargetException if reflection stuff goes wrong

@@ -1,33 +1,33 @@
-package org.joe_e.servlet.mail.notjoe_e;
+package org.joe_e.servlet.mail;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Writer;
 import java.math.BigInteger;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 import org.joe_e.charset.ASCII;
 import org.joe_e.file.Filesystem;
 
 public class AccountManager {
 	
-	private final String accountsFile = "/Users/akshay/Desktop/accounts/";
 	private File accounts;
 	private MessageDigest digest;
 	
-	public AccountManager() {
-		try {
-			digest = MessageDigest.getInstance("md5");
-			accounts = new File(accountsFile);
-		} catch (NoSuchAlgorithmException e) {
-		}
+	public AccountManager(MessageDigest d, File a) {
+		digest = d;
+		accounts = a;
 	}
 	
 	public boolean addAccount(String username, String password) {
-		for (String s: accounts.list()) {
-			if (s.equals(username)) {
-				return false;
+		try {
+			for (File f : Filesystem.list(accounts)) {
+				if (f.getName().equals(username)) {
+					return false;
+				}
 			}
+		} catch (IOException e1) {
+			return false;
 		}
 		try {
 			Writer out = ASCII.output(Filesystem.writeNew(Filesystem.file(accounts, username)));
@@ -40,12 +40,16 @@ public class AccountManager {
 			out.flush();
 		} catch (Exception e) {
 			// clean up the file that we just wrote out
-			for(File f : accounts.listFiles()) {
-				if (f.getName().equals(username)) {
-					f.delete();
+			try {
+				for(File f : Filesystem.list(accounts)) {
+					if (f.getName().equals(username)) {
+						f.delete();
+					}
 				}
+				return false;
+			} catch (IOException e1) {
+				return false;
 			}
-			return false;
 		}
 		return true;
 	}

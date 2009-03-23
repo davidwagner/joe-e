@@ -1,4 +1,4 @@
-# auto-generated safej: default deny everything
+# Manually modified safej file for Joe-e mail.
 class("javax.servlet.ServletRequest",
   instance(method(suppress, "getAttribute(String)", comment("default deny")),
     method(suppress, "getAttributeNames()", comment("default deny")),
@@ -11,7 +11,7 @@ class("javax.servlet.ServletRequest",
     method(suppress, "getLocalPort()", comment("default deny")),
     method(suppress, "getLocale()", comment("default deny")),
     method(suppress, "getLocales()", comment("default deny")),
-    method(suppress, "getParameter(String)", comment("default deny")),
+    method(allow, "getParameter(String)", comment("allowed for Joe-E Mail")),
     method(suppress, "getParameterMap()", comment("default deny")),
     method(suppress, "getParameterNames()", comment("default deny")),
     method(suppress, "getParameterValues(String)", comment("default deny")),

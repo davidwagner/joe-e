@@ -1,13 +1,13 @@
-# auto-generated safej: default deny everything
+# Manually modified safej file for Joe-e mail.
 class("java.io.Writer",
   static(constructor(suppress, "Writer()", comment("default deny")),
     constructor(suppress, "Writer(Object)", comment("default deny"))),
   instance(field(suppress, "lock", comment("default deny")),
     method(suppress, "append(CharSequence)", comment("default deny")),
     method(suppress, "append(CharSequence, int, int)", comment("default deny")),
-    method(suppress, "append(char)", comment("default deny")),
+    method(allow, "append(char)", comment("allowed for Joe-e mail")),
     method(suppress, "close()", comment("default deny")),
-    method(suppress, "flush()", comment("default deny")),
+    method(allow, "flush()", comment("allowed for Joe-e mail")),
     method(suppress, "write(String)", comment("default deny")),
     method(suppress, "write(String, int, int)", comment("default deny")),
     method(suppress, "write(char[])", comment("default deny")),
