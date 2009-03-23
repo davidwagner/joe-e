@@ -1,4 +1,4 @@
-# auto-generated safej: default deny everything
+# Manually modified safej file for Joe-e mail.
 class("javax.servlet.ServletResponse",
   instance(method(suppress, "flushBuffer()", comment("default deny")),
     method(suppress, "getBufferSize()", comment("default deny")),
@@ -6,7 +6,7 @@ class("javax.servlet.ServletResponse",
     method(suppress, "getContentType()", comment("default deny")),
     method(suppress, "getLocale()", comment("default deny")),
     method(suppress, "getOutputStream()", comment("default deny")),
-    method(suppress, "getWriter()", comment("default deny")),
+    method(allow, "getWriter()", comment("allowed for Joe-E Mail")),
     method(suppress, "isCommitted()", comment("default deny")),
     method(suppress, "reset()", comment("default deny")),
     method(suppress, "resetBuffer()", comment("default deny")),

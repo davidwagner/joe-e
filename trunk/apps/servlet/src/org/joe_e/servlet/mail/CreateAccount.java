@@ -10,8 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.JoeEServlet;
 import org.joe_e.servlet.readonly;
-import org.joe_e.servlet.mail.LoginServlet.SessionView;
-import org.joe_e.servlet.mail.notjoe_e.AccountManager;
 
 public class CreateAccount extends JoeEServlet {
 

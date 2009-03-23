@@ -68,6 +68,10 @@ public abstract class AbstractSessionView {
 		for (Field f : this.getClass().getDeclaredFields()) {
 			// TODO: HACK! ask adrian what's going on here. Fix.
 			// shouldn't have to setAccessible each attribute
+			if (f.getName().equals("invalidate") && f.getBoolean(this)) {
+				ses.invalidate();
+				return;
+			}
 			f.setAccessible(true);
 			if (f.isAnnotationPresent(readonly.class)) {
 				Dispatcher.logger.fine(f.getName() + " marked as readonly");

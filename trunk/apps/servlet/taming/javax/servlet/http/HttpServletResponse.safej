@@ -1,4 +1,4 @@
-# auto-generated safej: default deny everything
+# Manually modified safej file for Joe-e mail.
 class("javax.servlet.http.HttpServletResponse",
   static(field(suppress, "SC_ACCEPTED", comment("default deny")),
     field(suppress, "SC_BAD_GATEWAY", comment("default deny")),
@@ -52,7 +52,7 @@ class("javax.servlet.http.HttpServletResponse",
     method(suppress, "encodeUrl(String)", comment("default deny")),
     method(suppress, "sendError(int)", comment("default deny")),
     method(suppress, "sendError(int, String)", comment("default deny")),
-    method(suppress, "sendRedirect(String)", comment("default deny")),
+    method(allow, "sendRedirect(String)", comment("allowed for Joe-E mail")),
     method(suppress, "setDateHeader(String, long)", comment("default deny")),
     method(suppress, "setHeader(String, String)", comment("default deny")),
     method(suppress, "setIntHeader(String, int)", comment("default deny")),

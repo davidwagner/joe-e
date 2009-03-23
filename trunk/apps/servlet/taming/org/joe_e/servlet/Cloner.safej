@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("org.joe_e.servlet.Cloner",
+  static(method(suppress, "deepCopy(Object)", comment("default deny")),
+    method(suppress, "isSerializeable(Object)", comment("default deny"))))

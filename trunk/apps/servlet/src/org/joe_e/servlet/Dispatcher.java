@@ -95,8 +95,6 @@ public class Dispatcher extends HttpServlet {
 				s.fillSessionView(req.getSession());
 				servlet.doGet(req, response, s);
 				s.fillHttpSession(req.getSession());
-				//TODO: remove later
-				logSession(req.getSession());
 			}
 		} catch(IllegalAccessException i) {
 			throw new ServletException();
@@ -133,8 +131,6 @@ public class Dispatcher extends HttpServlet {
 				s.fillSessionView(req.getSession());
 				servlet.doPost(req, response, s);
 				s.fillHttpSession(req.getSession());
-				// TODO: remove later
-				logSession(req.getSession());
 			}
 		} catch(IllegalAccessException i) {
 			throw new ServletException();

@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("org.joe_e.servlet.Dispatcher",
+  static(field(suppress, "logger", comment("default deny")),
+    constructor(suppress, "Dispatcher()", comment("default deny"))),
+  instance(method(suppress, "doGet(HttpServletRequest, HttpServletResponse)", comment("default deny")),
+    method(suppress, "doPost(HttpServletRequest, HttpServletResponse)", comment("default deny")),
+    method(suppress, "init()", comment("default deny")),
+    method(suppress, "log(String)", comment("default deny")),
+    method(suppress, "log(String, Throwable)", comment("default deny"))))
