@@ -19,20 +19,26 @@ import org.joe_e.servlet.JoeEServlet;
 public class IndexServlet extends JoeEServlet {
 
 	public class SessionView extends AbstractSessionView {
-		
+		String username;
 	}
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses) throws ServletException, IOException {
+		SessionView session = (SessionView) ses;
+		if (session.username != null) {
+			res.sendRedirect("/servlet/inbox");
+		}
 		PrintWriter out = res.getWriter();
-		out.println("<html><head><title>Joe-E Mail</title></head>");
-		out.println("<body><a href=\"/servlet/login\">Log In</a></body></html>");
+		HtmlWriter.printHeader(out);
+		out.println("<body>" +
+				"<p>Welcome to Joe-E mail</p>" +
+				"<a href=\"/servlet/login\">Log In</a><br />" +
+				"<a href=\"/servlet/create\">Create an Account</a>" +
+				"</body></html>");
+		HtmlWriter.printFooter(out);
 		out.flush();
 	}
 	
 	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses) throws ServletException, IOException {
-		PrintWriter out = res.getWriter();
-		out.println("<html><head><title>Joe-E Mail</title></head>");
-		out.println("<body><a href=\"/login\">Log In</a></body></html>");
-		out.flush();
+		this.doGet(req, res, ses);
 	}
 }

@@ -11,37 +11,45 @@ import javax.servlet.http.HttpServletResponse;
 import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.JoeEServlet;
 import org.joe_e.servlet.readonly;
+import org.joe_e.servlet.mail.notjoe_e.AuthenticationAgent;
 
 
 public class LoginServlet extends JoeEServlet {
 
 	public class SessionView extends AbstractSessionView {
-		public String name;
-		@readonly public File mailbox;
+		public String username;
+		public AuthenticationAgent auth;
 		// TODO: read only? maybe reflective constructor
 	}
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse res,  AbstractSessionView ses) throws ServletException, IOException {
 		SessionView session = (SessionView) ses;
 		PrintWriter out = res.getWriter();
-		if (session.name == null) {
-			out.println("<html><head><title>Joe-E Mail</title></head>");
-			out.println("<body>I don't know your name yet");
-			out.println("<form method=\"POST\" action=\"/servlet/login\"> <input type=\"text\" value=\"\" name=\"name\" />");
-			out.println("<input type=\"submit\" value=\"login\"></form></body>");
-		} else {
-			out.println("Welcome " + session.name);
+		if (session.username != null) {
+			res.sendRedirect("/servlet/inbox");
 		}
+		HtmlWriter.printHeader(out);
+		out.println("<body><h2>Joe-E Mail</h2>");
+		out.println("<p>Log in</p>");
+		out.println("<form method=\"POST\" action=\"/servlet/login\">");
+		out.println("<span>Username: <input type=\"text\" value=\"\" name=\"username\" /></span>");
+		out.println("<span>Password: <input type=\"password\" value=\"\" name=\"password\" /></span>");
+		out.println("<input type=\"submit\" value=\"login\"></form></body>");
+		HtmlWriter.printFooter(out);
 		out.flush();
 	}
 	
 	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses) throws ServletException, IOException {
 		SessionView session = (SessionView) ses;
-		String name = req.getParameter("name");
-		if (name != null) {
-			session.name = name;
+		String name = req.getParameter("username");
+		String password = req.getParameter("password");
+		if (session.auth.authenticate(name, password)) {
+			session.auth = null;
+			session.username = name;
+			res.sendRedirect("/servlet/inbox");
 		}
-		session.mailbox = new File("/");
-		doGet(req, res, session);
+		else {
+			doGet(req, res, ses);
+		}
 	}
 }
