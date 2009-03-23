@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.util.logging.SimpleFormatter",
+  static(constructor(suppress, "SimpleFormatter()", comment("default deny"))),
+  instance(method(suppress, "format(LogRecord)", comment("default deny"))))

@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.util.logging.SocketHandler",
+  static(constructor(suppress, "SocketHandler()", comment("default deny")),
+    constructor(suppress, "SocketHandler(String, int)", comment("default deny"))),
+  instance(method(suppress, "close()", comment("default deny")),
+    method(suppress, "publish(LogRecord)", comment("default deny"))))

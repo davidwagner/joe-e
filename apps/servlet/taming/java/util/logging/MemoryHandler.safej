@@ -1,0 +1,11 @@
+# auto-generated safej: default deny everything
+class("java.util.logging.MemoryHandler",
+  static(constructor(suppress, "MemoryHandler()", comment("default deny")),
+    constructor(suppress, "MemoryHandler(Handler, int, Level)", comment("default deny"))),
+  instance(method(suppress, "close()", comment("default deny")),
+    method(suppress, "flush()", comment("default deny")),
+    method(suppress, "getPushLevel()", comment("default deny")),
+    method(suppress, "isLoggable(LogRecord)", comment("default deny")),
+    method(suppress, "publish(LogRecord)", comment("default deny")),
+    method(suppress, "push()", comment("default deny")),
+    method(suppress, "setPushLevel(Level)", comment("default deny"))))

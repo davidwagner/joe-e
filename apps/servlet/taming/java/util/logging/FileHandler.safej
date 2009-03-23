@@ -1,0 +1,9 @@
+# auto-generated safej: default deny everything
+class("java.util.logging.FileHandler",
+  static(constructor(suppress, "FileHandler()", comment("default deny")),
+    constructor(suppress, "FileHandler(String)", comment("default deny")),
+    constructor(suppress, "FileHandler(String, boolean)", comment("default deny")),
+    constructor(suppress, "FileHandler(String, int, int)", comment("default deny")),
+    constructor(suppress, "FileHandler(String, int, int, boolean)", comment("default deny"))),
+  instance(method(suppress, "close()", comment("default deny")),
+    method(suppress, "publish(LogRecord)", comment("default deny"))))

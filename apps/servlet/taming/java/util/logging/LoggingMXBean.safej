@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.util.logging.LoggingMXBean",
+  instance(method(suppress, "getLoggerLevel(String)", comment("default deny")),
+    method(suppress, "getLoggerNames()", comment("default deny")),
+    method(suppress, "getParentLoggerName(String)", comment("default deny")),
+    method(suppress, "setLoggerLevel(String, String)", comment("default deny"))))

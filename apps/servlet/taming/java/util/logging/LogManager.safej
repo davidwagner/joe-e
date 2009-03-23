@@ -1,0 +1,16 @@
+# auto-generated safej: default deny everything
+class("java.util.logging.LogManager",
+  static(field(suppress, "LOGGING_MXBEAN_NAME", comment("default deny")),
+    constructor(suppress, "LogManager()", comment("default deny")),
+    method(suppress, "getLogManager()", comment("default deny")),
+    method(suppress, "getLoggingMXBean()", comment("default deny"))),
+  instance(method(suppress, "addLogger(Logger)", comment("default deny")),
+    method(suppress, "addPropertyChangeListener(PropertyChangeListener)", comment("default deny")),
+    method(suppress, "checkAccess()", comment("default deny")),
+    method(suppress, "getLogger(String)", comment("default deny")),
+    method(suppress, "getLoggerNames()", comment("default deny")),
+    method(suppress, "getProperty(String)", comment("default deny")),
+    method(suppress, "readConfiguration()", comment("default deny")),
+    method(suppress, "readConfiguration(InputStream)", comment("default deny")),
+    method(suppress, "removePropertyChangeListener(PropertyChangeListener)", comment("default deny")),
+    method(suppress, "reset()", comment("default deny"))))

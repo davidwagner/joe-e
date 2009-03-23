@@ -1,6 +1,6 @@
-# auto-generated safej: default deny everything
+# Manually modified safej file for Joe-e mail.
 class("org.joe_e.servlet.Dispatcher",
-  static(field(suppress, "logger", comment("default deny")),
+  static(field(allow, "logger", comment("Allowed for Joe-E Mail")),
     constructor(suppress, "Dispatcher()", comment("default deny"))),
   instance(method(suppress, "doGet(HttpServletRequest, HttpServletResponse)", comment("default deny")),
     method(suppress, "doPost(HttpServletRequest, HttpServletResponse)", comment("default deny")),

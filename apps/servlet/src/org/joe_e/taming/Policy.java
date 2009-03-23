@@ -1457,8 +1457,6 @@ public class Policy {
 
         // Type java.util.FormattableFlags
 
-        // Type java.util.Formatter
-
         // Type java.util.Formatter$BigDecimalLayoutForm
 
         // Type java.util.FormatterClosedException
@@ -1578,6 +1576,46 @@ public class Policy {
         // Type java.util.Vector
 
         // Type java.util.WeakHashMap
+
+        // Type java.util.logging.ConsoleHandler
+
+        // Type java.util.logging.ErrorManager
+
+        // Type java.util.logging.FileHandler
+
+        // Type java.util.logging.Filter
+
+        // Type java.util.logging.Formatter
+
+        // Type java.util.logging.Handler
+
+        // Type java.util.logging.Level
+
+        // Type java.util.logging.LogManager
+
+        // Type java.util.logging.LogRecord
+
+        // Type java.util.logging.Logger
+        methods.add("java.util.logging.Logger.fine(String)");
+        methods.add("java.util.logging.Logger.throwing(String, String, Throwable)");
+        methods.add("java.util.logging.Logger.severe(String)");
+        methods.add("java.util.logging.Logger.finer(String)");
+        methods.add("java.util.logging.Logger.finest(String)");
+        methods.add("java.util.logging.Logger.warning(String)");
+
+        // Type java.util.logging.LoggingMXBean
+
+        // Type java.util.logging.LoggingPermission
+
+        // Type java.util.logging.MemoryHandler
+
+        // Type java.util.logging.SimpleFormatter
+
+        // Type java.util.logging.SocketHandler
+
+        // Type java.util.logging.StreamHandler
+
+        // Type java.util.logging.XMLFormatter
 
         // Type javax.servlet.Filter
 
@@ -2008,6 +2046,7 @@ public class Policy {
         // Type org.joe_e.servlet.Cloner
 
         // Type org.joe_e.servlet.Dispatcher
+        fields.add("org.joe_e.servlet.Dispatcher.logger");
 
         // Type org.joe_e.servlet.JoeEServlet
         constructors.add("org.joe_e.servlet.JoeEServlet()");
