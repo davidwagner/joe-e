@@ -9,7 +9,8 @@ public class SessionInit implements SessionInitializer {
 
 	public void fillHttpSession(HttpSession session) {
 		//default do nothing
-		session.setAttribute("auth", "authentication");
+		session.setAttribute("auth", new AuthenticationAgent());
+		session.setAttribute("manager", new AccountManager());
 	}
 
 }
