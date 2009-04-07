@@ -1457,6 +1457,8 @@ public class Policy {
 
         // Type java.util.FormattableFlags
 
+        // Type java.util.Formatter
+
         // Type java.util.Formatter$BigDecimalLayoutForm
 
         // Type java.util.FormatterClosedException

@@ -27,6 +27,10 @@ import org.xml.sax.helpers.DefaultHandler;
  * goes through the dispatcher, which looks up which servlet to forward the request to
  * and performs the necessary session subsetting as specified by that servlet's 
  * SessionView object.
+ * 
+ * A key difference between this dispatcher behavior and the regular servlet framework
+ * is that the Joe-E dispatcher keeps one instance of each servlet per session, rather 
+ * than a singleton instance of each servlet. This prevents 
  * @author akshay
  * TODO: read only by annotation, just don't write it back
  * TODO: debug mode: warn if read only field gets modified
@@ -38,7 +42,8 @@ public class Dispatcher extends HttpServlet {
 
 	// The map that contains url to servlet mappings
 	// TODO: does the map work if we have complex url-patterns? (i.e. regex stuff)
-	private HashMap<String, JoeEServlet> map;
+	private HashMap<String, Class<?>> servletmapping;
+	private HashMap<String, HashMap<String, JoeEServlet>> perSessionServlets;
 	private SessionInitializer initializer;
 	
 	public static Logger logger = Logger.getLogger(Dispatcher.class.getName());
@@ -57,8 +62,8 @@ public class Dispatcher extends HttpServlet {
 			File policy = new File((String) getServletConfig().getInitParameter("policy"));
 			if (policy.exists()) {
 				this.parsePolicy(policy);
-				for (String s : map.keySet()) {
-					log("Loaded mapping: " + s + ": " + map.get(s).toString());
+				for (String s : servletmapping.keySet()) {
+					log("Loaded mapping: " + s + ": " + servletmapping.get(s).toString());
 				}
 			} else {
 				throw new ServletException("Unspecified Policy File");
@@ -66,6 +71,7 @@ public class Dispatcher extends HttpServlet {
 		} catch (ServletException e) {
 			throw new ServletException(e.getMessage());
 		}
+		perSessionServlets = new HashMap<String, HashMap<String, JoeEServlet>>();
 	}
 	
 	 	
@@ -81,12 +87,13 @@ public class Dispatcher extends HttpServlet {
 	 * aren't they not supposed to change state?
 	 */
 	public void doGet(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
-		JoeEServlet servlet = findServlet(req.getServletPath());
-		AbstractSessionView s = null;
 		if (req.getSession().isNew()) {
 			log("New session instance");
 			initializer.fillHttpSession(req.getSession());
+			perSessionServlets.put(req.getSession().getId(), new HashMap<String, JoeEServlet>());
 		}
+		JoeEServlet servlet = findServlet(req.getSession().getId(), req.getServletPath());
+		AbstractSessionView s = null;
 		try {
 			s = servlet.getSessionView();
 			if (s != null) {
@@ -118,12 +125,13 @@ public class Dispatcher extends HttpServlet {
 	 * the point of view of the dispatcher?
 	 */
 	public void doPost(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
-		JoeEServlet servlet = findServlet(req.getServletPath());
-		AbstractSessionView s = null;
 		if (req.getSession().isNew()) {
 			log("New session instance");
 			initializer.fillHttpSession(req.getSession());
+			perSessionServlets.put(req.getSession().getId(), new HashMap<String, JoeEServlet>());
 		}
+		JoeEServlet servlet = findServlet(req.getSession().getId(), req.getServletPath());
+		AbstractSessionView s = null;
 		try {
 			s = servlet.getSessionView();
 			if (s != null) {
@@ -146,8 +154,21 @@ public class Dispatcher extends HttpServlet {
 	 * @param s
 	 * @return the JoeEServlet corresponding to the url s
 	 */
-	private JoeEServlet findServlet(String s) {
-		return map.get(s);
+	private JoeEServlet findServlet(String id, String s) throws ServletException {
+		try {
+			if (perSessionServlets.get(id).get(s) == null) {
+				// instantiate the class.
+				perSessionServlets.get(id).put(s, (JoeEServlet) servletmapping.get(s).newInstance());
+				log("Added instance of " + servletmapping.get(s).getName() + " to session " + id);
+			}
+			return perSessionServlets.get(id).get(s);
+		} catch (InstantiationException e) {
+			log("Unable to instantiate class: " + servletmapping.get(s).getName() + " for url: " + s);
+			throw new ServletException ("unable to instantiate servlet for url");
+		} catch (IllegalAccessException e) {
+			log("Unable to instantiate class: " + servletmapping.get(s).getName() + " for url: " + s);
+			throw new ServletException ("unable to instantiate servlet for url");
+		}
 	}
 	
 	
@@ -210,7 +231,7 @@ public class Dispatcher extends HttpServlet {
 		boolean sessionInit = false;
 		
 		public void startDocument() {
-			map = new HashMap<String, JoeEServlet> ();
+			servletmapping = new HashMap<String, Class<?>> ();
 		}
 		
 		public void startElement(String uri, String localname, String qName, Attributes attributes) {
@@ -243,15 +264,9 @@ public class Dispatcher extends HttpServlet {
 			} else if (qName.equals("servlet-mapping")) {
 				try {
 					Class<?> cl = this.getClass().getClassLoader().loadClass(servletMappings.get(servletName));
-					map.put(urlPattern, (JoeEServlet) cl.newInstance());
+					servletmapping.put(urlPattern, cl);
 				} catch (ClassNotFoundException c) {
 					log("caught exception... probably due to class loader issues", c);
-					throw new SAXException();
-				} catch (InstantiationException i) {
-					log("caught exception... probably due to class loader issues", i);
-					throw new SAXException();
-				} catch (IllegalAccessException a) {
-					log("caught exception... probably due to class loader issues", a);
 					throw new SAXException();
 				}
 			} else if (qName.equals("session-init")) {
