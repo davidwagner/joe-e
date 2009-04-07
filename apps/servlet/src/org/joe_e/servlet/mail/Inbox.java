@@ -13,6 +13,8 @@ import org.joe_e.servlet.readonly;
 
 public class Inbox extends JoeEServlet {
 
+	String username = null;
+	
 	public class SessionView extends AbstractSessionView {
 		@readonly public String username;
 	}
@@ -23,9 +25,14 @@ public class Inbox extends JoeEServlet {
 		PrintWriter out = res.getWriter();
 		HtmlWriter.printHeader(out);
 		out.println("<body><h2>Joe-E Mail</h2>");
-		out.println("<h4>inbox of " + session.username + "</h4>");
+		if (username != null) {
+			out.println("<h4>inbox of " + username + "</h4>");
+		} else {
+			out.println("<h4> inbox of " + session.username + "</h4>");
+		}
 		out.println("<a href=\"/servlet/logout\">logout</a>");
 		out.println("</body>");
 		HtmlWriter.printFooter(out);
+		this.username = session.username;
 	}
 }
