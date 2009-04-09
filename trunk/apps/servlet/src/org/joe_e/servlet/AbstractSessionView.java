@@ -30,11 +30,12 @@ public abstract class AbstractSessionView {
 	 * f is marked as @readonly, tries to perform a deep copy using
 	 * the serialization technique. If this fails for any reason, then
 	 * just set the field in the SessionView, to be a pointer to the
-	 * object in the HttpSession (i.e. not a copy).
+	 * object in the HttpSession (i.e. not a copy). This method is not
+	 * override-able
 	 * @param ses - the HttpSession
 	 * @throws IllegalAccessException - if Reflection stuff goes wrong
 	 */
-	public void fillSessionView(HttpSession ses) throws IllegalAccessException {
+	public final void fillSessionView(HttpSession ses) throws IllegalAccessException {
 		for (Field f : this.getClass().getDeclaredFields()) {
 			if (ses.getAttribute(f.getName()) != null) {
 				// TODO: cloneable? serializable? copyable?
@@ -63,17 +64,17 @@ public abstract class AbstractSessionView {
 	 * made to objects in the SessionView. This method allows the servlet
 	 * to write to the SessionView, and for those writes to persist across
 	 * requests. Uses Reflection API to determine which mappings should
-	 * get written.
+	 * get written. This method is not override-able
 	 * @param ses - the HttpSession
 	 * @throws IllegalAccessException - if Reflection stuff goes wrong.
 	 */
-	public void fillHttpSession(HttpSession ses) throws IllegalAccessException {
+	public final void fillHttpSession(HttpSession ses) throws IllegalAccessException {
 		for (Field f : this.getClass().getDeclaredFields()) {
 			// TODO: HACK! ask adrian what's going on here. Fix.
 			// shouldn't have to setAccessible each attribute
 			if (f.getName().equals("invalidate") && f.getBoolean(this)) {
 				Dispatcher.logger.fine("invalidating session after successful dispatch");
-				ses.invalidate();
+				Dispatcher.invalidateSession(ses);
 				return;
 			}
 			f.setAccessible(true);
@@ -85,6 +86,7 @@ public abstract class AbstractSessionView {
 			}
 		}
 	}
+	
 	
 	/**
 	 * Check if the argument object is cloneable. 

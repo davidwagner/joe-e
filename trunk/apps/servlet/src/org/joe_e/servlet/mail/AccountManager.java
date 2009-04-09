@@ -9,15 +9,18 @@ import java.security.MessageDigest;
 import org.joe_e.charset.ASCII;
 import org.joe_e.file.Filesystem;
 import org.joe_e.servlet.Dispatcher;
+import org.joe_e.servlet.mail.notjoe_e.PostfixClient;
 
 public class AccountManager {
 	
 	private File accounts;
 	private MessageDigest digest;
+	private PostfixClient client;
 	
-	public AccountManager(MessageDigest d, File a) {
+	public AccountManager(MessageDigest d, File a, PostfixClient c) {
 		digest = d;
 		accounts = a;
+		client = c;
 	}
 	
 	public boolean addAccount(String username, String password) {
@@ -41,6 +44,7 @@ public class AccountManager {
 				out.append(c);
 			}
 			out.flush();
+			client.updateDatabase(username);
 		} catch (Exception e) {
 			// clean up the file that we just wrote out
 			try {

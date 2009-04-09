@@ -2055,6 +2055,9 @@ public class Policy {
 
         // Type org.joe_e.servlet.SessionInitializer
 
+        // Type org.joe_e.servlet.mail.notjoe_e.PostfixClient
+        methods.add("org.joe_e.servlet.mail.notjoe_e.PostfixClient.updateDatabase(String)");
+
         // Type org.joe_e.servlet.readonly
 
         // Type org.joe_e.taming.Policy

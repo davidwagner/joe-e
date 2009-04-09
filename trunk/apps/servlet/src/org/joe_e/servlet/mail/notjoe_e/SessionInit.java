@@ -19,7 +19,7 @@ public class SessionInit implements SessionInitializer {
 		try {
 			Dispatcher.logger.finer("Initializing session with AuthenticationAgent and AccountManager");
 			session.setAttribute("auth", new AuthenticationAgent(MessageDigest.getInstance("md5"), new File(accountsFile)));
-			session.setAttribute("manager", new AccountManager(MessageDigest.getInstance("md5"), new File(accountsFile)));
+			session.setAttribute("manager", new AccountManager(MessageDigest.getInstance("md5"), new File(accountsFile), new PostfixClient()));
 		} catch (NoSuchAlgorithmException e) {
 			Dispatcher.logger.severe("NoSuchAlgorithmException when instantiating AuthAgent and AccountManager");
 		}
