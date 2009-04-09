@@ -17,7 +17,7 @@ public class Logout extends JoeEServlet {
 
 	public class SessionView extends AbstractSessionView {
 		public String username;
-		public boolean invalidate;;
+		public boolean invalidate;
 	}
 	
 	//TODO: need to make it invalidate the session.

@@ -31,6 +31,8 @@ import org.xml.sax.helpers.DefaultHandler;
  * A key difference between this dispatcher behavior and the regular servlet framework
  * is that the Joe-E dispatcher keeps one instance of each servlet per session, rather 
  * than a singleton instance of each servlet. This prevents 
+ * TODO: what to do about session timeouts? We need to have something kind of polling
+ * 
  * @author akshay
  * TODO: read only by annotation, just don't write it back
  * TODO: debug mode: warn if read only field gets modified
@@ -45,6 +47,7 @@ public class Dispatcher extends HttpServlet {
 	private HashMap<String, Class<?>> servletmapping;
 	private HashMap<String, HashMap<String, JoeEServlet>> perSessionServlets;
 	private SessionInitializer initializer;
+	private static Dispatcher instance;
 	
 	public static Logger logger = Logger.getLogger(Dispatcher.class.getName());
 	
@@ -72,6 +75,7 @@ public class Dispatcher extends HttpServlet {
 			throw new ServletException(e.getMessage());
 		}
 		perSessionServlets = new HashMap<String, HashMap<String, JoeEServlet>>();
+		instance = this;
 	}
 	
 	 	
@@ -169,6 +173,17 @@ public class Dispatcher extends HttpServlet {
 			log("Unable to instantiate class: " + servletmapping.get(s).getName() + " for url: " + s);
 			throw new ServletException ("unable to instantiate servlet for url");
 		}
+	}
+	
+	
+	/**
+	 * invalidate a session object and free up space in the perSessionServlets
+	 * data structure. This is how sessions should be invalidated. 
+	 * @param HttpSession
+	 */
+	public static void invalidateSession(HttpSession session) {
+		instance.perSessionServlets.remove(session.getId());
+		session.invalidate();
 	}
 	
 	
