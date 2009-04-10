@@ -11,35 +11,16 @@ import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.JoeEServlet;
 import org.joe_e.servlet.readonly;
 
-/**
- * TODO: we need to do taming data for a lot of stuff
- *       to make a meaningful app.
- * @author akshay
- *
- */
-public class IndexServlet extends JoeEServlet {
+public class Read extends JoeEServlet {
 
 	public class SessionView extends AbstractSessionView {
 		@readonly public String username;
 	}
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses) throws ServletException, IOException {
-		SessionView session = (SessionView) ses;
-		if (session.username != null) {
-			res.sendRedirect("/servlet/inbox");
-		}
 		PrintWriter out = res.getWriter();
 		HtmlWriter.printHeader(out);
-		out.println("<body>" +
-				"<p>Welcome to Joe-E mail</p>" +
-				"<a href=\"/servlet/login\">Log In</a><br />" +
-				"<a href=\"/servlet/create\">Create an Account</a>" +
-				"</body></html>");
+		out.println("Hello");
 		HtmlWriter.printFooter(out);
-		out.flush();
-	}
-	
-	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses) throws ServletException, IOException {
-		this.doGet(req, res, ses);
 	}
 }

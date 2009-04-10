@@ -45,7 +45,7 @@ public class Dispatcher extends HttpServlet {
 	// The map that contains url to servlet mappings
 	// TODO: does the map work if we have complex url-patterns? (i.e. regex stuff)
 	private HashMap<String, Class<?>> servletmapping;
-	private HashMap<String, HashMap<String, JoeEServlet>> perSessionServlets;
+	//private HashMap<String, HashMap<String, JoeEServlet>> perSessionServlets;
 	private SessionInitializer initializer;
 	private static Dispatcher instance;
 	
@@ -74,7 +74,7 @@ public class Dispatcher extends HttpServlet {
 		} catch (ServletException e) {
 			throw new ServletException(e.getMessage());
 		}
-		perSessionServlets = new HashMap<String, HashMap<String, JoeEServlet>>();
+		//perSessionServlets = new HashMap<String, HashMap<String, JoeEServlet>>();
 		instance = this;
 	}
 	
@@ -94,10 +94,12 @@ public class Dispatcher extends HttpServlet {
 		if (req.getSession().isNew()) {
 			log("New session instance");
 			initializer.fillHttpSession(req.getSession());
-			perSessionServlets.put(req.getSession().getId(), new HashMap<String, JoeEServlet>());
+			transformSession(req.getSession());
+			//perSessionServlets.put(req.getSession().getId(), new HashMap<String, JoeEServlet>());
 		}
-		JoeEServlet servlet = findServlet(req.getSession().getId(), req.getServletPath());
+		JoeEServlet servlet = findServlet(req.getSession(), req.getServletPath());
 		AbstractSessionView s = null;
+		logSession(req.getSession());
 		try {
 			s = servlet.getSessionView();
 			if (s != null) {
@@ -132,10 +134,12 @@ public class Dispatcher extends HttpServlet {
 		if (req.getSession().isNew()) {
 			log("New session instance");
 			initializer.fillHttpSession(req.getSession());
-			perSessionServlets.put(req.getSession().getId(), new HashMap<String, JoeEServlet>());
+			transformSession(req.getSession());
+			//perSessionServlets.put(req.getSession().getId(), new HashMap<String, JoeEServlet>());
 		}
-		JoeEServlet servlet = findServlet(req.getSession().getId(), req.getServletPath());
+		JoeEServlet servlet = findServlet(req.getSession(), req.getServletPath());
 		AbstractSessionView s = null;
+		logSession(req.getSession());
 		try {
 			s = servlet.getSessionView();
 			if (s != null) {
@@ -155,17 +159,40 @@ public class Dispatcher extends HttpServlet {
 	
 	/**
 	 * perform a lookup in the url->servlet map for the string s
+	 * TODO correctly handle wildcards. there are only three options
+	 * /.../*
+	 * *.<ext>
+	 * /fully/qualified/name
 	 * @param s
 	 * @return the JoeEServlet corresponding to the url s
 	 */
-	private JoeEServlet findServlet(String id, String s) throws ServletException {
+	private JoeEServlet findServlet(HttpSession session, String s) throws ServletException {
 		try {
-			if (perSessionServlets.get(id).get(s) == null) {
-				// instantiate the class.
-				perSessionServlets.get(id).put(s, (JoeEServlet) servletmapping.get(s).newInstance());
-				log("Added instance of " + servletmapping.get(s).getName() + " to session " + id);
+			String pattern = "";
+			if (s.indexOf('.') != -1) {
+				// then we're allowed to escape out the stuff before the .
+				pattern = "*"+s.substring(s.indexOf('.'));
+			} else if (s.lastIndexOf("/") != s.length()-1) {
+				pattern = s.substring(0, s.lastIndexOf("/")+1)+"*";
 			}
-			return perSessionServlets.get(id).get(s);
+			Dispatcher.logger.finest(pattern);
+			
+			if (session.getAttribute(s) == null && servletmapping.get(s) != null) {
+				// instantiate the class.
+				session.setAttribute(s, (JoeEServlet) servletmapping.get(s).newInstance());
+				log("Added instance of " + servletmapping.get(s).getName() + " to session " + session.getId());
+			} 
+			if (session.getAttribute(s) != null) {
+				return (JoeEServlet) session.getAttribute(s);
+			}
+			if (session.getAttribute(pattern) == null && servletmapping.get(pattern) != null) {
+				session.setAttribute(pattern, (JoeEServlet) servletmapping.get(pattern).newInstance());
+				log("Added instance of " + servletmapping.get(pattern).getName() + " to session " + session.getId());
+			}
+			if (session.getAttribute(pattern) != null) {
+				return (JoeEServlet) session.getAttribute(pattern);
+			}
+			throw new ServletException("Couldn't find url-pattern for " + s);
 		} catch (InstantiationException e) {
 			log("Unable to instantiate class: " + servletmapping.get(s).getName() + " for url: " + s);
 			throw new ServletException ("unable to instantiate servlet for url");
@@ -180,12 +207,29 @@ public class Dispatcher extends HttpServlet {
 	 * invalidate a session object and free up space in the perSessionServlets
 	 * data structure. This is how sessions should be invalidated. 
 	 * @param HttpSession
+	 * @deprecated
 	 */
 	public static void invalidateSession(HttpSession session) {
-		instance.perSessionServlets.remove(session.getId());
+		//instance.perSessionServlets.remove(session.getId());
 		session.invalidate();
 	}
 	
+	/**
+	 * After initializing the session object, we'll transform the
+	 * names of the members so that every user-level session object
+	 * starts with __joe-e__. This way we can put url-patterns
+	 * in the session without any naming conflicts
+	 * @param session
+	 */
+	public void transformSession(HttpSession session) {
+		Enumeration<?> en = session.getAttributeNames();
+		while(en.hasMoreElements()) {
+			String s = (String) en.nextElement();
+			Object o = session.getAttribute(s);
+			session.removeAttribute(s);
+			session.setAttribute("__joe-e__"+s, o);
+		}
+	}
 	
 	/**
 	 * Write the context of the HttpSession to the tomcat logs
@@ -193,7 +237,7 @@ public class Dispatcher extends HttpServlet {
 	 * @param ses
 	 */
 	private void logSession(HttpSession ses) {
-		Enumeration e = ses.getAttributeNames();
+		Enumeration<?> e = ses.getAttributeNames();
 		while (e.hasMoreElements()) {
 			String s = (String) e.nextElement();
 			log(s + ": " + ses.getAttribute(s));
