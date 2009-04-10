@@ -43,13 +43,9 @@ public class Inbox extends JoeEServlet {
 			Reader reader = ASCII.input(Filesystem.read(f));
 			BufferedReader in = new BufferedReader(reader);
 			String line = "";
-			String id = "";
+			String id = f.getName();
 			String subject = "";
 			while ((line = in.readLine()) != null) {
-				if (line.length() > 10 && (line.substring(0, 10).equals("Message-Id")
-						|| line.substring(0, 10).equals("Message-ID"))) {
-					id = line.substring(13, line.length()-1);
-				}
 				if (line.length() > 7 && line.substring(0, 7).equals("Subject")) {
 					subject = line.substring(8);
 				}
@@ -57,7 +53,7 @@ public class Inbox extends JoeEServlet {
 			if (!"".equals(id) && !"".equals(subject)) {
 				// TODO: on this request, how do we give only that message to the read servlet
 				// we can't put it in the session now b/c it has to be dynamic. 
-				out.println("<a href=\"/servlet/read?id="+id+"/\">"+line.substring(8)+"</a>");
+				out.println("<a href=\"/servlet/read?id="+id+"\">"+subject+"</a><br />");
 			}
 		}
 		
