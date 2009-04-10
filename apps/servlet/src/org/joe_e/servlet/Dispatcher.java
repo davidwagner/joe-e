@@ -104,7 +104,7 @@ public class Dispatcher extends HttpServlet {
 			s = servlet.getSessionView();
 			if (s != null) {
 				s.fillSessionView(req.getSession());
-				log("Dispatching request for " + req.getServletPath() + " to " + servlet.getClass().getName());
+				log("Dispatching GET request for " + req.getServletPath() + " to " + servlet.getClass().getName());
 				servlet.doGet(req, response, s);
 				s.fillHttpSession(req.getSession());
 			}
@@ -144,7 +144,7 @@ public class Dispatcher extends HttpServlet {
 			s = servlet.getSessionView();
 			if (s != null) {
 				s.fillSessionView(req.getSession());
-				log("Dispatching request for " + req.getServletPath() + " to " + servlet.getClass().getName());
+				log("Dispatching POST request for " + req.getServletPath() + " to " + servlet.getClass().getName());
 				servlet.doPost(req, response, s);
 				s.fillHttpSession(req.getSession());
 			}
@@ -175,7 +175,6 @@ public class Dispatcher extends HttpServlet {
 			} else if (s.lastIndexOf("/") != s.length()-1) {
 				pattern = s.substring(0, s.lastIndexOf("/")+1)+"*";
 			}
-			Dispatcher.logger.finest(pattern);
 			
 			if (session.getAttribute(s) == null && servletmapping.get(s) != null) {
 				// instantiate the class.

@@ -16,13 +16,15 @@ public class AuthenticationAgent {
 
 	private MessageDigest digest;
 	private File accounts;
+	private File mailboxes;
 	
-	public AuthenticationAgent(MessageDigest d, File a) {
+	public AuthenticationAgent(MessageDigest d, File a, File m) {
 		digest = d;
 		accounts = a;
+		mailboxes = m;
 	}
 
-	public boolean authenticate(String username, String password) {
+	public File authenticate(String username, String password) {
 		Dispatcher.logger.finest("Request to authenticate " + username);
 		try {
 			byte[] bytes = ASCII.encode(password);
@@ -32,12 +34,12 @@ public class AuthenticationAgent {
 			BufferedReader in = new BufferedReader(reader);
 			if (hashedPassword.equals(in.readLine())) {
 				Dispatcher.logger.finest("Successfully authenticated " + username);
-				return true;
+				return Filesystem.file(mailboxes, username);
 			}
 		} catch (FileNotFoundException e ) {
 		} catch (IOException e) {
 		}
 		Dispatcher.logger.finest("Failed to authenticate " + username);
-		return false;
+		return null;
 	}
 }
