@@ -42,7 +42,6 @@ public abstract class AbstractSessionView {
 				if (f.isAnnotationPresent(readonly.class)) {
 					// try to deep-copy
 					Object o = ses.getAttribute("__joe-e__"+f.getName());
-					Dispatcher.logger.finest("Trying to deep copy: " + o.toString());
 					try {
 						f.set(this, Cloner.deepCopy(o));
 						Dispatcher.logger.finest("Deep copy on " + f.getName() + " successful");
@@ -84,7 +83,6 @@ public abstract class AbstractSessionView {
 			}
 			if (!f.isSynthetic() && f.isAccessible() && !f.isAnnotationPresent(readonly.class)) {
 				ses.setAttribute("__joe-e__"+f.getName(), f.get(this));
-				Dispatcher.logger.fine(f.getName());
 			}
 		}
 	}

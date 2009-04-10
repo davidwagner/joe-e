@@ -18,6 +18,7 @@ public class LoginServlet extends JoeEServlet {
 	public class SessionView extends AbstractSessionView {
 		public String username;
 		public AuthenticationAgent auth;
+		public File mailbox;
 		// TODO: read only? maybe reflective constructor
 	}
 	
@@ -42,9 +43,11 @@ public class LoginServlet extends JoeEServlet {
 		SessionView session = (SessionView) ses;
 		String name = req.getParameter("username");
 		String password = req.getParameter("password");
-		if (session.auth.authenticate(name, password)) {
+		File mailbox = null;
+		if ((mailbox = session.auth.authenticate(name, password)) != null) {
 			session.auth = null;
 			session.username = name;
+			session.mailbox = mailbox;
 			res.sendRedirect("/servlet/inbox");
 		}
 		else {
