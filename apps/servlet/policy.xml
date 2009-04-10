@@ -20,6 +20,10 @@
   <servlet-name>logout</servlet-name>
   <servlet-class>org.joe_e.servlet.mail.Logout</servlet-class>
 </servlet>
+<servlet>
+  <servlet-name>read</servlet-name>
+  <servlet-class>org.joe_e.servlet.mail.Read</servlet-class>
+</servlet>
 <servlet-mapping>
   <servlet-name>index</servlet-name>
   <url-pattern>/</url-pattern>
@@ -39,5 +43,9 @@
 <servlet-mapping>
   <servlet-name>logout</servlet-name>
   <url-pattern>/logout</url-pattern>
+</servlet-mapping>
+<servlet-mapping>
+  <servlet-name>read</servlet-name>
+  <url-pattern>*.foo</url-pattern>
 </servlet-mapping>
 </web-app>
