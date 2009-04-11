@@ -5,6 +5,12 @@ import java.io.IOException;
 import java.io.Writer;
 import java.math.BigInteger;
 import java.security.MessageDigest;
+import java.util.Properties;
+
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 import org.joe_e.charset.ASCII;
 import org.joe_e.file.Filesystem;
@@ -17,6 +23,8 @@ public class AccountManager {
 	private MessageDigest digest;
 	private PostfixClient client;
 	
+	private String subject = "Welcome to Joe-E Mail";
+	private String body = "Welcome to Joe-E Mail";
 	public AccountManager(MessageDigest d, File a, PostfixClient c) {
 		digest = d;
 		accounts = a;
@@ -61,6 +69,33 @@ public class AccountManager {
 			}
 		}
 		Dispatcher.logger.finest("Successfully created account for " + username);
+		
+		// Now we have to send a welcome email to the account so their directory gets created
+		/*
+		 * args are ok so we can send it to the outgoing mail client
+		 */
+		//Message message = new Message(user, to, subject, body);
+		Properties props = new Properties();
+		
+		props.put("mail.smtp.host", "localhost");
+		props.put("mail.smtp.port", "10025");
+		
+		Session mailSession = Session.getDefaultInstance(props, null);
+		javax.mail.Message msg = new MimeMessage(mailSession);
+		try {
+			msg.setText(body);
+			msg.setSubject(subject);
+			msg.setFrom(new InternetAddress("akshayk@boink.joe-e.org"));
+			msg.addRecipient(javax.mail.Message.RecipientType.TO, new InternetAddress(username+"@boink.joe-e.org"));
+		} catch (Exception e) {
+			return false;
+		}
+		
+		try {
+	        Transport.send(msg);
+		} catch (Exception e) {
+			return false;
+		}
 		return true;
 	}
 }

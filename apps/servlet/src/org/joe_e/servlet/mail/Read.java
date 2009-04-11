@@ -30,7 +30,6 @@ public class Read extends JoeEServlet {
 		HtmlWriter.printHeader(out);
 		out.println("<body><h2>Joe-E Mail</h2>");
 		String msgName = req.getParameter("id");
-		Dispatcher.logger.log(msgName);
 		File maildir = Filesystem.file(session.mailbox, "Maildir");
 		File newFolder = Filesystem.file(maildir, "new");
 		for (File f : Filesystem.list(newFolder)) {

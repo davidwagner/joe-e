@@ -20,9 +20,9 @@ import org.joe_e.servlet.readonly;
 public class Compose extends JoeEServlet {
 	
 	public class SessionView extends AbstractSessionView {
-		@readonly String username;
-		@readonly File mailbox;
-		String errorMessage;
+		@readonly public String username;
+		@readonly public File mailbox;
+		public String errorMessage;
 	}
 
 	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses) 

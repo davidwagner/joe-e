@@ -99,7 +99,6 @@ public class Dispatcher extends HttpServlet {
 		}
 		JoeEServlet servlet = findServlet(req.getSession(), req.getServletPath());
 		AbstractSessionView s = null;
-		logSession(req.getSession());
 		try {
 			s = servlet.getSessionView();
 			if (s != null) {
@@ -139,7 +138,6 @@ public class Dispatcher extends HttpServlet {
 		}
 		JoeEServlet servlet = findServlet(req.getSession(), req.getServletPath());
 		AbstractSessionView s = null;
-		logSession(req.getSession());
 		try {
 			s = servlet.getSessionView();
 			if (s != null) {
