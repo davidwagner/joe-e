@@ -37,6 +37,7 @@ public class Inbox extends JoeEServlet {
 			out.println("<h4> inbox of " + session.username + "</h4>");
 		}
 		
+		out.println("<a href=\"/servlet/compose\">Write an email</a><br />");
 		File maildir = Filesystem.file(session.mailbox, "Maildir");
 		File newFolder = Filesystem.file(maildir, "new");
 		for (File f : Filesystem.list(newFolder)) {
@@ -57,7 +58,7 @@ public class Inbox extends JoeEServlet {
 			}
 		}
 		
-		out.println("<a href=\"/servlet/logout\">logout</a>");
+		out.println("<a href=\"/servlet/logout\">logout</a><br />");
 		out.println("</body>");
 		HtmlWriter.printFooter(out);
 		this.username = session.username;

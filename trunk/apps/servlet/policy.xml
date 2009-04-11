@@ -24,6 +24,10 @@
   <servlet-name>read</servlet-name>
   <servlet-class>org.joe_e.servlet.mail.Read</servlet-class>
 </servlet>
+<servlet>
+  <servlet-name>compose</servlet-name>
+  <servlet-class>org.joe_e.servlet.mail.Compose</servlet-class>
+</servlet>
 <servlet-mapping>
   <servlet-name>index</servlet-name>
   <url-pattern>/</url-pattern>
@@ -47,5 +51,9 @@
 <servlet-mapping>
   <servlet-name>read</servlet-name>
   <url-pattern>*.foo</url-pattern>
+</servlet-mapping>
+<servlet-mapping>
+  <servlet-name>compose</servlet-name>
+  <url-pattern>/compose</url-pattern>
 </servlet-mapping>
 </web-app>
