@@ -1,7 +1,6 @@
 package org.joe_e.servlet;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
@@ -68,9 +67,9 @@ public class JoeEServlet extends HttpServlet {
 	 * @throws InvocationTargetException if reflection stuff goes wrong
 	 */
 	public AbstractSessionView getSessionView() throws InstantiationException, IllegalAccessException, InvocationTargetException {
-		for (Class c : this.getClass().getClasses()) {
+		for (Class<?> c : this.getClass().getClasses()) {
 			if (c.getName().equals(this.getClass().getName() + "$SessionView")) {
-				for (Constructor cr : c.getConstructors()) {
+				for (Constructor<?> cr : c.getConstructors()) {
 					return (AbstractSessionView) cr.newInstance(this);
 				}
 			}

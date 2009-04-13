@@ -1,6 +1,5 @@
 package org.joe_e.servlet;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 
 import javax.servlet.http.HttpSession;
@@ -38,7 +37,6 @@ public abstract class AbstractSessionView {
 	public final void fillSessionView(HttpSession ses) throws IllegalAccessException {
 		for (Field f : this.getClass().getDeclaredFields()) {
 			if (ses.getAttribute("__joe-e__"+f.getName()) != null) {
-				// TODO: cloneable? serializable? copyable?
 				if (f.isAnnotationPresent(readonly.class)) {
 					// try to deep-copy
 					Object o = ses.getAttribute("__joe-e__"+f.getName());
@@ -81,7 +79,8 @@ public abstract class AbstractSessionView {
 			if (f.isAnnotationPresent(readonly.class)) {
 				Dispatcher.logger.fine(f.getName() + " is marked as readonly and was not copied to HttpSession");
 			}
-			if (!f.isSynthetic() && f.isAccessible() && !f.isAnnotationPresent(readonly.class)) {
+			if (Dispatcher.isSerialized() && !f.isSynthetic() && f.isAccessible() && 
+					!f.isAnnotationPresent(readonly.class)) {
 				ses.setAttribute("__joe-e__"+f.getName(), f.get(this));
 			}
 		}

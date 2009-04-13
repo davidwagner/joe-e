@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -31,13 +33,39 @@ import org.xml.sax.helpers.DefaultHandler;
  * A key difference between this dispatcher behavior and the regular servlet framework
  * is that the Joe-E dispatcher keeps one instance of each servlet per session, rather 
  * than a singleton instance of each servlet. This prevents 
- * TODO: what to do about session timeouts? We need to have something kind of polling
+ * 
+ * We specify two possible concurrency policies. In the policy.xml file, we allow for
+ * "<concurrency>policy</concurrency>" where policy is either "serialized" or "immutable"
+ * If policy is "serialized" Then we guarantee that only 1 thread  per session will ever
+ * be executing app-level code. TODO: not yet
+ * 
+ * If policy is "immutable" then we simply do not copy references back to the HttpSession, 
+ * and so the only way to change session members is to change members of an object that is
+ * contained within the session. In this policy, changing an immutable field locally will not
+ * be reflected on the HttpSession. So in a servlet like this:
+ * <code>
+ * public class TestServlet extends JoeEServlet {
+ * 		public class SessionView extends AbstractSessionView {
+ * 			public String str;
+ * 		}
+ * 
+ * 		public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses) {
+ * 			SessionView session = (SessionView) ses;
+ * 			session.str = "hello there";
+ * 		}
+ * }
+ * </code>
+ * the HttpSession's str member will not be changed to "hello there". To change this member, we need
+ * a wrapper object that contains a pointer to str.
+ *  
+ * This paradigm is like pass-by-copy with functions; a servlet is given a parameter list, and the
+ * calling function does not copy any modifications back to it's own local variables. To change
+ * values in the calling function (in this case HttpSession), we need to pass in pointers and
+ * the callee (app-level servlet) can change the contents of these pointers (although not the pointer
+ * themselves).
  * 
  * @author akshay
- * TODO: read only by annotation, just don't write it back
  * TODO: debug mode: warn if read only field gets modified
- * TODO: maybe clone if read only... so deep write doesn't actually modify
- *  anything marked with @readonly has to be cloneable or immutable. 
  *
  */
 public class Dispatcher extends HttpServlet {
@@ -47,7 +75,7 @@ public class Dispatcher extends HttpServlet {
 	private HashMap<String, Class<?>> servletmapping;
 	//private HashMap<String, HashMap<String, JoeEServlet>> perSessionServlets;
 	private SessionInitializer initializer;
-	private static Dispatcher instance;
+	private static boolean serialized;
 	
 	public static Logger logger = Logger.getLogger(Dispatcher.class.getName());
 	
@@ -74,8 +102,6 @@ public class Dispatcher extends HttpServlet {
 		} catch (ServletException e) {
 			throw new ServletException(e.getMessage());
 		}
-		//perSessionServlets = new HashMap<String, HashMap<String, JoeEServlet>>();
-		instance = this;
 	}
 	
 	 	
@@ -95,7 +121,11 @@ public class Dispatcher extends HttpServlet {
 			log("New session instance");
 			initializer.fillHttpSession(req.getSession());
 			transformSession(req.getSession());
-			//perSessionServlets.put(req.getSession().getId(), new HashMap<String, JoeEServlet>());
+			req.getSession().setAttribute("lock", new ReentrantLock());
+		}
+		if (serialized) {
+			((Lock) req.getSession().getAttribute("lock")).lock();
+
 		}
 		JoeEServlet servlet = findServlet(req.getSession(), req.getServletPath());
 		AbstractSessionView s = null;
@@ -108,11 +138,17 @@ public class Dispatcher extends HttpServlet {
 				s.fillHttpSession(req.getSession());
 			}
 		} catch(IllegalAccessException i) {
+			if (serialized) { ((Lock) req.getSession().getAttribute("lock")).unlock(); }
 			throw new ServletException(i.getMessage());
 		} catch(InstantiationException i) {
+			if (serialized) { ((Lock) req.getSession().getAttribute("lock")).unlock(); }
 			throw new ServletException(i.getMessage());
 		} catch(InvocationTargetException i) {
+			if (serialized) { ((Lock) req.getSession().getAttribute("lock")).unlock(); }
 			throw new ServletException(i.getMessage());
+		}
+		if (serialized) {
+			((Lock) req.getSession().getAttribute("lock")).unlock();
 		}
 	}
 	
@@ -134,7 +170,9 @@ public class Dispatcher extends HttpServlet {
 			log("New session instance");
 			initializer.fillHttpSession(req.getSession());
 			transformSession(req.getSession());
-			//perSessionServlets.put(req.getSession().getId(), new HashMap<String, JoeEServlet>());
+		}
+		if (serialized) {
+			((Lock) req.getSession().getAttribute("lock")).lock();
 		}
 		JoeEServlet servlet = findServlet(req.getSession(), req.getServletPath());
 		AbstractSessionView s = null;
@@ -147,11 +185,17 @@ public class Dispatcher extends HttpServlet {
 				s.fillHttpSession(req.getSession());
 			}
 		} catch(IllegalAccessException i) {
+			if (serialized) { ((Lock) req.getSession().getAttribute("lock")).unlock(); }
 			throw new ServletException();
 		} catch(InstantiationException i) {
+			if (serialized) { ((Lock) req.getSession().getAttribute("lock")).unlock(); }
 			throw new ServletException();
 		} catch(InvocationTargetException i) {
+			if (serialized) { ((Lock) req.getSession().getAttribute("lock")).unlock(); }
 			throw new ServletException();
+		}
+		if (serialized) {
+			((Lock) req.getSession().getAttribute("lock")).unlock();
 		}
 	}
 	
@@ -204,10 +248,8 @@ public class Dispatcher extends HttpServlet {
 	 * invalidate a session object and free up space in the perSessionServlets
 	 * data structure. This is how sessions should be invalidated. 
 	 * @param HttpSession
-	 * @deprecated
 	 */
 	public static void invalidateSession(HttpSession session) {
-		//instance.perSessionServlets.remove(session.getId());
 		session.invalidate();
 	}
 	
@@ -226,6 +268,10 @@ public class Dispatcher extends HttpServlet {
 			session.removeAttribute(s);
 			session.setAttribute("__joe-e__"+s, o);
 		}
+	}
+	
+	public static boolean isSerialized() {
+		return serialized;
 	}
 	
 	/**
@@ -285,6 +331,8 @@ public class Dispatcher extends HttpServlet {
 		boolean inUrlPattern = false;
 		String sessionClass = null;
 		boolean sessionInit = false;
+		String concurrencyPolicy = null;
+		boolean concurrency = false;
 		
 		public void startDocument() {
 			servletmapping = new HashMap<String, Class<?>> ();
@@ -305,6 +353,8 @@ public class Dispatcher extends HttpServlet {
 				inUrlPattern = true;
 			} else if (qName.equals("session-init")) {
 				sessionInit = true;
+			} else if (qName.equals("concurrency")) {
+				concurrency = true;
 			}
 		}
 		
@@ -339,6 +389,14 @@ public class Dispatcher extends HttpServlet {
 					log("caught exception... probably due to class loader issues", a);
 					throw new SAXException();
 				}
+			} else if (qName.equals("concurrency")) {
+				if (concurrencyPolicy != null && concurrencyPolicy.equals("serialized")) {
+					serialized = true;
+				} else if (concurrencyPolicy != null && concurrencyPolicy.equals("immutable")) {
+					serialized = false;
+				} else {
+					throw new SAXException();
+				}
 			}
 		}
 		
@@ -351,6 +409,8 @@ public class Dispatcher extends HttpServlet {
 				urlPattern = new String(ch, start, length);
 			} else if (sessionInit) {
 				sessionClass = new String(ch, start, length);
+			} else if (concurrency) {
+				concurrencyPolicy = new String(ch, start, length);
 			}
 		}
 		
