@@ -1,0 +1,4 @@
+# Testlib taming file: suppress method that takes Object
+class("org.joe_e.testlib.DisabledMethodTakesString",
+  static(constructor("DisabledMethodTakesString()")),
+  instance(method(suppress,"takesString(String)")))

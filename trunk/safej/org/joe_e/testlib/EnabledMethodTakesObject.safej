@@ -1,0 +1,4 @@
+# Testlib taming file: suppress method that takes Object
+class("org.joe_e.testlib.EnabledMethodTakesObject",
+  static(constructor("EnabledMethodTakesObject()")),
+  instance(method("takesObject(Object)")))
