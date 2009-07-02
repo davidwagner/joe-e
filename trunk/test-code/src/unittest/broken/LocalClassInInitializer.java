@@ -7,7 +7,7 @@ public class LocalClassInInitializer implements Powerless {
 		// the following exposes a bug in eclipse if not prevented
 		final int fives[] = {5, 5};
 		
-		class Local {
+		class Local implements Powerless {
 			public String toString() {
 				return fives[0] + "!";
 			}

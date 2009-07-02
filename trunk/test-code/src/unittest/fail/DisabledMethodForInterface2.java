@@ -1,13 +1,13 @@
 package unittest.fail;
 
-import org.joe_e.testlib.DisabledMethodTakesObject;
+import org.joe_e.testlib.DisabledMethodTakesT;
 
-interface HasObjectTaker<T> {
-	void takesObject(T o);
+interface HasTTaker<T> {
+	void takesT(T o);
 }
 
-// implements generic interface non-generically
-public class DisabledMethodForInterface2 extends DisabledMethodTakesObject
-										implements HasObjectTaker {
+// implements generic interface generically
+public class DisabledMethodForInterface2<T> extends DisabledMethodTakesT<T>
+										implements HasTTaker<T> {
 	
 }

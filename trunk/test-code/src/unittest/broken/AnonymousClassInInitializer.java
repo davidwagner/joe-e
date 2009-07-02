@@ -8,7 +8,7 @@ public class AnonymousClassInInitializer implements Powerless {
 		// of local variables if not prohibited
 		final int fives[] = {5, 5};
 		
-		new Object() {
+		new Powerless() {
 			public String toString() {
 				return fives[0] + "!";
 			}
