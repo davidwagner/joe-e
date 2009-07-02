@@ -880,6 +880,7 @@ public class Verifier {
                 // subtype... is more specific than supertype..., 
                 // primitive... more specific than Object...
                 // any incomparable options -> compile error.
+                // JLS 15.12.2.5
                 IMethodBinding mostSpecific = null;
                 for (IMethodBinding imb : methods) {
                     ITypeBinding[] types = imb.getParameterTypes();
@@ -1248,10 +1249,9 @@ public class Verifier {
                             // method signature can be overriden by its
                             // erasure, but not vice-versa. (counterintuitively,
                             // the subsignature corresponds to the superclass)
-                            if (need.isSubsignature(have)) {
+                            //if (need.isSubsignature(have)) {
+                            if (canImplement(have, need)) {
                                 needFilled = true;
-                                //System.out.println("have: " + have);
-                                //System.out.println("need: " + need);
                                 if (taming.isTamed(current) &&
                                     !taming.isAllowed(current, have)) {
                                     String description =
@@ -1284,6 +1284,40 @@ public class Verifier {
                            "error (unhandled exception) encountered " +
                            "analyzing type" + type.getElementName());
             }
+        }
+        
+        /**
+         * Work around Eclipse's apparently-broken isSubsignature...
+         * We don't have to be as precise here, as near-matches
+         * (with the exception of constructors) would be 
+         * compile errors: just checking for a matching erasure is enough.
+         * @param have a method from a class
+         * @param need a method from an interface
+         * @return <code>true</code> if <code>have</code> is an implementation 
+         *          of <code>need</code>
+         */
+        boolean canImplement(IMethodBinding have, IMethodBinding need) {
+            if (have.isConstructor() || !have.getName().equals(need.getName())) {
+                return false;
+            }
+            
+            ITypeBinding[] haveParams = have.getParameterTypes();
+            ITypeBinding[] needParams = need.getParameterTypes();
+            
+            if (haveParams.length != needParams.length) {
+                return false;
+            }
+            
+            // this seems to work even for satisfying concretely instantiating
+            // parameterized interfaces with concrete methods, like using the
+            // method foo(String) to fulfill Fooable<String>
+            for (int i = 0; i < haveParams.length; ++i) {
+                if (haveParams[i].getErasure() != needParams[i].getErasure()) {
+                    return false;
+                }
+            }
+            
+            return true;
         }
         
         /**
