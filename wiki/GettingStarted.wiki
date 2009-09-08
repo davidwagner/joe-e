@@ -112,6 +112,8 @@ will be run the same way as you run the Java compiler in Eclipse.  If
 Auto-Build is on (the default), it will run automatically on a file when it is
 modified and saved, or when changes to other files necessitate re-verification.
 
+Joe-E packages are identified by whether or not the package is annotated with the *org.joe_e.IsJoeE* annotation type.  This can be added to a package by creating a file named package-info.java in the package directory containing the line "@org.joe_e.IsJoeE package package.name;" where package.name is the name of the package. Once you've created this file once, you can copy and paste the file to other projects; Eclipse is smart enough to fix the package name.
+
 To *run* a Joe-E program it is necessary to have a copy of the `org.joe_e.taming.Policy` class which contains the runtime taming database, on the classpath.  If you are using the taming database from this site unmodified, you can just download the JAR containing this class, org.joe_e.taming-200xxxxx.jar; it is also included in the commandline tarball starting with version 2.2.0a.
 
 If you make any custom taming decisions (e.g. to allow the use of a third-party library by Joe-E code), you can generate the `org.joe_e.taming.Policy` class from the taming database using the interactive verifier.  This is done by 
