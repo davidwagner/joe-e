@@ -117,38 +117,43 @@ public class Dispatcher extends HttpServlet {
 	 * aren't they not supposed to change state?
 	 */
 	public void doGet(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
-		if (req.getSession().isNew()) {
+		HttpSession session = req.getSession();
+		if (session.isNew()) {
 			log("New session instance");
-			initializer.fillHttpSession(req.getSession());
-			transformSession(req.getSession());
-			req.getSession().setAttribute("lock", new ReentrantLock());
+			initializer.fillHttpSession(session);
+			transformSession(session);
+			session.setAttribute("lock", new ReentrantLock());
 		}
 		if (serialized) {
-			((Lock) req.getSession().getAttribute("lock")).lock();
+			((Lock) session.getAttribute("lock")).lock();
 
 		}
-		JoeEServlet servlet = findServlet(req.getSession(), req.getServletPath());
+		JoeEServlet servlet = findServlet(session, req.getServletPath());
 		AbstractSessionView s = null;
+		AbstractCookieView c = null;
 		try {
 			s = servlet.getSessionView();
+			c = servlet.getCookieView();
 			if (s != null) {
-				s.fillSessionView(req.getSession());
+				s.fillSessionView(session);
+				c.fillCookieView(req);
 				log("Dispatching GET request for " + req.getServletPath() + " to " + servlet.getClass().getName());
-				servlet.doGet(req, response, s);
-				s.fillHttpSession(req.getSession());
+				servlet.doGet(req, response, s, c);
+				s.fillHttpSession(session);
+				c.fillHttpResponse(response);
 			}
 		} catch(IllegalAccessException i) {
-			if (serialized) { ((Lock) req.getSession().getAttribute("lock")).unlock(); }
+			if (serialized) { ((Lock) session.getAttribute("lock")).unlock(); }
 			throw new ServletException(i.getMessage());
 		} catch(InstantiationException i) {
-			if (serialized) { ((Lock) req.getSession().getAttribute("lock")).unlock(); }
+			if (serialized) { ((Lock) session.getAttribute("lock")).unlock(); }
 			throw new ServletException(i.getMessage());
 		} catch(InvocationTargetException i) {
-			if (serialized) { ((Lock) req.getSession().getAttribute("lock")).unlock(); }
+			if (serialized) { ((Lock) session.getAttribute("lock")).unlock(); }
 			throw new ServletException(i.getMessage());
 		}
 		if (serialized) {
-			((Lock) req.getSession().getAttribute("lock")).unlock();
+			((Lock) session.getAttribute("lock")).unlock();
 		}
 	}
 	
@@ -166,36 +171,43 @@ public class Dispatcher extends HttpServlet {
 	 * the point of view of the dispatcher?
 	 */
 	public void doPost(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
-		if (req.getSession().isNew()) {
+		HttpSession session = req.getSession();
+		if (session.isNew()) {
 			log("New session instance");
-			initializer.fillHttpSession(req.getSession());
-			transformSession(req.getSession());
+			initializer.fillHttpSession(session);
+			transformSession(session);
 		}
 		if (serialized) {
-			((Lock) req.getSession().getAttribute("lock")).lock();
+			((Lock) session.getAttribute("lock")).lock();
 		}
-		JoeEServlet servlet = findServlet(req.getSession(), req.getServletPath());
+		JoeEServlet servlet = findServlet(session, req.getServletPath());
 		AbstractSessionView s = null;
+		AbstractCookieView c = null;
 		try {
 			s = servlet.getSessionView();
-			if (s != null) {
-				s.fillSessionView(req.getSession());
+			c = servlet.getCookieView();
+			if (s != null && c != null) {
+				s.fillSessionView(session);
+				c.fillCookieView(req);
 				log("Dispatching POST request for " + req.getServletPath() + " to " + servlet.getClass().getName());
-				servlet.doPost(req, response, s);
-				s.fillHttpSession(req.getSession());
+				servlet.doPost(req, response, s, c);
+				s.fillHttpSession(session);
+				c.fillHttpResponse(response);
+				response.getWriter().flush();
 			}
 		} catch(IllegalAccessException i) {
-			if (serialized) { ((Lock) req.getSession().getAttribute("lock")).unlock(); }
+			if (serialized) { ((Lock) session.getAttribute("lock")).unlock(); }
 			throw new ServletException();
 		} catch(InstantiationException i) {
-			if (serialized) { ((Lock) req.getSession().getAttribute("lock")).unlock(); }
+			if (serialized) { ((Lock) session.getAttribute("lock")).unlock(); }
 			throw new ServletException();
 		} catch(InvocationTargetException i) {
-			if (serialized) { ((Lock) req.getSession().getAttribute("lock")).unlock(); }
+			if (serialized) { ((Lock) session.getAttribute("lock")).unlock(); }
 			throw new ServletException();
 		}
+		// TODO: this isn't correct. What if the session was invalidated?
 		if (serialized) {
-			((Lock) req.getSession().getAttribute("lock")).unlock();
+			((Lock) session.getAttribute("lock")).unlock();
 		}
 	}
 	

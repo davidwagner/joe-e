@@ -7,6 +7,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.JoeEServlet;
 import org.joe_e.servlet.readonly;
@@ -18,7 +19,7 @@ public class CreateAccount extends JoeEServlet {
 		public AccountManager manager;
 	}
 	
-	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses)
+	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies)
 		throws IOException, ServletException {
 		SessionView session = (SessionView) ses;
 		PrintWriter out = res.getWriter();
@@ -37,7 +38,7 @@ public class CreateAccount extends JoeEServlet {
 		out.flush();
 	}
 
-	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses)
+	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies)
 		throws IOException, ServletException {
 		SessionView session = (SessionView) ses;
 		String name = req.getParameter("username");
@@ -46,7 +47,7 @@ public class CreateAccount extends JoeEServlet {
 		if (password1.equals(password2) && session.manager.addAccount(name, password1)) {
 			res.sendRedirect("/servlet/login");
 		} else {
-			doGet(req, res, ses);
+			doGet(req, res, ses, null);
 		}
 	}
 }

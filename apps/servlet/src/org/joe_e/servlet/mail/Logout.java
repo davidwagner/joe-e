@@ -6,6 +6,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.JoeEServlet;
 import org.joe_e.servlet.readonly;
@@ -21,7 +22,7 @@ public class Logout extends JoeEServlet {
 	}
 	
 	//TODO: need to make it invalidate the session.
-	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses)
+	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies)
 		throws IOException, ServletException {
 		SessionView session = (SessionView) ses;
 		session.username = null;

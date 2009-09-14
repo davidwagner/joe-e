@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionContext;
 
+import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
 
 import junit.framework.TestCase;
@@ -52,7 +53,7 @@ public class Session extends TestCase {
 		/**
 		 * Basic GET method that does simple interactions with the session
 		 */
-		public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses) throws ServletException, IOException {
+		public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies) throws ServletException, IOException {
 			SessionView session = (SessionView) ses;
 			this.file = session.mailbox;
 			this.string = session.name;
@@ -61,7 +62,7 @@ public class Session extends TestCase {
 		/**
 		 * basic POST method that modifies session variables and creates a new one.
 		 */
-		public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses) throws ServletException, IOException {
+		public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies) throws ServletException, IOException {
 			SessionView session = (SessionView) ses;
 			this.string = session.name;
 			session.name = "krishnamurthy";
@@ -142,7 +143,7 @@ public class Session extends TestCase {
 		try {
 			AbstractSessionView ses = s.getSessionView();
 			ses.fillSessionView(session);
-			s.doGet(null, null, ses);
+			s.doGet(null, null, ses, null);
 			ses.fillHttpSession(session);
 		} catch (InstantiationException e) {
 			e.printStackTrace();
@@ -176,7 +177,7 @@ public class Session extends TestCase {
 		try {
 			AbstractSessionView ses = s.getSessionView();
 			ses.fillSessionView(session);
-			s.doPost(null, null, ses);
+			s.doPost(null, null, ses, null);
 			ses.fillHttpSession(session);
 		} catch (InstantiationException e) {
 			e.printStackTrace();

@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.JoeEServlet;
 import org.joe_e.servlet.readonly;
@@ -19,10 +20,9 @@ public class LoginServlet extends JoeEServlet {
 		public String username;
 		public AuthenticationAgent auth;
 		public File mailbox;
-		// TODO: read only? maybe reflective constructor
 	}
 	
-	public void doGet(HttpServletRequest req, HttpServletResponse res,  AbstractSessionView ses) throws ServletException, IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse res,  AbstractSessionView ses, AbstractCookieView cookies) throws ServletException, IOException {
 		SessionView session = (SessionView) ses;
 		PrintWriter out = res.getWriter();
 		if (session.username != null) {
@@ -39,7 +39,7 @@ public class LoginServlet extends JoeEServlet {
 		out.flush();
 	}
 	
-	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses) throws ServletException, IOException {
+	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies) throws ServletException, IOException {
 		SessionView session = (SessionView) ses;
 		String name = req.getParameter("username");
 		String password = req.getParameter("password");
@@ -51,7 +51,7 @@ public class LoginServlet extends JoeEServlet {
 			res.sendRedirect("/servlet/inbox");
 		}
 		else {
-			doGet(req, res, ses);
+			doGet(req, res, ses, null);
 		}
 	}
 }

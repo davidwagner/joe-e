@@ -34,14 +34,24 @@ public class JoeEServlet extends HttpServlet {
 	}
 	
 	/**
+	 * All JoeEServlets must have an inner class called CookieView that specifies
+	 * which cookies this servlet will have access too. 
+	 * @author akshay
+	 *
+	 */
+	public class CookieView extends AbstractCookieView {
+	}
+	
+	/**
 	 * Default implementation of the JoeEServlet doGet method
 	 * @param req
 	 * @param res
 	 * @param ses
+	 * @param cookies TODO
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses) throws ServletException, IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies) throws ServletException, IOException {
 		throw new ServletException("Unimplemented method in servlet");
 	}
 	
@@ -50,10 +60,11 @@ public class JoeEServlet extends HttpServlet {
 	 * @param req
 	 * @param res
 	 * @param ses
+	 * @param cookies TODO
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses) throws ServletException, IOException {
+	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies) throws ServletException, IOException {
 		throw new ServletException("Unimplemented method in servlet");	
 	}
 	
@@ -71,6 +82,17 @@ public class JoeEServlet extends HttpServlet {
 			if (c.getName().equals(this.getClass().getName() + "$SessionView")) {
 				for (Constructor<?> cr : c.getConstructors()) {
 					return (AbstractSessionView) cr.newInstance(this);
+				}
+			}
+		}
+		return null;
+	}
+	
+	public AbstractCookieView getCookieView() throws InstantiationException, IllegalAccessException, InvocationTargetException {
+		for (Class<?> c : this.getClass().getClasses()) {
+			if (c.getName().equals(this.getClass().getName() + "$CookieView")) {
+				for (Constructor<?> cr : c.getConstructors()) {
+					return (AbstractCookieView) cr.newInstance(this);
 				}
 			}
 		}
