@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.joe_e.charset.ASCII;
 import org.joe_e.file.Filesystem;
+import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.Dispatcher;
 import org.joe_e.servlet.JoeEServlet;
@@ -24,7 +25,7 @@ public class Read extends JoeEServlet {
 		@readonly public File mailbox;
 	}
 	
-	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses) throws ServletException, IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies) throws ServletException, IOException {
 		SessionView session = (SessionView) ses;
 		PrintWriter out = res.getWriter();
 		HtmlWriter.printHeader(out);

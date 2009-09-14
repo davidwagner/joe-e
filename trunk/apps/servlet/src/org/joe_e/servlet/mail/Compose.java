@@ -13,6 +13,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.JoeEServlet;
 import org.joe_e.servlet.readonly;
@@ -25,7 +26,7 @@ public class Compose extends JoeEServlet {
 		public String errorMessage;
 	}
 
-	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses) 
+	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies) 
 		throws ServletException, IOException {
 		SessionView session = (SessionView) ses;
 		if (session.username == null) {
@@ -49,7 +50,7 @@ public class Compose extends JoeEServlet {
 		HtmlWriter.printFooter(out);
 	}
 	
-	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses)
+	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies)
 		throws ServletException, IOException {
 		SessionView session = (SessionView) ses;
 		if (session.username == null) {

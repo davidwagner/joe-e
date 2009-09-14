@@ -4,16 +4,16 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.JoeEServlet;
 import org.joe_e.servlet.readonly;
 
 /**
- * TODO: we need to do taming data for a lot of stuff
- *       to make a meaningful app.
  * @author akshay
  *
  */
@@ -23,8 +23,13 @@ public class IndexServlet extends JoeEServlet {
 		@readonly public String username;
 	}
 	
-	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses) throws ServletException, IOException {
+	public class CookieView extends AbstractCookieView {
+		public String testCookie;
+	}
+	
+	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies) throws ServletException, IOException {
 		SessionView session = (SessionView) ses;
+		CookieView cookie = (CookieView) cookies;
 		if (session.username != null) {
 			res.sendRedirect("/servlet/inbox");
 		}
@@ -33,13 +38,19 @@ public class IndexServlet extends JoeEServlet {
 		out.println("<body>" +
 				"<p>Welcome to Joe-E mail</p>" +
 				"<a href=\"/servlet/login\">Log In</a><br />" +
-				"<a href=\"/servlet/create\">Create an Account</a>" +
-				"</body></html>");
+				"<a href=\"/servlet/create\">Create an Account</a><br />");
+		out.println("<a href=\"/servlet/>Stay here</a><br />");
+		out.println(cookie.testCookie+ "<br />");
+		out.println("</body>");
 		HtmlWriter.printFooter(out);
-		out.flush();
+		if (cookie.testCookie.equals("")) {
+			cookie.testCookie = "1";
+		} else {
+			cookie.testCookie = "" + (Integer.parseInt(cookie.testCookie)+1);
+		}
 	}
 	
-	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses) throws ServletException, IOException {
-		this.doGet(req, res, ses);
+	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies) throws ServletException, IOException {
+		this.doGet(req, res, ses, null);
 	}
 }

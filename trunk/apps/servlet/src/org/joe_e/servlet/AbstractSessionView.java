@@ -68,13 +68,13 @@ public abstract class AbstractSessionView {
 	 */
 	public final void fillHttpSession(HttpSession ses) throws IllegalAccessException {
 		for (Field f : this.getClass().getDeclaredFields()) {
-			// TODO: HACK! ask adrian what's going on here. Fix.
-			// shouldn't have to setAccessible each attribute
 			if (f.getName().equals("invalidate") && f.getBoolean(this)) {
 				Dispatcher.logger.fine("invalidating session after successful dispatch");
 				Dispatcher.invalidateSession(ses);
 				return;
 			}
+			// TODO: HACK! ask adrian what's going on here. Fix.
+			// shouldn't have to setAccessible each attribute
 			f.setAccessible(true);
 			if (f.isAnnotationPresent(readonly.class)) {
 				Dispatcher.logger.fine(f.getName() + " is marked as readonly and was not copied to HttpSession");
