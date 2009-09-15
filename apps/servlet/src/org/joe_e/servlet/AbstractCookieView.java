@@ -57,13 +57,22 @@ public abstract class AbstractCookieView {
 	 * Updated the cookies in the HttpServletRequest with any values that may
 	 * have changed as a result of executing the current servlet. This allows
 	 * changes that the servlet makes to persist across requests. 
-	 * @param req - The HttpServletRequest 
+	 * @param req - The HttpServletRequest - we need this to remember all the
+	 * cookies. 
+	 * @param res - The HttpServletResponse
 	 * @throws IllegalAccessException
 	 */
-	public final void fillHttpResponse(HttpServletResponse res) throws IllegalAccessException {
-		for (Field f : this.getClass().getDeclaredFields()) {
-			if (!Modifier.isFinal(f.getModifiers())) {
-				Cookie c = new Cookie("__joe-e__"+f.getName(), (String) f.get(this));
+	public final void fillHttpResponse(HttpServletRequest req, HttpServletResponse res) throws IllegalAccessException {
+		for (Cookie c : req.getCookies()) {
+			boolean done = false;
+			for (Field f : this.getClass().getDeclaredFields()) {
+				if (!Modifier.isFinal(f.getModifiers()) && c.getName().equals("__joe-e__"+f.getName())) {
+					c.setValue((String) f.get(this));
+					res.addCookie(c);
+					done = true;
+				}
+			}
+			if (!done) {
 				res.addCookie(c);
 			}
 		}
