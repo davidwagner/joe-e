@@ -25,6 +25,9 @@ public class Compose extends JoeEServlet {
 		@readonly public File mailbox;
 		public String errorMessage;
 	}
+	
+	public class CookieView extends AbstractCookieView {
+	}
 
 	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies) 
 		throws ServletException, IOException {

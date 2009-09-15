@@ -21,6 +21,9 @@ public class Logout extends JoeEServlet {
 		public boolean invalidate;
 	}
 	
+	public class CookieView extends AbstractCookieView {
+	}
+	
 	//TODO: need to make it invalidate the session.
 	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies)
 		throws IOException, ServletException {

@@ -22,6 +22,9 @@ public class LoginServlet extends JoeEServlet {
 		public File mailbox;
 	}
 	
+	public class CookieView extends AbstractCookieView {
+	}
+	
 	public void doGet(HttpServletRequest req, HttpServletResponse res,  AbstractSessionView ses, AbstractCookieView cookies) throws ServletException, IOException {
 		SessionView session = (SessionView) ses;
 		PrintWriter out = res.getWriter();

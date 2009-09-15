@@ -140,7 +140,7 @@ public class Dispatcher extends HttpServlet {
 				log("Dispatching GET request for " + req.getServletPath() + " to " + servlet.getClass().getName());
 				servlet.doGet(req, response, s, c);
 				s.fillHttpSession(session);
-				c.fillHttpResponse(response);
+				c.fillHttpResponse(req, response);
 			}
 		} catch(IllegalAccessException i) {
 			if (serialized) { ((Lock) session.getAttribute("lock")).unlock(); }
@@ -192,7 +192,7 @@ public class Dispatcher extends HttpServlet {
 				log("Dispatching POST request for " + req.getServletPath() + " to " + servlet.getClass().getName());
 				servlet.doPost(req, response, s, c);
 				s.fillHttpSession(session);
-				c.fillHttpResponse(response);
+				c.fillHttpResponse(req, response);
 				response.getWriter().flush();
 			}
 		} catch(IllegalAccessException i) {
