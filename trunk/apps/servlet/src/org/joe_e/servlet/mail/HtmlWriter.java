@@ -8,8 +8,16 @@ public class HtmlWriter {
 		p.println("<html><head><title>Joe-E Mail</title></head>");
 	}
 	
+	public static String getHeader() {
+		return "<html><head><title>Joe-E Mail</title></head>";
+	}
+	
 	public static void printFooter(PrintWriter p) {
 		p.println("</html>");
+	}
+	
+	public static String getFooter() {
+		return "</html>";
 	}
 
 }
