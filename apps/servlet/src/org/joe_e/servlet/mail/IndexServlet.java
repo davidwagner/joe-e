@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
+import org.joe_e.servlet.JSLintVerifier;
 import org.joe_e.servlet.JoeEServlet;
 import org.joe_e.servlet.readonly;
 
@@ -35,6 +36,17 @@ public class IndexServlet extends JoeEServlet {
 		}
 		PrintWriter out = res.getWriter();
 		HtmlWriter.printHeader(out);
+		// TODO: this may be how we have to call Adsafe, instead of writing to the printWriter, these routines return a 
+		// string of HTML that we send to jslint and then write to the PrintWriter.
+		String output = HtmlWriter.getHeader();
+		output += "<body><p>Welcome to Joe-E Mail</p><a href=\"/servlet/login\">Log In</a><br />"+
+				  "<a href=\"/servlet/create\">Create an Account</a><br />";
+		output += "<script>function f() {\n\talert(\"hello world\"); \n}</script>";
+		output += "<a href=\"/servlet/\">Stay here</a><br />" + cookie.testCookie + "<br /></body>"+HtmlWriter.getFooter();
+		
+		if (!JSLintVerifier.verify(output)) {
+			throw new ServletException ("Illegal javascript: " + JSLintVerifier.getMessage());
+		}
 		out.println("<body>" +
 				"<p>Welcome to Joe-E mail</p>" +
 				"<a href=\"/servlet/login\">Log In</a><br />" +

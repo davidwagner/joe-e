@@ -39,11 +39,13 @@ public abstract class AbstractCookieView {
 	public final void fillCookieView(HttpServletRequest req) throws IllegalAccessException {
 		for (Field f : this.getClass().getDeclaredFields()) {
 			boolean done = false;
-			for (Cookie c : req.getCookies()) {
-				if (c.getName().equals("__joe-e__"+f.getName())) {
-					f.set(this, c.getValue());
-					Dispatcher.logger.fine("request contains cookie: " + c.getName() + " " + c.getValue());
-					done = true;
+			if (req.getCookies() != null) { 
+				for (Cookie c : req.getCookies()) {
+					if (c.getName().equals("__joe-e__"+f.getName())) {
+						f.set(this, c.getValue());
+						Dispatcher.logger.fine("request contains cookie: " + c.getName() + " " + c.getValue());
+						done = true;
+					}
 				}
 			}
 			if (!done && !Modifier.isFinal(f.getModifiers())) {
@@ -63,17 +65,26 @@ public abstract class AbstractCookieView {
 	 * @throws IllegalAccessException
 	 */
 	public final void fillHttpResponse(HttpServletRequest req, HttpServletResponse res) throws IllegalAccessException {
-		for (Cookie c : req.getCookies()) {
-			boolean done = false;
+		if (req.getCookies() == null) {
 			for (Field f : this.getClass().getDeclaredFields()) {
-				if (!Modifier.isFinal(f.getModifiers()) && c.getName().equals("__joe-e__"+f.getName())) {
-					c.setValue((String) f.get(this));
+				if (!Modifier.isFinal(f.getModifiers())) {
+					Cookie c = new Cookie("__joe-e__" + f.getName(), (String) f.get(this));
 					res.addCookie(c);
-					done = true;
 				}
 			}
-			if (!done) {
-				res.addCookie(c);
+		} else {
+			for (Cookie c : req.getCookies()) {
+				boolean done = false;
+				for (Field f : this.getClass().getDeclaredFields()) {
+					if (!Modifier.isFinal(f.getModifiers()) && c.getName().equals("__joe-e__"+f.getName())) {
+						c.setValue((String) f.get(this));
+						res.addCookie(c);
+						done = true;
+					}
+				}
+				if (!done) {
+					res.addCookie(c);
+				}
 			}
 		}
 	}
