@@ -17,6 +17,13 @@ import org.joe_e.file.Filesystem;
 import org.joe_e.servlet.Dispatcher;
 import org.joe_e.servlet.mail.notjoe_e.PostfixClient;
 
+
+/**
+ * This class is responsible for account management, and represents the capability
+ * to add an account to the webmail system. 
+ * @author akshay
+ *
+ */
 public class AccountManager {
 	
 	private File accounts;
@@ -25,12 +32,30 @@ public class AccountManager {
 	
 	private String subject = "Welcome to Joe-E Mail";
 	private String body = "Welcome to Joe-E Mail";
+	
+	/**
+	 * Construct an account manager, by giving him a way encrypt passwords,
+	 * a reference to the database of usernames, and the capability to
+	 * mess with postfix. 
+	 * @param d
+	 * @param a
+	 * @param c
+	 */
 	public AccountManager(MessageDigest d, File a, PostfixClient c) {
 		digest = d;
 		accounts = a;
 		client = c;
 	}
 	
+	/**
+	 * Add an account to the system by giving the account manager a username
+	 * and password. This does some minimal checking and then adds the account
+	 * to the users database. It also configures postfix to accept email for this
+	 * account and sends the user a welcome message. 
+	 * @param username
+	 * @param password
+	 * @return
+	 */
 	public boolean addAccount(String username, String password) {
 		Dispatcher.logger.finest("Request to create account for: " + username);
 		try {
