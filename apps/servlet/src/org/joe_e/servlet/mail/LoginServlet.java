@@ -54,7 +54,7 @@ public class LoginServlet extends JoeEServlet {
 			res.sendRedirect("/servlet/inbox");
 		}
 		else {
-			doGet(req, res, ses, null);
+			res.sendRedirect("/servlet/login");
 		}
 	}
 }

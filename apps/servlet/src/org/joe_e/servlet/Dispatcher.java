@@ -18,6 +18,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.catalina.connector.ResponseFacade;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -65,11 +66,14 @@ import org.xml.sax.helpers.DefaultHandler;
  * themselves).
  * 
  * @author akshay
- * TODO: debug mode: warn if read only field gets modified
  *
  */
 public class Dispatcher extends HttpServlet {
 
+	
+	public static final boolean RUN_JSLINT = false;
+	public static final String ADSAFE_RULES = "/*jslint adsafe: true */";
+	
 	// The map that contains url to servlet mappings
 	// TODO: does the map work if we have complex url-patterns? (i.e. regex stuff)
 	private HashMap<String, Class<?>> servletmapping;
@@ -138,17 +142,19 @@ public class Dispatcher extends HttpServlet {
 				s.fillSessionView(session);
 				c.fillCookieView(req);
 				log("Dispatching GET request for " + req.getServletPath() + " to " + servlet.getClass().getName());
-				servlet.doGet(req, response, s, c);
+				
+				ResponseFacadeWrapper responseFacade = wrapResponse(response);
+				servlet.doGet(req, responseFacade, s, c);
+				
+				if (RUN_JSLINT) {
+					runJSLint(responseFacade);
+				}
+				responseFacade.flushOutput();
+				
 				s.fillHttpSession(session);
 				c.fillHttpResponse(req, response);
 			}
-		} catch(IllegalAccessException i) {
-			if (serialized) { ((Lock) session.getAttribute("lock")).unlock(); }
-			throw new ServletException(i.getMessage());
-		} catch(InstantiationException i) {
-			if (serialized) { ((Lock) session.getAttribute("lock")).unlock(); }
-			throw new ServletException(i.getMessage());
-		} catch(InvocationTargetException i) {
+		} catch(Exception i) {
 			if (serialized) { ((Lock) session.getAttribute("lock")).unlock(); }
 			throw new ServletException(i.getMessage());
 		}
@@ -190,7 +196,16 @@ public class Dispatcher extends HttpServlet {
 				s.fillSessionView(session);
 				c.fillCookieView(req);
 				log("Dispatching POST request for " + req.getServletPath() + " to " + servlet.getClass().getName());
+				
+				ResponseFacadeWrapper responseFacade = wrapResponse(response);
+				
 				servlet.doPost(req, response, s, c);
+				
+				if (RUN_JSLINT) {
+					runJSLint(responseFacade);
+				}
+				responseFacade.flushOutput();
+				
 				s.fillHttpSession(session);
 				c.fillHttpResponse(req, response);
 				response.getWriter().flush();
@@ -213,10 +228,6 @@ public class Dispatcher extends HttpServlet {
 	
 	/**
 	 * perform a lookup in the url->servlet map for the string s
-	 * TODO correctly handle wildcards. there are only three options
-	 * /.../*
-	 * *.<ext>
-	 * /fully/qualified/name
 	 * @param s
 	 * @return the JoeEServlet corresponding to the url s
 	 */
@@ -279,6 +290,35 @@ public class Dispatcher extends HttpServlet {
 			Object o = session.getAttribute(s);
 			session.removeAttribute(s);
 			session.setAttribute("__joe-e__"+s, o);
+		}
+	}
+	
+	/**
+	 * Run the jslint program to make sure that the page source meets the
+	 * adsafe criteria
+	 * TODO: how to call with adsafe parameters. 
+	 * @param p
+	 */
+	public void runJSLint(ResponseFacadeWrapper responseFacade) throws ServletException {
+		if (!JSLintVerifier.verify(ADSAFE_RULES+"\n"+((BufferedPrintWriter)responseFacade.getWriter()).getText())) {
+			throw new ServletException ("Illegal javascript: " + JSLintVerifier.getMessage());
+		}
+	}
+	
+	/**
+	 * so that we can later recover the page source, we wrap the HttpServletResponse implementation
+	 * in our own object and assign that a new PrintWriter.
+	 * NOTE: this is dependent on the specific servlet container implementation. 
+	 * @param res
+	 * @return
+	 */
+	public ResponseFacadeWrapper wrapResponse(HttpServletResponse res) throws ServletException {
+		try {
+			ResponseFacadeWrapper r = ResponseFacadeWrapper.getNewWrapper((ResponseFacade) res);
+			r.setWriter(new BufferedPrintWriter(res.getWriter()));
+			return r;
+		} catch (Exception e) {
+			throw new ServletException (e.getMessage());
 		}
 	}
 	
