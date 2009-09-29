@@ -20,6 +20,7 @@ public class LoginServlet extends JoeEServlet {
 		public String username;
 		public AuthenticationAgent auth;
 		public File mailbox;
+		public String token; 
 	}
 	
 	public class CookieView extends AbstractCookieView {
@@ -38,6 +39,7 @@ public class LoginServlet extends JoeEServlet {
 		out.println("<span>Username: <input type=\"text\" value=\"\" name=\"username\" /></span>");
 		out.println("<span>Password: <input type=\"password\" value=\"\" name=\"password\" /></span>");
 		out.println("<input type=\"submit\" value=\"login\"></form></body>");
+		out.println("token: " + session.token + "<br />");
 		HtmlWriter.printFooter(out);
 		out.flush();
 	}

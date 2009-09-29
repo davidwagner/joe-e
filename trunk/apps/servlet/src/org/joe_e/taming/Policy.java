@@ -1619,6 +1619,128 @@ public class Policy {
 
         // Type java.util.logging.XMLFormatter
 
+        // Type javax.mail.Address
+
+        // Type javax.mail.AuthenticationFailedException
+
+        // Type javax.mail.Authenticator
+
+        // Type javax.mail.BodyPart
+
+        // Type javax.mail.FetchProfile
+
+        // Type javax.mail.FetchProfile$Item
+
+        // Type javax.mail.Flags
+
+        // Type javax.mail.Flags$Flag
+
+        // Type javax.mail.Folder
+
+        // Type javax.mail.FolderClosedException
+
+        // Type javax.mail.FolderNotFoundException
+
+        // Type javax.mail.Header
+
+        // Type javax.mail.IllegalWriteException
+
+        // Type javax.mail.Message
+
+        // Type javax.mail.Message$RecipientType
+
+        // Type javax.mail.MessageAware
+
+        // Type javax.mail.MessageContext
+
+        // Type javax.mail.MessageRemovedException
+
+        // Type javax.mail.MessagingException
+
+        // Type javax.mail.MethodNotSupportedException
+
+        // Type javax.mail.Multipart
+
+        // Type javax.mail.MultipartDataSource
+
+        // Type javax.mail.NoSuchProviderException
+
+        // Type javax.mail.Part
+
+        // Type javax.mail.PasswordAuthentication
+
+        // Type javax.mail.Provider
+
+        // Type javax.mail.Provider$Type
+
+        // Type javax.mail.Quota
+
+        // Type javax.mail.Quota$Resource
+
+        // Type javax.mail.QuotaAwareStore
+
+        // Type javax.mail.ReadOnlyFolderException
+
+        // Type javax.mail.SendFailedException
+
+        // Type javax.mail.Service
+
+        // Type javax.mail.Session
+
+        // Type javax.mail.Store
+
+        // Type javax.mail.StoreClosedException
+
+        // Type javax.mail.Transport
+
+        // Type javax.mail.UIDFolder
+
+        // Type javax.mail.UIDFolder$FetchProfileItem
+
+        // Type javax.mail.URLName
+
+        // Type javax.mail.internet.AddressException
+
+        // Type javax.mail.internet.ContentDisposition
+
+        // Type javax.mail.internet.ContentType
+
+        // Type javax.mail.internet.HeaderTokenizer
+
+        // Type javax.mail.internet.HeaderTokenizer$Token
+
+        // Type javax.mail.internet.InternetAddress
+
+        // Type javax.mail.internet.InternetHeaders
+
+        // Type javax.mail.internet.InternetHeaders$InternetHeader
+
+        // Type javax.mail.internet.MailDateFormat
+
+        // Type javax.mail.internet.MimeBodyPart
+
+        // Type javax.mail.internet.MimeMessage
+
+        // Type javax.mail.internet.MimeMessage$RecipientType
+
+        // Type javax.mail.internet.MimeMultipart
+
+        // Type javax.mail.internet.MimePart
+
+        // Type javax.mail.internet.MimePartDataSource
+
+        // Type javax.mail.internet.MimeUtility
+
+        // Type javax.mail.internet.NewsAddress
+
+        // Type javax.mail.internet.ParameterList
+
+        // Type javax.mail.internet.ParseException
+
+        // Type javax.mail.internet.PreencodedMimeBodyPart
+
+        // Type javax.mail.internet.SharedInputStream
+
         // Type javax.servlet.Filter
 
         // Type javax.servlet.FilterChain
@@ -2049,9 +2171,6 @@ public class Policy {
 
         // Type org.joe_e.servlet.Dispatcher
         fields.add("org.joe_e.servlet.Dispatcher.logger");
-
-        // Type org.joe_e.servlet.JoeEServlet
-        constructors.add("org.joe_e.servlet.JoeEServlet()");
 
         // Type org.joe_e.servlet.SessionInitializer
 

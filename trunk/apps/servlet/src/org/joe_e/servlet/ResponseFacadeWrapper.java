@@ -30,7 +30,6 @@ public class ResponseFacadeWrapper extends ResponseFacade {
 		Field responseField = null;
 		for (Field f : fs) {
 			f.setAccessible(true);
-			Dispatcher.logger.fine("Field: "+ f.getName());
 			if (f.getName().equals("response")) {
 				responseField = f;
 			}

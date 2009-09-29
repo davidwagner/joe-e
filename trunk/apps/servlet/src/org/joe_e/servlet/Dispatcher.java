@@ -3,6 +3,9 @@ package org.joe_e.servlet;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.concurrent.locks.Lock;
@@ -228,6 +231,7 @@ public class Dispatcher extends HttpServlet {
 	
 	/**
 	 * perform a lookup in the url->servlet map for the string s
+	 * add servlets to the session as needed
 	 * @param s
 	 * @return the JoeEServlet corresponding to the url s
 	 */
@@ -244,14 +248,32 @@ public class Dispatcher extends HttpServlet {
 			if (session.getAttribute(s) == null && servletmapping.get(s) != null) {
 				// instantiate the class.
 				session.setAttribute(s, (JoeEServlet) servletmapping.get(s).newInstance());
+				try {
+					MessageDigest md5 = MessageDigest.getInstance("md5");
+					md5.update((Long.toHexString(System.currentTimeMillis())).getBytes());
+					session.setAttribute(session.getAttribute(s).getClass().getSimpleName()+"__token", (new BigInteger(md5.digest())).toString(16));
+				} catch (NoSuchAlgorithmException e) {
+					throw new ServletException (e.getMessage());
+				}
+
 				log("Added instance of " + servletmapping.get(s).getName() + " to session " + session.getId());
+				log("Added session token at " +session.getAttribute(s).getClass().getSimpleName()+"__token");
 			} 
 			if (session.getAttribute(s) != null) {
 				return (JoeEServlet) session.getAttribute(s);
 			}
 			if (session.getAttribute(pattern) == null && servletmapping.get(pattern) != null) {
 				session.setAttribute(pattern, (JoeEServlet) servletmapping.get(pattern).newInstance());
+				try {
+					MessageDigest md5 = MessageDigest.getInstance("md5");
+					md5.update((Long.toHexString(System.currentTimeMillis())).getBytes());
+					session.setAttribute(session.getAttribute(pattern).getClass().getSimpleName()+"__token", (new BigInteger(md5.digest())).toString(16));
+				} catch (NoSuchAlgorithmException e) {
+					throw new ServletException (e.getMessage());
+				}
+				
 				log("Added instance of " + servletmapping.get(pattern).getName() + " to session " + session.getId());
+				log("added session token at " + session.getAttribute(pattern).getClass().getSimpleName()+"__token");
 			}
 			if (session.getAttribute(pattern) != null) {
 				return (JoeEServlet) session.getAttribute(pattern);
