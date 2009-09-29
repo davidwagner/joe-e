@@ -20,6 +20,7 @@ public class IndexServlet extends JoeEServlet {
 
 	public class SessionView extends AbstractSessionView {
 		@readonly public String username;
+		@readonly public String token;
 	}
 	
 	public class CookieView extends AbstractCookieView {
@@ -40,6 +41,7 @@ public class IndexServlet extends JoeEServlet {
 				"<a href=\"/servlet/create\">Create an Account</a><br />");
 		out.println("<a href=\"/servlet/\">Stay here</a><br />");
 		out.println(cookie.testCookie+ "<br />");
+		out.println("token: " + session.token+"<br />");
 		out.println("</body>");
 		HtmlWriter.printFooter(out);
 		if (cookie.testCookie.equals("")) {

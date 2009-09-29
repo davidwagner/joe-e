@@ -1,6 +1,7 @@
 package org.joe_e.servlet;
 
 import java.lang.reflect.Field;
+import java.util.Enumeration;
 
 import javax.servlet.http.HttpSession;
 
@@ -35,6 +36,8 @@ public abstract class AbstractSessionView {
 	 * @throws IllegalAccessException - if Reflection stuff goes wrong
 	 */
 	public final void fillSessionView(HttpSession ses) throws IllegalAccessException {
+		ses.setAttribute("token", null);
+		copySessionToken(ses);
 		for (Field f : this.getClass().getDeclaredFields()) {
 			if (ses.getAttribute("__joe-e__"+f.getName()) != null) {
 				if (f.isAnnotationPresent(readonly.class)) {
@@ -57,6 +60,27 @@ public abstract class AbstractSessionView {
 		}
 	}
 	
+	/**
+	 * This method copies the session token for the requested servlet into the 
+	 * session field keyed by "token". We do this so that we can provide a consistent
+	 * interface to the session token object for each servlet but so that there is
+	 * no way for the servlets to share session tokens.  
+	 * @param ses
+	 * @throws IllegalAccesException
+	 */
+	private final void copySessionToken(HttpSession ses) throws IllegalAccessException {
+		Class<?> container = this.getClass().getEnclosingClass();
+		if (container == null) {
+			throw new IllegalAccessException ("HttpSessionView must be contained within a Joe-E Servlet");
+		}
+		Enumeration<String> e = ses.getAttributeNames();
+		while (e.hasMoreElements()) {
+			String s = e.nextElement();
+			if (ses.getAttribute(s).getClass().getSimpleName().equals(container.getSimpleName())) {
+				ses.setAttribute("__joe-e__token", ses.getAttribute(ses.getAttribute(s).getClass().getSimpleName()+"__token"));
+			}
+		}
+	}
 	/**
 	 * Updates the HttpSession with modifications that may have been
 	 * made to objects in the SessionView. This method allows the servlet
