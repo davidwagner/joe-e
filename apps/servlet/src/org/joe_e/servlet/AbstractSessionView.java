@@ -86,7 +86,8 @@ public abstract class AbstractSessionView {
 	 * made to objects in the SessionView. This method allows the servlet
 	 * to write to the SessionView, and for those writes to persist across
 	 * requests. Uses Reflection API to determine which mappings should
-	 * get written. This method is not override-able
+	 * get written. This method is not override-able. returns wether we
+	 * invalidated the session or not. 
 	 * @param ses - the HttpSession
 	 * @throws IllegalAccessException - if Reflection stuff goes wrong.
 	 */

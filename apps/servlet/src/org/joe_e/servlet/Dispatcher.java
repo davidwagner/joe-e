@@ -131,9 +131,9 @@ public class Dispatcher extends HttpServlet {
 			transformSession(session);
 			session.setAttribute("lock", new ReentrantLock());
 		}
+		Lock lock = (Lock) session.getAttribute("lock");
 		if (serialized) {
-			((Lock) session.getAttribute("lock")).lock();
-
+			lock.lock();
 		}
 		JoeEServlet servlet = findServlet(session, req.getServletPath());
 		AbstractSessionView s = null;
@@ -154,15 +154,16 @@ public class Dispatcher extends HttpServlet {
 				}
 				responseFacade.flushOutput();
 				
-				s.fillHttpSession(session);
 				c.fillHttpResponse(req, response);
+				s.fillHttpSession(session);
+				response.getWriter().flush();
 			}
 		} catch(Exception i) {
-			if (serialized) { ((Lock) session.getAttribute("lock")).unlock(); }
+			if (serialized) { lock.unlock(); }
 			throw new ServletException(i.getMessage());
 		}
 		if (serialized) {
-			((Lock) session.getAttribute("lock")).unlock();
+			lock.unlock();
 		}
 	}
 	
@@ -185,9 +186,11 @@ public class Dispatcher extends HttpServlet {
 			log("New session instance");
 			initializer.fillHttpSession(session);
 			transformSession(session);
+			session.setAttribute("lock", new ReentrantLock());
 		}
+		Lock lock = (Lock) session.getAttribute("lock");
 		if (serialized) {
-			((Lock) session.getAttribute("lock")).lock();
+			lock.lock();
 		}
 		JoeEServlet servlet = findServlet(session, req.getServletPath());
 		AbstractSessionView s = null;
@@ -214,18 +217,18 @@ public class Dispatcher extends HttpServlet {
 				response.getWriter().flush();
 			}
 		} catch(IllegalAccessException i) {
-			if (serialized) { ((Lock) session.getAttribute("lock")).unlock(); }
+			if (serialized) { lock.unlock(); }
 			throw new ServletException();
 		} catch(InstantiationException i) {
-			if (serialized) { ((Lock) session.getAttribute("lock")).unlock(); }
+			if (serialized) { lock.unlock(); }
 			throw new ServletException();
 		} catch(InvocationTargetException i) {
-			if (serialized) { ((Lock) session.getAttribute("lock")).unlock(); }
+			if (serialized) { lock.unlock(); }
 			throw new ServletException();
 		}
 		// TODO: this isn't correct. What if the session was invalidated?
 		if (serialized) {
-			((Lock) session.getAttribute("lock")).unlock();
+			lock.unlock();
 		}
 	}
 	
