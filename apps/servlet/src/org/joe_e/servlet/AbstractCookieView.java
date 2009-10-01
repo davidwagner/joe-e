@@ -2,6 +2,7 @@ package org.joe_e.servlet;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -73,6 +74,7 @@ public abstract class AbstractCookieView {
 				}
 			}
 		} else {
+			ArrayList<Field> doneFields = new ArrayList<Field>();
 			for (Cookie c : req.getCookies()) {
 				boolean done = false;
 				for (Field f : this.getClass().getDeclaredFields()) {
@@ -80,9 +82,16 @@ public abstract class AbstractCookieView {
 						c.setValue((String) f.get(this));
 						res.addCookie(c);
 						done = true;
+						doneFields.add(f);
 					}
 				}
 				if (!done) {
+					res.addCookie(c);
+				}
+			}
+			for (Field f : this.getClass().getDeclaredFields()) {
+				if (!doneFields.contains(f) && !Modifier.isFinal(f.getModifiers())) {
+					Cookie c = new Cookie("__joe-e__"+f.getName(), (String) f.get(this));
 					res.addCookie(c);
 				}
 			}
