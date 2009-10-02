@@ -61,7 +61,7 @@ public class LoginServlet extends HttpServlet {
 				if (acc.getName().equals(username)) {
 					BufferedReader br = new BufferedReader(new FileReader(acc));
 					if (hashedPassword.equals(br.readLine())) {
-						return new File("/tmp");
+						return new File("/var/mail/vhosts/boink.joe-e.org/"+username);
 					}
 				}
 			}
