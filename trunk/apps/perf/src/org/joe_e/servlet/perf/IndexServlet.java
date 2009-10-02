@@ -22,8 +22,8 @@ public class IndexServlet extends HttpServlet {
 		HtmlWriter.printHeader(out);
 		out.println("<body>" +
 				"<p>Welcome to Joe-E mail</p>" +
-				"<a href=\"/servlet/login\">Log In</a><br />" +
-				"<a href=\"/servlet/create\">Create an Account</a><br />");
+				"<a href=\"/perf/login\">Log In</a><br />" +
+				"<a href=\"/perf/create\">Create an Account</a><br />");
 		out.println("<a href=\"/servlet/\">Stay here</a><br />");
 		if (req.getCookies() != null) {
 			boolean done = false;
