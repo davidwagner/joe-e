@@ -66,7 +66,7 @@ public class Compose extends HttpServlet {
 		try {
 			msg.setText(body);
 			msg.setSubject(subject);
-			msg.setFrom(new InternetAddress(session.getAttribute("username") + "@boink.joe-e.perf.org"));
+			msg.setFrom(new InternetAddress(session.getAttribute("username") + "@boink.joe-e.org"));
 			msg.addRecipient(javax.mail.Message.RecipientType.TO, new InternetAddress(to));
 		} catch (Exception e) {
 			session.setAttribute("errorMessage", "There something wrong, please try again");

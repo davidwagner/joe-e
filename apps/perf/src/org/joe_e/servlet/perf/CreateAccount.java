@@ -26,7 +26,7 @@ public class CreateAccount extends HttpServlet {
 	
 	private static final String subject = "Welcome to Joe-E Mail Performance Experiement";
 	private static final String body = "Welcome to Joe-E Mail Performance Experiment";
-	private static final String hostname ="boink.joe-e.perf.org";
+	private static final String hostname ="boink.joe-e.org";
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		HttpSession session = req.getSession();
@@ -59,7 +59,7 @@ public class CreateAccount extends HttpServlet {
 	}
 
 	public boolean addAccount(String name, String password) {
-		File accounts = new File("/Users/akshay/Desktop/perfaccounts/");
+		File accounts = new File("/Users/akshay/Desktop/accounts/");
 		for (File f : accounts.listFiles()) {
 			if (f.getName().equals(name)) {
 				return false;
