@@ -77,8 +77,11 @@ import org.xml.sax.helpers.DefaultHandler;
 public class Dispatcher extends HttpServlet {
 
 	
-	public static final boolean RUN_JSLINT = true;
+	public static final boolean RUN_JSLINT = false;
 	public static final String ADSAFE_RULES = "/*jslint adsafe: true, fragment: true, white: false, undef: false*/";
+
+	// If the session gets invalidate for some reason, we should tell the user.
+	public static String errorMessage = "";
 	
 	// The map that contains url to servlet mappings
 	// TODO: does the map work if we have complex url-patterns? (i.e. regex stuff)
@@ -156,7 +159,8 @@ public class Dispatcher extends HttpServlet {
 					try {
 						runJSLint(responseFacade);
 					} catch (ServletException e) {
-						//req.getSession().invalidate();
+						req.getSession().invalidate();
+						errorMessage = "session invalidated due to javascript errors: " + e.getMessage();
 						throw e;
 					}
 				}				
@@ -217,7 +221,8 @@ public class Dispatcher extends HttpServlet {
 					try {
 						runJSLint(responseFacade);
 					} catch (ServletException e) {
-						//req.getSession().invalidate();
+						errorMessage = "session invalidated due to javascript errors: " + e.getMessage();
+						req.getSession().invalidate();
 						throw e;
 					}
 				}

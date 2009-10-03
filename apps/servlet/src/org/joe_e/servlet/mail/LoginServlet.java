@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
+import org.joe_e.servlet.Dispatcher;
 import org.joe_e.servlet.JoeEServlet;
 import org.joe_e.servlet.readonly;
 
@@ -20,7 +21,8 @@ public class LoginServlet extends JoeEServlet {
 		public String username;
 		public AuthenticationAgent auth;
 		public File mailbox;
-		public String token; 
+		public String token;
+		public String errorMessage;
 	}
 	
 	public class CookieView extends AbstractCookieView {
@@ -31,9 +33,17 @@ public class LoginServlet extends JoeEServlet {
 		PrintWriter out = res.getWriter();
 		if (session.username != null) {
 			res.sendRedirect("/servlet/inbox");
+			return;
 		}
 		HtmlWriter.printHeader(out);
 		out.println("<body><h2>Joe-E Mail</h2>");
+		if (Dispatcher.errorMessage != null) {
+			out.println("<b>"+Dispatcher.errorMessage+"</b>");
+			Dispatcher.errorMessage = null;
+		}
+		if (session.errorMessage != null) {
+			out.println("<b>"+session.errorMessage+"</b>");
+		}
 		out.println("<p>Log in</p>");
 		out.println("<form method=\"POST\" action=\"/servlet/login\">");
 		out.println("<span>Username: <input type=\"text\" value=\"\" name=\"username\" /></span>");
@@ -56,6 +66,7 @@ public class LoginServlet extends JoeEServlet {
 			res.sendRedirect("/servlet/inbox");
 		}
 		else {
+			session.errorMessage = "Unable to authenticate";
 			res.sendRedirect("/servlet/login");
 		}
 	}

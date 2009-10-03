@@ -32,6 +32,10 @@ public class Inbox extends JoeEServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies)
 		throws IOException, ServletException {
 		SessionView session = (SessionView) ses;
+		if (session.username == null) {
+			res.sendRedirect("/servlet/login");
+			return;
+		}
 		PrintWriter out = res.getWriter();
 		HtmlWriter.printHeader(out);
 		out.println("<body><h2>Joe-E Mail</h2>");
