@@ -50,7 +50,7 @@ public class CreateAccount extends JoeEServlet {
 		if (password1.equals(password2) && session.manager.addAccount(name, password1)) {
 			res.sendRedirect("/servlet/login");
 		} else {
-			doGet(req, res, ses, null);
+			res.sendRedirect("/servlet/create");
 		}
 	}
 }

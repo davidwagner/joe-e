@@ -146,13 +146,14 @@ public class Dispatcher extends HttpServlet {
 				c.fillCookieView(req);
 				log("Dispatching GET request for " + req.getServletPath() + " to " + servlet.getClass().getName());
 				
-				ResponseFacadeWrapper responseFacade = wrapResponse(response);
+				ServletResponseWrapper responseFacade = new ServletResponseWrapper(response);
+//				ResponseFacadeWrapper responseFacade = wrapResponse(response);
 				servlet.doGet(req, responseFacade, s, c);
 				
 				if (RUN_JSLINT) {
 					runJSLint(responseFacade);
 				}
-				responseFacade.flushOutput();
+				responseFacade.flushBuffer();
 				
 				c.fillHttpResponse(req, response);
 				s.fillHttpSession(session);
@@ -203,14 +204,14 @@ public class Dispatcher extends HttpServlet {
 				c.fillCookieView(req);
 				log("Dispatching POST request for " + req.getServletPath() + " to " + servlet.getClass().getName());
 				
-				ResponseFacadeWrapper responseFacade = wrapResponse(response);
+				ServletResponseWrapper responseFacade = new ServletResponseWrapper (response);
 				
 				servlet.doPost(req, response, s, c);
 				
 				if (RUN_JSLINT) {
 					runJSLint(responseFacade);
 				}
-				responseFacade.flushOutput();
+				responseFacade.flushBuffer();
 				
 				s.fillHttpSession(session);
 				c.fillHttpResponse(req, response);
@@ -324,26 +325,9 @@ public class Dispatcher extends HttpServlet {
 	 * TODO: how to call with adsafe parameters. 
 	 * @param p
 	 */
-	public void runJSLint(ResponseFacadeWrapper responseFacade) throws ServletException {
+	public void runJSLint(ServletResponseWrapper responseFacade) throws ServletException, IOException {
 		if (!JSLintVerifier.verify(ADSAFE_RULES+"\n"+((BufferedPrintWriter)responseFacade.getWriter()).getText())) {
 			throw new ServletException ("Illegal javascript: " + JSLintVerifier.getMessage());
-		}
-	}
-	
-	/**
-	 * so that we can later recover the page source, we wrap the HttpServletResponse implementation
-	 * in our own object and assign that a new PrintWriter.
-	 * NOTE: this is dependent on the specific servlet container implementation. 
-	 * @param res
-	 * @return
-	 */
-	public ResponseFacadeWrapper wrapResponse(HttpServletResponse res) throws ServletException {
-		try {
-			ResponseFacadeWrapper r = ResponseFacadeWrapper.getNewWrapper((ResponseFacade) res);
-			r.setWriter(new BufferedPrintWriter(res.getWriter()));
-			return r;
-		} catch (Exception e) {
-			throw new ServletException (e.getMessage());
 		}
 	}
 	

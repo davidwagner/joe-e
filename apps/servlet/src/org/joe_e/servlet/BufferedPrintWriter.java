@@ -75,13 +75,13 @@ public class BufferedPrintWriter extends PrintWriter {
 	public void flush() {
 	}
 	
-	private void newLine() {
-		if (text == null) {
-			text = "\n";
-		} else {
-			text += "\n";
-		}
-	}
+//	private void newLine() {
+//		if (text == null) {
+//			text = "\n";
+//		} else {
+//			text += "\n";
+//		}
+//	}
 	
 	/**
 	 * do nothing
@@ -96,6 +96,7 @@ public class BufferedPrintWriter extends PrintWriter {
 		} else {
 			text += s;
 		}
+		super.write(buf);
 	}
 	
 	public void write(char[] buf, int off, int length) {
@@ -105,12 +106,14 @@ public class BufferedPrintWriter extends PrintWriter {
 		} else {
 			text += s;
 		}
+		super.write(buf, off, length);
 	}
 	
 	public void write(int c) {
 		char[] buf = new char[1];
 		buf[0] = (char) c;
 		write(buf);
+		super.write(c);
 	}
 	
 	public void write(String s) {
@@ -119,6 +122,7 @@ public class BufferedPrintWriter extends PrintWriter {
 		} else {
 			text += s;
 		}
+		super.write(s);
 	}
 	
 	public void write(String s, int off, int len) {
@@ -127,6 +131,7 @@ public class BufferedPrintWriter extends PrintWriter {
 		} else {
 			text += s.substring(off, off+len);
 		}
+		super.write(s, off, len);
 	}
 	
 	public String getText() {
