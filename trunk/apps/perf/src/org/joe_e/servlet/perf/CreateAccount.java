@@ -34,6 +34,7 @@ public class CreateAccount extends HttpServlet {
 		if (session.getAttribute("username") != null) {
 			res.sendRedirect("/perf/inbox");
 		}
+		res.addHeader("Content-type", "text/html");
 		HtmlWriter.printHeader(out);
 		out.println("<body><h2>Joe-E Mail</h2>");
 		out.println("<p>Create Account</p>");

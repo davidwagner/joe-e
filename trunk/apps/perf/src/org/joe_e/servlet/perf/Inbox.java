@@ -20,6 +20,7 @@ public class Inbox extends HttpServlet {
 		if (session.getAttribute("username") == null) {
 			res.sendRedirect("/perf/login");
 		}
+		res.addHeader("Content-type", "text/html");
 		HtmlWriter.printHeader(out);
 		out.println("<body><h2>Joe-E Mail</h2>");
 		out.println("<h4> inbox of " + session.getAttribute("username") + "</h4>");
