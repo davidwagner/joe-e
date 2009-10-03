@@ -22,6 +22,9 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.catalina.connector.ResponseFacade;
+import org.htmlparser.Node;
+import org.htmlparser.lexer.Lexer;
+import org.htmlparser.util.ParserException;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -74,8 +77,8 @@ import org.xml.sax.helpers.DefaultHandler;
 public class Dispatcher extends HttpServlet {
 
 	
-	public static final boolean RUN_JSLINT = false;
-	public static final String ADSAFE_RULES = "/*jslint adsafe: true */";
+	public static final boolean RUN_JSLINT = true;
+	public static final String ADSAFE_RULES = "/*jslint adsafe: true, fragment: true, white: false, undef: false*/";
 	
 	// The map that contains url to servlet mappings
 	// TODO: does the map work if we have complex url-patterns? (i.e. regex stuff)
@@ -147,17 +150,19 @@ public class Dispatcher extends HttpServlet {
 				log("Dispatching GET request for " + req.getServletPath() + " to " + servlet.getClass().getName());
 				
 				ServletResponseWrapper responseFacade = new ServletResponseWrapper(response);
-//				ResponseFacadeWrapper responseFacade = wrapResponse(response);
 				servlet.doGet(req, responseFacade, s, c);
-				
-				if (RUN_JSLINT) {
-					runJSLint(responseFacade);
-				}
 				responseFacade.flushBuffer();
-				
+				if (RUN_JSLINT) {
+					try {
+						runJSLint(responseFacade);
+					} catch (ServletException e) {
+						//req.getSession().invalidate();
+						throw e;
+					}
+				}				
 				c.fillHttpResponse(req, response);
 				s.fillHttpSession(session);
-				response.getWriter().flush();
+				responseFacade.flushBuffer();
 			}
 		} catch(Exception i) {
 			if (serialized) { lock.unlock(); }
@@ -209,13 +214,17 @@ public class Dispatcher extends HttpServlet {
 				servlet.doPost(req, response, s, c);
 				
 				if (RUN_JSLINT) {
-					runJSLint(responseFacade);
+					try {
+						runJSLint(responseFacade);
+					} catch (ServletException e) {
+						//req.getSession().invalidate();
+						throw e;
+					}
 				}
-				responseFacade.flushBuffer();
 				
 				s.fillHttpSession(session);
 				c.fillHttpResponse(req, response);
-				response.getWriter().flush();
+				responseFacade.flushBuffer();
 			}
 		} catch(IllegalAccessException i) {
 			if (serialized) { lock.unlock(); }
@@ -322,12 +331,42 @@ public class Dispatcher extends HttpServlet {
 	/**
 	 * Run the jslint program to make sure that the page source meets the
 	 * adsafe criteria
-	 * TODO: how to call with adsafe parameters. 
 	 * @param p
 	 */
 	public void runJSLint(ServletResponseWrapper responseFacade) throws ServletException, IOException {
-		if (!JSLintVerifier.verify(ADSAFE_RULES+"\n"+((BufferedPrintWriter)responseFacade.getWriter()).getText())) {
-			throw new ServletException ("Illegal javascript: " + JSLintVerifier.getMessage());
+		if (((BufferedPrintWriter)responseFacade.getWriter()).getText() == null) {
+			// then we did something like a redirect
+			return;
+		}
+		Lexer l = new Lexer(((BufferedPrintWriter)responseFacade.getWriter()).getText());
+		Node n = null;
+		int nesting = 0;
+		String sendToJSlint = "";
+		try {
+			while ((n = l.nextNode()) != null) {
+				if (nesting == 0 && n.getText().length() >= 6 && n.getText().substring(0, 6).equals("script")) {
+					throw new ServletException ("Found illegally placed script tag in :" + n.getText());
+				} else if (n.getText().length() >= 3 && n.getText().substring(0, 3).equals("div")) {
+					nesting++;
+					sendToJSlint += n.toHtml();
+					if (nesting == 1) {
+						//sendToJSlint += "<script src=\"http://www.ADsafe.org/adsafe.js\"></script>";
+					}
+				} else if (n.getText().length() >= 4 && n.getText().substring(0, 4).equals("/div")) {
+					nesting--;
+					sendToJSlint += n.toHtml();
+					if (nesting == 0) {
+						if (!JSLintVerifier.verify(Dispatcher.ADSAFE_RULES+"\n"+sendToJSlint)) {
+							throw new ServletException ("Illegal javascript: " + JSLintVerifier.getMessage());
+						}
+						sendToJSlint = "";
+					}
+				} else if (nesting > 0) {
+					sendToJSlint += n.toHtml();
+				}
+			}
+		} catch (ParserException e) {
+			throw new ServletException (e.getMessage());
 		}
 	}
 	
