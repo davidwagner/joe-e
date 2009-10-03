@@ -36,6 +36,7 @@ public class Compose extends JoeEServlet {
 			res.sendRedirect("/servlet/login");
 			return;
 		}
+		res.addHeader("Content-type", "text/html");
 		PrintWriter out = res.getWriter();
 		HtmlWriter.printHeader(out);
 		out.println("<body><h6>signed in as " + session.username + "</h6>");

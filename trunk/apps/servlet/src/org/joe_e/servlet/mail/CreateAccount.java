@@ -30,6 +30,7 @@ public class CreateAccount extends JoeEServlet {
 			res.sendRedirect("/servlet/inbox");
 			return;
 		}
+		res.addHeader("Content-type", "text/html");
 		HtmlWriter.printHeader(out);
 		out.println("<body><h2>Joe-E Mail</h2>");
 		out.println("<p>Create Account</p>");
