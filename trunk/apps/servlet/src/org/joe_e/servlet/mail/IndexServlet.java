@@ -42,6 +42,7 @@ public class IndexServlet extends JoeEServlet {
 		out.println("<a href=\"/servlet/\">Stay here</a><br />");
 		out.println(cookie.testCookie+ "<br />");
 		out.println("token: " + session.token+"<br />");
+		out.println("<div id=\"TOKEN_\"></div>");
 		out.println("</body>");
 		HtmlWriter.printFooter(out);
 		if (cookie.testCookie.equals("")) {
