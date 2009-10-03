@@ -27,6 +27,7 @@ public class PostfixClient {
 	 * and checks that they are in /etc/postfix/virtual_mailbox_recipients
 	 * if the username is not there, it will add an entry to that file and
 	 * run sudo postmap /etc/postfix/virtual_mailbox_recipients
+	 * @deprecated
 	 * 
 	 */
 	public void updateDatabase(File accounts) {
