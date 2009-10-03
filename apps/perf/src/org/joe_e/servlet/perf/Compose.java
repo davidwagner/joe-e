@@ -20,6 +20,7 @@ public class Compose extends HttpServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		HttpSession session = req.getSession();
 		PrintWriter out = res.getWriter();
+		res.addHeader("Content-type", "text/html");
 		HtmlWriter.printHeader(out);
 		if (session.getAttribute("username") == null) {
 			res.sendRedirect("/perf/login");

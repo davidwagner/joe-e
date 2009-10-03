@@ -24,6 +24,7 @@ public class LoginServlet extends HttpServlet {
 		if (session.getAttribute("username") != null) {
 			res.sendRedirect("/perf/inbox");
 		}
+		res.addHeader("Content-type", "text/html");
 		HtmlWriter.printHeader(out);
 		out.println("<body><h2>Joe-E Mail</h2>");
 		out.println("<p>Log in</p>");
