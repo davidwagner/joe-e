@@ -34,6 +34,7 @@ public class Read extends JoeEServlet {
 			res.sendRedirect("/servlet/login");
 			return;
 		}
+		res.addHeader("Content-type", "text/html");
 		PrintWriter out = res.getWriter();
 		HtmlWriter.printHeader(out);
 		out.println("<body><h2>Joe-E Mail</h2>");

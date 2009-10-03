@@ -33,6 +33,7 @@ public class IndexServlet extends JoeEServlet {
 		if (session.username != null) {
 			res.sendRedirect("/servlet/inbox");
 		}
+		res.addHeader("Content-type", "text/html");
 		PrintWriter out = res.getWriter();
 		HtmlWriter.printHeader(out);
 		out.println("<body>" +

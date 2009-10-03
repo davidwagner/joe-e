@@ -35,6 +35,7 @@ public class LoginServlet extends JoeEServlet {
 			res.sendRedirect("/servlet/inbox");
 			return;
 		}
+		res.addHeader("Content-type", "text/html");
 		HtmlWriter.printHeader(out);
 		out.println("<body><h2>Joe-E Mail</h2>");
 		if (Dispatcher.errorMessage != null) {

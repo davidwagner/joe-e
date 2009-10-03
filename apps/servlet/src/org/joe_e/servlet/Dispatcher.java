@@ -154,7 +154,6 @@ public class Dispatcher extends HttpServlet {
 				
 				ServletResponseWrapper responseFacade = new ServletResponseWrapper(response);
 				servlet.doGet(req, responseFacade, s, c);
-				responseFacade.flushBuffer();
 				if (RUN_JSLINT) {
 					try {
 						runJSLint(responseFacade);
