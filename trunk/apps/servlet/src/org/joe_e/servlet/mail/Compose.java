@@ -34,6 +34,7 @@ public class Compose extends JoeEServlet {
 		SessionView session = (SessionView) ses;
 		if (session.username == null) {
 			res.sendRedirect("/servlet/login");
+			return;
 		}
 		PrintWriter out = res.getWriter();
 		HtmlWriter.printHeader(out);

@@ -28,6 +28,7 @@ public class CreateAccount extends JoeEServlet {
 		PrintWriter out = res.getWriter();
 		if (session.username != null) {
 			res.sendRedirect("/servlet/inbox");
+			return;
 		}
 		HtmlWriter.printHeader(out);
 		out.println("<body><h2>Joe-E Mail</h2>");

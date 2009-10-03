@@ -31,5 +31,6 @@ public class Logout extends JoeEServlet {
 		session.username = null;
 		session.invalidate = true;
 		res.sendRedirect("/servlet/");
+		return;
 	}
 }
