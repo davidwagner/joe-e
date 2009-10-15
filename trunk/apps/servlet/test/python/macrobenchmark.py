@@ -8,6 +8,7 @@
 """
 import mechanize
 import cookielib
+import time
 
 URLBASE = "http://boink.cs.berkeley.edu:8080/"
 
@@ -48,18 +49,49 @@ def logout():
         if l.text == "logout":
             br.follow_link(link=l)
 
-br = mechanize.Browser()
-br.set_handle_equiv(True)
-br.set_handle_redirect(True)
-br.set_handle_referer(True)
-br.set_handle_robots(False)
+def runIterations(app):
+    global br
+    br.set_handle_equiv(True)
+    br.set_handle_redirect(True)
+    br.set_handle_referer(True)
+    br.set_handle_robots(False)
+    
+    j = 10
+    while j <= 500:
+        start = time.time()
+        for i in range(j):
+            username="p"+str(i)
+            br.open(URLBASE+app+"/")
+            
+            login(username)
+            readEmail("Welcome to Joe-E Mail")
+        #    composeMail(to="akshayk@boink.joe-e.org", subject=username, body="hello")
+            logout()
+        time.sleep(0.5)
+        stop = time.time()
+        print "users: %d Time: %.3f" % (j, stop-start)
+        if j < 100:
+            j += 10
+        elif j < 250: 
+            j += 25
+        else:
+            j += 50
 
-for i in range(50):
-    username="p"+str(i)
-    br.open(URLBASE+"perf/")
 
-    login(username)
-    readEmail("Welcome to Joe-E Mail")
-#    composeMail(to="akshayk@boink.joe-e.org", subject=username, body="hello")
-    logout()
-    print username
+if __name__=='__main__':
+    br = mechanize.Browser()
+#     br.set_handle_equiv(True)
+#     br.set_handle_redirect(True)
+#     br.set_handle_referer(True)
+#     br.set_handle_robots(False)
+#     br.add_password("http://boink.cs.berkeley.edu:8080/manager/html/stop", "akshayk", "akshayk")
+#     br.add_password("http://boink.cs.berkeley.edu:8080/manager/html/start", "akshayk", "akshayk")
+
+#     br.open("http://boink.cs.berkeley.edu:8080/manager/html/stop?path=perf")
+#     br.open("http://boink.cs.berkeley.edu:8080/manager/html/start?path=servlet")
+#     time.sleep(2)
+    runIterations("servlet")
+#     br.open("http://boink.cs.berkeley.edu:8080/manager/html/stop?path=servlet")
+#     br.open("http://boink.cs.berkeley.edu:8080/manager/html/start?path=perf")
+#     time.sleep(2)
+#     runIterations("perf")

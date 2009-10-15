@@ -1,6 +1,6 @@
 # auto-generated safej: default deny everything
 class("java.util.Properties",
-  static(constructor(suppress, "Properties()", comment("default deny")),
+  static(constructor(allow, "Properties()", comment("allowed")),
     constructor(suppress, "Properties(Properties)", comment("default deny"))),
   instance(field(suppress, "defaults", comment("default deny")),
     method(suppress, "getProperty(String)", comment("default deny")),

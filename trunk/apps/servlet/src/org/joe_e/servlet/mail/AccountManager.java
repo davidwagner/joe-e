@@ -57,11 +57,11 @@ public class AccountManager {
 	 * @return
 	 */
 	public boolean addAccount(String username, String password) {
-		Dispatcher.logger.finest("Request to create account for: " + username);
+		Dispatcher.logMsg("Request to create account for: " + username);
 		try {
 			for (File f : Filesystem.list(accounts)) {
 				if (f.getName().equals(username)) {
-					Dispatcher.logger.fine("Username " + username + " already exists");
+					Dispatcher.logMsg("Username " + username + " already exists");
 					return false;
 				}
 			}
@@ -86,10 +86,10 @@ public class AccountManager {
 						f.delete();
 					}
 				}
-				Dispatcher.logger.finest("Caught an exception, either IO or crypto related, unable to create account");
+				Dispatcher.logMsg("Caught an exception, either IO or crypto related, unable to create account");
 				return false;
 			} catch (IOException e1) {
-				Dispatcher.logger.finest("Caught an exception, either IO or crypto related, unable to create account");
+				Dispatcher.logMsg("Caught an exception, either IO or crypto related, unable to create account");
 				return false;
 			}
 		}

@@ -25,5 +25,5 @@ class("javax.mail.Part",
     method(suppress, "setDisposition(String)", comment("default deny")),
     method(suppress, "setFileName(String)", comment("default deny")),
     method(suppress, "setHeader(String, String)", comment("default deny")),
-    method(suppress, "setText(String)", comment("default deny")),
+    method(allow, "setText(String)", comment("allow")),
     method(suppress, "writeTo(OutputStream)", comment("default deny"))))

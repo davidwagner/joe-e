@@ -529,4 +529,15 @@ public class Dispatcher extends HttpServlet {
 	public void log(String s, Throwable t) {
 		logger.severe(s + t.getLocalizedMessage());
 	}
+	
+	public static void logMsg(String s) {
+		
+	}
+	
+	public static String getErrorMessage() {
+		return errorMessage;
+	}
+	public static void setErrorMessage(String e) {
+		errorMessage = e;
+	}
 }

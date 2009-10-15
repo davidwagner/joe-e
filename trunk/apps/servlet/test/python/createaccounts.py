@@ -23,7 +23,7 @@ br.set_handle_robots(False)
 
 
 
-for i in range(1,50):
+for i in range(51,1000):
     br.open(URLBASE+"servlet/")
     createAccount("p"+str(i))
     print "p"+str(i)

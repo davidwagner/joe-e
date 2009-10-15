@@ -68,16 +68,10 @@ public class Compose extends JoeEServlet {
 		if (to == null || subject == null || body == null
 				|| to.equals("") || subject.equals("") || body.equals("") ) {
 			session.errorMessage = "Please fill out all fields";
-			//doGet(request, response);
 			res.sendRedirect("/servlet/compose");
 			return;
 		}
 		
-		
-		/*
-		 * args are ok so we can send it to the outgoing mail client
-		 */
-		//Message message = new Message(user, to, subject, body);
 		Properties props = new Properties();
 		
 		props.put("mail.smtp.host", "localhost");
@@ -93,7 +87,6 @@ public class Compose extends JoeEServlet {
 		} catch (Exception e) {
 			session.errorMessage = "There something wrong, please try again";
 			res.sendRedirect("/servlet/compose");
-			//doGet(request, response);
 			return;
 		}
 		

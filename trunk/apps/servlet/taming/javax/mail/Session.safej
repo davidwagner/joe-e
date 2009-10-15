@@ -1,7 +1,7 @@
 # auto-generated safej: default deny everything
 class("javax.mail.Session",
   static(method(suppress, "getDefaultInstance(Properties)", comment("default deny")),
-    method(suppress, "getDefaultInstance(Properties, Authenticator)", comment("default deny")),
+    method(allow, "getDefaultInstance(Properties, Authenticator)", comment("default deny")),
     method(suppress, "getInstance(Properties)", comment("default deny")),
     method(suppress, "getInstance(Properties, Authenticator)", comment("default deny"))),
   instance(method(suppress, "addProvider(Provider)", comment("default deny")),

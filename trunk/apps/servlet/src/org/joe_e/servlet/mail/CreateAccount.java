@@ -40,7 +40,6 @@ public class CreateAccount extends JoeEServlet {
 		out.println("<span>Re-enter password: <input type=\"password\" value=\"\" name=\"password2\" /></span>");
 		out.println("<input type=\"submit\" value=\"create\"></form></body>");
 		HtmlWriter.printFooter(out);
-		out.flush();
 	}
 
 	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies)

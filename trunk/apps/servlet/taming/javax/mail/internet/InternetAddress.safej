@@ -1,7 +1,7 @@
 # auto-generated safej: default deny everything
 class("javax.mail.internet.InternetAddress",
   static(constructor(suppress, "InternetAddress()", comment("default deny")),
-    constructor(suppress, "InternetAddress(String)", comment("default deny")),
+    constructor(allow, "InternetAddress(String)", comment("allow")),
     constructor(suppress, "InternetAddress(String, String)", comment("default deny")),
     constructor(suppress, "InternetAddress(String, String, String)", comment("default deny")),
     constructor(suppress, "InternetAddress(String, boolean)", comment("default deny")),
