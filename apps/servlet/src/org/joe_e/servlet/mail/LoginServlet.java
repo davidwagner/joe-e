@@ -12,7 +12,6 @@ import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.Dispatcher;
 import org.joe_e.servlet.JoeEServlet;
-import org.joe_e.servlet.readonly;
 
 
 public class LoginServlet extends JoeEServlet {
@@ -38,9 +37,9 @@ public class LoginServlet extends JoeEServlet {
 		res.addHeader("Content-type", "text/html");
 		HtmlWriter.printHeader(out);
 		out.println("<body><h2>Joe-E Mail</h2>");
-		if (Dispatcher.errorMessage != null) {
-			out.println("<b>"+Dispatcher.errorMessage+"</b>");
-			Dispatcher.errorMessage = null;
+		if (Dispatcher.getErrorMessage() != null) {
+			out.println("<b>"+Dispatcher.getErrorMessage()+"</b>");
+			Dispatcher.setErrorMessage(null);
 		}
 		if (session.errorMessage != null) {
 			out.println("<b>"+session.errorMessage+"</b>");
@@ -52,7 +51,6 @@ public class LoginServlet extends JoeEServlet {
 		out.println("<input type=\"submit\" value=\"login\"></form></body>");
 		out.println("token: " + session.token + "<br />");
 		HtmlWriter.printFooter(out);
-		out.flush();
 	}
 	
 	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies) throws ServletException, IOException {

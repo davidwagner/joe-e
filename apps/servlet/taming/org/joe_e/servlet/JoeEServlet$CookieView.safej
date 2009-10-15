@@ -1,0 +1,2 @@
+class("org.joe_e.servlet.JoeEServlet$CookieView",
+  static(constructor(suppress, "CookieView(JoeEServlet)", comment("default deny"))))

@@ -17,7 +17,6 @@ import org.joe_e.servlet.readonly;
 public class Logout extends JoeEServlet {
 
 	public class SessionView extends AbstractSessionView {
-		public String username;
 		public boolean invalidate;
 	}
 	
@@ -28,7 +27,6 @@ public class Logout extends JoeEServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies)
 		throws IOException, ServletException {
 		SessionView session = (SessionView) ses;
-		session.username = null;
 		session.invalidate = true;
 		res.sendRedirect("/servlet/");
 		return;
