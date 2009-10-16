@@ -29,7 +29,7 @@ print os.popen("/Users/akshay/bin/start_tomcat").read()
 time.sleep(30)
 print "Starting memory monitor... "
 os.popen("java -cp /Users/akshay/Documents/workspace/servlet/bin/ org.joe_e.servlet.test.JMXMonitor > pmemoryusage.out &")
-time.sleep(60)
+time.sleep(100)
 print "Starting experiment... "
 totalstart = time.time()
 for k in range(0, 15000, 10):
@@ -41,6 +41,5 @@ for k in range(0, 15000, 10):
 totalstop = time.time()
 print "Total %0.3f" % (totalstop - totalstart)
 
-while True:
-    time.sleep(10)
+time.sleep(100)
 
