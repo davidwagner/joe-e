@@ -1,10 +1,12 @@
 from pylab import *
+import sys, os
 
 l = []
-j = 20
+j = 2
 
-for i in range(50):
-    f = file("oldlogs/perf50flat2/p"+str(i)+".log").readlines()
+dir = sys.argv[1]
+for x in os.listdir(dir):
+    f = file(dir+"/"+x).readlines()
     for line in f:
         l.append(float(line))
 
@@ -29,6 +31,4 @@ while start + j <= l[len(l)-1]:
 fig = figure()
 ax = fig.add_subplot(111)
 ax.plot(x, y)
-print x
-print y
 show()
