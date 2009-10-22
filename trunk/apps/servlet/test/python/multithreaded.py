@@ -2,9 +2,10 @@ import threading
 import mechanize
 import cookielib
 import time
+import os
 
 URLBASE = "http://boink.cs.berkeley.edu:8080/"
-
+BASEDIR = "throughput/"
 
 def login(br, username):
     for link in br.links():
@@ -43,11 +44,12 @@ def logout(br):
             br.follow_link(link=l)
 
 done = False
+
 class SThread(threading.Thread):
-    def __init__(self, i):
+    def __init__(self, i, f):
         threading.Thread.__init__(self)
         self.i = i
-        self.file = file("s"+str(i)+".log", "w")
+        self.file = file(f+"/"+str(i)+".log", "w")
         self.done = False
 
     def run(self):
@@ -71,17 +73,21 @@ class SThread(threading.Thread):
                 print "error: " + str(time.time())
 
 
-sthreads = []
-for i in range(50):
-    sthreads.append(SThread(i))
+for kk in [1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100]:
+    for jj in ["servlet", "perf"]:
+        os.mkdir("throughput/"+jj+""+str(kk))
+        done = False
+        sthreads = []
+        for i in range(kk):
+            sthreads.append(SThread(i, "throughput/"+jj+""+str(kk)))
 
-for i in range(50):
-    sthreads[i].start()
+        for i in range(kk):
+            sthreads[i].start()
 
-time.sleep(600)
+        time.sleep(600)
 
-done = True
+        done = True
     
-for i in range(50):
-    sthreads[i].join()
+        for i in range(kk):
+            sthreads[i].join()
 
