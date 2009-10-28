@@ -9,6 +9,7 @@ import java.io.Reader;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.joe_e.charset.ASCII;
 import org.joe_e.file.Filesystem;
@@ -20,20 +21,31 @@ import org.joe_e.servlet.Dispatcher;
 
 public class Inbox extends JoeEServlet {
 
-	String username = null;
+	public SessionView session;
 	
 	public class SessionView extends AbstractSessionView {
-		@readonly public String username;
-		@readonly public File mailbox;
+//		@readonly public String username;
+//		@readonly public File mailbox;
+		private HttpSession session;
+		
+		public SessionView(HttpSession ses) {
+			super(ses);
+			session = ses;
+		}
+		public String getUsername() {
+			return (String) session.getAttribute("__joe-e__username");
+		}
+		public File getMailbox() {
+			return (File) session.getAttribute("__joe-e__mailbox");
+		}
 	}
 	
 	public class CookieView extends AbstractCookieView {
 	}
 	
-	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies)
+	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractCookieView cookies)
 		throws IOException, ServletException {
-		SessionView session = (SessionView) ses;
-		if (session.username == null) {
+		if (session.getUsername() == null) {
 		    Dispatcher.logger.fine("redirecting to /servlet/login");
 		    res.sendRedirect("/servlet/login");
 		    return;
@@ -42,13 +54,9 @@ public class Inbox extends JoeEServlet {
 		PrintWriter out = res.getWriter();
 		HtmlWriter.printHeader(out);
 		out.println("<body><h2>Joe-E Mail</h2>");
-		if (username != null) {
-			out.println("<h4>inbox of " + username + "</h4>");
-		} else {
-			out.println("<h4> inbox of " + session.username + "</h4>");
-		}
+		out.println("<h4> inbox of " + session.getUsername() + "</h4>");
 		out.println("<a href=\"/servlet/compose\">Write an email</a><br />");
-		File maildir = Filesystem.file(session.mailbox, "Maildir");
+		File maildir = Filesystem.file(session.getMailbox(), "Maildir");
 		File newFolder = Filesystem.file(maildir, "new");
 		for (File f : Filesystem.list(newFolder)) {
 		    Dispatcher.logger.finest(f.getCanonicalPath());
@@ -72,6 +80,5 @@ public class Inbox extends JoeEServlet {
 		out.println("<a href=\"/servlet/logout\">logout</a><br />");
 		out.println("</body>");
 		HtmlWriter.printFooter(out);
-		this.username = session.username;
 	}
 }

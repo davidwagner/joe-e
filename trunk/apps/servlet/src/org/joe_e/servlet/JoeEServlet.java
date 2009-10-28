@@ -19,7 +19,6 @@ import javax.servlet.http.HttpSession;
  *
  */
 public class JoeEServlet extends HttpServlet {
-
 	
 	/**
 	 * All JoeEServlets must have an inner class called SessionView that extends
@@ -33,6 +32,9 @@ public class JoeEServlet extends HttpServlet {
 	 *
 	 */
 	public class SessionView extends AbstractSessionView {
+		public SessionView (HttpSession ses) {
+			super(ses);
+		}
 	}
 	
 	/**
@@ -53,7 +55,7 @@ public class JoeEServlet extends HttpServlet {
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies) throws ServletException, IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractCookieView cookies) throws ServletException, IOException {
 		throw new ServletException("Unimplemented method in servlet");
 	}
 	
@@ -66,8 +68,26 @@ public class JoeEServlet extends HttpServlet {
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies) throws ServletException, IOException {
+	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractCookieView cookies) throws ServletException, IOException {
 		throw new ServletException("Unimplemented method in servlet");	
+	}
+	
+	protected void setSession(AbstractSessionView ses) {
+		try {
+			this.getClass().getField("session").setAccessible(true);
+			this.getClass().getField("session").set(this, ses);
+		} catch (Exception e) {
+			//Dispatcher.logException(e);
+		}
+	}
+
+	protected AbstractSessionView getSession() {
+		try {
+			return (AbstractSessionView) this.getClass().getField("session").get(this);
+		} catch (Exception e) {
+			//Dispatcher.logException(e);
+		}
+		return null;
 	}
 	
 	/**
@@ -86,6 +106,21 @@ public class JoeEServlet extends HttpServlet {
 					return (AbstractSessionView) cr.newInstance(this);
 				}
 			}
+		}
+		return null;
+	}
+	
+	public AbstractSessionView getSessionView(HttpSession session) {
+		try {
+			for (Class<?> c : this.getClass().getClasses()) {
+				if (c.getName().equals(this.getClass().getName() + "$SessionView")) {
+					for (Constructor<?> cr : c.getConstructors()) {
+						return (AbstractSessionView) cr.newInstance(this, session);
+					}
+				}
+			}
+		} catch (Exception e) {
+			//Dispatcher.logException(e);
 		}
 		return null;
 	}

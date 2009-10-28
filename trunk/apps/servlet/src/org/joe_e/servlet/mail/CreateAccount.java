@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
@@ -14,19 +15,35 @@ import org.joe_e.servlet.readonly;
 
 public class CreateAccount extends JoeEServlet {
 
+	public SessionView session;
+	
 	public class SessionView extends AbstractSessionView {
-		public String username;
-		public AccountManager manager;
+//		public String username;
+//		@readonly public AccountManager manager;
+		private HttpSession session;
+		
+		public SessionView(HttpSession ses) {
+			super(ses);
+			session = ses;
+		}
+		public String getUsername() {
+			return (String) session.getAttribute("__joe-e__username");
+		}
+		public void setUsername(String arg) {
+			session.setAttribute("__joe-e__username", arg);
+		}
+		public AccountManager getManager() {
+			return (AccountManager) session.getAttribute("__joe-e__manager");
+		}
 	}
 	
 	public class CookieView extends AbstractCookieView {
 	}
 	
-	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies)
+	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractCookieView cookies)
 		throws IOException, ServletException {
-		SessionView session = (SessionView) ses;
 		PrintWriter out = res.getWriter();
-		if (session.username != null) {
+		if (session.getUsername() != null) {
 			res.sendRedirect("/servlet/inbox");
 			return;
 		}
@@ -42,13 +59,12 @@ public class CreateAccount extends JoeEServlet {
 		HtmlWriter.printFooter(out);
 	}
 
-	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies)
+	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractCookieView cookies)
 		throws IOException, ServletException {
-		SessionView session = (SessionView) ses;
 		String name = req.getParameter("username");
 		String password1 = req.getParameter("password1");
 		String password2 = req.getParameter("password2");
-		if (password1.equals(password2) && session.manager.addAccount(name, password1)) {
+		if (password1.equals(password2) && session.getManager().addAccount(name, password1)) {
 			res.sendRedirect("/servlet/login");
 		} else {
 			res.sendRedirect("/servlet/create");
