@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -20,6 +21,8 @@ import org.joe_e.servlet.JoeEServlet;
 public class TestBufferedPrintWriter extends JoeEServlet {
 
 	public SessionView session;
+	public CookieView cookies;
+	
 	public class SessionView extends AbstractSessionView {
 		private HttpSession session;
 		public SessionView (HttpSession ses) {
@@ -29,9 +32,12 @@ public class TestBufferedPrintWriter extends JoeEServlet {
 	}
 	
 	public class CookieView extends AbstractCookieView {	
+		public CookieView(Cookie[] c) {
+			super(c);
+		}
 	}
 	
-	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies) 
+	public void doGet(HttpServletRequest req, HttpServletResponse res) 
 		throws ServletException, IOException {
 		PrintWriter writer = res.getWriter();
 		writer.println("<html><body>");

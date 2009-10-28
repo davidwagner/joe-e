@@ -22,11 +22,24 @@ import javax.servlet.http.HttpServletResponse;
  */
 public abstract class AbstractCookieView {
 
+	
+	public ArrayList<Cookie> cookies;
+	
+	
+	public AbstractCookieView(Cookie[] c) {
+		cookies = new ArrayList<Cookie>();
+		if (c != null) {
+			for (Cookie ck : c) {
+				cookies.add(ck);
+			}
+		}
+	}
+	
 	/**
 	 * default constructor
 	 */
 	public AbstractCookieView() {
-		
+		cookies = new ArrayList<Cookie>();
 	}
 	
 	/**
@@ -53,6 +66,12 @@ public abstract class AbstractCookieView {
 				Cookie c = new Cookie("__joe-e__"+f.getName(), "");
 				f.set(this, c.getValue());
 			}
+		}
+	}
+	
+	public final void finalizeCookies(HttpServletResponse res) {
+		for (Cookie c : cookies) {
+			res.addCookie(c);
 		}
 	}
 	

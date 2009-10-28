@@ -10,6 +10,7 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -22,6 +23,7 @@ import org.joe_e.servlet.readonly;
 public class Compose extends JoeEServlet {
 	
 	public SessionView session; 
+	public CookieView cookies;
 	
 	public class SessionView extends AbstractSessionView {
 		//@readonly public String username;
@@ -50,9 +52,12 @@ public class Compose extends JoeEServlet {
 	}
 	
 	public class CookieView extends AbstractCookieView {
+		public CookieView(Cookie[] c) {
+			super(c);
+		}
 	}
 
-	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractCookieView cookies) 
+	public void doGet(HttpServletRequest req, HttpServletResponse res) 
 		throws ServletException, IOException {
 		if (session.getUsername() == null) {
 			res.sendRedirect("/servlet/login");
@@ -77,7 +82,7 @@ public class Compose extends JoeEServlet {
 		HtmlWriter.printFooter(out);
 	}
 	
-	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractCookieView cookies)
+	public void doPost(HttpServletRequest req, HttpServletResponse res)
 		throws ServletException, IOException {
 		if (session.getUsername() == null) {
 			res.sendRedirect("/servlet/login");

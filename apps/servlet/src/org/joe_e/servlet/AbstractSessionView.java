@@ -17,10 +17,12 @@ import javax.servlet.http.HttpSession;
  */
 public abstract class AbstractSessionView {
 
+	protected HttpSession session;
 	/**
 	 * default constructor
 	 */
 	public AbstractSessionView(HttpSession ses) {
+		session = ses;
 	}
 
 	/**

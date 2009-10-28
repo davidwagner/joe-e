@@ -45,6 +45,11 @@ public class Session extends TestCase {
 		public class SessionView extends AbstractSessionView {
 			public String name;
 			public File mailbox;
+			public HttpSession session;
+			public SessionView (HttpSession ses) {
+				super(ses);
+				session = ses;
+			}
 		}
 		
 		public File file = null;

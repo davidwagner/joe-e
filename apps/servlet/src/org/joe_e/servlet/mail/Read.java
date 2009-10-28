@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.io.Reader;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -23,6 +24,7 @@ import org.joe_e.servlet.Dispatcher;
 public class Read extends JoeEServlet {
 
 	public SessionView session;
+	public CookieView cookies;
 	
 	public class SessionView extends AbstractSessionView {
 //		@readonly public String username;
@@ -42,9 +44,12 @@ public class Read extends JoeEServlet {
 	}
 	
 	public class CookieView extends AbstractCookieView {
+		public CookieView(Cookie[] c) {
+			super(c);
+		}
 	}
 	
-	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractCookieView cookies) throws ServletException, IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		if (session.getUsername() == null) {
 			res.sendRedirect("/servlet/login");
 			return;
