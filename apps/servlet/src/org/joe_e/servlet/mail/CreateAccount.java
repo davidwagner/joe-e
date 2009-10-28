@@ -15,7 +15,7 @@ import org.joe_e.servlet.readonly;
 public class CreateAccount extends JoeEServlet {
 
 	public class SessionView extends AbstractSessionView {
-		@readonly public String username;
+		public String username;
 		public AccountManager manager;
 	}
 	

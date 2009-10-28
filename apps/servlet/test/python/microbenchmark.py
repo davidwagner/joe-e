@@ -23,21 +23,24 @@ def runIteration(app, username):
 #                 br.submit()
 
 
-print os.popen("/Users/akshay/bin/stop_tomcat").read()
+print os.popen("/usr/lib/apache-tomcat/bin/shutdown.sh").read()
 time.sleep(5)
-print os.popen("/Users/akshay/bin/start_tomcat").read()
+print os.popen("/usr/lib/apache-tomcat/bin/startup.sh").read()
 time.sleep(30)
 print "Starting memory monitor... "
-os.popen("java -cp /Users/akshay/Documents/workspace/servlet/bin/ org.joe_e.servlet.test.JMXMonitor > pmemoryusage.out &")
+os.popen("java -cp /home/akshayk/servlet/bin/ org.joe_e.servlet.test.JMXMonitor > pmemoryusage.out &")
 time.sleep(100)
 print "Starting experiment... "
 totalstart = time.time()
 for k in range(0, 15000, 10):
+#k = 0
+#while True:
     start = time.time()
     for i in range(k, k+10):
-        runIteration("perf", "p"+str(i))
+        runIteration("servlet", "p"+str(i))
     stop = time.time()
     print "%d %0.3f" % (k, stop-start)
+#    k += 10
 totalstop = time.time()
 print "Total %0.3f" % (totalstop - totalstart)
 

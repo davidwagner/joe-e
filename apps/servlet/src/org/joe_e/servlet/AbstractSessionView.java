@@ -20,7 +20,7 @@ public abstract class AbstractSessionView {
 	/**
 	 * default constructor
 	 */
-	public AbstractSessionView(HttpSession session) {
+	public AbstractSessionView() {
 	}
 
 	/**

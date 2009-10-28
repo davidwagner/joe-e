@@ -16,6 +16,7 @@ import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.JoeEServlet;
 import org.joe_e.servlet.readonly;
+import org.joe_e.servlet.Dispatcher;
 
 public class Inbox extends JoeEServlet {
 
@@ -33,8 +34,9 @@ public class Inbox extends JoeEServlet {
 		throws IOException, ServletException {
 		SessionView session = (SessionView) ses;
 		if (session.username == null) {
-			res.sendRedirect("/servlet/login");
-			return;
+		    Dispatcher.logger.fine("redirecting to /servlet/login");
+		    res.sendRedirect("/servlet/login");
+		    return;
 		}
 		res.addHeader("Content-type", "text/html");
 		PrintWriter out = res.getWriter();
@@ -45,11 +47,11 @@ public class Inbox extends JoeEServlet {
 		} else {
 			out.println("<h4> inbox of " + session.username + "</h4>");
 		}
-		
 		out.println("<a href=\"/servlet/compose\">Write an email</a><br />");
 		File maildir = Filesystem.file(session.mailbox, "Maildir");
 		File newFolder = Filesystem.file(maildir, "new");
 		for (File f : Filesystem.list(newFolder)) {
+		    Dispatcher.logger.finest(f.getCanonicalPath());
 			Reader reader = ASCII.input(Filesystem.read(f));
 			BufferedReader in = new BufferedReader(reader);
 			String line = "";

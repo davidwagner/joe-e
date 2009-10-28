@@ -5,7 +5,9 @@ import time
 import os
 
 URLBASE = "http://boink.cs.berkeley.edu:8080/"
+SLEEPTIME = 800
 BASEDIR = "throughput/"
+APPNAME = "servlet/"
 
 def login(br, username):
     for link in br.links():
@@ -61,33 +63,46 @@ class SThread(threading.Thread):
 
         while not done:
             try:
-                br.open(URLBASE+"servlet/")
-                username = "p"+str(self.i)
-                login(br, username)
-                readEmail(br, "Welcome to Joe-E Mail")
-                logout(br)
+                br.open(URLBASE+APPNAME)
+		br.open(URLBASE+APPNAME+"login")
+#                username = "p"+str(self.i)
+#                login(br, username)
+#                readEmail(br, "Welcome to Joe-E Mail")
+#                logout(br)
                 stop = time.time()
                 self.file.write(str(stop)+"\n")
                 self.file.flush()
-            except mechanize.URLError:
+            except Exception:
                 print "error: " + str(time.time())
 
-
-for kk in [1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100]:
+#for kk in [1,5, 10, 15, 20, 25, 30, 35, 40, 45, 50]:
+for kk in [1]:
     for jj in ["servlet", "perf"]:
-        os.mkdir("throughput/"+jj+""+str(kk))
-        done = False
-        sthreads = []
-        for i in range(kk):
-            sthreads.append(SThread(i, "throughput/"+jj+""+str(kk)))
+#    for jj in ["perf"]:
+	os.mkdir(BASEDIR+jj+str(kk))
+	os.popen("/usr/lib/apache-tomcat/bin/shutdown.sh").read()
+	time.sleep(5)
+	os.popen("/usr/lib/apache-tomcat/bin/startup.sh").read()
+	time.sleep(10)
+	print "Starting memory monitor ... "
+	os.popen("java -cp /home/akshayk/servlet/test/ org.joe_e.servlet.test.JMXMonitor > memoryusage.out &")
+	time.sleep(10)
+	print "Starting experiment ... "
+	print "*** Running " + jj + " with " + str(kk) + "threads ***"
+	
+	sthreads = []
+	done = False
+	APPNAME=jj+"/"
+	for i in range(kk):
+	    sthreads.append(SThread(i, BASEDIR+jj+str(kk)))
 
-        for i in range(kk):
-            sthreads[i].start()
+	for i in range(kk):
+	    sthreads[i].start()
 
-        time.sleep(600)
+	time.sleep(SLEEPTIME)
+	
+	done = True
 
-        done = True
-    
-        for i in range(kk):
-            sthreads[i].join()
+	for i in range(kk):
+	    sthreads[i].join()
 

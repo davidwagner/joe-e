@@ -13,14 +13,14 @@ import org.joe_e.servlet.mail.AuthenticationAgent;
 
 public class SessionInit implements SessionInitializer {
 
-	private final String accountsFile = "/Users/akshay/Desktop/accounts/";
+	private final String accountsFile = "/home/akshayk/accounts/";
 	private final String mailboxes = "/var/mail/vhosts/boink.joe-e.org/";
 	
 	public void fillHttpSession(HttpSession session) {
 		try {
 			Dispatcher.logger.finer("Initializing session with AuthenticationAgent and AccountManager");
 			session.setAttribute("auth", new AuthenticationAgent(MessageDigest.getInstance("md5"), new File(accountsFile), new File(mailboxes)));
-//			session.setAttribute("manager", new AccountManager(MessageDigest.getInstance("md5"), new File(accountsFile), new PostfixClient()));
+			session.setAttribute("manager", new AccountManager(MessageDigest.getInstance("md5"), new File(accountsFile), new PostfixClient()));
 		} catch (NoSuchAlgorithmException e) {
 			Dispatcher.logger.severe("NoSuchAlgorithmException when instantiating AuthAgent and AccountManager");
 		}
