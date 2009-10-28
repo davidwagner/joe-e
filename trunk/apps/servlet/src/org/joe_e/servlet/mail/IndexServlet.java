@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
@@ -18,9 +19,25 @@ import org.joe_e.servlet.readonly;
  */
 public class IndexServlet extends JoeEServlet {
 
+	private SessionView session;
+	public boolean done = true;
+	
 	public class SessionView extends AbstractSessionView {
-		@readonly public String username;
-		@readonly public String token;
+		//@readonly public String username;
+		//@readonly public String token;
+		private HttpSession session;
+		
+		public SessionView(HttpSession ses) {
+			super (ses);
+			session = ses;
+		}
+		
+		public String getUsername() {
+			return (String) session.getAttribute("__joe-e__username");
+		}
+		public String getToken() {
+			return (String) session.getAttribute("IndexServlet__token");
+		}
 	}
 	
 	public class CookieView extends AbstractCookieView {
@@ -28,9 +45,9 @@ public class IndexServlet extends JoeEServlet {
 	}
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies) throws ServletException, IOException {
-		SessionView session = (SessionView) ses;
+		//SessionView session = (SessionView) ses;
 		CookieView cookie = (CookieView) cookies;
-		if (session.username != null) {
+		if (session.getUsername() != null) {
 			res.sendRedirect("/servlet/inbox");
 		}
 		res.addHeader("Content-type", "text/html");
@@ -42,7 +59,7 @@ public class IndexServlet extends JoeEServlet {
 				"<a href=\"/servlet/create\">Create an Account</a><br />");
 		out.println("<a href=\"/servlet/\">Stay here</a><br />");
 		out.println(cookie.testCookie+ "<br />");
-		out.println("token: " + session.token+"<br />");
+		out.println("token: " + session.getToken()+"<br />");
 		out.println("<div id=\"TOKEN_\"></div>");
 		out.println("</body>");
 		HtmlWriter.printFooter(out);

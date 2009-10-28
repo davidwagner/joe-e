@@ -9,9 +9,9 @@ j = 5
 
 servletpoints = []
 perfpoints = []
-xpoints = [1,5,10,15,20,25,30,35,40,45,50,60,70,80]
+#xpoints = [1,5,10,15,20,25,30,35,40,45,50,60,70,80]
 #xpoints = [1,5,10,15,20,25,30]
-#xpoints = [15]
+xpoints = [1]
 for kk in xpoints:
     l = []
 
@@ -73,11 +73,11 @@ for kk in xpoints:
     print "perfmean: %f servletmean: %f" % (perfmean, servletmean)
     print "perfvar: %f servletvar: %f" % (perfvar, servletvar)
 
-#    ax.plot(x, y)
-#    ax.plot(x, y2)
+    ax.plot(x, y)
+    ax.plot(x, y2)
 
-plot(xpoints, servletpoints)
-plot(xpoints, perfpoints)
+#plot(xpoints, servletpoints)
+#plot(xpoints, perfpoints)
 ax.set_ylim(0, 100)
 xlabel('Number of Threads')
 ylabel('Average Requests per Second')

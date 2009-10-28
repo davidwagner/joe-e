@@ -20,9 +20,9 @@ public abstract class AbstractSessionView {
 	/**
 	 * default constructor
 	 */
-	public AbstractSessionView() {
+	public AbstractSessionView(HttpSession session) {
 	}
-	
+
 	/**
 	 * Initialize this SessionView by filling it with values from the 
 	 * HttpSession. Uses Reflection API to determine what mappings
