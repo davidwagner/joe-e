@@ -17,6 +17,7 @@ import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.Dispatcher;
 import org.joe_e.servlet.JoeEServlet;
 import org.joe_e.servlet.readonly;
+import org.joe_e.servlet.Dispatcher;
 
 public class Read extends JoeEServlet {
 
@@ -36,6 +37,9 @@ public class Read extends JoeEServlet {
 		}
 		res.addHeader("Content-type", "text/html");
 		PrintWriter out = res.getWriter();
+		if (session.username == null) {
+		    res.sendRedirect("/servlet/login");
+		}
 		HtmlWriter.printHeader(out);
 		out.println("<body><h2>Joe-E Mail</h2>");
 		String msgName = req.getParameter("id");
@@ -54,6 +58,7 @@ public class Read extends JoeEServlet {
 			}
 		}
 		out.println("<a href=\"/servlet/inbox\">Back to Inbox</a>");
+		out.println("<div id=\"INBOX_\"></div>");
 		HtmlWriter.printFooter(out);
 	}
 }

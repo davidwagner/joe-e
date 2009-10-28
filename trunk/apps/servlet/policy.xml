@@ -55,6 +55,10 @@
 </servlet-mapping>
 <servlet-mapping>
   <servlet-name>read</servlet-name>
+  <url-pattern>/read</url-pattern>
+</servlet-mapping>
+<servlet-mapping>
+  <servlet-name>read</servlet-name>
   <url-pattern>*.foo</url-pattern>
 </servlet-mapping>
 <servlet-mapping>

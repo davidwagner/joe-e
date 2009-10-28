@@ -1,7 +1,9 @@
 package org.joe_e.servlet.test;
 
+import java.lang.management.*;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
+import java.lang.management.ThreadMXBean;
 
 import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
@@ -16,10 +18,12 @@ public class JMXMonitor {
 		MBeanServerConnection msbc = c.getMBeanServerConnection();
 		
 		MemoryMXBean mbean = ManagementFactory.newPlatformMXBeanProxy(msbc, ManagementFactory.MEMORY_MXBEAN_NAME, MemoryMXBean.class);
-		
+		ThreadMXBean tbean = ManagementFactory.newPlatformMXBeanProxy(msbc, ManagementFactory.THREAD_MXBEAN_NAME, ThreadMXBean.class);
+		ClassLoadingMXBean cbean = ManagementFactory.newPlatformMXBeanProxy(msbc, ManagementFactory.CLASS_LOADING_MXBEAN_NAME, ClassLoadingMXBean.class);
+
 		mbean.gc();
 		while (true) {
-			System.out.println(mbean.getHeapMemoryUsage().getUsed());
+		    System.out.println(mbean.getHeapMemoryUsage().getUsed() + " " + mbean.getObjectPendingFinalizationCount() + " "  + tbean.getThreadCount() + " " + cbean.getLoadedClassCount());
 			Thread.sleep(1000);
 		}
 	}

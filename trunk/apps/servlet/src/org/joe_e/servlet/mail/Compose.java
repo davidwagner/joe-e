@@ -93,7 +93,7 @@ public class Compose extends JoeEServlet {
 		try {
 	        Transport.send(msg);
 		} catch (Exception e) {
-			session.errorMessage = "error in sending";
+		        session.errorMessage = "error in sending: " + e.getMessage();
 			res.sendRedirect("/servlet/compose");
 			return;
 		}

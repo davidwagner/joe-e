@@ -66,26 +66,33 @@ public abstract class AbstractCookieView {
 	 * @throws IllegalAccessException
 	 */
 	public final void fillHttpResponse(HttpServletRequest req, HttpServletResponse res) throws IllegalAccessException {
+	    Dispatcher.logger.fine("In fillHttpResponse of AbstractCookieView");
 		if (req.getCookies() == null) {
+	    Dispatcher.logger.fine("request has no cookies");
 			for (Field f : this.getClass().getDeclaredFields()) {
 				if (!Modifier.isFinal(f.getModifiers())) {
 					Cookie c = new Cookie("__joe-e__" + f.getName(), (String) f.get(this));
+					Dispatcher.logger.fine("Adding cookie: " + c.getName());
 					res.addCookie(c);
 				}
 			}
 		} else {
+	    Dispatcher.logger.fine("request has some cookies");		    
 			ArrayList<Field> doneFields = new ArrayList<Field>();
 			for (Cookie c : req.getCookies()) {
 				boolean done = false;
 				for (Field f : this.getClass().getDeclaredFields()) {
+				    Dispatcher.logger.fine("CookieView has field: " + f.getName());
 					if (!Modifier.isFinal(f.getModifiers()) && c.getName().equals("__joe-e__"+f.getName())) {
 						c.setValue((String) f.get(this));
+						Dispatcher.logger.fine("Adding cookie: " + c.getName());
 						res.addCookie(c);
 						done = true;
 						doneFields.add(f);
 					}
 				}
 				if (!done) {
+				    Dispatcher.logger.fine("Addindg cookie: " + c.getName());
 					res.addCookie(c);
 				}
 			}

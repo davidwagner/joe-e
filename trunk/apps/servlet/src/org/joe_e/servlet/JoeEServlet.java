@@ -20,8 +20,6 @@ import javax.servlet.http.HttpSession;
  */
 public class JoeEServlet extends HttpServlet {
 
-	private SessionView session; 
-	public boolean done = false;
 	
 	/**
 	 * All JoeEServlets must have an inner class called SessionView that extends
@@ -35,9 +33,6 @@ public class JoeEServlet extends HttpServlet {
 	 *
 	 */
 	public class SessionView extends AbstractSessionView {
-		public SessionView(HttpSession ses) {
-			super (ses);
-		}
 	}
 	
 	/**
@@ -75,9 +70,6 @@ public class JoeEServlet extends HttpServlet {
 		throw new ServletException("Unimplemented method in servlet");	
 	}
 	
-	protected void setSession(SessionView ses) {
-		session = ses;
-	}
 	/**
 	 * creates an instance of the SessionView for this specific JoeEServlet.
 	 * Returns an empty SessionView, which should then be filled by the 
