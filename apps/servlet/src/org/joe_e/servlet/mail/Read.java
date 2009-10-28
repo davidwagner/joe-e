@@ -9,6 +9,7 @@ import java.io.Reader;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.joe_e.charset.ASCII;
 import org.joe_e.file.Filesystem;
@@ -21,29 +22,42 @@ import org.joe_e.servlet.Dispatcher;
 
 public class Read extends JoeEServlet {
 
+	public SessionView session;
+	
 	public class SessionView extends AbstractSessionView {
-		@readonly public String username;
-		@readonly public File mailbox;
+//		@readonly public String username;
+//		@readonly public File mailbox;
+		private HttpSession session;
+		
+		public SessionView(HttpSession ses) {
+			super(ses);
+			session = ses;
+		}
+		public String getUsername() {
+			return (String) session.getAttribute("__joe-e__username");
+		}
+		public File getMailbox() {
+			return (File) session.getAttribute("__joe-e__mailbox");
+		}
 	}
 	
 	public class CookieView extends AbstractCookieView {
 	}
 	
-	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies) throws ServletException, IOException {
-		SessionView session = (SessionView) ses;
-		if (session.username == null) {
+	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractCookieView cookies) throws ServletException, IOException {
+		if (session.getUsername() == null) {
 			res.sendRedirect("/servlet/login");
 			return;
 		}
 		res.addHeader("Content-type", "text/html");
 		PrintWriter out = res.getWriter();
-		if (session.username == null) {
+		if (session.getUsername() == null) {
 		    res.sendRedirect("/servlet/login");
 		}
 		HtmlWriter.printHeader(out);
 		out.println("<body><h2>Joe-E Mail</h2>");
 		String msgName = req.getParameter("id");
-		File maildir = Filesystem.file(session.mailbox, "Maildir");
+		File maildir = Filesystem.file(session.getMailbox(), "Maildir");
 		File newFolder = Filesystem.file(maildir, "new");
 		for (File f : Filesystem.list(newFolder)) {
 			if (f.getName().equals(msgName)) {

@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
@@ -18,7 +19,13 @@ import org.joe_e.servlet.JoeEServlet;
  */
 public class TestBufferedPrintWriter extends JoeEServlet {
 
+	public SessionView session;
 	public class SessionView extends AbstractSessionView {
+		private HttpSession session;
+		public SessionView (HttpSession ses) {
+			super(ses);
+			session = ses;
+		}
 	}
 	
 	public class CookieView extends AbstractCookieView {	

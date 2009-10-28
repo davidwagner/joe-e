@@ -142,18 +142,16 @@ public class Dispatcher extends HttpServlet {
 			lock.lock();
 		}
 		JoeEServlet servlet = findServlet(session, req.getServletPath());
-		AbstractSessionView s = null;
 		AbstractCookieView c = null;
 		try {
-		        s = servlet.getSessionView();
-			c = servlet.getCookieView();
-			if (s != null && c != null) {
-				s.fillSessionView(session);
-				c.fillCookieView(req);
-				log("Dispatching GET request for " + req.getServletPath() + " to " + servlet.getClass().getName());
+			log("servlet session: " + servlet.getSession());
+			//c = servlet.getCookieView();
+			//if (c != null) {
+				//c.fillCookieView(req);
+				log("Dispatching GET request for DIFFERENT KIND OF JOE-E SERVLET " + req.getServletPath() + " to " + servlet.getClass().getName());
 				
 				ServletResponseWrapper responseFacade = new ServletResponseWrapper(response);
-				servlet.doGet(req, responseFacade, s, c);
+				servlet.doGet(req, responseFacade, c);
 				if (RUN_JSLINT) {
 					try {
 						runJSLint(responseFacade);
@@ -163,13 +161,16 @@ public class Dispatcher extends HttpServlet {
 						throw e;
 					}
 				}				
-				c.fillHttpResponse(req, response);
-				s.fillHttpSession(session);
+				//c.fillHttpResponse(req, response);
 				responseFacade.flushBuffer();
-			}
+			//}
 		} catch(Exception i) {
 			if (serialized) { lock.unlock(); }
-			throw new ServletException(i.getMessage());
+			String msg = i.getMessage();
+			for (StackTraceElement st : i.getStackTrace()) {
+				msg += "\n"+st.getMethodName()+" " + st.getLineNumber() + " " + st.getClassName();
+			}
+			throw new ServletException(msg);
 		}
 		if (serialized) {
 			lock.unlock();
@@ -202,44 +203,37 @@ public class Dispatcher extends HttpServlet {
 			lock.lock();
 		}
 		JoeEServlet servlet = findServlet(session, req.getServletPath());
-		AbstractSessionView s = null;
 		AbstractCookieView c = null;
-		try {
-			s = servlet.getSessionView();
-			c = servlet.getCookieView();
-			if (s != null && c != null) {
-				s.fillSessionView(session);
-				c.fillCookieView(req);
-				log("Dispatching POST request for " + req.getServletPath() + " to " + servlet.getClass().getName());
+//		try {
+			//c = servlet.getCookieView();
+			//if (c != null) {
+				//c.fillCookieView(req);
+				log("Dispatching POST request for DIFFERENT KIND OF JOE-E SERVLET " + req.getServletPath() + " to " + servlet.getClass().getName());
 				
-				ServletResponseWrapper responseFacade = new ServletResponseWrapper (response);
-				
-				servlet.doPost(req, response, s, c);
-				
+				ServletResponseWrapper responseFacade = new ServletResponseWrapper(response);
+				servlet.doPost(req, responseFacade, c);
 				if (RUN_JSLINT) {
 					try {
 						runJSLint(responseFacade);
 					} catch (ServletException e) {
-						errorMessage = "session invalidated due to javascript errors: " + e.getMessage();
 						req.getSession().invalidate();
+						errorMessage = "session invalidated due to javascript errors: " + e.getMessage();
 						throw e;
 					}
-				}
-				
-				s.fillHttpSession(session);
-				c.fillHttpResponse(req, response);
+				}				
+				//c.fillHttpResponse(req, response);
 				responseFacade.flushBuffer();
-			}
-		} catch(IllegalAccessException i) {
-			if (serialized) { lock.unlock(); }
-			throw new ServletException();
-		} catch(InstantiationException i) {
-			if (serialized) { lock.unlock(); }
-			throw new ServletException();
-		} catch(InvocationTargetException i) {
-			if (serialized) { lock.unlock(); }
-			throw new ServletException();
-		}
+			//}
+//		} catch(IllegalAccessException i) {
+//			if (serialized) { lock.unlock(); }
+//			throw new ServletException();
+//		} catch(InstantiationException i) {
+//			if (serialized) { lock.unlock(); }
+//			throw new ServletException();
+//		} catch(InvocationTargetException i) {
+//			if (serialized) { lock.unlock(); }
+//			throw new ServletException();
+//		}
 		// TODO: this isn't correct. What if the session was invalidated?
 		if (serialized) {
 			lock.unlock();
@@ -265,6 +259,7 @@ public class Dispatcher extends HttpServlet {
 			if (session.getAttribute(s) == null && servletmapping.get(s) != null) {
 				// instantiate the class.
 				JoeEServlet servlet = (JoeEServlet) servletmapping.get(s).newInstance();
+				servlet.setSession (servlet.getSessionView(session));
 				session.setAttribute(s, servlet);
 				try {
 					MessageDigest md5 = MessageDigest.getInstance("md5");
@@ -281,7 +276,9 @@ public class Dispatcher extends HttpServlet {
 				return (JoeEServlet) session.getAttribute(s);
 			}
 			if (session.getAttribute(pattern) == null && servletmapping.get(pattern) != null) {
-				session.setAttribute(pattern, (JoeEServlet) servletmapping.get(pattern).newInstance());
+				JoeEServlet servlet = (JoeEServlet) servletmapping.get(s).newInstance();
+				servlet.setSession (servlet.getSessionView(session));
+				session.setAttribute(pattern, servlet);
 				try {
 					MessageDigest md5 = MessageDigest.getInstance("md5");
 					md5.update((Long.toHexString(System.currentTimeMillis())).getBytes());
@@ -531,8 +528,14 @@ public class Dispatcher extends HttpServlet {
 		logger.severe(s + t.getLocalizedMessage());
 	}
 	
-	public static void logMsg(String s) {
-		
+	public static void logMsg(String s) {	
+	}
+	public static void logException(Exception e) {
+		String msg = e.getMessage();
+		for (StackTraceElement st : e.getStackTrace()) {
+			msg += "\n"+st.getMethodName()+" " + st.getLineNumber() + " " + st.getClassName();
+		}
+		logger.fine(msg);
 	}
 	
 	public static String getErrorMessage() {

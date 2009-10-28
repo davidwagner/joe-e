@@ -12,6 +12,7 @@ import javax.mail.internet.MimeMessage;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
@@ -20,30 +21,51 @@ import org.joe_e.servlet.readonly;
 
 public class Compose extends JoeEServlet {
 	
+	public SessionView session; 
+	
 	public class SessionView extends AbstractSessionView {
-		@readonly public String username;
-		@readonly public File mailbox;
-		public String errorMessage;
+		//@readonly public String username;
+		//@readonly public File mailbox;
+		//public String errorMessage;
+		private HttpSession session;
+		public SessionView(HttpSession ses) {
+			super(ses);
+			this.session = ses;
+		}
+		public String getUsername() {
+			return (String) session.getAttribute("__joe-e__username");
+		}
+		public String getToken() {
+			return (String) session.getAttribute("Compose__token");
+		}
+		public File getMailbox() {
+			return (File) session.getAttribute("__joe-e__mailbox");
+		}
+		public String getErrorMessage() {
+			return (String) session.getAttribute("__joe-e__errorMessage");
+		}
+		public void setErrorMessage(String arg) {
+			session.setAttribute("__joe-e__errorMessage", arg);
+		}
 	}
 	
 	public class CookieView extends AbstractCookieView {
 	}
 
-	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies) 
+	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractCookieView cookies) 
 		throws ServletException, IOException {
-		SessionView session = (SessionView) ses;
-		if (session.username == null) {
+		if (session.getUsername() == null) {
 			res.sendRedirect("/servlet/login");
 			return;
 		}
 		res.addHeader("Content-type", "text/html");
 		PrintWriter out = res.getWriter();
 		HtmlWriter.printHeader(out);
-		out.println("<body><h6>signed in as " + session.username + "</h6>");
+		out.println("<body><h6>signed in as " + session.getUsername() + "</h6>");
 		out.println("<h4>Compose Email</h4>");
-		if (session.errorMessage != null) {
-			out.println("<b>" + session.errorMessage + "</b>");
-			session.errorMessage = null;
+		if (session.getErrorMessage() != null) {
+			out.println("<b>" + session.getErrorMessage() + "</b>");
+			session.setErrorMessage(null);
 		}
 		out.println("<form method=\"POST\" action=\"/servlet/compose\">");
 		out.println("<table border=\"0\">");
@@ -55,10 +77,9 @@ public class Compose extends JoeEServlet {
 		HtmlWriter.printFooter(out);
 	}
 	
-	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView cookies)
+	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractCookieView cookies)
 		throws ServletException, IOException {
-		SessionView session = (SessionView) ses;
-		if (session.username == null) {
+		if (session.getUsername() == null) {
 			res.sendRedirect("/servlet/login");
 		}
 		
@@ -67,7 +88,7 @@ public class Compose extends JoeEServlet {
 		String body = req.getParameter("body");
 		if (to == null || subject == null || body == null
 				|| to.equals("") || subject.equals("") || body.equals("") ) {
-			session.errorMessage = "Please fill out all fields";
+			session.setErrorMessage("Please fill out all fields");
 			res.sendRedirect("/servlet/compose");
 			return;
 		}
@@ -82,10 +103,10 @@ public class Compose extends JoeEServlet {
 		try {
 			msg.setText(body);
 			msg.setSubject(subject);
-			msg.setFrom(new InternetAddress(session.username + "@boink.joe-e.org"));
+			msg.setFrom(new InternetAddress(session.getUsername() + "@boink.joe-e.org"));
 			msg.addRecipient(javax.mail.Message.RecipientType.TO, new InternetAddress(to));
 		} catch (Exception e) {
-			session.errorMessage = "There something wrong, please try again";
+			session.setErrorMessage("There something wrong, please try again");
 			res.sendRedirect("/servlet/compose");
 			return;
 		}
@@ -93,7 +114,7 @@ public class Compose extends JoeEServlet {
 		try {
 	        Transport.send(msg);
 		} catch (Exception e) {
-		        session.errorMessage = "error in sending: " + e.getMessage();
+		        session.setErrorMessage("error in sending: " + e.getMessage());
 			res.sendRedirect("/servlet/compose");
 			return;
 		}
