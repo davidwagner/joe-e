@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -23,6 +24,7 @@ public class IndexServlet extends JoeEServlet {
 	// NOTE: making this public is OK, b/c you still need an reference to this
 	// servlet to get ahold of the session members we expose in this view.
 	public SessionView session;
+	public CookieView cookies;
 	
 	public class SessionView extends AbstractSessionView {
 		//@readonly public String username;
@@ -43,11 +45,32 @@ public class IndexServlet extends JoeEServlet {
 	}
 	
 	public class CookieView extends AbstractCookieView {
-		public String testCookie;
+		public CookieView(Cookie[] c) {
+			super(c);
+		}
+		public String getTestCookie() {
+			for (Cookie c : cookies) {
+				if (c.getName().equals("__joe-e__testCookie")) {
+					return c.getValue();
+				}
+			}
+			return null;
+		}
+		public void setTestCookie(String arg) {
+			boolean done = false;
+			for (Cookie c : cookies) {
+				if (c.getName().equals("__joe-e__testCookie")) {
+					c.setValue(arg);
+					done = true;
+				}
+			}
+			if (!done) {
+				cookies.add(new Cookie("__joe-e__testCookie", arg));
+			}
+		}
 	}
 	
-	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractCookieView cookies) throws ServletException, IOException {
-		CookieView cookie = (CookieView) cookies;
+	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		Dispatcher.logger.fine("Inside INDEX SERVLET");
 		if (session == null) {
 			res.getWriter().println("SESSION IS NULL");
@@ -72,19 +95,19 @@ public class IndexServlet extends JoeEServlet {
 				"<a href=\"/servlet/login\">Log In</a><br />" +
 				"<a href=\"/servlet/create\">Create an Account</a><br />");
 		out.println("<a href=\"/servlet/\">Stay here</a><br />");
-//		out.println(cookie.testCookie+ "<br />");
+		out.println(cookies.getTestCookie()+ "<br />");
 		out.println("token: " + session.getToken()+"<br />");
 		out.println("<div id=\"TOKEN_\"></div>");
 		out.println("</body>");
 		HtmlWriter.printFooter(out);
-//		if (cookie.testCookie.equals("")) {
-//			cookie.testCookie = "1";
-//		} else {
-//			cookie.testCookie = "" + (Integer.parseInt(cookie.testCookie)+1);
-//		}
+		if (cookies.getTestCookie().equals("")) {
+			cookies.setTestCookie("1");
+		} else {
+			cookies.setTestCookie("" + (Integer.parseInt(cookies.getTestCookie())+1));
+		}
 	}
 	
-	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractCookieView cookies) throws ServletException, IOException {
-		this.doGet(req, res, cookies);
+	public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+		this.doGet(req, res);
 	}
 }

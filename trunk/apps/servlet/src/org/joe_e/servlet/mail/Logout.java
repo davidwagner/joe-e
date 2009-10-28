@@ -3,6 +3,7 @@ package org.joe_e.servlet.mail;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -19,6 +20,7 @@ import org.joe_e.servlet.readonly;
 public class Logout extends JoeEServlet {
 
 	public SessionView session;
+	public CookieView cookies;
 	
 	public class SessionView extends AbstractSessionView {
 //		public boolean invalidate;
@@ -33,10 +35,13 @@ public class Logout extends JoeEServlet {
 	}
 	
 	public class CookieView extends AbstractCookieView {
+		public CookieView(Cookie[] c) {
+			super(c);
+		}
 	}
 	
 	//TODO: need to make it invalidate the session.
-	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractCookieView cookies)
+	public void doGet(HttpServletRequest req, HttpServletResponse res)
 		throws IOException, ServletException {
 	    Dispatcher.logger.fine("in doGet of Logout");
 		session.invalidate();

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -18,6 +19,7 @@ import org.joe_e.servlet.JoeEServlet;
 public class LoginServlet extends JoeEServlet {
 
 	public SessionView session;
+	public CookieView cookies;
 	
 	public class SessionView extends AbstractSessionView {
 //		public String username;
@@ -25,11 +27,9 @@ public class LoginServlet extends JoeEServlet {
 //		public File mailbox;
 //		@readonly public String token;
 //		public String errorMessage;
-		private HttpSession session;
 		
 		public SessionView(HttpSession ses) {
 			super(ses);
-			session = ses;
 		}
 		public String getUsername() {
 			return (String) session.getAttribute("__joe-e__username");
@@ -61,9 +61,20 @@ public class LoginServlet extends JoeEServlet {
 	}
 	
 	public class CookieView extends AbstractCookieView {
+		public CookieView(Cookie[] c) {
+			super(c);
+		}
+		public String getTestCookie() {
+			for (Cookie c : cookies) {
+				if (c.getName().equals("__joe-e__testCookie")) {
+					return c.getValue();
+				}
+			}
+			return null;
+		}
 	}
 	
-	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractCookieView cookies) throws ServletException, IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		PrintWriter out = res.getWriter();
 		if (session.getUsername() != null) {
 			res.sendRedirect("/servlet/inbox");
@@ -84,11 +95,12 @@ public class LoginServlet extends JoeEServlet {
 		out.println("<span>Username: <input type=\"text\" value=\"\" name=\"username\" /></span>");
 		out.println("<span>Password: <input type=\"password\" value=\"\" name=\"password\" /></span>");
 		out.println("<input type=\"submit\" value=\"login\"></form></body>");
+		out.println("cookie: " + cookies.getTestCookie() + "<br />");
 		out.println("token: " + session.getToken() + "<br />");
 		HtmlWriter.printFooter(out);
 	}
 	
-	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractCookieView cookies) throws ServletException, IOException {
+	public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		String name = req.getParameter("username");
 		String password = req.getParameter("password");
 		File mailbox = null;

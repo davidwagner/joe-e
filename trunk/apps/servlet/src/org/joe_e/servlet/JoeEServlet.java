@@ -5,6 +5,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -44,6 +45,9 @@ public class JoeEServlet extends HttpServlet {
 	 *
 	 */
 	public class CookieView extends AbstractCookieView {
+		public CookieView(Cookie[] c) {
+			super(c);
+		}
 	}
 	
 	/**
@@ -55,7 +59,7 @@ public class JoeEServlet extends HttpServlet {
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractCookieView cookies) throws ServletException, IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		throw new ServletException("Unimplemented method in servlet");
 	}
 	
@@ -68,7 +72,7 @@ public class JoeEServlet extends HttpServlet {
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractCookieView cookies) throws ServletException, IOException {
+	public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		throw new ServletException("Unimplemented method in servlet");	
 	}
 	
@@ -84,6 +88,24 @@ public class JoeEServlet extends HttpServlet {
 	protected AbstractSessionView getSession() {
 		try {
 			return (AbstractSessionView) this.getClass().getField("session").get(this);
+		} catch (Exception e) {
+			//Dispatcher.logException(e);
+		}
+		return null;
+	}
+	
+	protected void setCookies(AbstractCookieView c) {
+		try {
+			this.getClass().getField("cookies").setAccessible(true);
+			this.getClass().getField("cookies").set(this, c);
+		} catch (Exception e) {
+			//Dispatcher.logException(e);
+		}
+	}
+	
+	protected AbstractCookieView getCookies() {
+		try {
+			return (AbstractCookieView) this.getClass().getField("cookies").get(this);
 		} catch (Exception e) {
 			//Dispatcher.logException(e);
 		}
@@ -132,6 +154,20 @@ public class JoeEServlet extends HttpServlet {
 					return (AbstractCookieView) cr.newInstance(this);
 				}
 			}
+		}
+		return null;
+	}
+	
+	public AbstractCookieView getCookieView(Cookie[] ck) {
+		try {
+			for (Class<?> c : this.getClass().getClasses()) {
+				if (c.getName().equals(this.getClass().getName() + "$CookieView")) {
+					for (Constructor<?> cr : c.getConstructors()) {
+						return (AbstractCookieView) cr.newInstance(this, ck);
+					}
+				}
+			}
+		} catch (Exception e) {
 		}
 		return null;
 	}

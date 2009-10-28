@@ -141,29 +141,25 @@ public class Dispatcher extends HttpServlet {
 		if (serialized) {
 			lock.lock();
 		}
-		JoeEServlet servlet = findServlet(session, req.getServletPath());
-		AbstractCookieView c = null;
+		JoeEServlet servlet = findServlet(session, req, req.getServletPath());
 		try {
 			log("servlet session: " + servlet.getSession());
-			//c = servlet.getCookieView();
-			//if (c != null) {
-				//c.fillCookieView(req);
-				log("Dispatching GET request for DIFFERENT KIND OF JOE-E SERVLET " + req.getServletPath() + " to " + servlet.getClass().getName());
-				
-				ServletResponseWrapper responseFacade = new ServletResponseWrapper(response);
-				servlet.doGet(req, responseFacade, c);
-				if (RUN_JSLINT) {
-					try {
-						runJSLint(responseFacade);
-					} catch (ServletException e) {
-						req.getSession().invalidate();
-						errorMessage = "session invalidated due to javascript errors: " + e.getMessage();
-						throw e;
-					}
-				}				
-				//c.fillHttpResponse(req, response);
-				responseFacade.flushBuffer();
-			//}
+			log("Dispatching GET request for DIFFERENT KIND OF JOE-E SERVLET " + req.getServletPath() + " to " + servlet.getClass().getName());
+
+			ServletResponseWrapper responseFacade = new ServletResponseWrapper(response);
+			servlet.setCookies(servlet.getCookieView(req.getCookies()));
+			servlet.doGet(req, responseFacade);
+			servlet.getCookies().finalizeCookies(response);
+			if (RUN_JSLINT) {
+				try {
+					runJSLint(responseFacade);
+				} catch (ServletException e) {
+					req.getSession().invalidate();
+					errorMessage = "session invalidated due to javascript errors: " + e.getMessage();
+					throw e;
+				}
+			}				
+			responseFacade.flushBuffer();
 		} catch(Exception i) {
 			if (serialized) { lock.unlock(); }
 			String msg = i.getMessage();
@@ -202,38 +198,23 @@ public class Dispatcher extends HttpServlet {
 		if (serialized) {
 			lock.lock();
 		}
-		JoeEServlet servlet = findServlet(session, req.getServletPath());
-		AbstractCookieView c = null;
-//		try {
-			//c = servlet.getCookieView();
-			//if (c != null) {
-				//c.fillCookieView(req);
-				log("Dispatching POST request for DIFFERENT KIND OF JOE-E SERVLET " + req.getServletPath() + " to " + servlet.getClass().getName());
-				
-				ServletResponseWrapper responseFacade = new ServletResponseWrapper(response);
-				servlet.doPost(req, responseFacade, c);
-				if (RUN_JSLINT) {
-					try {
-						runJSLint(responseFacade);
-					} catch (ServletException e) {
-						req.getSession().invalidate();
-						errorMessage = "session invalidated due to javascript errors: " + e.getMessage();
-						throw e;
-					}
-				}				
-				//c.fillHttpResponse(req, response);
-				responseFacade.flushBuffer();
-			//}
-//		} catch(IllegalAccessException i) {
-//			if (serialized) { lock.unlock(); }
-//			throw new ServletException();
-//		} catch(InstantiationException i) {
-//			if (serialized) { lock.unlock(); }
-//			throw new ServletException();
-//		} catch(InvocationTargetException i) {
-//			if (serialized) { lock.unlock(); }
-//			throw new ServletException();
-//		}
+		JoeEServlet servlet = findServlet(session, req, req.getServletPath());
+		log("Dispatching POST request for DIFFERENT KIND OF JOE-E SERVLET " + req.getServletPath() + " to " + servlet.getClass().getName());
+
+		ServletResponseWrapper responseFacade = new ServletResponseWrapper(response);
+		servlet.setCookies(servlet.getCookieView(req.getCookies()));
+		servlet.doPost(req, responseFacade);
+		servlet.getCookies().finalizeCookies(response);
+		if (RUN_JSLINT) {
+			try {
+				runJSLint(responseFacade);
+			} catch (ServletException e) {
+				req.getSession().invalidate();
+				errorMessage = "session invalidated due to javascript errors: " + e.getMessage();
+				throw e;
+			}
+		}				
+		responseFacade.flushBuffer();
 		// TODO: this isn't correct. What if the session was invalidated?
 		if (serialized) {
 			lock.unlock();
@@ -246,7 +227,7 @@ public class Dispatcher extends HttpServlet {
 	 * @param s
 	 * @return the JoeEServlet corresponding to the url s
 	 */
-	private JoeEServlet findServlet(HttpSession session, String s) throws ServletException {
+	private JoeEServlet findServlet(HttpSession session, HttpServletRequest req, String s) throws ServletException {
 		try {
 			String pattern = "";
 			if (s.indexOf('.') != -1) {
