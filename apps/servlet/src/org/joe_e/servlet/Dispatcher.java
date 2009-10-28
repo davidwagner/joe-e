@@ -145,9 +145,11 @@ public class Dispatcher extends HttpServlet {
 		AbstractSessionView s = null;
 		AbstractCookieView c = null;
 		try {
-			s = servlet.getSessionView();
+			if (!servlet.done) {
+				s = servlet.getSessionView();
+			}
 			c = servlet.getCookieView();
-			if (s != null) {
+			if (!servlet.done && s != null && c != null) {
 				s.fillSessionView(session);
 				c.fillCookieView(req);
 				log("Dispatching GET request for " + req.getServletPath() + " to " + servlet.getClass().getName());
@@ -165,6 +167,24 @@ public class Dispatcher extends HttpServlet {
 				}				
 				c.fillHttpResponse(req, response);
 				s.fillHttpSession(session);
+				responseFacade.flushBuffer();
+			}
+			if (servlet.done) {
+				c.fillCookieView(req);
+				log("Dispatching GET request for DIFFERENT KIND OF JOE-E SERVLET " + req.getServletPath() + " to " + servlet.getClass().getName());
+				
+				ServletResponseWrapper responseFacade = new ServletResponseWrapper(response);
+				servlet.doGet(req, responseFacade, s, c);
+				if (RUN_JSLINT) {
+					try {
+						runJSLint(responseFacade);
+					} catch (ServletException e) {
+						req.getSession().invalidate();
+						errorMessage = "session invalidated due to javascript errors: " + e.getMessage();
+						throw e;
+					}
+				}				
+				c.fillHttpResponse(req, response);
 				responseFacade.flushBuffer();
 			}
 		} catch(Exception i) {
@@ -205,9 +225,11 @@ public class Dispatcher extends HttpServlet {
 		AbstractSessionView s = null;
 		AbstractCookieView c = null;
 		try {
-			s = servlet.getSessionView();
+			if (!servlet.done) {
+				s = servlet.getSessionView();
+			}
 			c = servlet.getCookieView();
-			if (s != null && c != null) {
+			if (!servlet.done && s != null && c != null) {
 				s.fillSessionView(session);
 				c.fillCookieView(req);
 				log("Dispatching POST request for " + req.getServletPath() + " to " + servlet.getClass().getName());
@@ -227,6 +249,24 @@ public class Dispatcher extends HttpServlet {
 				}
 				
 				s.fillHttpSession(session);
+				c.fillHttpResponse(req, response);
+				responseFacade.flushBuffer();
+			}
+			if (servlet.done) {
+				c.fillCookieView(req);
+				log("Dispatching POST request for " + req.getServletPath() + " to " + servlet.getClass().getName());
+				ServletResponseWrapper responseFacade = new ServletResponseWrapper (response);
+				servlet.doPost(req, response, s, c);
+
+				if (RUN_JSLINT) {
+					try {
+						runJSLint(responseFacade);
+					} catch (ServletException e) {
+						errorMessage = "session invalidated due to javascript errors: " + e.getMessage();
+						req.getSession().invalidate();
+						throw e;
+					}
+				}
 				c.fillHttpResponse(req, response);
 				responseFacade.flushBuffer();
 			}
@@ -264,6 +304,8 @@ public class Dispatcher extends HttpServlet {
 			
 			if (session.getAttribute(s) == null && servletmapping.get(s) != null) {
 				// instantiate the class.
+				JoeEServlet servlet = (JoeEServlet) servletmapping.get(s).newInstance();
+				servlet.setSession (servlet.new SessionView(session));
 				session.setAttribute(s, (JoeEServlet) servletmapping.get(s).newInstance());
 				try {
 					MessageDigest md5 = MessageDigest.getInstance("md5");

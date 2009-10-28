@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  * This is the base Servlet class for web applications built in Joe-E using the servlet technology. 
@@ -19,6 +20,9 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class JoeEServlet extends HttpServlet {
 
+	private SessionView session; 
+	public boolean done = false;
+	
 	/**
 	 * All JoeEServlets must have an inner class called SessionView that extends
 	 * org.joe_e.servlet.SessionView. This class specifies which session variables
@@ -31,6 +35,9 @@ public class JoeEServlet extends HttpServlet {
 	 *
 	 */
 	public class SessionView extends AbstractSessionView {
+		public SessionView(HttpSession ses) {
+			super (ses);
+		}
 	}
 	
 	/**
@@ -68,6 +75,9 @@ public class JoeEServlet extends HttpServlet {
 		throw new ServletException("Unimplemented method in servlet");	
 	}
 	
+	protected void setSession(SessionView ses) {
+		session = ses;
+	}
 	/**
 	 * creates an instance of the SessionView for this specific JoeEServlet.
 	 * Returns an empty SessionView, which should then be filled by the 
