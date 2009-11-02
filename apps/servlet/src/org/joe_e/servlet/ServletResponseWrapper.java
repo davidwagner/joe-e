@@ -93,9 +93,15 @@ public class ServletResponseWrapper implements HttpServletResponse {
 	}
 
 	public void flushBuffer() throws IOException {
-		response.flushBuffer();
 	}
 
+        public void reallyFlushBuffer() throws IOException {
+	    String s = bufferedWriter.getText();
+	    if (s != null) {
+		response.getWriter().write(s);
+		response.flushBuffer();
+	    }
+        }
 	public int getBufferSize() {
 		return response.getBufferSize();
 	}

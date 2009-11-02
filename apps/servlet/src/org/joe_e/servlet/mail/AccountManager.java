@@ -96,9 +96,7 @@ public class AccountManager {
 		Dispatcher.logger.finest("Successfully created account for " + username);
 		
 		// Now we have to send a welcome email to the account so their directory gets created
-		/*
-		 * args are ok so we can send it to the outgoing mail client
-		 */
+		// args are ok so we can send it to the outgoing mail client
 		//Message message = new Message(user, to, subject, body);
 		Properties props = new Properties();
 		

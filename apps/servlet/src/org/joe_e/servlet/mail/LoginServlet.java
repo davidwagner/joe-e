@@ -95,7 +95,7 @@ public class LoginServlet extends JoeEServlet {
 		out.println("<span>Username: <input type=\"text\" value=\"\" name=\"username\" /></span>");
 		out.println("<span>Password: <input type=\"password\" value=\"\" name=\"password\" /></span>");
 		out.println("<input type=\"submit\" value=\"login\"></form></body>");
-		out.println("cookie: " + cookies.getTestCookie() + "<br />");
+		//		out.println("cookie: " + cookies.getTestCookie() + "<br />");
 		out.println("token: " + session.getToken() + "<br />");
 		HtmlWriter.printFooter(out);
 	}
