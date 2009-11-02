@@ -76,8 +76,6 @@ public class Inbox extends JoeEServlet {
 				}
 			}
 			if (!"".equals(id) && !"".equals(subject)) {
-				// TODO: on this request, how do we give only that message to the read servlet
-				// we can't put it in the session now b/c it has to be dynamic. 
 				out.println("<a href=\"/servlet/read?id="+id+"\">"+subject+"</a><br />");
 			}
 		}

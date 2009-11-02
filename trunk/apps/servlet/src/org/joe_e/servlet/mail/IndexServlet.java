@@ -14,6 +14,7 @@ import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.Dispatcher;
 import org.joe_e.servlet.JoeEServlet;
 import org.joe_e.servlet.readonly;
+import org.joe_e.servlet.CajaVerifier;
 
 /**
  * @author akshay
@@ -71,36 +72,25 @@ public class IndexServlet extends JoeEServlet {
 	}
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		Dispatcher.logger.fine("Inside INDEX SERVLET");
-		if (session == null) {
-			res.getWriter().println("SESSION IS NULL");
-			return;
-		}
-//		if (super.getSession() == null) {
-//			res.getWriter().println("SUPER SESSION IS NULL");
-//			return;
-//		}
-		Dispatcher.logger.fine(session.toString());
-		Dispatcher.logger.fine(session.getUsername());
 		if (session.getUsername() != null) {
 			res.sendRedirect("/servlet/inbox");
 		}
-		Dispatcher.logger.fine("Inside INDEX SERVLET");
-
+		//		String output = CajaVerifier.cajole("<body><p>Hello World</p><script type=\"text/javascript\">alert(\"hello world\");</script></body>");
 		res.addHeader("Content-type", "text/html");
 		PrintWriter out = res.getWriter();
 		HtmlWriter.printHeader(out);
+		//		out.println("<body><p>Hello World</p><script type=\"text/javascript\">alert(\"hello world\");</script></body>");
 		out.println("<body>" +
-				"<p>Welcome to Joe-E mail</p>" +
-				"<a href=\"/servlet/login\">Log In</a><br />" +
+			    "<p>Welcome to Joe-E mail</p>" +
+			    "<a href=\"/servlet/login\">Log In</a><br />" +
 				"<a href=\"/servlet/create\">Create an Account</a><br />");
 		out.println("<a href=\"/servlet/\">Stay here</a><br />");
 		out.println(cookies.getTestCookie()+ "<br />");
 		out.println("token: " + session.getToken()+"<br />");
-		out.println("<div id=\"TOKEN_\"></div>");
+    //		out.println(output);
 		out.println("</body>");
 		HtmlWriter.printFooter(out);
-		if (cookies.getTestCookie().equals("")) {
+		if (cookies.getTestCookie() == null) {
 			cookies.setTestCookie("1");
 		} else {
 			cookies.setTestCookie("" + (Integer.parseInt(cookies.getTestCookie())+1));

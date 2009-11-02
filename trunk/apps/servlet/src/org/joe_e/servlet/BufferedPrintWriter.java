@@ -73,6 +73,8 @@ public class BufferedPrintWriter extends PrintWriter {
 	 * TODO: How do we allow someone to not use jslint?
 	 */
 	public void flush() {
+	    super.write(text);
+	    super.flush();
 	}
 	
 //	private void newLine() {
@@ -96,7 +98,7 @@ public class BufferedPrintWriter extends PrintWriter {
 		} else {
 			text += s;
 		}
-		super.write(buf);
+		//		super.write(buf);
 	}
 	
 	public void write(char[] buf, int off, int length) {
@@ -106,14 +108,14 @@ public class BufferedPrintWriter extends PrintWriter {
 		} else {
 			text += s;
 		}
-		super.write(buf, off, length);
+		//		super.write(buf, off, length);
 	}
 	
 	public void write(int c) {
 		char[] buf = new char[1];
 		buf[0] = (char) c;
 		write(buf);
-		super.write(c);
+		//		super.write(c);
 	}
 	
 	public void write(String s) {
@@ -122,7 +124,7 @@ public class BufferedPrintWriter extends PrintWriter {
 		} else {
 			text += s;
 		}
-		super.write(s);
+		//		super.write(s);
 	}
 	
 	public void write(String s, int off, int len) {
@@ -131,7 +133,7 @@ public class BufferedPrintWriter extends PrintWriter {
 		} else {
 			text += s.substring(off, off+len);
 		}
-		super.write(s, off, len);
+		//		super.write(s, off, len);
 	}
 	
 	public String getText() {

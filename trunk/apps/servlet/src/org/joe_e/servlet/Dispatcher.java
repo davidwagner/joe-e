@@ -77,7 +77,7 @@ import org.xml.sax.helpers.DefaultHandler;
 public class Dispatcher extends HttpServlet {
 
 	
-	public static final boolean RUN_JSLINT = false;
+	public static final boolean RUN_JSLINT = true;
 	public static final String ADSAFE_RULES = "/*jslint adsafe: true, fragment: true, white: false, undef: false*/";
 
 	// If the session gets invalidate for some reason, we should tell the user.
@@ -106,9 +106,9 @@ public class Dispatcher extends HttpServlet {
 			File policy = new File((String) getServletConfig().getInitParameter("policy"));
 			if (policy.exists()) {
 				this.parsePolicy(policy);
-				for (String s : servletmapping.keySet()) {
-					log("Loaded mapping: " + s + ": " + servletmapping.get(s).toString());
-				}
+				//				for (String s : servletmapping.keySet()) {
+				//					log("Loaded mapping: " + s + ": " + servletmapping.get(s).toString());
+				//				}
 			} else {
 				throw new ServletException("Unspecified Policy File");
 			}
@@ -132,7 +132,7 @@ public class Dispatcher extends HttpServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = req.getSession();
 		if (session.isNew()) {
-			log("New session instance");
+		    //			log("New session instance");
 			initializer.fillHttpSession(session);
 			transformSession(session);
 			session.setAttribute("lock", new ReentrantLock());
@@ -143,8 +143,8 @@ public class Dispatcher extends HttpServlet {
 		}
 		JoeEServlet servlet = findServlet(session, req, req.getServletPath());
 		try {
-			log("servlet session: " + servlet.getSession());
-			log("Dispatching GET request for DIFFERENT KIND OF JOE-E SERVLET " + req.getServletPath() + " to " + servlet.getClass().getName());
+		    //			log("servlet session: " + servlet.getSession());
+		    //			log("Dispatching GET request for DIFFERENT KIND OF JOE-E SERVLET " + req.getServletPath() + " to " + servlet.getClass().getName());
 
 			ServletResponseWrapper responseFacade = new ServletResponseWrapper(response);
 			servlet.setCookies(servlet.getCookieView(req.getCookies()));
@@ -152,14 +152,17 @@ public class Dispatcher extends HttpServlet {
 			servlet.getCookies().finalizeCookies(response);
 			if (RUN_JSLINT) {
 				try {
-					runJSLint(responseFacade);
+				    //					runJSLint(responseFacade);
+				    String output = runCaja(responseFacade);
+				    ((BufferedPrintWriter) responseFacade.getWriter()).clear();
+				    responseFacade.getWriter().write(output);
 				} catch (ServletException e) {
 					req.getSession().invalidate();
 					errorMessage = "session invalidated due to javascript errors: " + e.getMessage();
 					throw e;
 				}
 			}				
-			responseFacade.flushBuffer();
+			responseFacade.reallyFlushBuffer();
 		} catch(Exception i) {
 			if (serialized) { lock.unlock(); }
 			String msg = i.getMessage();
@@ -189,7 +192,7 @@ public class Dispatcher extends HttpServlet {
 	public void doPost(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = req.getSession();
 		if (session.isNew()) {
-			log("New session instance");
+		    //			log("New session instance");
 			initializer.fillHttpSession(session);
 			transformSession(session);
 			session.setAttribute("lock", new ReentrantLock());
@@ -199,7 +202,7 @@ public class Dispatcher extends HttpServlet {
 			lock.lock();
 		}
 		JoeEServlet servlet = findServlet(session, req, req.getServletPath());
-		log("Dispatching POST request for DIFFERENT KIND OF JOE-E SERVLET " + req.getServletPath() + " to " + servlet.getClass().getName());
+		//		log("Dispatching POST request for DIFFERENT KIND OF JOE-E SERVLET " + req.getServletPath() + " to " + servlet.getClass().getName());
 
 		ServletResponseWrapper responseFacade = new ServletResponseWrapper(response);
 		servlet.setCookies(servlet.getCookieView(req.getCookies()));
@@ -207,14 +210,17 @@ public class Dispatcher extends HttpServlet {
 		servlet.getCookies().finalizeCookies(response);
 		if (RUN_JSLINT) {
 			try {
-				runJSLint(responseFacade);
+			    //				runJSLint(responseFacade);
+				    String output = runCaja(responseFacade);
+				    ((BufferedPrintWriter) responseFacade.getWriter()).clear();
+				    responseFacade.getWriter().write(output);
 			} catch (ServletException e) {
 				req.getSession().invalidate();
 				errorMessage = "session invalidated due to javascript errors: " + e.getMessage();
 				throw e;
 			}
 		}				
-		responseFacade.flushBuffer();
+		responseFacade.reallyFlushBuffer();
 		// TODO: this isn't correct. What if the session was invalidated?
 		if (serialized) {
 			lock.unlock();
@@ -250,8 +256,8 @@ public class Dispatcher extends HttpServlet {
 					throw new ServletException (e.getMessage());
 				}
 
-				log("Added instance of " + servletmapping.get(s).getName() + " to session " + session.getId());
-				log("Added session token at " +session.getAttribute(s).getClass().getSimpleName()+"__token");
+				//				log("Added instance of " + servletmapping.get(s).getName() + " to session " + session.getId());
+				//				log("Added session token at " +session.getAttribute(s).getClass().getSimpleName()+"__token");
 			} 
 			if (session.getAttribute(s) != null) {
 				return (JoeEServlet) session.getAttribute(s);
@@ -268,8 +274,8 @@ public class Dispatcher extends HttpServlet {
 					throw new ServletException (e.getMessage());
 				}
 				
-				log("Added instance of " + servletmapping.get(pattern).getName() + " to session " + session.getId());
-				log("added session token at " + session.getAttribute(pattern).getClass().getSimpleName()+"__token");
+				//				log("Added instance of " + servletmapping.get(pattern).getName() + " to session " + session.getId());
+				//				log("added session token at " + session.getAttribute(pattern).getClass().getSimpleName()+"__token");
 			}
 			if (session.getAttribute(pattern) != null) {
 				return (JoeEServlet) session.getAttribute(pattern);
@@ -353,6 +359,37 @@ public class Dispatcher extends HttpServlet {
 		}
 	}
 	
+    public String runCaja(ServletResponseWrapper responseFacade) throws ServletException, IOException {
+	if (((BufferedPrintWriter)responseFacade.getWriter()).getText() == null) {
+	    return null;
+	}
+	Lexer l = new Lexer(((BufferedPrintWriter)responseFacade.getWriter()).getText());
+	Node n = null;
+	String title = "";
+	String body = "";
+	boolean inBody = false;
+	boolean inTitle = false;
+	try {
+	    while ((n = l.nextNode()) != null) {
+		if (n.getText().length() >= 5 && n.getText().substring(0,5).equals("title")) {
+		    title = l.nextNode().getText();
+		}
+		if (n.getText().length() >= 4 && n.getText().substring(0,4).equals("body")) {
+		    body += n.toHtml();
+		    inBody = true;
+		} else if (n.getText().length() >= 5 && n.getText().substring(0,5).equals("/body")) {
+		    body += n.toHtml();
+		    inBody = false;
+		} else if (inBody) {
+		    body += n.toHtml();
+		}
+	    }
+	} catch (ParserException e) {
+	    throw new ServletException (e.getMessage());
+	}
+	String outputOfCaja = CajaVerifier.cajole(body);
+	return "<html><head><title>"+title+"</title></head><body>"+outputOfCaja+ "</body></html>";
+    }
 	public static boolean isSerialized() {
 		return serialized;
 	}
@@ -502,21 +539,21 @@ public class Dispatcher extends HttpServlet {
 	}
 	
 	public void log(String s) {
-		logger.fine(s);
+	    //		logger.fine(s);
 	}
 	
 	public void log(String s, Throwable t) {
-		logger.severe(s + t.getLocalizedMessage());
+	    //		logger.severe(s + t.getLocalizedMessage());
 	}
 	
 	public static void logMsg(String s) {	
 	}
 	public static void logException(Exception e) {
-		String msg = e.getMessage();
-		for (StackTraceElement st : e.getStackTrace()) {
-			msg += "\n"+st.getMethodName()+" " + st.getLineNumber() + " " + st.getClassName();
-		}
-		logger.fine(msg);
+	    //		String msg = e.getMessage();
+	    //		for (StackTraceElement st : e.getStackTrace()) {
+	    //			msg += "\n"+st.getMethodName()+" " + st.getLineNumber() + " " + st.getClassName();
+	    //		}
+	    //		logger.fine(msg);
 	}
 	
 	public static String getErrorMessage() {

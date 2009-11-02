@@ -14,9 +14,6 @@ import org.joe_e.servlet.Dispatcher;
 import org.joe_e.servlet.JoeEServlet;
 import org.joe_e.servlet.readonly;
 
-//TODO: how do you invalidate the session? on logout really
-//      you should just invalidate so that you can get back
-//      things like the AuthenticationAgent
 public class Logout extends JoeEServlet {
 
 	public SessionView session;
@@ -40,7 +37,6 @@ public class Logout extends JoeEServlet {
 		}
 	}
 	
-	//TODO: need to make it invalidate the session.
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
 		throws IOException, ServletException {
 	    Dispatcher.logger.fine("in doGet of Logout");

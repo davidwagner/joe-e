@@ -47,11 +47,11 @@ public abstract class AbstractSessionView {
 					Object o = ses.getAttribute("__joe-e__"+f.getName());
 					try {
 						f.set(this, Cloner.deepCopy(o));
-						Dispatcher.logger.finest("Deep copy on " + f.getName() + " successful");
+						//						Dispatcher.logger.finest("Deep copy on " + f.getName() + " successful");
 					} catch (Exception e) {
 						// deep copy failed
-						Dispatcher.logger.warning("Failed to deep copy " + f.getName() + 
-								". Check that " + f.getName() + " is serializable");
+					    //						Dispatcher.logger.warning("Failed to deep copy " + f.getName() + 
+					    //								". Check that " + f.getName() + " is serializable");
 						f.set(this, o);
 					} 
 				} else {
@@ -96,7 +96,7 @@ public abstract class AbstractSessionView {
 	public final void fillHttpSession(HttpSession ses) throws IllegalAccessException {
 		for (Field f : this.getClass().getDeclaredFields()) {
 			if (f.getName().equals("invalidate") && f.getBoolean(this)) {
-				Dispatcher.logger.fine("invalidating session after successful dispatch");
+			    //				Dispatcher.logger.fine("invalidating session after successful dispatch");
 				Dispatcher.invalidateSession(ses);
 				return;
 			}
@@ -104,7 +104,7 @@ public abstract class AbstractSessionView {
 			// shouldn't have to setAccessible each attribute
 			f.setAccessible(true);
 			if (f.isAnnotationPresent(readonly.class)) {
-				Dispatcher.logger.fine(f.getName() + " is marked as readonly and was not copied to HttpSession");
+			    //				Dispatcher.logger.fine(f.getName() + " is marked as readonly and was not copied to HttpSession");
 			}
 			if (Dispatcher.isSerialized() && !f.isSynthetic() && f.isAccessible() && 
 					!f.isAnnotationPresent(readonly.class)) {

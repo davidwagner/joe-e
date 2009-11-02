@@ -19,6 +19,7 @@ import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.JoeEServlet;
 import org.joe_e.servlet.readonly;
+import org.joe_e.servlet.mail.notjoe_e.TransportAgent;
 
 public class Compose extends JoeEServlet {
 	
@@ -37,9 +38,9 @@ public class Compose extends JoeEServlet {
 		public String getUsername() {
 			return (String) session.getAttribute("__joe-e__username");
 		}
-		public String getToken() {
-			return (String) session.getAttribute("Compose__token");
-		}
+	    //		public String getToken() {
+	    //			return (String) session.getAttribute("Compose__token");
+	    //		}
 		public File getMailbox() {
 			return (File) session.getAttribute("__joe-e__mailbox");
 		}
@@ -49,6 +50,9 @@ public class Compose extends JoeEServlet {
 		public void setErrorMessage(String arg) {
 			session.setAttribute("__joe-e__errorMessage", arg);
 		}
+	    public TransportAgent getTransportAgent() {
+		return (TransportAgent) session.getAttribute("__joe-e__transportAgent");
+	    }
 	}
 	
 	public class CookieView extends AbstractCookieView {
@@ -117,7 +121,8 @@ public class Compose extends JoeEServlet {
 		}
 		
 		try {
-	        Transport.send(msg);
+		    session.getTransportAgent().send(msg);
+		    //	        Transport.send(msg);
 		} catch (Exception e) {
 		        session.setErrorMessage("error in sending: " + e.getMessage());
 			res.sendRedirect("/servlet/compose");
