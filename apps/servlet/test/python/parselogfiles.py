@@ -105,7 +105,7 @@ for kk in xpoints:
 
 #plot(xpoints, servletpoints)
 #plot(xpoints, perfpoints)
-ax.set_ylim(0, 100)
+ax.set_ylim(0, 1000)
 xlabel('Number of Threads')
 ylabel('Average Requests per Second')
 show()

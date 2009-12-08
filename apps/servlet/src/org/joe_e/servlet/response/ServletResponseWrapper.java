@@ -1,4 +1,4 @@
-package org.joe_e.servlet;
+package org.joe_e.servlet.response;
 
 import java.io.*;
 import java.util.Locale;
@@ -7,6 +7,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
+import org.joe_e.servlet.BufferedPrintWriter;
+import org.joe_e.servlet.Dispatcher;
 import org.w3c.dom.*;
 import javax.xml.parsers.*;
 import javax.xml.transform.*;
@@ -23,12 +25,12 @@ public class ServletResponseWrapper implements HttpServletResponse {
 	
 	HttpServletResponse response;
 	BufferedPrintWriter bufferedWriter; 
-    Document doc;
+	Document doc;
 
     public ServletResponseWrapper(HttpServletResponse res) throws IOException, ParserConfigurationException {
 		response = res;
 		bufferedWriter = new BufferedPrintWriter(response.getWriter());
-		DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
+		DocumentBuilderFactory dbfac = ResponseDocumentBuilderFactory.newInstance();
 		DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
 		doc = docBuilder.newDocument();
 	}
@@ -104,23 +106,24 @@ public class ServletResponseWrapper implements HttpServletResponse {
 	public void flushBuffer() throws IOException {
 	}
 
-    public void reallyFlushBuffer() throws IOException, TransformerConfigurationException, TransformerException {
-	    //String s = bufferedWriter.getText();
-	    TransformerFactory transfac = TransformerFactory.newInstance();
-            Transformer trans = transfac.newTransformer();
-            trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-            trans.setOutputProperty(OutputKeys.INDENT, "yes");
-	    StringWriter sw = new StringWriter();
-            StreamResult result = new StreamResult(sw);
-            DOMSource source = new DOMSource(doc);
-            trans.transform(source, result);
-            String xmlString = sw.toString();
-	    Dispatcher.logger.fine(xmlString);
-	    if (xmlString != null) {
-		response.getWriter().write(xmlString);
-		response.flushBuffer();
-	    }
-        }
+	public void reallyFlushBuffer() throws IOException, TransformerConfigurationException, TransformerException {
+		//String s = bufferedWriter.getText();
+		((ResponseDocument) doc).checkDocument();
+		TransformerFactory transfac = TransformerFactory.newInstance();
+		Transformer trans = transfac.newTransformer();
+		trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+		trans.setOutputProperty(OutputKeys.INDENT, "yes");
+		StringWriter sw = new StringWriter();
+		StreamResult result = new StreamResult(sw);
+		DOMSource source = new DOMSource(doc);
+		trans.transform(source, result);
+		String xmlString = sw.toString();
+		Dispatcher.logger.fine(xmlString);
+		if (xmlString != null) {
+			response.getWriter().write(xmlString);
+			response.flushBuffer();
+		}
+	}
     public Document getDocument() {
 	return doc;
     }

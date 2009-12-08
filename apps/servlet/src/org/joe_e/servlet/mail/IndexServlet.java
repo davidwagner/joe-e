@@ -1,7 +1,6 @@
 package org.joe_e.servlet.mail;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import org.w3c.dom.*;
 
@@ -13,11 +12,8 @@ import javax.servlet.http.HttpSession;
 
 import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
-import org.joe_e.servlet.Dispatcher;
 import org.joe_e.servlet.JoeEServlet;
-import org.joe_e.servlet.readonly;
-import org.joe_e.servlet.CajaVerifier;
-import org.joe_e.servlet.ServletResponseWrapper;
+import org.joe_e.servlet.response.ServletResponseWrapper;
 
 /**
  * @author akshay
@@ -78,7 +74,6 @@ public class IndexServlet extends JoeEServlet {
 		if (session.getUsername() != null) {
 			res.sendRedirect("/servlet/inbox");
 		}
-		//		String output = CajaVerifier.cajole("<body><p>Hello World</p><script type=\"text/javascript\">alert(\"hello world\");</script></body>");
 		res.addHeader("Content-type", "text/html");
 		Document doc = ((ServletResponseWrapper)res).getDocument();
 		Element root = doc.createElement("html");
@@ -117,6 +112,9 @@ public class IndexServlet extends JoeEServlet {
 		tmp.appendChild(doc.createTextNode("Stay here"));
 		body.appendChild(tmp);
 		body.appendChild(doc.createElement("br"));
+		tmp = doc.createElement("script");
+		tmp.appendChild(doc.createTextNode("alert('foo');"));
+		body.appendChild(tmp);
 
 		if (cookies.getTestCookie() != null) {
 		    body.appendChild(doc.createTextNode(cookies.getTestCookie()));
