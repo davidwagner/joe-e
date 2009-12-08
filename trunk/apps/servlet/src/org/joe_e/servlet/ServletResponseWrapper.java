@@ -1,12 +1,17 @@
 package org.joe_e.servlet;
 
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.Locale;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+
+import org.w3c.dom.*;
+import javax.xml.parsers.*;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.*;
+import javax.xml.transform.stream.*;
 
 /**
  * TODO: should probably suppress some methods in HttpServletResponse
@@ -18,10 +23,14 @@ public class ServletResponseWrapper implements HttpServletResponse {
 	
 	HttpServletResponse response;
 	BufferedPrintWriter bufferedWriter; 
-	
-	public ServletResponseWrapper(HttpServletResponse res) throws IOException {
+    Document doc;
+
+    public ServletResponseWrapper(HttpServletResponse res) throws IOException, ParserConfigurationException {
 		response = res;
 		bufferedWriter = new BufferedPrintWriter(response.getWriter());
+		DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
+		DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
+		doc = docBuilder.newDocument();
 	}
 
 	public void addCookie(Cookie arg0) {
@@ -95,13 +104,26 @@ public class ServletResponseWrapper implements HttpServletResponse {
 	public void flushBuffer() throws IOException {
 	}
 
-        public void reallyFlushBuffer() throws IOException {
-	    String s = bufferedWriter.getText();
-	    if (s != null) {
-		response.getWriter().write(s);
+    public void reallyFlushBuffer() throws IOException, TransformerConfigurationException, TransformerException {
+	    //String s = bufferedWriter.getText();
+	    TransformerFactory transfac = TransformerFactory.newInstance();
+            Transformer trans = transfac.newTransformer();
+            trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            trans.setOutputProperty(OutputKeys.INDENT, "yes");
+	    StringWriter sw = new StringWriter();
+            StreamResult result = new StreamResult(sw);
+            DOMSource source = new DOMSource(doc);
+            trans.transform(source, result);
+            String xmlString = sw.toString();
+	    Dispatcher.logger.fine(xmlString);
+	    if (xmlString != null) {
+		response.getWriter().write(xmlString);
 		response.flushBuffer();
 	    }
         }
+    public Document getDocument() {
+	return doc;
+    }
 	public int getBufferSize() {
 		return response.getBufferSize();
 	}
