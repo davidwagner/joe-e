@@ -75,17 +75,12 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class Dispatcher extends HttpServlet {
 
-	
-	public static final boolean RUN_JSLINT = false;
-	public static final String ADSAFE_RULES = "/*jslint adsafe: true, fragment: true, white: false, undef: false*/";
-
 	// If the session gets invalidate for some reason, we should tell the user.
 	public static String errorMessage = "";
 	
 	// The map that contains url to servlet mappings
 	// TODO: does the map work if we have complex url-patterns? (i.e. regex stuff)
 	private HashMap<String, Class<?>> servletmapping;
-	//private HashMap<String, HashMap<String, JoeEServlet>> perSessionServlets;
 	private SessionInitializer initializer;
 	private static boolean serialized;
 	
@@ -105,9 +100,6 @@ public class Dispatcher extends HttpServlet {
 			File policy = new File((String) getServletConfig().getInitParameter("policy"));
 			if (policy.exists()) {
 				this.parsePolicy(policy);
-				//				for (String s : servletmapping.keySet()) {
-				//					log("Loaded mapping: " + s + ": " + servletmapping.get(s).toString());
-				//				}
 			} else {
 				throw new ServletException("Unspecified Policy File");
 			}
@@ -148,19 +140,7 @@ public class Dispatcher extends HttpServlet {
 			ServletResponseWrapper responseFacade = new ServletResponseWrapper(response);
 			servlet.setCookies(servlet.getCookieView(req.getCookies()));
 			servlet.doGet(req, responseFacade);
-			servlet.getCookies().finalizeCookies(response);
-			if (RUN_JSLINT) {
-				try {
-				    //					runJSLint(responseFacade);
-				    String output = runCaja(responseFacade);
-				    ((BufferedPrintWriter) responseFacade.getWriter()).clear();
-				    responseFacade.getWriter().write(output);
-				} catch (ServletException e) {
-					req.getSession().invalidate();
-					errorMessage = "session invalidated due to javascript errors: " + e.getMessage();
-					throw e;
-				}
-			}				
+			servlet.getCookies().finalizeCookies(response);			
 			responseFacade.reallyFlushBuffer();
 		} catch(Exception i) {
 			if (serialized) { lock.unlock(); }
@@ -207,18 +187,6 @@ public class Dispatcher extends HttpServlet {
 		servlet.setCookies(servlet.getCookieView(req.getCookies()));
 		servlet.doPost(req, responseFacade);
 		servlet.getCookies().finalizeCookies(response);
-		if (RUN_JSLINT) {
-			try {
-			    //				runJSLint(responseFacade);
-				    String output = runCaja(responseFacade);
-				    ((BufferedPrintWriter) responseFacade.getWriter()).clear();
-				    responseFacade.getWriter().write(output);
-			} catch (ServletException e) {
-				req.getSession().invalidate();
-				errorMessage = "session invalidated due to javascript errors: " + e.getMessage();
-				throw e;
-			}
-		}				
 		responseFacade.reallyFlushBuffer();
 		// TODO: this isn't correct. What if the session was invalidated?
 		} catch(Exception i) {
@@ -324,79 +292,7 @@ public class Dispatcher extends HttpServlet {
 		}
 	}
 	
-	/**
-	 * Run the jslint program to make sure that the page source meets the
-	 * adsafe criteria
-	 * @param p
-	 */
-	public void runJSLint(ServletResponseWrapper responseFacade) throws ServletException, IOException {
-		if (((BufferedPrintWriter)responseFacade.getWriter()).getText() == null) {
-			// then we did something like a redirect
-			return;
-		}
-		Lexer l = new Lexer(((BufferedPrintWriter)responseFacade.getWriter()).getText());
-		Node n = null;
-		int nesting = 0;
-		String sendToJSlint = "";
-		try {
-			while ((n = l.nextNode()) != null) {
-				if (nesting == 0 && n.getText().length() >= 6 && n.getText().substring(0, 6).equals("script")) {
-					throw new ServletException ("Found illegally placed script tag in :" + n.getText());
-				} else if (n.getText().length() >= 3 && n.getText().substring(0, 3).equals("div")) {
-					nesting++;
-					sendToJSlint += n.toHtml();
-					if (nesting == 1) {
-						//sendToJSlint += "<script src=\"http://www.ADsafe.org/adsafe.js\"></script>";
-					}
-				} else if (n.getText().length() >= 4 && n.getText().substring(0, 4).equals("/div")) {
-					nesting--;
-					sendToJSlint += n.toHtml();
-					if (nesting == 0) {
-						if (!JSLintVerifier.verify(Dispatcher.ADSAFE_RULES+"\n"+sendToJSlint)) {
-							throw new ServletException ("Illegal javascript: " + JSLintVerifier.getMessage());
-						}
-						sendToJSlint = "";
-					}
-				} else if (nesting > 0) {
-					sendToJSlint += n.toHtml();
-				}
-			}
-		} catch (ParserException e) {
-			throw new ServletException (e.getMessage());
-		}
-	}
 	
-    public String runCaja(ServletResponseWrapper responseFacade) throws ServletException, IOException {
-	if (((BufferedPrintWriter)responseFacade.getWriter()).getText() == null) {
-	    return null;
-	}
-	Lexer l = new Lexer(((BufferedPrintWriter)responseFacade.getWriter()).getText());
-	Node n = null;
-	String title = "";
-	String body = "";
-	boolean inBody = false;
-	boolean inTitle = false;
-	try {
-	    while ((n = l.nextNode()) != null) {
-		if (n.getText().length() >= 5 && n.getText().substring(0,5).equals("title")) {
-		    title = l.nextNode().getText();
-		}
-		if (n.getText().length() >= 4 && n.getText().substring(0,4).equals("body")) {
-		    body += n.toHtml();
-		    inBody = true;
-		} else if (n.getText().length() >= 5 && n.getText().substring(0,5).equals("/body")) {
-		    body += n.toHtml();
-		    inBody = false;
-		} else if (inBody) {
-		    body += n.toHtml();
-		}
-	    }
-	} catch (ParserException e) {
-	    throw new ServletException (e.getMessage());
-	}
-	String outputOfCaja = CajaVerifier.cajole(body);
-	return "<html><head><title>"+title+"</title></head><body>"+outputOfCaja+ "</body></html>";
-    }
 	public static boolean isSerialized() {
 		return serialized;
 	}

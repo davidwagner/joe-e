@@ -14,6 +14,10 @@ import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.Dispatcher;
 import org.joe_e.servlet.JoeEServlet;
+import org.joe_e.servlet.response.ServletResponseWrapper;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 
 public class LoginServlet extends JoeEServlet {
@@ -22,12 +26,6 @@ public class LoginServlet extends JoeEServlet {
 	public CookieView cookies;
 	
 	public class SessionView extends AbstractSessionView {
-//		public String username;
-//		public AuthenticationAgent auth;
-//		public File mailbox;
-//		@readonly public String token;
-//		public String errorMessage;
-		
 		public SessionView(HttpSession ses) {
 			super(ses);
 		}
@@ -81,23 +79,53 @@ public class LoginServlet extends JoeEServlet {
 			return;
 		}
 		res.addHeader("Content-type", "text/html");
-		HtmlWriter.printHeader(out);
-		out.println("<body><h2>Joe-E Mail</h2>");
+		Document doc = ((ServletResponseWrapper)res).getDocument();
+		Element body = HtmlWriter.printHeader(doc);
+		
+		Element tmp = doc.createElement("h2");
+		tmp.appendChild(doc.createTextNode("Joe-E Mail"));
+		body.appendChild(tmp);
 		if (Dispatcher.getErrorMessage() != null) {
-			out.println("<b>"+Dispatcher.getErrorMessage()+"</b>");
+			tmp = doc.createElement("b");
+			tmp.appendChild(doc.createTextNode(Dispatcher.getErrorMessage()));
+			body.appendChild(tmp);
 			Dispatcher.setErrorMessage(null);
 		}
 		if (session.getErrorMessage() != null) {
-			out.println("<b>"+session.getErrorMessage()+"</b>");
+			tmp = doc.createElement("b");
+			tmp.appendChild(doc.createTextNode(session.getErrorMessage()));
+			body.appendChild(tmp);			
 		}
-		out.println("<p>Log in</p>");
-		out.println("<form method=\"POST\" action=\"/servlet/login\">");
-		out.println("<span>Username: <input type=\"text\" value=\"\" name=\"username\" /></span>");
-		out.println("<span>Password: <input type=\"password\" value=\"\" name=\"password\" /></span>");
-		out.println("<input type=\"submit\" value=\"login\"></form></body>");
-		//		out.println("cookie: " + cookies.getTestCookie() + "<br />");
-		out.println("token: " + session.getToken() + "<br />");
-		HtmlWriter.printFooter(out);
+		tmp = doc.createElement("b");
+		tmp.appendChild(doc.createTextNode("Log in"));
+		body.appendChild(tmp);
+		
+		tmp = doc.createElement("form");
+		tmp.setAttribute("method", "POST");
+		tmp.setAttribute("action", "/servlet/login");
+		Element span = doc.createElement("span");
+		span.appendChild(doc.createTextNode("Username: "));
+		Element input = doc.createElement("input");
+		input.setAttribute("type", "text");
+		input.setAttribute("value", "");
+		input.setAttribute("name", "username");
+		span.appendChild(input);
+		tmp.appendChild(span);
+		
+		span = doc.createElement("span");
+		span.appendChild(doc.createTextNode("Password: "));
+		input = doc.createElement("input");
+		input.setAttribute("type", "password");
+		input.setAttribute("value", "");
+		input.setAttribute("name", "password");
+		span.appendChild(input);
+		tmp.appendChild(span);
+		
+		input = doc.createElement("input");
+		input.setAttribute("type", "submit");
+		input.setAttribute("value", "login");
+		tmp.appendChild(input);
+		
 	}
 	
 	public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {

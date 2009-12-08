@@ -2,11 +2,26 @@ package org.joe_e.servlet.mail;
 
 import java.io.PrintWriter;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 public class HtmlWriter {
 
-	public static void printHeader(PrintWriter p) {
-	        p.println("<!doctype html>");
-		p.println("<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=ISO-8859-1\"><title>Joe-E Mail</title></head>");
+	public static Element printHeader(Document doc) {
+//	        p.println("<!doctype html>");
+//		p.println("<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=ISO-8859-1\"><title>Joe-E Mail</title></head>");
+		Element root = doc.createElement("html");
+		doc.appendChild(root);
+
+		Element head = doc.createElement("head");
+		Element title = doc.createElement("title");
+		head.appendChild(title);
+		title.appendChild(doc.createTextNode("Joe-E Mail"));
+		root.appendChild(head);
+
+		Element body = doc.createElement("body");
+		root.appendChild(body);
+		return body;
 	}
 	
 	public static String getHeader() {
