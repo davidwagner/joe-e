@@ -77,7 +77,7 @@ import org.xml.sax.helpers.DefaultHandler;
 public class Dispatcher extends HttpServlet {
 
 	
-	public static final boolean RUN_JSLINT = true;
+	public static final boolean RUN_JSLINT = false;
 	public static final String ADSAFE_RULES = "/*jslint adsafe: true, fragment: true, white: false, undef: false*/";
 
 	// If the session gets invalidate for some reason, we should tell the user.
@@ -203,7 +203,7 @@ public class Dispatcher extends HttpServlet {
 		}
 		JoeEServlet servlet = findServlet(session, req, req.getServletPath());
 		//		log("Dispatching POST request for DIFFERENT KIND OF JOE-E SERVLET " + req.getServletPath() + " to " + servlet.getClass().getName());
-
+		try {
 		ServletResponseWrapper responseFacade = new ServletResponseWrapper(response);
 		servlet.setCookies(servlet.getCookieView(req.getCookies()));
 		servlet.doPost(req, responseFacade);
@@ -222,6 +222,14 @@ public class Dispatcher extends HttpServlet {
 		}				
 		responseFacade.reallyFlushBuffer();
 		// TODO: this isn't correct. What if the session was invalidated?
+		} catch(Exception i) {
+			if (serialized) { lock.unlock(); }
+			String msg = i.getMessage();
+			for (StackTraceElement st : i.getStackTrace()) {
+				msg += "\n"+st.getMethodName()+" " + st.getLineNumber() + " " + st.getClassName();
+			}
+			throw new ServletException(msg);
+		}
 		if (serialized) {
 			lock.unlock();
 		}
