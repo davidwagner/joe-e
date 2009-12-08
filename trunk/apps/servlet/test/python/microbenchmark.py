@@ -1,26 +1,16 @@
-import mechanize
+import urllib2
 import cookielib
 import time
 import os
 
 URLBASE = "http://localhost:8080/"
 
+# cookieProcessor = urllib2.HTTPCookieProcessor()
+# opener = urllib2.url_builder(cookieProcessor)
+# urllib2.install_opener(opener)
+
 def runIteration(app, username):
-    br = mechanize.Browser()
-    br.set_handle_equiv(True)
-    br.set_handle_redirect(True)
-    br.set_handle_referer(True)
-    br.set_handle_robots(False)
-    br.open(URLBASE+app+"/")
-    
-    for link in br.links():
-        if link.text == "Log In":
-            res = br.follow_link(link=link)
-#             if br.viewing_html():
-#                 br.select_form(nr=0)
-#                 br.form['username'] = username
-#                 br.form['password'] = username
-#                 br.submit()
+    urllib2.urlopen(URLBASE+app+"/")
 
 
 print os.popen("/usr/lib/apache-tomcat/bin/shutdown.sh").read()

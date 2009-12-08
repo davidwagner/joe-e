@@ -32,10 +32,10 @@ for kk in [1]:
     for jj in ["servlet", "perf", "reflect"]:
 #    for jj in ["perf"]:
 	os.mkdir(BASEDIR+jj+str(kk))
-	os.popen("/usr/lib/apache-tomcat/bin/shutdown.sh").read()
-	time.sleep(5)
-	os.popen("/usr/lib/apache-tomcat/bin/startup.sh").read()
-	time.sleep(15)
+# 	os.popen("/usr/lib/apache-tomcat/bin/shutdown.sh").read()
+# 	time.sleep(5)
+# 	os.popen("/usr/lib/apache-tomcat/bin/startup.sh").read()
+# 	time.sleep(15)
 #	print "Starting memory monitor ... "
 #	os.popen("java -cp /home/akshayk/servlet/test/ org.joe_e.servlet.test.JMXMonitor > memoryusage.out &")
 #	time.sleep(10)
