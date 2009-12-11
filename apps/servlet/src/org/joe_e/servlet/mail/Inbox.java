@@ -3,7 +3,6 @@ package org.joe_e.servlet.mail;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Reader;
 
 import javax.servlet.ServletException;
@@ -17,7 +16,6 @@ import org.joe_e.file.Filesystem;
 import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.JoeEServlet;
-import org.joe_e.servlet.readonly;
 import org.joe_e.servlet.Dispatcher;
 import org.joe_e.servlet.response.ServletResponseWrapper;
 import org.w3c.dom.Document;
@@ -29,8 +27,6 @@ public class Inbox extends JoeEServlet {
 	public CookieView cookies;
 	
 	public class SessionView extends AbstractSessionView {
-//		@readonly public String username;
-//		@readonly public File mailbox;
 		private HttpSession session;
 		
 		public SessionView(HttpSession ses) {
@@ -72,6 +68,7 @@ public class Inbox extends JoeEServlet {
 		tmp.setAttribute("href", "/servlet/compose");
 		tmp.appendChild(doc.createTextNode("Write an email"));
 		body.appendChild(tmp);
+		body.appendChild(doc.createElement("br"));
 		
 
 		File maildir = Filesystem.file(session.getMailbox(), "Maildir");

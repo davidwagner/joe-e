@@ -25,7 +25,7 @@ public class JoeEServlet extends HttpServlet {
 	 * All JoeEServlets must have an inner class called SessionView that extends
 	 * org.joe_e.servlet.SessionView. This class specifies which session variables
 	 * the servlet has access to and also specifies which session variables are
-	 * read only or read/write (TODO: not yet... how?). The names of the instance
+	 * read only or read/write. The names of the instance
 	 * variables of the SessionView must be exactly the same as the key's of the
 	 * HttpSession map. This is just a default implementation where none of the
 	 * session is accessible to the servlet.
@@ -54,8 +54,6 @@ public class JoeEServlet extends HttpServlet {
 	 * Default implementation of the JoeEServlet doGet method
 	 * @param req
 	 * @param res
-	 * @param ses
-	 * @param cookies TODO
 	 * @throws ServletException
 	 * @throws IOException
 	 */
@@ -67,8 +65,6 @@ public class JoeEServlet extends HttpServlet {
 	 * Default implementation of the JoeEServlet doPost method
 	 * @param req
 	 * @param res
-	 * @param ses
-	 * @param cookies TODO
 	 * @throws ServletException
 	 * @throws IOException
 	 */
@@ -81,7 +77,6 @@ public class JoeEServlet extends HttpServlet {
 			this.getClass().getField("session").setAccessible(true);
 			this.getClass().getField("session").set(this, ses);
 		} catch (Exception e) {
-			//Dispatcher.logException(e);
 		}
 	}
 
@@ -89,7 +84,6 @@ public class JoeEServlet extends HttpServlet {
 		try {
 			return (AbstractSessionView) this.getClass().getField("session").get(this);
 		} catch (Exception e) {
-			//Dispatcher.logException(e);
 		}
 		return null;
 	}
@@ -99,7 +93,6 @@ public class JoeEServlet extends HttpServlet {
 			this.getClass().getField("cookies").setAccessible(true);
 			this.getClass().getField("cookies").set(this, c);
 		} catch (Exception e) {
-			//Dispatcher.logException(e);
 		}
 	}
 	
@@ -107,7 +100,6 @@ public class JoeEServlet extends HttpServlet {
 		try {
 			return (AbstractCookieView) this.getClass().getField("cookies").get(this);
 		} catch (Exception e) {
-			//Dispatcher.logException(e);
 		}
 		return null;
 	}
@@ -142,7 +134,6 @@ public class JoeEServlet extends HttpServlet {
 				}
 			}
 		} catch (Exception e) {
-			//Dispatcher.logException(e);
 		}
 		return null;
 	}

@@ -31,9 +31,6 @@ public class Compose extends JoeEServlet {
 	public CookieView cookies;
 	
 	public class SessionView extends AbstractSessionView {
-		//@readonly public String username;
-		//@readonly public File mailbox;
-		//public String errorMessage;
 		private HttpSession session;
 		public SessionView(HttpSession ses) {
 			super(ses);
@@ -42,9 +39,9 @@ public class Compose extends JoeEServlet {
 		public String getUsername() {
 			return (String) session.getAttribute("__joe-e__username");
 		}
-	    //		public String getToken() {
-	    //			return (String) session.getAttribute("Compose__token");
-	    //		}
+		public String getToken() {
+			return (String) session.getAttribute("Compose__token");
+		}
 		public File getMailbox() {
 			return (File) session.getAttribute("__joe-e__mailbox");
 		}
@@ -129,6 +126,11 @@ public class Compose extends JoeEServlet {
 		
 		form.appendChild(table);
 		input = doc.createElement("input");
+		input.setAttribute("type", "hidden");
+		input.setAttribute("value", session.getToken());
+		input.setAttribute("name", "secret");
+		form.appendChild(input);
+		input = doc.createElement("input");
 		input.setAttribute("type", "submit");
 		input.setAttribute("value", "send email");
 		form.appendChild(input);
@@ -144,6 +146,11 @@ public class Compose extends JoeEServlet {
 		String to = req.getParameter("to");
 		String subject = req.getParameter("subject");
 		String body = req.getParameter("body");
+		String token = req.getParameter("secret");
+		if (!token.equals(session.getToken())) {
+			session.setErrorMessage("CSRF attempt");
+			res.sendRedirect("/servlet/compose");
+		}
 		if (to == null || subject == null || body == null
 				|| to.equals("") || subject.equals("") || body.equals("") ) {
 			session.setErrorMessage("Please fill out all fields");
@@ -171,7 +178,6 @@ public class Compose extends JoeEServlet {
 		
 		try {
 		    session.getTransportAgent().send(msg);
-		    //	        Transport.send(msg);
 		} catch (Exception e) {
 		        session.setErrorMessage("error in sending: " + e.getMessage());
 			res.sendRedirect("/servlet/compose");
