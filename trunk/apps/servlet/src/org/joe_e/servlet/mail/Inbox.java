@@ -19,6 +19,9 @@ import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.JoeEServlet;
 import org.joe_e.servlet.readonly;
 import org.joe_e.servlet.Dispatcher;
+import org.joe_e.servlet.response.ServletResponseWrapper;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 public class Inbox extends JoeEServlet {
 
@@ -56,15 +59,24 @@ public class Inbox extends JoeEServlet {
 		    return;
 		}
 		res.addHeader("Content-type", "text/html");
-		PrintWriter out = res.getWriter();
-		HtmlWriter.printHeader(out);
-		out.println("<body><h2>Joe-E Mail</h2>");
-		out.println("<h4> inbox of " + session.getUsername() + "</h4>");
-		out.println("<a href=\"/servlet/compose\">Write an email</a><br />");
+		Document doc = ((ServletResponseWrapper) res).getDocument();
+		Element body = HtmlWriter.printHeader(doc);
+		Element tmp = doc.createElement("h2");
+		tmp.appendChild(doc.createTextNode("Joe-E Mail"));
+		body.appendChild(tmp);
+		tmp = doc.createElement("h4");
+		tmp.appendChild(doc.createTextNode("inbox of " + session.getUsername()));
+		body.appendChild(tmp);
+		
+		tmp = doc.createElement("a");
+		tmp.setAttribute("href", "/servlet/compose");
+		tmp.appendChild(doc.createTextNode("Write an email"));
+		body.appendChild(tmp);
+		
+
 		File maildir = Filesystem.file(session.getMailbox(), "Maildir");
 		File newFolder = Filesystem.file(maildir, "new");
 		for (File f : Filesystem.list(newFolder)) {
-		    Dispatcher.logger.finest(f.getCanonicalPath());
 			Reader reader = ASCII.input(Filesystem.read(f));
 			BufferedReader in = new BufferedReader(reader);
 			String line = "";
@@ -76,12 +88,17 @@ public class Inbox extends JoeEServlet {
 				}
 			}
 			if (!"".equals(id) && !"".equals(subject)) {
-				out.println("<a href=\"/servlet/read?id="+id+"\">"+subject+"</a><br />");
+				tmp = doc.createElement("a");
+				tmp.setAttribute("href", "/servlet/read?id="+id);
+				tmp.appendChild(doc.createTextNode(subject));
+				body.appendChild(tmp);
 			}
 		}
 		
-		out.println("<a href=\"/servlet/logout\">logout</a><br />");
-		out.println("</body>");
-		HtmlWriter.printFooter(out);
+		tmp = doc.createElement("a");
+		tmp.setAttribute("href", "/servlet/logout");
+		tmp.appendChild(doc.createTextNode("logout"));
+		body.appendChild(tmp);
+		body.appendChild(doc.createElement("br"));
 	}
 }

@@ -20,6 +20,9 @@ import org.joe_e.servlet.Dispatcher;
 import org.joe_e.servlet.JoeEServlet;
 import org.joe_e.servlet.readonly;
 import org.joe_e.servlet.Dispatcher;
+import org.joe_e.servlet.response.ServletResponseWrapper;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 public class Read extends JoeEServlet {
 
@@ -55,12 +58,17 @@ public class Read extends JoeEServlet {
 			return;
 		}
 		res.addHeader("Content-type", "text/html");
-		PrintWriter out = res.getWriter();
+		Document doc = ((ServletResponseWrapper)res).getDocument();
 		if (session.getUsername() == null) {
 		    res.sendRedirect("/servlet/login");
 		}
-		HtmlWriter.printHeader(out);
-		out.println("<body><h2>Joe-E Mail</h2>");
+		Element body = HtmlWriter.printHeader(doc);
+		
+		Element tmp = doc.createElement("h2");
+		tmp.appendChild(doc.createTextNode("Joe-E Mail"));
+		body.appendChild(tmp);
+		
+		
 		String msgName = req.getParameter("id");
 		File maildir = Filesystem.file(session.getMailbox(), "Maildir");
 		File newFolder = Filesystem.file(maildir, "new");
@@ -69,15 +77,18 @@ public class Read extends JoeEServlet {
 				Reader reader = ASCII.input(Filesystem.read(f));
 				BufferedReader in = new BufferedReader(reader);
 				String line = "";
-				out.println("<p>");
+				String total = "";
+				tmp = doc.createElement("p");
 				while ((line = in.readLine()) != null) {
-					out.println(line);
+					total += line + "\n";
 				}
-				out.println("</p>");
+				tmp.appendChild(doc.createTextNode(total));
+				body.appendChild(tmp);
 			}
 		}
-		out.println("<a href=\"/servlet/inbox\">Back to Inbox</a>");
-		out.println("<div id=\"INBOX_\"></div>");
-		HtmlWriter.printFooter(out);
+		tmp = doc.createElement("a");
+		tmp.setAttribute("href", "/servlet/inbox");
+		tmp.appendChild(doc.createTextNode("Back to Inbox"));
+		body.appendChild(tmp);
 	}
 }

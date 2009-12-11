@@ -13,6 +13,10 @@ import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.JoeEServlet;
 import org.joe_e.servlet.readonly;
+import org.joe_e.servlet.response.ServletResponseWrapper;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public class CreateAccount extends JoeEServlet {
 
@@ -47,21 +51,54 @@ public class CreateAccount extends JoeEServlet {
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
 		throws IOException, ServletException {
-		PrintWriter out = res.getWriter();
+		Document doc = ((ServletResponseWrapper)res).getDocument();
 		if (session.getUsername() != null) {
 			res.sendRedirect("/servlet/inbox");
 			return;
 		}
 		res.addHeader("Content-type", "text/html");
-		HtmlWriter.printHeader(out);
-		out.println("<body><h2>Joe-E Mail</h2>");
-		out.println("<p>Create Account</p>");
-		out.println("<form method=\"POST\" action=\"/servlet/create\">");
-		out.println("<span>Choose a username: <input type=\"text\" value=\"\" name=\"username\" /></span>");
-		out.println("<span>Choose a password: <input type=\"password\" value=\"\" name=\"password1\" /></span>");
-		out.println("<span>Re-enter password: <input type=\"password\" value=\"\" name=\"password2\" /></span>");
-		out.println("<input type=\"submit\" value=\"create\"></form></body>");
-		HtmlWriter.printFooter(out);
+		Element body = HtmlWriter.printHeader(doc);
+		
+		Element tmp = doc.createElement("h2");
+		tmp.appendChild(doc.createTextNode("Joe-E Mail"));
+		body.appendChild(tmp);
+		
+		tmp = doc.createElement("p");
+		tmp.appendChild(doc.createTextNode("Create Account"));
+		body.appendChild(tmp);
+		
+		tmp = doc.createElement("form");
+		tmp.setAttribute("method", "POST");
+		tmp.setAttribute("action", "/servlet/create");
+		
+		Node span = tmp.appendChild(doc.createElement("span"));
+		span.appendChild(doc.createTextNode("Choose a username: " ));
+		Element input = doc.createElement("input");
+		input.setAttribute("type", "text");
+		input.setAttribute("value", "");
+		input.setAttribute("name", "username");
+		span.appendChild(input);
+		
+		span = tmp.appendChild(doc.createElement("span"));
+		span.appendChild(doc.createTextNode("Choose a password: " ));
+		input = doc.createElement("input");
+		input.setAttribute("type", "password");
+		input.setAttribute("value", "");
+		input.setAttribute("name", "password1");
+		span.appendChild(input);
+		
+		span = tmp.appendChild(doc.createElement("span"));
+		span.appendChild(doc.createTextNode("Re-enter password: " ));
+		input = doc.createElement("input");
+		input.setAttribute("type", "password");
+		input.setAttribute("value", "");
+		input.setAttribute("name", "password2");
+		span.appendChild(input);
+		
+		input = doc.createElement("input");
+		input.setAttribute("type", "submit");
+		input.setAttribute("value", "create");
+		tmp.appendChild(input);
 	}
 
 	public void doPost(HttpServletRequest req, HttpServletResponse res)

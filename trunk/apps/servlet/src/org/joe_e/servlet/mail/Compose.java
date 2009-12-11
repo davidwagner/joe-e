@@ -20,6 +20,10 @@ import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.JoeEServlet;
 import org.joe_e.servlet.readonly;
 import org.joe_e.servlet.mail.notjoe_e.TransportAgent;
+import org.joe_e.servlet.response.ServletResponseWrapper;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public class Compose extends JoeEServlet {
 	
@@ -68,22 +72,63 @@ public class Compose extends JoeEServlet {
 			return;
 		}
 		res.addHeader("Content-type", "text/html");
-		PrintWriter out = res.getWriter();
-		HtmlWriter.printHeader(out);
-		out.println("<body><h6>signed in as " + session.getUsername() + "</h6>");
-		out.println("<h4>Compose Email</h4>");
+		Document doc = ((ServletResponseWrapper) res).getDocument();
+		Element body = HtmlWriter.printHeader(doc);
+		
+		Element tmp = doc.createElement("h6");
+		tmp.appendChild(doc.createTextNode("signed in as " + session.getUsername()));
+		body.appendChild(tmp);
+		
+		tmp = doc.createElement("h4");
+		tmp.appendChild(doc.createTextNode("Compose Email"));
+		body.appendChild(tmp);
+		
 		if (session.getErrorMessage() != null) {
-			out.println("<b>" + session.getErrorMessage() + "</b>");
+			tmp = doc.createElement("b");
+			tmp.appendChild(doc.createTextNode(session.getErrorMessage()));
+			body.appendChild(tmp);
 			session.setErrorMessage(null);
 		}
-		out.println("<form method=\"POST\" action=\"/servlet/compose\">");
-		out.println("<table border=\"0\">");
-		out.println("<tr><td>To:</td><td><input type=\"text\" value=\"\" name=\"to\" /></td></tr>");
-		out.println("<tr><td>Subject:</td><td><input type=\"text\" value=\"\" name=\"subject\" /></td></tr>");
-		out.println("<tr><td>Body:</td><td><textarea name=\"body\"></textarea></td></tr>");
-		out.println("<tr><td><input type=\"submit\" value=\"send\" name=\"send\" /></td></tr>");
-		out.println("</table></body>");
-		HtmlWriter.printFooter(out);
+		
+		Element form = doc.createElement("form");
+		form.setAttribute("method", "POST");
+		form.setAttribute("action", "/servlet/compose");
+		Element table = doc.createElement("table");
+		table.setAttribute("border", "0");
+		
+		// the to field
+		Node tr = table.appendChild(doc.createElement("tr"));
+		Node td = tr.appendChild(doc.createElement("td"));
+		td.appendChild(doc.createTextNode("To:"));
+		td = tr.appendChild(doc.createElement("td"));
+		Element input = doc.createElement("input");
+		input.setAttribute("type", "text");
+		input.setAttribute("value", "");
+		input.setAttribute("name", "to");
+		td.appendChild(input);
+		
+		// the subject field
+		tr = table.appendChild(doc.createElement("tr"));
+		td = tr.appendChild(doc.createElement("td"));
+		td.appendChild(doc.createTextNode("Subject:"));
+		td = tr.appendChild(doc.createElement("td"));
+		input = doc.createElement("input");
+		input.setAttribute("type", "text");
+		input.setAttribute("value", "");
+		input.setAttribute("name", "subject");
+		td.appendChild(input);
+		
+		// the body field
+		tr = table.appendChild(doc.createElement("tr"));
+		td = tr.appendChild(doc.createElement("td"));
+		td.appendChild(doc.createTextNode("To:"));
+		td = tr.appendChild(doc.createElement("td"));
+		input = doc.createElement("textarea");
+		input.setAttribute("name", "body");
+		td.appendChild(input);
+		
+		form.appendChild(table);
+		body.appendChild(form);
 	}
 	
 	public void doPost(HttpServletRequest req, HttpServletResponse res)
