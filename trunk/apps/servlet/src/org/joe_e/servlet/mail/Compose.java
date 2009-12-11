@@ -128,6 +128,10 @@ public class Compose extends JoeEServlet {
 		td.appendChild(input);
 		
 		form.appendChild(table);
+		input = doc.createElement("input");
+		input.setAttribute("type", "submit");
+		input.setAttribute("value", "send email");
+		form.appendChild(input);
 		body.appendChild(form);
 	}
 	
