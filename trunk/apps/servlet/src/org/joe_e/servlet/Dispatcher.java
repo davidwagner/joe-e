@@ -79,7 +79,6 @@ public class Dispatcher extends HttpServlet {
 	public static String errorMessage = "";
 	
 	// The map that contains url to servlet mappings
-	// TODO: does the map work if we have complex url-patterns? (i.e. regex stuff)
 	private HashMap<String, Class<?>> servletmapping;
 	private SessionInitializer initializer;
 	private static boolean serialized;
@@ -93,18 +92,13 @@ public class Dispatcher extends HttpServlet {
 	 * @throws ServletException if the policy file cannot
 	 * be found or if the class loader was unable to load the
 	 * JoeEServlet instances.
-	 * TODO exceptions should have meaningful messages
 	 */
 	public void init() throws ServletException {
-		try {
-			File policy = new File((String) getServletConfig().getInitParameter("policy"));
-			if (policy.exists()) {
-				this.parsePolicy(policy);
-			} else {
-				throw new ServletException("Unspecified Policy File");
-			}
-		} catch (ServletException e) {
-			throw new ServletException(e.getMessage());
+		File policy = new File((String) getServletConfig().getInitParameter("policy"));
+		if (policy.exists()) {
+			this.parsePolicy(policy);
+		} else {
+			throw new ServletException("Unspecified Policy File");
 		}
 	}
 	
@@ -117,13 +111,10 @@ public class Dispatcher extends HttpServlet {
 	 * @throws ServletException if unable to dynamically instantiate
 	 * the SessionView object and populate its members. Or if there
 	 * are any other reflection problems
-	 * TODO: should we allow GET requests to modify the session? 
-	 * aren't they not supposed to change state?
 	 */
 	public void doGet(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = req.getSession();
 		if (session.isNew()) {
-		    //			log("New session instance");
 			initializer.fillHttpSession(session);
 			transformSession(session);
 			session.setAttribute("lock", new ReentrantLock());
@@ -134,9 +125,6 @@ public class Dispatcher extends HttpServlet {
 		}
 		JoeEServlet servlet = findServlet(session, req, req.getServletPath());
 		try {
-		    //			log("servlet session: " + servlet.getSession());
-		    //			log("Dispatching GET request for DIFFERENT KIND OF JOE-E SERVLET " + req.getServletPath() + " to " + servlet.getClass().getName());
-
 			ServletResponseWrapper responseFacade = new ServletResponseWrapper(response);
 			servlet.setCookies(servlet.getCookieView(req.getCookies()));
 			servlet.doGet(req, responseFacade);
@@ -164,14 +152,10 @@ public class Dispatcher extends HttpServlet {
 	 * @throws ServletException if unable to dynamically instantiate
 	 * the SessionView object and populate its members. Or if there
 	 * are any other reflection problems
-	 * TODO: exceptions should have meaningful messages
-	 * TODO: what are the differences between GET and POST methods from
-	 * the point of view of the dispatcher?
 	 */
 	public void doPost(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = req.getSession();
 		if (session.isNew()) {
-		    //			log("New session instance");
 			initializer.fillHttpSession(session);
 			transformSession(session);
 			session.setAttribute("lock", new ReentrantLock());
@@ -181,14 +165,12 @@ public class Dispatcher extends HttpServlet {
 			lock.lock();
 		}
 		JoeEServlet servlet = findServlet(session, req, req.getServletPath());
-		//		log("Dispatching POST request for DIFFERENT KIND OF JOE-E SERVLET " + req.getServletPath() + " to " + servlet.getClass().getName());
 		try {
 		ServletResponseWrapper responseFacade = new ServletResponseWrapper(response);
 		servlet.setCookies(servlet.getCookieView(req.getCookies()));
 		servlet.doPost(req, responseFacade);
 		servlet.getCookies().finalizeCookies(response);
 		responseFacade.reallyFlushBuffer();
-		// TODO: this isn't correct. What if the session was invalidated?
 		} catch(Exception i) {
 			if (serialized) { lock.unlock(); }
 			String msg = i.getMessage();
@@ -230,9 +212,6 @@ public class Dispatcher extends HttpServlet {
 				} catch (NoSuchAlgorithmException e) {
 					throw new ServletException (e.getMessage());
 				}
-
-				//				log("Added instance of " + servletmapping.get(s).getName() + " to session " + session.getId());
-				//				log("Added session token at " +session.getAttribute(s).getClass().getSimpleName()+"__token");
 			} 
 			if (session.getAttribute(s) != null) {
 				return (JoeEServlet) session.getAttribute(s);
@@ -248,9 +227,6 @@ public class Dispatcher extends HttpServlet {
 				} catch (NoSuchAlgorithmException e) {
 					throw new ServletException (e.getMessage());
 				}
-				
-				//				log("Added instance of " + servletmapping.get(pattern).getName() + " to session " + session.getId());
-				//				log("added session token at " + session.getAttribute(pattern).getClass().getSimpleName()+"__token");
 			}
 			if (session.getAttribute(pattern) != null) {
 				return (JoeEServlet) session.getAttribute(pattern);
@@ -293,30 +269,20 @@ public class Dispatcher extends HttpServlet {
 	}
 	
 	
+	/**
+	 * Is this web server supposed to allow concurrent accesses to one users
+	 * data or not?
+	 * @return
+	 */
 	public static boolean isSerialized() {
 		return serialized;
 	}
-	
-	/**
-	 * Write the context of the HttpSession to the tomcat logs
-	 * for debugging purposes only
-	 * @param ses
-	 */
-	private void logSession(HttpSession ses) {
-		Enumeration<?> e = ses.getAttributeNames();
-		while (e.hasMoreElements()) {
-			String s = (String) e.nextElement();
-			log(s + ": " + ses.getAttribute(s));
-		}
-	}
-	
 	
 	/**
 	 * Parses the policy file and fills the map with the url->servlet
 	 * mappings.
 	 * @param File policy
 	 * @throws ServletException if anything goes wrong in the parsing
-	 * TODO: this may need some cleaning up
 	 */
 	private void parsePolicy(File policy) throws ServletException {
 		try {
@@ -341,7 +307,6 @@ public class Dispatcher extends HttpServlet {
 	 * them in the map. The details of implementation or not entirely 
 	 * important and this should only be used to parse the policy file
 	 * @author akshay
-	 *
 	 */
 	private class PolicyHandler extends DefaultHandler {
 		
@@ -441,22 +406,13 @@ public class Dispatcher extends HttpServlet {
 		}
 	}
 	
-	public void log(String s) {
-	    //		logger.fine(s);
-	}
-	
-	public void log(String s, Throwable t) {
-	    //		logger.severe(s + t.getLocalizedMessage());
-	}
-	
+	/**
+	 * write <code>s</code> to the log file specified in the application
+	 * configuration. 
+	 * @param s
+	 */
 	public static void logMsg(String s) {	
-	}
-	public static void logException(Exception e) {
-	    //		String msg = e.getMessage();
-	    //		for (StackTraceElement st : e.getStackTrace()) {
-	    //			msg += "\n"+st.getMethodName()+" " + st.getLineNumber() + " " + st.getClassName();
-	    //		}
-	    //		logger.fine(msg);
+		Dispatcher.logger.fine(s);
 	}
 	
 	public static String getErrorMessage() {

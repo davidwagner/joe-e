@@ -24,8 +24,6 @@ public class CreateAccount extends JoeEServlet {
 	public CookieView cookies;
 	
 	public class SessionView extends AbstractSessionView {
-//		public String username;
-//		@readonly public AccountManager manager;
 		private HttpSession session;
 		
 		public SessionView(HttpSession ses) {
@@ -34,6 +32,9 @@ public class CreateAccount extends JoeEServlet {
 		}
 		public String getUsername() {
 			return (String) session.getAttribute("__joe-e__username");
+		}
+		public String getToken() {
+			return (String) session.getAttribute("CreateAccount__token");
 		}
 		public void setUsername(String arg) {
 			session.setAttribute("__joe-e__username", arg);
@@ -94,6 +95,13 @@ public class CreateAccount extends JoeEServlet {
 		input.setAttribute("value", "");
 		input.setAttribute("name", "password2");
 		span.appendChild(input);
+		
+		// session token
+		input = doc.createElement("input");
+		input.setAttribute("type", "hidden");
+		input.setAttribute("value", session.getToken());
+		input.setAttribute("name", "secret");
+		tmp.appendChild(input);
 		
 		input = doc.createElement("input");
 		input.setAttribute("type", "submit");

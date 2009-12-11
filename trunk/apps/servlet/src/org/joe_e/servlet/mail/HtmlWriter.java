@@ -8,8 +8,6 @@ import org.w3c.dom.Element;
 public class HtmlWriter {
 
 	public static Element printHeader(Document doc) {
-//	        p.println("<!doctype html>");
-//		p.println("<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=ISO-8859-1\"><title>Joe-E Mail</title></head>");
 		Element root = doc.createElement("html");
 		doc.appendChild(root);
 
@@ -22,6 +20,11 @@ public class HtmlWriter {
 		Element body = doc.createElement("body");
 		root.appendChild(body);
 		return body;
+	}
+	
+	public static void printHeader(PrintWriter out) {
+		out.println("<!doctype html>");
+		out.println("<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=ISO-8859-1\"><title>Joe-E Mail</title></head>");
 	}
 	
 	public static String getHeader() {
