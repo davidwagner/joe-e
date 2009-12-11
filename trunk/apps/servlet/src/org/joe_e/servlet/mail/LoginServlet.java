@@ -94,7 +94,8 @@ public class LoginServlet extends JoeEServlet {
 		if (session.getErrorMessage() != null && !session.getErrorMessage().equals("")) {
 			tmp = doc.createElement("b");
 			tmp.appendChild(doc.createTextNode(session.getErrorMessage()));
-			body.appendChild(tmp);			
+			body.appendChild(tmp);	
+			session.setErrorMessage("");
 		}
 		tmp = doc.createElement("b");
 		tmp.appendChild(doc.createTextNode("Log in"));
@@ -124,6 +125,12 @@ public class LoginServlet extends JoeEServlet {
 		tmp.appendChild(doc.createElement("br"));
 		
 		input = doc.createElement("input");
+		input.setAttribute("type", "hidden");
+		input.setAttribute("value", session.getToken());
+		input.setAttribute("name", "secret");
+		tmp.appendChild(input);
+		
+		input = doc.createElement("input");
 		input.setAttribute("type", "submit");
 		input.setAttribute("value", "login");
 		tmp.appendChild(input);
@@ -135,6 +142,11 @@ public class LoginServlet extends JoeEServlet {
 	public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		String name = req.getParameter("username");
 		String password = req.getParameter("password");
+		String secret = req.getParameter("secret");
+		if (!secret.equals(session.getToken())) {
+			session.setErrorMessage("XSRF attempt");
+			res.sendRedirect("/servlet/login");
+		}
 		File mailbox = null;
 		if ((mailbox = session.getAuth().authenticate(name, password)) != null) {
 			session.setAuth(null);
