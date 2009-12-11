@@ -92,6 +92,7 @@ public class Inbox extends JoeEServlet {
 				tmp.setAttribute("href", "/servlet/read?id="+id);
 				tmp.appendChild(doc.createTextNode(subject));
 				body.appendChild(tmp);
+				body.appendChild(doc.createElement("br"));
 			}
 		}
 		
