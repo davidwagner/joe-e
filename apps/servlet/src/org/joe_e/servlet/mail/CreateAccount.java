@@ -39,6 +39,12 @@ public class CreateAccount extends JoeEServlet {
 		public void setUsername(String arg) {
 			session.setAttribute("__joe-e__username", arg);
 		}
+		public String getErrorMessage() {
+			return (String) session.getAttribute("__joe-e__errorMessage");
+		}
+		public void setErrorMessage(String arg) {
+			session.setAttribute("__joe-e__errorMessage", arg);
+		}
 		public AccountManager getManager() {
 			return (AccountManager) session.getAttribute("__joe-e__manager");
 		}
@@ -67,6 +73,12 @@ public class CreateAccount extends JoeEServlet {
 		tmp = doc.createElement("p");
 		tmp.appendChild(doc.createTextNode("Create Account"));
 		body.appendChild(tmp);
+		if (session.getErrorMessage() != null && !session.getErrorMessage().equals("")) {
+			tmp = doc.createElement("b");
+			tmp.appendChild(doc.createTextNode(session.getErrorMessage()));
+			body.appendChild(tmp);
+			session.setErrorMessage("");
+		}
 		
 		tmp = doc.createElement("form");
 		tmp.setAttribute("method", "POST");
@@ -114,6 +126,12 @@ public class CreateAccount extends JoeEServlet {
 		String name = req.getParameter("username");
 		String password1 = req.getParameter("password1");
 		String password2 = req.getParameter("password2");
+		String secret = req.getParameter("secret");
+		if (!secret.equals(session.getToken())) {
+			session.setErrorMessage("XSRF attempt");
+			res.sendRedirect("/servlet/create");
+		}
+		
 		if (password1.equals(password2) && session.getManager().addAccount(name, password1)) {
 			res.sendRedirect("/servlet/login");
 		} else {
