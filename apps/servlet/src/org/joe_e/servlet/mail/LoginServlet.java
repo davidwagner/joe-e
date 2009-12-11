@@ -91,7 +91,7 @@ public class LoginServlet extends JoeEServlet {
 			body.appendChild(tmp);
 			Dispatcher.setErrorMessage(null);
 		}
-		if (session.getErrorMessage() != null) {
+		if (session.getErrorMessage() != null && !session.getErrorMessage().equals("")) {
 			tmp = doc.createElement("b");
 			tmp.appendChild(doc.createTextNode(session.getErrorMessage()));
 			body.appendChild(tmp);			
@@ -111,6 +111,7 @@ public class LoginServlet extends JoeEServlet {
 		input.setAttribute("name", "username");
 		span.appendChild(input);
 		tmp.appendChild(span);
+		tmp.appendChild(doc.createElement("br"));
 		
 		span = doc.createElement("span");
 		span.appendChild(doc.createTextNode("Password: "));
@@ -120,11 +121,14 @@ public class LoginServlet extends JoeEServlet {
 		input.setAttribute("name", "password");
 		span.appendChild(input);
 		tmp.appendChild(span);
+		tmp.appendChild(doc.createElement("br"));
 		
 		input = doc.createElement("input");
 		input.setAttribute("type", "submit");
 		input.setAttribute("value", "login");
 		tmp.appendChild(input);
+		
+		body.appendChild(tmp);
 		
 	}
 	
