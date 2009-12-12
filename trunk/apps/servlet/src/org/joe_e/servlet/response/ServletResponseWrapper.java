@@ -107,7 +107,6 @@ public class ServletResponseWrapper implements HttpServletResponse {
 	}
 
 	public void reallyFlushBuffer() throws IOException, TransformerConfigurationException, TransformerException {
-		//String s = bufferedWriter.getText();
 		((ResponseDocument) doc).checkDocument();
 		TransformerFactory transfac = TransformerFactory.newInstance();
 		Transformer trans = transfac.newTransformer();
@@ -118,7 +117,6 @@ public class ServletResponseWrapper implements HttpServletResponse {
 		DOMSource source = new DOMSource(doc);
 		trans.transform(source, result);
 		String xmlString = sw.toString();
-		Dispatcher.logger.fine(xmlString);
 		if (xmlString != null) {
 			response.getWriter().write(xmlString);
 			response.flushBuffer();
