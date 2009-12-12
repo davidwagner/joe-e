@@ -146,6 +146,7 @@ public class LoginServlet extends JoeEServlet {
 		if (!secret.equals(session.getToken())) {
 			session.setErrorMessage("XSRF attempt");
 			res.sendRedirect("/servlet/login");
+			return;
 		}
 		File mailbox = null;
 		if ((mailbox = session.getAuth().authenticate(name, password)) != null) {

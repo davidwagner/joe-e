@@ -38,8 +38,8 @@ public class AuthenticationAgent {
 			}
 		} catch (FileNotFoundException e ) {
 		} catch (IOException e) {
+		} catch (IllegalArgumentException e) {
 		}
-		Dispatcher.logger.finest("Failed to authenticate " + username);
 		return null;
 	}
 }
