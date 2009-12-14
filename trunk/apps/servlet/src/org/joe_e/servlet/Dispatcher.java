@@ -193,20 +193,15 @@ public class Dispatcher extends HttpServlet {
 	 */
 	private JoeEServlet findServlet(HttpSession session, HttpServletRequest req, String s) throws ServletException {
 		try {
-			boolean isPattern = false;
 			String pattern = "";
 			if (s.indexOf('.') != -1) {
 				// then we're allowed to escape out the stuff before the .
 				pattern = "*"+s.substring(s.indexOf('.'));
-				isPattern = true;
 			} else if (s.lastIndexOf("/") != s.length()-1) {
 				pattern = s.substring(0, s.lastIndexOf("/")+1)+"*";
-				isPattern = true;
 			}
-			if (session.getAttribute(s) != null) {
-				return (JoeEServlet) session.getAttribute(s);
-			}
-			if (!isPattern && session.getAttribute(s) == null && servletmapping.get(s) != null) {
+			
+			if (session.getAttribute(s) == null && servletmapping.get(s) != null) {
 				// instantiate the class.
 				JoeEServlet servlet = (JoeEServlet) servletmapping.get(s).newInstance();
 				servlet.setSession (servlet.getSessionView(session));
@@ -219,7 +214,7 @@ public class Dispatcher extends HttpServlet {
 					throw new ServletException (e.getMessage());
 				}
 			} 
-			if (isPattern && session.getAttribute(pattern) == null && servletmapping.get(pattern) != null) {
+			else if (session.getAttribute(pattern) == null && servletmapping.get(pattern) != null) {
 				JoeEServlet servlet = (JoeEServlet) servletmapping.get(s).newInstance();
 				servlet.setSession (servlet.getSessionView(session));
 				session.setAttribute(pattern, servlet);
@@ -230,6 +225,9 @@ public class Dispatcher extends HttpServlet {
 				} catch (NoSuchAlgorithmException e) {
 					throw new ServletException (e.getMessage());
 				}
+			}
+			if (session.getAttribute(s) != null) {
+				return (JoeEServlet) session.getAttribute(s);
 			}
 			if (session.getAttribute(pattern) != null) {
 				return (JoeEServlet) session.getAttribute(pattern);
