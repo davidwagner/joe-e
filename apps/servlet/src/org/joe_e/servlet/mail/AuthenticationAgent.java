@@ -10,6 +10,7 @@ import java.security.MessageDigest;
 
 import org.joe_e.charset.ASCII;
 import org.joe_e.file.Filesystem;
+import org.joe_e.file.InvalidFilenameException;
 import org.joe_e.servlet.Dispatcher;
 
 public class AuthenticationAgent {
@@ -39,6 +40,7 @@ public class AuthenticationAgent {
 		} catch (FileNotFoundException e ) {
 		} catch (IOException e) {
 		} catch (IllegalArgumentException e) {
+		} catch (InvalidFilenameException e) {
 		}
 		return null;
 	}
