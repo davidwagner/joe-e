@@ -593,7 +593,13 @@ public class Verifier {
             state.addFlagDependency(icu, actualClass);
                         
             if (taming.isJoeE(actualClass)) {
-                // OK
+                if (imb.isSynthetic()) {
+                    addProblem("VERIFIER ERROR: Method call resolves to a " +
+                               "synthetic method on a Joe-E class; this is" +
+                               "insufficient info to determine safety.");
+                }
+                
+                // otherwise, OK
             } else if (taming.isTamed(actualClass)) {
                 if (!taming.isAllowed(actualClass, imb)) {
                     addProblem("Disabled method " + imb.getName() +
