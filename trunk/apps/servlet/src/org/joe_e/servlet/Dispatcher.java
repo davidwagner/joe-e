@@ -20,9 +20,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.htmlparser.Node;
-import org.htmlparser.lexer.Lexer;
-import org.htmlparser.util.ParserException;
 import org.joe_e.servlet.response.ServletResponseWrapper;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -197,7 +194,7 @@ public class Dispatcher extends HttpServlet {
 			if (s.indexOf('.') != -1) {
 				// then we're allowed to escape out the stuff before the .
 				pattern = "*"+s.substring(s.indexOf('.'));
-			} else if (s.lastIndexOf("/") != s.length()-1) {
+			} else if (s.lastIndexOf("/") == s.length()-1) {
 				pattern = s.substring(0, s.lastIndexOf("/")+1)+"*";
 			}
 			

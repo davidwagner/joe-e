@@ -107,7 +107,6 @@ public class ServletResponseWrapper implements HttpServletResponse {
 	}
 
 	public void reallyFlushBuffer() throws IOException, TransformerConfigurationException, TransformerException {
-		((ResponseDocument) doc).checkDocument();
 		TransformerFactory transfac = TransformerFactory.newInstance();
 		Transformer trans = transfac.newTransformer();
 		trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");

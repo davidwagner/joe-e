@@ -1,39 +1,32 @@
 package org.joe_e.servlet.response;
 
-import java.util.Stack;
-
-import org.w3c.dom.Attr;
-import org.w3c.dom.CDATASection;
-import org.w3c.dom.Comment;
-import org.w3c.dom.DOMConfiguration;
 import org.w3c.dom.DOMException;
-import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
-import org.w3c.dom.DocumentFragment;
-import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
-import org.w3c.dom.EntityReference;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.ProcessingInstruction;
-import org.w3c.dom.Text;
-import org.w3c.dom.UserDataHandler;
 
-import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import com.sun.org.apache.xerces.internal.dom.DocumentImpl;
 
 public class ResponseDocument extends DocumentImpl implements Document  {
 
-	/**
-	 * Perform depth first search and check that no script tags are in this
-	 * document.
-	 */
-	public void checkDocument() {
-		NodeList lst = this.getElementsByTagName("script");
-		for (int i = 0; i < lst.getLength(); i++) {
-			Node n = lst.item(i);
-			n.setTextContent("");
+	private static final String[] allowedTags = {"a", "abbr", "acronym", "address", "area", "b", 
+			"big", "blockquote", "br", "button", "caption", "center", "cite", "code",
+			"col", "colgroup", "dd", "del", "dfn", "dir", "div", "dl", "dt", "em",
+			"fieldset", "font", "form", "h1", "h2", "h3", "h4", "h5", "h6", "hr",
+			"i", "img", "input", "ins", "kbd", "label", "legend", "li", "map",
+			"menu", "ol", "optgroup", "option", "p", "pre", "q", "s", "samp", 
+			"select", "small", "span", "strike", "strong", "sub", "sup", "table",
+			"tbody", "td", "textarea", "tfoot", "th", "thead", "tr", "tt", "u",
+			"ul", "var"};
+
+	
+	public Element createElement(String type) throws DOMException {
+		for (int i = 0; i < allowedTags.length; i++) {
+			if (allowedTags[i].equals(type)) {
+				return new ResponseElement(this, super.createElement(type));
+			}
 		}
+		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Illegal tag");
 	}
 }
