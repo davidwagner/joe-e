@@ -27,6 +27,6 @@ public class ResponseDocument extends DocumentImpl implements Document  {
 				return new ResponseElement(this, super.createElement(type));
 			}
 		}
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Illegal tag");
+		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Illegal tag: " + type);
 	}
 }

@@ -134,17 +134,18 @@ public class LoginServlet extends JoeEServlet {
 		input.setAttribute("type", "submit");
 		input.setAttribute("value", "login");
 		tmp.appendChild(input);
-		
 		body.appendChild(tmp);
-		
+
+		body.appendChild(tmp);
+		body.appendChild(doc.createTextNode(session.getToken()));
 	}
 	
 	public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		String name = req.getParameter("username");
 		String password = req.getParameter("password");
 		String secret = req.getParameter("secret");
-		if (!secret.equals(session.getToken())) {
-			session.setErrorMessage("XSRF attempt");
+		if (!session.getToken().equals(secret)) {
+                        session.setErrorMessage("XSRF attempt");
 			res.sendRedirect("/servlet/login");
 			return;
 		}
