@@ -14,18 +14,20 @@ class SThread(threading.Thread):
         threading.Thread.__init__(self)
         self.i = i
         self.file = file(f+"/"+str(i)+".log", "w")
-        self.done = False
 
     def run(self):
+	self.arr = []
         while not done:
             try:
 		urllib2.urlopen(URLBASE+APPNAME)
 		urllib2.urlopen(URLBASE+APPNAME+"login")
                 stop = time.time()
-                self.file.write(str(stop)+"\n")
-                self.file.flush()
+		self.arr.append(str(stop))
             except Exception:
                 print "error: " + str(time.time())
+	output = reduce(lambda x,y: str(x) + "\n" + str(y), self.arr)
+	self.file.write(output)
+	self.file.flush()
 
 # for kk in [1,5, 10, 15, 20, 25, 30, 35, 40, 45, 50]:
 for kk in [1]:

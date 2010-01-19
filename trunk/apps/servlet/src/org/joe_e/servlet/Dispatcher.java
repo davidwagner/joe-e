@@ -197,9 +197,8 @@ public class Dispatcher extends HttpServlet {
 			} else if (s.lastIndexOf("/") == s.length()-1) {
 				pattern = s.substring(0, s.lastIndexOf("/")+1)+"*";
 			}
-			
 			if (session.getAttribute(s) == null && servletmapping.get(s) != null) {
-				// instantiate the class.
+			    // instantiate the class.
 				JoeEServlet servlet = (JoeEServlet) servletmapping.get(s).newInstance();
 				servlet.setSession (servlet.getSessionView(session));
 				session.setAttribute(s, servlet);
@@ -211,7 +210,7 @@ public class Dispatcher extends HttpServlet {
 					throw new ServletException (e.getMessage());
 				}
 			} 
-			else if (session.getAttribute(pattern) == null && servletmapping.get(pattern) != null) {
+			else if (!pattern.equals("") && session.getAttribute(pattern) == null && servletmapping.get(pattern) != null) {
 				JoeEServlet servlet = (JoeEServlet) servletmapping.get(s).newInstance();
 				servlet.setSession (servlet.getSessionView(session));
 				session.setAttribute(pattern, servlet);
