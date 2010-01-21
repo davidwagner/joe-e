@@ -11,13 +11,13 @@ import com.sun.org.apache.xerces.internal.dom.DocumentImpl;
 public class ResponseDocument extends DocumentImpl implements Document  {
 
 	private static final String[] allowedTags = {"a", "abbr", "acronym", "address", "area", "b", 
-			"big", "blockquote", "br", "button", "caption", "center", "cite", "code",
+			"big", "blockquote", "body", "br", "button", "caption", "center", "cite", "code",
 			"col", "colgroup", "dd", "del", "dfn", "dir", "div", "dl", "dt", "em",
-			"fieldset", "font", "form", "h1", "h2", "h3", "h4", "h5", "h6", "hr",
-			"i", "img", "input", "ins", "kbd", "label", "legend", "li", "map",
+			"fieldset", "font", "form", "h1", "h2", "h3", "h4", "h5", "h6", "head", 
+			"hr", "html", "i", "img", "input", "ins", "kbd", "label", "legend", "li", "map",
 			"menu", "ol", "optgroup", "option", "p", "pre", "q", "s", "samp", 
 			"select", "small", "span", "strike", "strong", "sub", "sup", "table",
-			"tbody", "td", "textarea", "tfoot", "th", "thead", "tr", "tt", "u",
+			"tbody", "td", "textarea", "tfoot", "th", "thead", "title", "tr", "tt", "u",
 			"ul", "var"};
 
 	

@@ -1,0 +1,16 @@
+<class name="org.joe_e.servlet.mail.IndexServlet">
+  <session-member name="username">
+    <type>String</type>
+    <read>True</read>
+    <write>False</write>
+  </session-member>
+  <session-member name="token">
+    <type>String</type>
+    <read>True</read>
+    <write>False</write>
+  </session-member>
+  <cookie-member name="testCookie">
+    <read>True</read>
+    <write>True</write>
+  </cookie-member>
+</class>

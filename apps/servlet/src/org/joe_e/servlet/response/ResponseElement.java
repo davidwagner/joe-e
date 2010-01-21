@@ -28,7 +28,8 @@ public class ResponseElement extends ElementImpl implements Element, TypeInfo {
 	public void setAttribute(String attName, String value) {
 		for (int i = 0; i < allowedAttributes.length; i++) {
 			if (allowedAttributes[i].equals(attName)) {
-				super.setAttribute(name, value);
+				super.setAttribute(attName, value);
+				return;
 			}
 		}
 		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Illegal attribute");
