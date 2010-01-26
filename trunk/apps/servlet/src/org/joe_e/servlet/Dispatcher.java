@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.concurrent.locks.Lock;
@@ -77,8 +78,12 @@ public class Dispatcher extends HttpServlet {
 	
 	// The map that contains url to servlet mappings
 	private HashMap<String, Class<?>> servletmapping;
+	private HashMap<String, String> jsmappings;
+	private HashMap<String, String> cssmappings;
 	private SessionInitializer initializer;
 	private static boolean serialized;
+	private static String jsRoot;
+	private static String cssRoot;
 	
 	public static Logger logger = Logger.getLogger(Dispatcher.class.getName());
 	
@@ -307,18 +312,20 @@ public class Dispatcher extends HttpServlet {
 	 */
 	private class PolicyHandler extends DefaultHandler {
 		
-		HashMap<String, String> servletMappings = new HashMap<String, String>();
 		String servletName = null;
 		boolean inServletName = false;
 		String servletClass = null;
 		boolean inServletClass = false;
-		String urlPattern = null;
+		ArrayList<String> urlPattern = new ArrayList<String>();
 		boolean inUrlPattern = false;
 		String sessionClass = null;
 		boolean sessionInit = false;
 		String concurrencyPolicy = null;
 		boolean concurrency = false;
 		
+		String jsFile = null;
+		String cssFile = null;
+	
 		public void startDocument() {
 			servletmapping = new HashMap<String, Class<?>> ();
 		}
@@ -326,20 +333,28 @@ public class Dispatcher extends HttpServlet {
 		public void startElement(String uri, String localname, String qName, Attributes attributes) {
 			if (qName.equals("servlet")) {
 				servletName = null;
+				urlPattern.clear();
 				servletClass = null;
+				jsFile = null;
+				cssFile = null;
 			} else if (qName.equals("servlet-name") && servletName == null && inServletName == false) {
 				inServletName = true;
 			} else if (qName.equals("servlet-class") && servletClass == null && inServletClass == false) {
 				inServletClass = true;
-			} else if (qName.equals("servlet-mapping")) {
-				servletName = null;
-				urlPattern = null;
 			} else if (qName.equals("url-pattern") && urlPattern == null && inUrlPattern == false) {
 				inUrlPattern = true;
 			} else if (qName.equals("session-init")) {
 				sessionInit = true;
 			} else if (qName.equals("concurrency")) {
 				concurrency = true;
+			} else if (qName.equals("js-root")) {
+				jsRoot = attributes.getValue("path");
+			} else if (qName.equals("css-root")) {
+				cssRoot = attributes.getValue("path");
+			} else if (qName.equals("js-file")) {
+				jsFile = attributes.getValue("name");
+			} else if (qName.equals("css-file")) {
+				cssFile = attributes.getValue("name");
 			}
 		}
 		
@@ -349,17 +364,21 @@ public class Dispatcher extends HttpServlet {
 			} else if (qName.equals("servlet-class") && servletClass != null && inServletClass == true) {
 				inServletClass = false;
 			} else if (qName.equals("servlet") && servletClass != null && servletName != null) {
-				servletMappings.put(servletName, servletClass);
-			} else if (qName.equals("url-pattern") && urlPattern != null && inUrlPattern == true) {
-				inUrlPattern = false;
-			} else if (qName.equals("servlet-mapping")) {
-				try {
-					Class<?> cl = this.getClass().getClassLoader().loadClass(servletMappings.get(servletName));
-					servletmapping.put(urlPattern, cl);
-				} catch (ClassNotFoundException c) {
-					log("caught exception... probably due to class loader issues", c);
-					throw new SAXException();
+				if (urlPattern.size() > 0) {
+					try {
+						Class<?> cl = this.getClass().getClassLoader().loadClass(servletClass);
+						for (String p : urlPattern) {
+							servletmapping.put(p, cl);
+							jsmappings.put(p, jsFile);
+							cssmappings.put(p, cssFile);
+						}
+					} catch (ClassNotFoundException c) {
+						log("caught exception... probably due to class loader issues", c);
+						throw new SAXException();
+					}
 				}
+			} else if (qName.equals("url-pattern") && inUrlPattern == true) {
+				inUrlPattern = false;
 			} else if (qName.equals("session-init")) {
 				try {
 					Class<?> cl = this.getClass().getClassLoader().loadClass(sessionClass);
@@ -391,7 +410,7 @@ public class Dispatcher extends HttpServlet {
 			} else if (inServletClass) {
 				servletClass = new String(ch, start, length);
 			} else if (inUrlPattern) {
-				urlPattern = new String(ch, start, length);
+				urlPattern.add(new String(ch, start, length));
 			} else if (sessionInit) {
 				sessionClass = new String(ch, start, length);
 			} else if (concurrency) {

@@ -12,18 +12,20 @@ perfpoints = []
 # reflectpoints = []
 #xpoints = [1,5,10,15,20,25,30,35,40,45,50,60,70,80]
 #xpoints = [1,5,10,15,20,25,30]
-xpoints = [20]
+xpoints = [10]
 
 # this is the servlet related metric
 for kk in xpoints:
-    for iters in range(10):
+    for iters in range(5):
         l = []
         dir = DIR+"/servlet"+str(kk)+"-"+str(iters)
         for x in os.listdir(dir):
             f = file(dir+"/"+x).readlines()
             for line in f:
                 l.append(float(line))
-
+        if len(l) == 0:
+            print "no data"
+            continue
         l.sort()
     
         i = 0
@@ -41,6 +43,7 @@ for kk in xpoints:
 
             start += j
 
+        ax.plot(x, y)
         servletmean = mean(y)
         servletpoints.append(servletmean)
         servletvar = var(y)
@@ -49,7 +52,7 @@ for kk in xpoints:
 
 # this is the perf-related metric
 for kk in xpoints:
-    for iters in range(10):
+    for iters in range(5):
         l = []
 
 
@@ -58,7 +61,9 @@ for kk in xpoints:
             f = file(dir+"/"+x).readlines()
             for line in f:
                 l.append(float(line))
-
+        if len(l) == 0:
+            print "no data"
+            continue
         l.sort()
     
         i = 0
@@ -76,7 +81,14 @@ for kk in xpoints:
 
             start += j
 
+        ax.plot(x,y)
         servletmean = mean(y)
         servletpoints.append(servletmean)
         servletvar = var(y)
-        print "servlet mean: %f" % (servletmean)
+        print "perf mean: %f" % (servletmean)
+
+
+ax.set_ylim(0,1000)
+xlabel('time')
+ylabel('number of requests handled')
+show()
