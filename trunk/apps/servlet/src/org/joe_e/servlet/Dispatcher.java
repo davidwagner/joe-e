@@ -328,6 +328,8 @@ public class Dispatcher extends HttpServlet {
 	
 		public void startDocument() {
 			servletmapping = new HashMap<String, Class<?>> ();
+			jsmappings = new HashMap<String, String> ();
+			cssmappings = new HashMap<String, String> ();
 		}
 		
 		public void startElement(String uri, String localname, String qName, Attributes attributes) {
@@ -341,7 +343,7 @@ public class Dispatcher extends HttpServlet {
 				inServletName = true;
 			} else if (qName.equals("servlet-class") && servletClass == null && inServletClass == false) {
 				inServletClass = true;
-			} else if (qName.equals("url-pattern") && urlPattern == null && inUrlPattern == false) {
+			} else if (qName.equals("url-pattern")) {
 				inUrlPattern = true;
 			} else if (qName.equals("session-init")) {
 				sessionInit = true;
@@ -377,7 +379,7 @@ public class Dispatcher extends HttpServlet {
 						throw new SAXException();
 					}
 				}
-			} else if (qName.equals("url-pattern") && inUrlPattern == true) {
+			} else if (qName.equals("url-pattern")) {
 				inUrlPattern = false;
 			} else if (qName.equals("session-init")) {
 				try {
@@ -410,6 +412,7 @@ public class Dispatcher extends HttpServlet {
 			} else if (inServletClass) {
 				servletClass = new String(ch, start, length);
 			} else if (inUrlPattern) {
+			    log("adding " + new String(ch, start, length) + " to urlPattern");
 				urlPattern.add(new String(ch, start, length));
 			} else if (sessionInit) {
 				sessionClass = new String(ch, start, length);
