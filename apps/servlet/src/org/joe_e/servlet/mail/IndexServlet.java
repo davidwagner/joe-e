@@ -96,9 +96,6 @@ public class IndexServlet extends JoeEServlet {
 		tmp.appendChild(doc.createTextNode("Stay here"));
 		body.appendChild(tmp);
 		body.appendChild(doc.createElement("br"));
-		tmp = doc.createElement("script");
-		tmp.appendChild(doc.createTextNode("alert('foo');"));
-		body.appendChild(tmp);
 
 		if (cookies.getTestCookie() != null) {
 		    body.appendChild(doc.createTextNode(cookies.getTestCookie()));

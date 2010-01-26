@@ -19,7 +19,6 @@ public class ResponseDocument extends DocumentImpl implements Document  {
 			"select", "small", "span", "strike", "strong", "sub", "sup", "table",
 			"tbody", "td", "textarea", "tfoot", "th", "thead", "title", "tr", "tt", "u",
 			"ul", "var"};
-
 	
 	public Element createElement(String type) throws DOMException {
 		for (int i = 0; i < allowedTags.length; i++) {

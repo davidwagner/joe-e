@@ -27,7 +27,7 @@ public class ResponseElement extends ElementImpl implements Element, TypeInfo {
 	
 	private static final Pattern invalidUrl = Pattern.compile(
 			"(^\\s*j\\s*a\\s*v\\s*a\\s*s\\s*c\\s*r\\s*i\\s*p\\s*t\\s*:)|" + // javascript
-			"(^\\s*v\\s*i\\s*e\\s*w\\s*-s\\s*o\\s*u\\s*r\\s*c\\s*e\\s*:|" + // view-source
+			"(^\\s*v\\s*i\\s*e\\s*w\\s*-s\\s*o\\s*u\\s*r\\s*c\\s*e\\s*:)|" + // view-source
 			"(^\\s*d\\s*a\\s*t\\s*a\\s*:)|" +                               // data
 			"(^\\s*v\\s*b\\s*s\\s*s\\s*r\\s*i\\s*p\\s*t\\s*:)|" +           // vbscript
 			"(^\\s*a\\s*b\\s*o\\s*u\\s*t\\s*:)|" +                          // about
@@ -45,7 +45,7 @@ public class ResponseElement extends ElementImpl implements Element, TypeInfo {
 		for (int i = 0; i < allowedAttributes.length; i++) {
 			if (allowedAttributes[i].equals(attName)) {
 				for (int j = 0; j < linkAttributes.length; j++) {
-					if (linkAttributes[i].equals(attName)) {
+					if (linkAttributes[j].equals(attName)) {
 						if (checkLink (value))
 							break;
 						else {
@@ -53,7 +53,7 @@ public class ResponseElement extends ElementImpl implements Element, TypeInfo {
 						}
 					}
 				}
-				if (attName.equals("type") && value.length() >= 15 && value.substring(0, 15).equals("text/javascript"))) {
+				if (attName.equals("type") && value.length() >= 15 && value.substring(0, 15).equals("text/javascript")) {
 					throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Illegal type attribute value: " + value);
 				}
 				if (attName.equals("style")) {
