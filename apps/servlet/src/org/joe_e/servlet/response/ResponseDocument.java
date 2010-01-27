@@ -28,4 +28,26 @@ public class ResponseDocument extends DocumentImpl implements Document  {
 		}
 		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Illegal tag: " + type);
 	}
+
+    public void addJSLink(String jsFile) {
+	Element js = super.createElement("script");
+	js.setAttribute("src", jsFile);
+	this.getDocumentElement().appendChild(js);
+    }
+    
+    public void addCSSLink(String cssFile) {
+        Element css = super.createElement("link");
+        css.setAttribute("href", cssFile);
+        css.setAttribute("type", "text/css");
+	css.setAttribute("rel", "stylesheet");
+        Element docElem = this.getDocumentElement();
+        NodeList heads = docElem.getElementsByTagName("head");
+        if (heads.getLength() == 0) {
+	    Element head = super.createElement("head");
+	    head.appendChild(css);
+	    docElem.insertBefore(head, docElem.getFirstChild());
+        } else {
+	    heads.item(0).appendChild(css);
+        }
+    }
 }

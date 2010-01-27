@@ -1,7 +1,7 @@
 <web-app>
 <concurrency>serialized</concurrency>
-<js-root path="./javascript" />
-<css-root path="./css" />
+<js-root path="static/js" />
+<css-root path="static/css" />
 <session-init>org.joe_e.servlet.mail.notjoe_e.SessionInit</session-init>
 <servlet>
   <servlet-name>index</servlet-name>

@@ -22,6 +22,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.joe_e.servlet.response.ServletResponseWrapper;
+import org.joe_e.servlet.response.ResponseDocument;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -131,6 +132,9 @@ public class Dispatcher extends HttpServlet {
 			servlet.setCookies(servlet.getCookieView(req.getCookies()));
 			servlet.doGet(req, responseFacade);
 			servlet.getCookies().finalizeCookies(response);			
+			// TODO: depends on the servlet.
+			((ResponseDocument) responseFacade.getDocument()).addJSLink(jsRoot+"/index.js");
+			((ResponseDocument) responseFacade.getDocument()).addCSSLink(cssRoot+"/index.css");
 			responseFacade.reallyFlushBuffer();
 		} catch(Exception i) {
 			if (serialized) { lock.unlock(); }
