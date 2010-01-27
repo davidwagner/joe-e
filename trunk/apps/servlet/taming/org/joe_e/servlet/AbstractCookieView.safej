@@ -1,5 +1,7 @@
 # Manually modified safej file for Joe-e mail.
 class("org.joe_e.servlet.AbstractCookieView",
-  static(constructor(allow, "AbstractCookieView()", comment("allowed for Joe-E mail. We need this so that Joe-E servlets can extend it and use the default constructor"))),
-  instance(method(suppress, "fillCookieView(HttpServletRequest)", comment("default deny")),
+  static(constructor(allow, "AbstractCookieView()", comment("allowed for Joe-E mail. We need this so that Joe-E servlets can extend it and use the default constructor")),
+    constructor(allow, "AbstractCookieView(Cookie[])", comment("allowed"))),
+  instance(field(allow, "cookies", comment("allowed")),
+    method(suppress, "fillCookieView(HttpServletRequest)", comment("default deny")),
     method(suppress, "fillHttpResponse(HttpServletRequest, HttpServletResponse)", comment("default deny"))))

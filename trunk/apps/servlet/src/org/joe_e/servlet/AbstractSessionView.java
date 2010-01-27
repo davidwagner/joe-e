@@ -113,20 +113,4 @@ public abstract class AbstractSessionView {
 		}
 	}
 	
-	
-	/**
-	 * Check if the argument object is cloneable. 
-	 * @deprecated
-	 * @param o
-	 */
-	private static boolean isCloneable(Object o) {
-		Class<?>[] classes = o.getClass().getInterfaces();
-		for (Class<?> cl : classes) {
-			if (cl.getName().equals("java.lang.cloneable")){
-				return true;
-			}
-		}
-		return false;
-	}
-	
 }

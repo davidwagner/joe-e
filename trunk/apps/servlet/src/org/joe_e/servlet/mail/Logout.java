@@ -12,7 +12,6 @@ import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.Dispatcher;
 import org.joe_e.servlet.JoeEServlet;
-import org.joe_e.servlet.readonly;
 
 public class Logout extends JoeEServlet {
 

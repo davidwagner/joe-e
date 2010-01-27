@@ -1,0 +1,2 @@
+class("org.joe_e.servlet.mail.notjoe_e.TransportAgent",
+  instance(method(allow, "send(Message)", comment("allowed"))))
