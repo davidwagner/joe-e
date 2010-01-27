@@ -19,7 +19,7 @@ import javax.servlet.http.HttpSession;
  * @author akshay
  *
  */
-public class JoeEServlet extends HttpServlet {
+public class JoeEServlet extends HttpServlet implements org.joe_e.Immutable {
 	
 	/**
 	 * All JoeEServlets must have an inner class called SessionView that extends
@@ -57,7 +57,7 @@ public class JoeEServlet extends HttpServlet {
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView c) throws ServletException, IOException {
 		throw new ServletException("Unimplemented method in servlet");
 	}
 	
@@ -68,7 +68,7 @@ public class JoeEServlet extends HttpServlet {
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView c) throws ServletException, IOException {
 		throw new ServletException("Unimplemented method in servlet");	
 	}
 	

@@ -20,9 +20,6 @@ import org.w3c.dom.Element;
 
 public class LoginServlet extends JoeEServlet {
 
-	public SessionView session;
-	public CookieView cookies;
-	
 	public class SessionView extends AbstractSessionView {
 		public SessionView(HttpSession ses) {
 			super(ses);
@@ -70,7 +67,9 @@ public class LoginServlet extends JoeEServlet {
 		}
 	}
 	
-	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView c)
+	throws ServletException, IOException {
+		SessionView session = (SessionView) ses;
 		if (session.getUsername() != null) {
 			res.sendRedirect("/servlet/inbox");
 			return;
@@ -137,7 +136,9 @@ public class LoginServlet extends JoeEServlet {
 		body.appendChild(doc.createTextNode(session.getToken()));
 	}
 	
-	public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView c)
+	throws ServletException, IOException {
+		SessionView session = (SessionView) ses;
 		String name = req.getParameter("username");
 		String password = req.getParameter("password");
 		String secret = req.getParameter("secret");

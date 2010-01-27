@@ -23,15 +23,10 @@ import org.w3c.dom.Element;
 
 public class Inbox extends JoeEServlet {
 
-	public SessionView session;
-	public CookieView cookies;
-	
+
 	public class SessionView extends AbstractSessionView {
-		private HttpSession session;
-		
 		public SessionView(HttpSession ses) {
 			super(ses);
-			session = ses;
 		}
 		public String getUsername() {
 			return (String) session.getAttribute("__joe-e__username");
@@ -47,8 +42,9 @@ public class Inbox extends JoeEServlet {
 		}
 	}
 	
-	public void doGet(HttpServletRequest req, HttpServletResponse res)
+	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView c)
 		throws IOException, ServletException {
+		SessionView session = (SessionView) ses;
 		if (session.getUsername() == null) {
 		    Dispatcher.logger.fine("redirecting to /servlet/login");
 		    res.sendRedirect("/servlet/login");

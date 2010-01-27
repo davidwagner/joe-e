@@ -20,14 +20,10 @@ import org.joe_e.servlet.JoeEServlet;
  */
 public class TestBufferedPrintWriter extends JoeEServlet {
 
-	public SessionView session;
-	public CookieView cookies;
 	
 	public class SessionView extends AbstractSessionView {
-		private HttpSession session;
 		public SessionView (HttpSession ses) {
 			super(ses);
-			session = ses;
 		}
 	}
 	
@@ -37,7 +33,7 @@ public class TestBufferedPrintWriter extends JoeEServlet {
 		}
 	}
 	
-	public void doGet(HttpServletRequest req, HttpServletResponse res) 
+	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView c) 
 		throws ServletException, IOException {
 		PrintWriter writer = res.getWriter();
 		writer.println("<html><body>");

@@ -18,15 +18,9 @@ import org.w3c.dom.Node;
 
 public class CreateAccount extends JoeEServlet {
 
-	public SessionView session;
-	public CookieView cookies;
-	
 	public class SessionView extends AbstractSessionView {
-		private HttpSession session;
-		
 		public SessionView(HttpSession ses) {
 			super(ses);
-			session = ses;
 		}
 		public String getUsername() {
 			return (String) session.getAttribute("__joe-e__username");
@@ -54,8 +48,9 @@ public class CreateAccount extends JoeEServlet {
 		}
 	}
 	
-	public void doGet(HttpServletRequest req, HttpServletResponse res)
+	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView c)
 		throws IOException, ServletException {
+		SessionView session = (SessionView) ses;
 		Document doc = ((ServletResponseWrapper)res).getDocument();
 		if (session.getUsername() != null) {
 			res.sendRedirect("/servlet/inbox");
@@ -119,8 +114,9 @@ public class CreateAccount extends JoeEServlet {
 		tmp.appendChild(input);
 	}
 
-	public void doPost(HttpServletRequest req, HttpServletResponse res)
+	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView c)
 		throws IOException, ServletException {
+		SessionView session = (SessionView) ses;
 		String name = req.getParameter("username");
 		String password1 = req.getParameter("password1");
 		String password2 = req.getParameter("password2");

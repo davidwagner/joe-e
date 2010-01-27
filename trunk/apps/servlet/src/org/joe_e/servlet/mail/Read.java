@@ -22,17 +22,9 @@ import org.w3c.dom.Element;
 
 public class Read extends JoeEServlet {
 
-	public SessionView session;
-	public CookieView cookies;
-	
 	public class SessionView extends AbstractSessionView {
-//		@readonly public String username;
-//		@readonly public File mailbox;
-		private HttpSession session;
-		
 		public SessionView(HttpSession ses) {
 			super(ses);
-			session = ses;
 		}
 		public String getUsername() {
 			return (String) session.getAttribute("__joe-e__username");
@@ -48,7 +40,9 @@ public class Read extends JoeEServlet {
 		}
 	}
 	
-	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView c)
+	throws ServletException, IOException {
+		SessionView session = (SessionView) ses;
 		if (session.getUsername() == null) {
 			res.sendRedirect("/servlet/login");
 			return;
