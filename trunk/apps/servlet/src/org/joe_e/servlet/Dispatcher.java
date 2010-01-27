@@ -78,9 +78,9 @@ public class Dispatcher extends HttpServlet {
 	public static String errorMessage = "";
 	
 	// The map that contains url to servlet mappings
-	private HashMap<String, Class<?>> servletmapping;
-	private HashMap<Class<?>, String> jsmappings;
-	private HashMap<Class<?>, String> cssmappings;
+	private HashMap<String, JoeEServlet> servletmapping;
+	private HashMap<JoeEServlet, String> jsmappings;
+	private HashMap<JoeEServlet, String> cssmappings;
 	private SessionInitializer initializer;
 	private static boolean serialized;
 	private static String jsRoot;
@@ -126,9 +126,9 @@ public class Dispatcher extends HttpServlet {
 		if (serialized) {
 			lock.lock();
 		}
-		JoeEServlet servlet = findServlet(session, req, req.getServletPath());
-		AbstractSessionView sessionview = servlet.new SessionView(req.getSession());
-		AbstractCookieView cookieview = servlet.new CookieView(req.getCookies());
+		JoeEServlet servlet = findServlet(session, req.getServletPath());
+		AbstractSessionView sessionview = servlet.getSessionView(req.getSession());
+		AbstractCookieView cookieview = servlet.getCookieView(req.getCookies());
 		String jsFile = jsmappings.get(servlet.getClass());
 		String cssFile = cssmappings.get(servlet.getClass());
 		try {
@@ -172,9 +172,9 @@ public class Dispatcher extends HttpServlet {
 		if (serialized) {
 			lock.lock();
 		}
-		JoeEServlet servlet = findServlet(session, req, req.getServletPath());
-		AbstractSessionView sessionview = servlet.new SessionView(req.getSession());
-		AbstractCookieView cookieview = servlet.new CookieView(req.getCookies());
+		JoeEServlet servlet = findServlet(session, req.getServletPath());
+		AbstractSessionView sessionview = servlet.getSessionView(req.getSession());
+		AbstractCookieView cookieview = servlet.getCookieView(req.getCookies());
 		try {
 		ServletResponseWrapper responseFacade = new ServletResponseWrapper(response);
 		servlet.doPost(req, responseFacade, sessionview, cookieview);
@@ -202,20 +202,18 @@ public class Dispatcher extends HttpServlet {
 	 * @param s
 	 * @return the JoeEServlet corresponding to the url s
 	 */
-	private JoeEServlet findServlet(HttpSession session, HttpServletRequest req, String s) throws ServletException {
-		try {
-			String pattern = "";
-			if (s.indexOf('.') != -1) {
-				// then we're allowed to escape out the stuff before the .
-				pattern = "*"+s.substring(s.indexOf('.'));
-			} else if (s.lastIndexOf("/") == s.length()-1) {
-				pattern = s.substring(0, s.lastIndexOf("/")+1)+"*";
-			}
-			if (session.getAttribute(s) == null && servletmapping.get(s) != null) {
-			    // instantiate the class.
-				JoeEServlet servlet = (JoeEServlet) servletmapping.get(s).newInstance();
-				servlet.setSession (servlet.getSessionView(session));
-				session.setAttribute(s, servlet);
+	private JoeEServlet findServlet(HttpSession session, String s) throws ServletException {
+		String pattern = "";
+		if (s.indexOf('.') != -1) {
+			// then we're allowed to escape out the stuff before the .
+			pattern = "*"+s.substring(s.indexOf('.'));
+		} else if (s.lastIndexOf("/") == s.length()-1) {
+			pattern = s.substring(0, s.lastIndexOf("/")+1)+"*";
+		}
+		if (servletmapping.get(s) != null) {
+			// instantiate the class.
+			JoeEServlet servlet = servletmapping.get(s);
+			if (session.getAttribute(servlet.getClass().getSimpleName()+"__token") == null) {
 				try {
 					MessageDigest md5 = MessageDigest.getInstance("md5");
 					md5.update((Long.toHexString(System.currentTimeMillis())).getBytes());
@@ -223,11 +221,12 @@ public class Dispatcher extends HttpServlet {
 				} catch (NoSuchAlgorithmException e) {
 					throw new ServletException (e.getMessage());
 				}
-			} 
-			else if (!pattern.equals("") && session.getAttribute(pattern) == null && servletmapping.get(pattern) != null) {
-				JoeEServlet servlet = (JoeEServlet) servletmapping.get(s).newInstance();
-				servlet.setSession (servlet.getSessionView(session));
-				session.setAttribute(pattern, servlet);
+			}
+		} 
+		else if (!pattern.equals("") && servletmapping.get(pattern) != null) {
+			JoeEServlet servlet = (JoeEServlet) servletmapping.get(pattern);
+			if (session.getAttribute(servlet.getClass().getSimpleName()+"__token") == null) {
+
 				try {
 					MessageDigest md5 = MessageDigest.getInstance("md5");
 					md5.update((Long.toHexString(System.currentTimeMillis())).getBytes());
@@ -236,22 +235,18 @@ public class Dispatcher extends HttpServlet {
 					throw new ServletException (e.getMessage());
 				}
 			}
-			if (session.getAttribute(s) != null) {
-				return (JoeEServlet) session.getAttribute(s);
-			}
-			if (session.getAttribute(pattern) != null) {
-				return (JoeEServlet) session.getAttribute(pattern);
-			}
-			throw new ServletException("Couldn't find url-pattern for " + s);
-		} catch (InstantiationException e) {
-			log("Unable to instantiate class: " + servletmapping.get(s).getName() + " for url: " + s);
-			throw new ServletException ("unable to instantiate servlet for url");
-		} catch (IllegalAccessException e) {
-			log("Unable to instantiate class: " + servletmapping.get(s).getName() + " for url: " + s);
-			throw new ServletException ("unable to instantiate servlet for url");
 		}
+
+
+		if (servletmapping.get(s) != null) {
+			return (JoeEServlet) servletmapping.get(s);
+		}
+		if (servletmapping.get(pattern) != null) {
+			return (JoeEServlet) servletmapping.get(pattern);
+		}
+		throw new ServletException("Couldn't find url-pattern for " + s);
 	}
-	
+
 	
 	/**
 	 * invalidate a session object and free up space in the perSessionServlets
@@ -336,9 +331,9 @@ public class Dispatcher extends HttpServlet {
 		String cssFile = null;
 	
 		public void startDocument() {
-			servletmapping = new HashMap<String, Class<?>> ();
-			jsmappings = new HashMap<Class<?>, String> ();
-			cssmappings = new HashMap<Class<?>, String> ();
+			servletmapping = new HashMap<String, JoeEServlet> ();
+			jsmappings = new HashMap<JoeEServlet, String> ();
+			cssmappings = new HashMap<JoeEServlet, String> ();
 		}
 		
 		public void startElement(String uri, String localname, String qName, Attributes attributes) {
@@ -377,7 +372,7 @@ public class Dispatcher extends HttpServlet {
 			} else if (qName.equals("servlet") && servletClass != null && servletName != null) {
 				if (urlPattern.size() > 0) {
 					try {
-						Class<?> cl = this.getClass().getClassLoader().loadClass(servletClass);
+						JoeEServlet cl = (JoeEServlet) this.getClass().getClassLoader().loadClass(servletClass).newInstance();
 						for (String p : urlPattern) {
 							servletmapping.put(p, cl);
 							jsmappings.put(cl, jsFile);
@@ -385,6 +380,12 @@ public class Dispatcher extends HttpServlet {
 						}
 					} catch (ClassNotFoundException c) {
 						log("caught exception... probably due to class loader issues", c);
+						throw new SAXException();
+					} catch (InstantiationException c) {
+						log("caught instantiation exception.");
+						throw new SAXException();
+					} catch (IllegalAccessException e) {
+						log("caught illegal access exception.");
 						throw new SAXException();
 					}
 				}
