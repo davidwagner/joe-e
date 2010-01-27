@@ -1,0 +1,2 @@
+class("org.w3c.dom.Element",
+  instance(method(allow, "setAttribute(String, String)", comment("allowed"))))

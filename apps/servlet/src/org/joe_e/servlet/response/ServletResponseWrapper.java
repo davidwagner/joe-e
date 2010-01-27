@@ -8,7 +8,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 import org.joe_e.servlet.BufferedPrintWriter;
-import org.joe_e.servlet.Dispatcher;
 import org.w3c.dom.*;
 import javax.xml.parsers.*;
 import javax.xml.transform.*;
@@ -59,6 +58,9 @@ public class ServletResponseWrapper implements HttpServletResponse {
 		return response.encodeRedirectURL(arg0);
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public String encodeRedirectUrl(String arg0) {
 		return response.encodeRedirectUrl(arg0);
 	}
@@ -67,6 +69,9 @@ public class ServletResponseWrapper implements HttpServletResponse {
 		return response.encodeURL(arg0);
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public String encodeUrl(String arg0) {
 		return response.encodeUrl(arg0);
 	}
@@ -99,6 +104,9 @@ public class ServletResponseWrapper implements HttpServletResponse {
 		response.setStatus(arg0);
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setStatus(int arg0, String arg1) {
 		response.setStatus(arg0, arg1);
 	}
@@ -122,7 +130,7 @@ public class ServletResponseWrapper implements HttpServletResponse {
 		}
 	}
     public Document getDocument() {
-	return doc;
+    	return doc;
     }
 	public int getBufferSize() {
 		return response.getBufferSize();

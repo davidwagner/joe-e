@@ -3,7 +3,6 @@ package org.joe_e.servlet.response;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.sun.org.apache.xerces.internal.dom.DocumentImpl;
@@ -30,16 +29,16 @@ public class ResponseDocument extends DocumentImpl implements Document  {
 	}
 
     public void addJSLink(String jsFile) {
-	Element js = super.createElement("script");
-	js.setAttribute("src", jsFile);
-	this.getDocumentElement().appendChild(js);
+        Element js = super.createElement("script");
+        js.setAttribute("src", jsFile);
+        this.getDocumentElement().appendChild(js);
     }
     
     public void addCSSLink(String cssFile) {
         Element css = super.createElement("link");
         css.setAttribute("href", cssFile);
         css.setAttribute("type", "text/css");
-	css.setAttribute("rel", "stylesheet");
+        css.setAttribute("rel", "stylesheet");
         Element docElem = this.getDocumentElement();
         NodeList heads = docElem.getElementsByTagName("head");
         if (heads.getLength() == 0) {

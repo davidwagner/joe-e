@@ -2,11 +2,9 @@ package org.joe_e.servlet.mail;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Properties;
 
 import javax.mail.Session;
-import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.ServletException;
@@ -18,7 +16,6 @@ import javax.servlet.http.HttpSession;
 import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.JoeEServlet;
-import org.joe_e.servlet.readonly;
 import org.joe_e.servlet.mail.notjoe_e.TransportAgent;
 import org.joe_e.servlet.response.ServletResponseWrapper;
 import org.w3c.dom.Document;
@@ -179,7 +176,7 @@ public class Compose extends JoeEServlet {
 		try {
 		    session.getTransportAgent().send(msg);
 		} catch (Exception e) {
-		        session.setErrorMessage("error in sending: " + e.getMessage());
+		        session.setErrorMessage("error in sending");
 			res.sendRedirect("/servlet/compose");
 			return;
 		}

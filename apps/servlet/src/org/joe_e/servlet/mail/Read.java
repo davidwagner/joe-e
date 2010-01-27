@@ -3,7 +3,6 @@ package org.joe_e.servlet.mail;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Reader;
 
 import javax.servlet.ServletException;
@@ -16,10 +15,7 @@ import org.joe_e.charset.ASCII;
 import org.joe_e.file.Filesystem;
 import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
-import org.joe_e.servlet.Dispatcher;
 import org.joe_e.servlet.JoeEServlet;
-import org.joe_e.servlet.readonly;
-import org.joe_e.servlet.Dispatcher;
 import org.joe_e.servlet.response.ServletResponseWrapper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

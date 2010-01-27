@@ -1,13 +1,8 @@
 # Manually modified safej file for Joe-e mail.
 class("org.joe_e.servlet.Dispatcher",
-  static(field(allow, "logger", comment("Allowed for Joe-E Mail")),
-    constructor(suppress, "Dispatcher()", comment("default deny")),
-    method(allow, "getErrorMessage()", comment("allowed")),
-    method(allow, "setErrorMessage(String)", comment("allowed")),
-    method(allow, "logMsg(String)", comment("allowed"))),
-  instance(method(suppress, "doGet(HttpServletRequest, HttpServletResponse)", comment("default deny")),
-    method(suppress, "doPost(HttpServletRequest, HttpServletResponse)", comment("default deny")),
-    method(suppress, "init()", comment("default deny")),
-    method(suppress, "log(String)", comment("default deny")),
-    method(suppress, "log(String, Throwable)", comment("default deny"))))
-
+  static(constructor(suppress, "Dispatcher()", comment("default deny")),
+  field(allow, "logger", comment("allowed")),
+  method(allow, "logMsg(String)", comment("allowed")),
+  method(allow, "getErrorMessage()", comment("allowed")),
+  method(allow, "setErrorMessage(String)", comment("allowed"))),
+  instance(method(suppress, "doGet(HttpServletRequest, HttpServletResponse)", comment("default deny"))))

@@ -2,7 +2,6 @@ package org.joe_e.servlet.mail;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -17,7 +16,6 @@ import org.joe_e.servlet.JoeEServlet;
 import org.joe_e.servlet.response.ServletResponseWrapper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 
 public class LoginServlet extends JoeEServlet {
@@ -73,7 +71,6 @@ public class LoginServlet extends JoeEServlet {
 	}
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		PrintWriter out = res.getWriter();
 		if (session.getUsername() != null) {
 			res.sendRedirect("/servlet/inbox");
 			return;

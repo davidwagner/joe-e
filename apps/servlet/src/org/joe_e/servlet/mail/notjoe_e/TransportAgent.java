@@ -1,7 +1,6 @@
 package org.joe_e.servlet.mail.notjoe_e;
 
 import javax.mail.Transport;
-import javax.mail.Message;
 import javax.mail.MessagingException;
 
 public class TransportAgent {

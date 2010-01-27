@@ -1394,6 +1394,7 @@ public class Policy {
         // Type java.util.AbstractCollection
 
         // Type java.util.AbstractList
+        methods.add("java.util.AbstractList.iterator()");
 
         // Type java.util.AbstractMap
 
@@ -1404,6 +1405,7 @@ public class Policy {
         // Type java.util.AbstractSet
 
         // Type java.util.ArrayList
+        methods.add("java.util.ArrayList.add(E)");
 
         // Type java.util.Arrays
 
@@ -1795,6 +1797,10 @@ public class Policy {
         // Type javax.servlet.UnavailableException
 
         // Type javax.servlet.http.Cookie
+        constructors.add("javax.servlet.http.Cookie(String, String)");
+        methods.add("javax.servlet.http.Cookie.getValue()");
+        methods.add("javax.servlet.http.Cookie.getName()");
+        methods.add("javax.servlet.http.Cookie.setValue(String)");
 
         // Type javax.servlet.http.HttpServlet
 
@@ -1809,6 +1815,9 @@ public class Policy {
         // Type javax.servlet.http.HttpServletResponseWrapper
 
         // Type javax.servlet.http.HttpSession
+        methods.add("javax.servlet.http.HttpSession.getAttribute(String)");
+        methods.add("javax.servlet.http.HttpSession.invalidate()");
+        methods.add("javax.servlet.http.HttpSession.setAttribute(String, Object)");
 
         // Type javax.servlet.http.HttpSessionActivationListener
 
@@ -2167,10 +2176,13 @@ public class Policy {
         methods.add("org.joe_e.reflect.Reflection.construct(Constructor, Object[])");
 
         // Type org.joe_e.servlet.AbstractCookieView
+        fields.add("org.joe_e.servlet.AbstractCookieView.cookies");
+        constructors.add("org.joe_e.servlet.AbstractCookieView(Cookie[])");
         constructors.add("org.joe_e.servlet.AbstractCookieView()");
 
         // Type org.joe_e.servlet.AbstractSessionView
-        constructors.add("org.joe_e.servlet.AbstractSessionView()");
+        fields.add("org.joe_e.servlet.AbstractSessionView.session");
+        constructors.add("org.joe_e.servlet.AbstractSessionView(HttpSession)");
 
         // Type org.joe_e.servlet.Cloner
 
@@ -2188,12 +2200,28 @@ public class Policy {
         // Type org.joe_e.servlet.mail.notjoe_e.PostfixClient
         methods.add("org.joe_e.servlet.mail.notjoe_e.PostfixClient.updateDatabase(String)");
 
+        // Type org.joe_e.servlet.mail.notjoe_e.TransportAgent
+        methods.add("org.joe_e.servlet.mail.notjoe_e.TransportAgent.send(Message)");
+
         // Type org.joe_e.servlet.readonly
+
+        // Type org.joe_e.servlet.response.ServletResponseWrapper
+        methods.add("org.joe_e.servlet.response.ServletResponseWrapper.getDocument()");
 
         // Type org.joe_e.taming.Policy
         methods.add("org.joe_e.taming.Policy.methodEnabled(String)");
         methods.add("org.joe_e.taming.Policy.fieldEnabled(String)");
         methods.add("org.joe_e.taming.Policy.hasHonorary(String, String)");
         methods.add("org.joe_e.taming.Policy.constructorEnabled(String)");
+
+        // Type org.w3c.dom.Document
+        methods.add("org.w3c.dom.Document.createTextNode(String)");
+        methods.add("org.w3c.dom.Document.createElement(String)");
+
+        // Type org.w3c.dom.Element
+        methods.add("org.w3c.dom.Element.setAttribute(String, String)");
+
+        // Type org.w3c.dom.Node
+        methods.add("org.w3c.dom.Node.appendChild(Node)");
     }
 }

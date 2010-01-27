@@ -1,7 +1,7 @@
 # Manually modified safej file for Joe-e mail.
 class("org.joe_e.servlet.JoeEServlet",
   static(constructor(allow, "JoeEServlet()", comment("allowed for Joe-E Mail. Required for subclasses to extend and call default superconstructor"))),
-  instance(method(suppress, "doGet(HttpServletRequest, HttpServletResponse, AbstractSessionView, AbstractCookieView)", comment("default deny")),
-    method(suppress, "doPost(HttpServletRequest, HttpServletResponse, AbstractSessionView, AbstractCookieView)", comment("default deny")),
+  instance(method(suppress, "doGet(HttpServletRequest, HttpServletResponse)", comment("default deny")),
+    method(suppress, "doPost(HttpServletRequest, HttpServletResponse)", comment("default deny")),
     method(suppress, "getSessionView()", comment("default deny")),
     method(suppress, "getCookieView()", comment("default deny"))))

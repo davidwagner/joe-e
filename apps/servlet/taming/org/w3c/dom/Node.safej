@@ -1,0 +1,2 @@
+class("org.w3c.dom.Node",
+  instance(method(allow, "appendChild(Node)", comment("allowed"))))
