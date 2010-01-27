@@ -79,8 +79,8 @@ public class Dispatcher extends HttpServlet {
 	
 	// The map that contains url to servlet mappings
 	private HashMap<String, Class<?>> servletmapping;
-	private HashMap<String, String> jsmappings;
-	private HashMap<String, String> cssmappings;
+	private HashMap<Class<?>, String> jsmappings;
+	private HashMap<Class<?>, String> cssmappings;
 	private SessionInitializer initializer;
 	private static boolean serialized;
 	private static String jsRoot;
@@ -127,14 +127,16 @@ public class Dispatcher extends HttpServlet {
 			lock.lock();
 		}
 		JoeEServlet servlet = findServlet(session, req, req.getServletPath());
+		AbstractSessionView sessionview = servlet.new SessionView(req.getSession());
+		AbstractCookieView cookieview = servlet.new CookieView(req.getCookies());
+		String jsFile = jsmappings.get(servlet.getClass());
+		String cssFile = cssmappings.get(servlet.getClass());
 		try {
 			ServletResponseWrapper responseFacade = new ServletResponseWrapper(response);
-			servlet.setCookies(servlet.getCookieView(req.getCookies()));
-			servlet.doGet(req, responseFacade);
-			servlet.getCookies().finalizeCookies(response);			
-			// TODO: depends on the servlet.
-			((ResponseDocument) responseFacade.getDocument()).addJSLink(jsRoot+"/index.js");
-			((ResponseDocument) responseFacade.getDocument()).addCSSLink(cssRoot+"/index.css");
+			servlet.doGet(req, responseFacade, sessionview, cookieview);
+			cookieview.finalizeCookies(response);			
+			((ResponseDocument) responseFacade.getDocument()).addJSLink(jsRoot+"/"+jsFile);
+			((ResponseDocument) responseFacade.getDocument()).addCSSLink(cssRoot+"/"+cssFile);
 			responseFacade.reallyFlushBuffer();
 		} catch(Exception i) {
 			if (serialized) { lock.unlock(); }
@@ -171,11 +173,14 @@ public class Dispatcher extends HttpServlet {
 			lock.lock();
 		}
 		JoeEServlet servlet = findServlet(session, req, req.getServletPath());
+		AbstractSessionView sessionview = servlet.new SessionView(req.getSession());
+		AbstractCookieView cookieview = servlet.new CookieView(req.getCookies());
 		try {
 		ServletResponseWrapper responseFacade = new ServletResponseWrapper(response);
-		servlet.setCookies(servlet.getCookieView(req.getCookies()));
-		servlet.doPost(req, responseFacade);
-		servlet.getCookies().finalizeCookies(response);
+		servlet.doPost(req, responseFacade, sessionview, cookieview);
+		cookieview.finalizeCookies(response);
+		((ResponseDocument) responseFacade.getDocument()).addJSLink(jsRoot+"/index.js");
+		((ResponseDocument) responseFacade.getDocument()).addCSSLink(cssRoot+"/index.css");
 		responseFacade.reallyFlushBuffer();
 		} catch(Exception i) {
 			if (serialized) { lock.unlock(); }
@@ -332,8 +337,8 @@ public class Dispatcher extends HttpServlet {
 	
 		public void startDocument() {
 			servletmapping = new HashMap<String, Class<?>> ();
-			jsmappings = new HashMap<String, String> ();
-			cssmappings = new HashMap<String, String> ();
+			jsmappings = new HashMap<Class<?>, String> ();
+			cssmappings = new HashMap<Class<?>, String> ();
 		}
 		
 		public void startElement(String uri, String localname, String qName, Attributes attributes) {
@@ -375,8 +380,8 @@ public class Dispatcher extends HttpServlet {
 						Class<?> cl = this.getClass().getClassLoader().loadClass(servletClass);
 						for (String p : urlPattern) {
 							servletmapping.put(p, cl);
-							jsmappings.put(p, jsFile);
-							cssmappings.put(p, cssFile);
+							jsmappings.put(cl, jsFile);
+							cssmappings.put(cl, cssFile);
 						}
 					} catch (ClassNotFoundException c) {
 						log("caught exception... probably due to class loader issues", c);

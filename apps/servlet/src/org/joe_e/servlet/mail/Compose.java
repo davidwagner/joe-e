@@ -24,14 +24,9 @@ import org.w3c.dom.Node;
 
 public class Compose extends JoeEServlet {
 	
-	public SessionView session; 
-	public CookieView cookies;
-	
 	public class SessionView extends AbstractSessionView {
-		private HttpSession session;
 		public SessionView(HttpSession ses) {
 			super(ses);
-			this.session = ses;
 		}
 		public String getUsername() {
 			return (String) session.getAttribute("__joe-e__username");
@@ -59,8 +54,10 @@ public class Compose extends JoeEServlet {
 		}
 	}
 
-	public void doGet(HttpServletRequest req, HttpServletResponse res) 
+	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView c) 
 		throws ServletException, IOException {
+		SessionView session = (SessionView) ses;
+		CookieView cookies = (CookieView) c;
 		if (session.getUsername() == null) {
 			res.sendRedirect("/servlet/login");
 			return;
@@ -134,8 +131,10 @@ public class Compose extends JoeEServlet {
 		body.appendChild(form);
 	}
 	
-	public void doPost(HttpServletRequest req, HttpServletResponse res)
+	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView c)
 		throws ServletException, IOException {
+		SessionView session = (SessionView) ses;
+		CookieView cookies = (CookieView) c;
 		if (session.getUsername() == null) {
 			res.sendRedirect("/servlet/login");
 		}

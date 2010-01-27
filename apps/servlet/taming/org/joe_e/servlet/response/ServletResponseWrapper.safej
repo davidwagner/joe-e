@@ -1,0 +1,2 @@
+class("org.joe_e.servlet.response.ServletResponseWrapper",
+  instance(method(allow, "getDocument()", comment("allowed"))))

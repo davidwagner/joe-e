@@ -21,17 +21,9 @@ import org.joe_e.servlet.response.ServletResponseWrapper;
  */
 public class IndexServlet extends JoeEServlet {
 
-	// NOTE: making this public is OK, b/c you still need an reference to this
-	// servlet to get ahold of the session members we expose in this view.
-	public SessionView session;
-	public CookieView cookies;
-	
 	public class SessionView extends AbstractSessionView {
-		private HttpSession session;
-		
 		public SessionView(HttpSession ses) {
 			super (ses);
-			session = ses;
 		}
 		
 		public String getUsername() {
@@ -68,7 +60,10 @@ public class IndexServlet extends JoeEServlet {
 		}
 	}
 	
-	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView c)
+	throws ServletException, IOException {
+		SessionView session = (SessionView) ses;
+		CookieView cookies = (CookieView) c;
 		if (session.getUsername() != null) {
 			res.sendRedirect("/servlet/inbox");
 		}
@@ -112,7 +107,8 @@ public class IndexServlet extends JoeEServlet {
 		}
 	}
 	
-	public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		this.doGet(req, res);
+	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView c)
+	throws ServletException, IOException {
+		this.doGet(req, res, ses, c);
 	}
 }

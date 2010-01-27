@@ -15,15 +15,9 @@ import org.joe_e.servlet.JoeEServlet;
 
 public class Logout extends JoeEServlet {
 
-	public SessionView session;
-	public CookieView cookies;
-	
 	public class SessionView extends AbstractSessionView {
-//		public boolean invalidate;
-		public HttpSession session;
 		public SessionView(HttpSession ses) {
 			super(ses);
-			session = ses;
 		}
 		public void invalidate() {
 			session.invalidate();
@@ -36,8 +30,9 @@ public class Logout extends JoeEServlet {
 		}
 	}
 	
-	public void doGet(HttpServletRequest req, HttpServletResponse res)
+	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView c)
 		throws IOException, ServletException {
+		SessionView session = (SessionView) ses;
 	    Dispatcher.logger.fine("in doGet of Logout");
 		session.invalidate();
 		res.sendRedirect("/servlet/");
