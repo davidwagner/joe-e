@@ -129,8 +129,8 @@ public class Dispatcher extends HttpServlet {
 		JoeEServlet servlet = findServlet(session, req.getServletPath());
 		AbstractSessionView sessionview = servlet.getSessionView(req.getSession());
 		AbstractCookieView cookieview = servlet.getCookieView(req.getCookies());
-		String jsFile = jsmappings.get(servlet.getClass());
-		String cssFile = cssmappings.get(servlet.getClass());
+		String jsFile = jsmappings.get(servlet);
+		String cssFile = cssmappings.get(servlet);
 		try {
 			ServletResponseWrapper responseFacade = new ServletResponseWrapper(response);
 			servlet.doGet(req, responseFacade, sessionview, cookieview);
@@ -175,13 +175,15 @@ public class Dispatcher extends HttpServlet {
 		JoeEServlet servlet = findServlet(session, req.getServletPath());
 		AbstractSessionView sessionview = servlet.getSessionView(req.getSession());
 		AbstractCookieView cookieview = servlet.getCookieView(req.getCookies());
+		String jsFile = jsmappings.get(servlet);
+		String cssFile = cssmappings.get(servlet);
 		try {
-		ServletResponseWrapper responseFacade = new ServletResponseWrapper(response);
-		servlet.doPost(req, responseFacade, sessionview, cookieview);
-		cookieview.finalizeCookies(response);
-		((ResponseDocument) responseFacade.getDocument()).addJSLink(jsRoot+"/index.js");
-		((ResponseDocument) responseFacade.getDocument()).addCSSLink(cssRoot+"/index.css");
-		responseFacade.reallyFlushBuffer();
+			ServletResponseWrapper responseFacade = new ServletResponseWrapper(response);
+			servlet.doPost(req, responseFacade, sessionview, cookieview);
+			cookieview.finalizeCookies(response);
+			((ResponseDocument) responseFacade.getDocument()).addJSLink(jsRoot+"/"+jsFile);
+			((ResponseDocument) responseFacade.getDocument()).addCSSLink(cssRoot+"/"+cssFile);
+			responseFacade.reallyFlushBuffer();
 		} catch(Exception i) {
 			if (serialized) { lock.unlock(); }
 			String msg = i.getMessage();
@@ -194,7 +196,7 @@ public class Dispatcher extends HttpServlet {
 			lock.unlock();
 		}
 	}
-	
+
 	/**
 	 * perform a lookup in the url->servlet map for the string s
 	 * add servlets to the session as needed
@@ -210,39 +212,27 @@ public class Dispatcher extends HttpServlet {
 		} else if (s.lastIndexOf("/") == s.length()-1) {
 			pattern = s.substring(0, s.lastIndexOf("/")+1)+"*";
 		}
+		JoeEServlet servlet = null;
 		if (servletmapping.get(s) != null) {
 			// instantiate the class.
-			JoeEServlet servlet = servletmapping.get(s);
-			if (session.getAttribute(servlet.getClass().getSimpleName()+"__token") == null) {
-				try {
-					MessageDigest md5 = MessageDigest.getInstance("md5");
-					md5.update((Long.toHexString(System.currentTimeMillis())).getBytes());
-					session.setAttribute(session.getAttribute(s).getClass().getSimpleName()+"__token", (new BigInteger(md5.digest())).toString(16));
-				} catch (NoSuchAlgorithmException e) {
-					throw new ServletException (e.getMessage());
-				}
-			}
+			 servlet = servletmapping.get(s);
 		} 
 		else if (!pattern.equals("") && servletmapping.get(pattern) != null) {
-			JoeEServlet servlet = (JoeEServlet) servletmapping.get(pattern);
+			servlet = (JoeEServlet) servletmapping.get(pattern);
+
+		}
+		if (servlet != null) {
 			if (session.getAttribute(servlet.getClass().getSimpleName()+"__token") == null) {
 
 				try {
 					MessageDigest md5 = MessageDigest.getInstance("md5");
 					md5.update((Long.toHexString(System.currentTimeMillis())).getBytes());
-					session.setAttribute(session.getAttribute(pattern).getClass().getSimpleName()+"__token", (new BigInteger(md5.digest())).toString(16));
+					session.setAttribute(servlet.getClass().getSimpleName()+"__token", (new BigInteger(md5.digest())).toString(16));
 				} catch (NoSuchAlgorithmException e) {
 					throw new ServletException (e.getMessage());
 				}
 			}
-		}
-
-
-		if (servletmapping.get(s) != null) {
-			return (JoeEServlet) servletmapping.get(s);
-		}
-		if (servletmapping.get(pattern) != null) {
-			return (JoeEServlet) servletmapping.get(pattern);
+			return servlet;
 		}
 		throw new ServletException("Couldn't find url-pattern for " + s);
 	}
