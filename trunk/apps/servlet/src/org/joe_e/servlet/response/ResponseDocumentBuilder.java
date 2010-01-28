@@ -11,6 +11,13 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+/**
+ * For our DOM implementation, we extend the standard DocumentBuilder to return
+ * our on <code>ResponseDocument</code> instead of a <code>DocumentImpl</code>.
+ * Other than that, this object is incomplete. 
+ * @author akshay
+ *
+ */
 public class ResponseDocumentBuilder extends DocumentBuilder {
 
 	@Override

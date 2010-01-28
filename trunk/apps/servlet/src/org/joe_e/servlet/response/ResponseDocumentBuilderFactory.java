@@ -4,6 +4,14 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+/**
+ * Again this is used to obtain an instance of <code>ResponseDocument</code>. 
+ * This can give you a <code>ResponseDocumentBuilder</code> which can in turn
+ * give you a <code>ResponseDocument</code>. Other than these features, this
+ * class is incomplete. 
+ * @author akshay
+ *
+ */
 public class ResponseDocumentBuilderFactory extends DocumentBuilderFactory {
 
 	@Override

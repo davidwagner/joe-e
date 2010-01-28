@@ -17,17 +17,14 @@ import javax.servlet.http.HttpSession;
  * to add application level functionality to your webapp. When a user visits a url the Joe-E Servlet Dispatcher
  * will receive the request and forward it to the proper servlet as specified in the policy.xml file. 
  * @author akshay
- *
  */
 public class JoeEServlet extends HttpServlet implements org.joe_e.Immutable {
 	
 	/**
 	 * All JoeEServlets must have an inner class called SessionView that extends
-	 * org.joe_e.servlet.SessionView. This class specifies which session variables
+	 * org.joe_e.servlet.AbstractSessionView. This class specifies which session variables
 	 * the servlet has access to and also specifies which session variables are
-	 * read only or read/write. The names of the instance
-	 * variables of the SessionView must be exactly the same as the key's of the
-	 * HttpSession map. This is just a default implementation where none of the
+	 * read only or read/write. This is just a default implementation where none of the
 	 * session is accessible to the servlet.
 	 * @author akshay
 	 *
@@ -72,58 +69,13 @@ public class JoeEServlet extends HttpServlet implements org.joe_e.Immutable {
 		throw new ServletException("Unimplemented method in servlet");	
 	}
 	
-	protected void setSession(AbstractSessionView ses) {
-		try {
-			this.getClass().getField("session").setAccessible(true);
-			this.getClass().getField("session").set(this, ses);
-		} catch (Exception e) {
-		}
-	}
-
-	protected AbstractSessionView getSession() {
-		try {
-			return (AbstractSessionView) this.getClass().getField("session").get(this);
-		} catch (Exception e) {
-		}
-		return null;
-	}
-	
-	protected void setCookies(AbstractCookieView c) {
-		try {
-			this.getClass().getField("cookies").setAccessible(true);
-			this.getClass().getField("cookies").set(this, c);
-		} catch (Exception e) {
-		}
-	}
-	
-	protected AbstractCookieView getCookies() {
-		try {
-			return (AbstractCookieView) this.getClass().getField("cookies").get(this);
-		} catch (Exception e) {
-		}
-		return null;
-	}
-	
 	/**
 	 * creates an instance of the SessionView for this specific JoeEServlet.
-	 * Returns an empty SessionView, which should then be filled by the 
-	 * SessionView.fillSession(HttpSession) method.
 	 * @return AbstractSessionView object (but really it's a subclass of this)
 	 * @throws InstantiationException if reflection stuff goes wrong
 	 * @throws IllegalAccessException if reflection stuff goes wrong
 	 * @throws InvocationTargetException if reflection stuff goes wrong
 	 */
-	public AbstractSessionView getSessionView() throws InstantiationException, IllegalAccessException, InvocationTargetException {
-		for (Class<?> c : this.getClass().getClasses()) {
-			if (c.getName().equals(this.getClass().getName() + "$SessionView")) {
-				for (Constructor<?> cr : c.getConstructors()) {
-					return (AbstractSessionView) cr.newInstance(this);
-				}
-			}
-		}
-		return null;
-	}
-	
 	public AbstractSessionView getSessionView(HttpSession session) {
 		try {
 			for (Class<?> c : this.getClass().getClasses()) {
@@ -138,17 +90,13 @@ public class JoeEServlet extends HttpServlet implements org.joe_e.Immutable {
 		return null;
 	}
 	
-	public AbstractCookieView getCookieView() throws InstantiationException, IllegalAccessException, InvocationTargetException {
-		for (Class<?> c : this.getClass().getClasses()) {
-			if (c.getName().equals(this.getClass().getName() + "$CookieView")) {
-				for (Constructor<?> cr : c.getConstructors()) {
-					return (AbstractCookieView) cr.newInstance(this);
-				}
-			}
-		}
-		return null;
-	}
-	
+	/**
+	 * Creates an instance of the CookieView for this specific JoeEServlet
+	 * @return AbstractCookieView object (but really a subclass of it)
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
 	public AbstractCookieView getCookieView(Cookie[] ck) {
 		try {
 			for (Class<?> c : this.getClass().getClasses()) {

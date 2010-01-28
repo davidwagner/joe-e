@@ -28,6 +28,7 @@ import java.lang.annotation.Target;
  * to the object. In order to do this, the field must also be cloneable in 
  * a meaningful way. It must implement the cloneable interface and making
  * a clone of the object must essentially create a deep copy of the object.
+ * @deprecated
  */
 public @interface readonly {
 }

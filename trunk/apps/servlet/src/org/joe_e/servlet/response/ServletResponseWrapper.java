@@ -7,7 +7,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
-import org.joe_e.servlet.BufferedPrintWriter;
 import org.w3c.dom.*;
 import javax.xml.parsers.*;
 import javax.xml.transform.*;
@@ -15,20 +14,19 @@ import javax.xml.transform.dom.*;
 import javax.xml.transform.stream.*;
 
 /**
- * TODO: should probably suppress some methods in HttpServletResponse
- * to avoid some hassles. 
+ * This is our wrapper implementation of a HttpServletResponse. This exposes the DOM API
+ * instead of the PrintWriter API of the default implementation. All other features
+ * are just forwarded to the underlying HttpServletResponse object. 
  * @author akshay
  *
  */
 public class ServletResponseWrapper implements HttpServletResponse {
 	
 	HttpServletResponse response;
-	BufferedPrintWriter bufferedWriter; 
 	Document doc;
 
     public ServletResponseWrapper(HttpServletResponse res) throws IOException, ParserConfigurationException {
 		response = res;
-		bufferedWriter = new BufferedPrintWriter(response.getWriter());
 		DocumentBuilderFactory dbfac = ResponseDocumentBuilderFactory.newInstance();
 		DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
 		doc = docBuilder.newDocument();
@@ -111,24 +109,37 @@ public class ServletResponseWrapper implements HttpServletResponse {
 		response.setStatus(arg0, arg1);
 	}
 
+	/** 
+	 * Instead of flushing the print writer, we convert the Document object
+	 * to a String of xml, write that string to the response's writer and then
+	 * flush the writer's buffer. 
+	 */
 	public void flushBuffer() throws IOException {
-	}
-
-	public void reallyFlushBuffer() throws IOException, TransformerConfigurationException, TransformerException {
-		TransformerFactory transfac = TransformerFactory.newInstance();
-		Transformer trans = transfac.newTransformer();
-		trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-		trans.setOutputProperty(OutputKeys.INDENT, "yes");
-		StringWriter sw = new StringWriter();
-		StreamResult result = new StreamResult(sw);
-		DOMSource source = new DOMSource(doc);
-		trans.transform(source, result);
-		String xmlString = sw.toString();
-		if (xmlString != null) {
-			response.getWriter().write(xmlString);
-			response.flushBuffer();
+		try {
+			TransformerFactory transfac = TransformerFactory.newInstance();
+			Transformer trans = transfac.newTransformer();
+			trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+			trans.setOutputProperty(OutputKeys.INDENT, "yes");
+			StringWriter sw = new StringWriter();
+			StreamResult result = new StreamResult(sw);
+			DOMSource source = new DOMSource(doc);
+			trans.transform(source, result);
+			String xmlString = sw.toString();
+			if (xmlString != null) {
+				response.getWriter().write(xmlString);
+				response.flushBuffer();
+			}
+		} catch (TransformerConfigurationException e) {
+			throw new IOException (e.getMessage());
+		} catch (TransformerException e) {
+			throw new IOException (e.getMessage());
 		}
 	}
+	
+	/**
+	 * Get a Document object that implements the DOM API. 
+	 * @return
+	 */
     public Document getDocument() {
     	return doc;
     }
@@ -153,7 +164,7 @@ public class ServletResponseWrapper implements HttpServletResponse {
 	}
 
 	public PrintWriter getWriter() throws IOException {
-		return bufferedWriter;
+		return response.getWriter();
 	}
 
 	public boolean isCommitted() {

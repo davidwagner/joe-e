@@ -15,6 +15,7 @@ import java.lang.reflect.Field;
  * 
  * @see http://www.javaworld.com/javaworld/javatips/jw-javatip76.html
  * @author akshay
+ * @deprecated
  *
  */
 public class Cloner {
