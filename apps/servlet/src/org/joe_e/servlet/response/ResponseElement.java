@@ -9,8 +9,16 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 import org.w3c.dom.TypeInfo;
 
+/**
+ * We have our own implementation of <code>Element</code> which prevents
+ * the application for using certain attributes, and additionally checks
+ * that urls are safe (TODO: this isn't done well).  
+ * @author akshay
+ *
+ */
 public class ResponseElement extends ElementImpl implements Element, TypeInfo {
 
+	// The list of allowed attributes. 
 	private static final String[] allowedAttributes = {"abbr", "accept", 
 		"accept-charset", "accesskey", "action", "align", "alt", "axis", "border",
 		"cellpadding", "cellspacing", "char", "charoff", "charset", "checked",
@@ -23,8 +31,10 @@ public class ResponseElement extends ElementImpl implements Element, TypeInfo {
 		"start", "summary", "tabindex", "target", "title", "type", "usemap",
 		"valign", "value", "vspace", "width"};
 	
+	// places where content can be linked in
 	private static final String[] linkAttributes = {"src", "href"};
 	
+	// illegal link formats
 	private static final Pattern invalidUrl = Pattern.compile(
 			"(^\\s*j\\s*a\\s*v\\s*a\\s*s\\s*c\\s*r\\s*i\\s*p\\s*t\\s*:)|" + // javascript
 			"(^\\s*v\\s*i\\s*e\\s*w\\s*-s\\s*o\\s*u\\s*r\\s*c\\s*e\\s*:)|" + // view-source
@@ -33,14 +43,26 @@ public class ResponseElement extends ElementImpl implements Element, TypeInfo {
 			"(^\\s*a\\s*b\\s*o\\s*u\\s*t\\s*:)|" +                          // about
 			"(^\\s*s\\s*h\\s*e\\s*l\\s*l\\s*:)", Pattern.CASE_INSENSITIVE); // shell
 	
+	// illegal style formats. 
 	private static final Pattern invalidStyleValue = Pattern.compile(
 			"("+cssContentsRegexp("javascript") + ")|(" + 
 			cssContentsRegexp("expression")+")", Pattern.CASE_INSENSITIVE);
 		
+	/**
+	 * Construct a ResponseElement. 
+	 * @param d
+	 * @param e
+	 */
 	public ResponseElement(CoreDocumentImpl d, Element e) {
 		super(d, e.getNodeName());
 	}
 	
+	/**
+	 * To set an attribute, check that the <code>attName</code> is in <code>allowedAttributes</code>
+	 * Then if this is a link attribute, check that the link is legal. Additionally make
+	 * sure that no element can have type="text/javascript" and that style tags do not
+	 * contain any script. 
+	 */
 	public void setAttribute(String attName, String value) {
 		for (int i = 0; i < allowedAttributes.length; i++) {
 			if (allowedAttributes[i].equals(attName)) {
@@ -73,7 +95,6 @@ public class ResponseElement extends ElementImpl implements Element, TypeInfo {
 	/**
 	 * for now we only allow fully qualified urls beginning with http://.
 	 * TODO: this is really bad, how do we allow for relative urls?
-	 * TODO: how do we defend against javascript being linked to?
 	 * @param value
 	 * @return
 	 */
@@ -81,6 +102,11 @@ public class ResponseElement extends ElementImpl implements Element, TypeInfo {
 		return invalidUrl.matcher(value).find() ? false : true;
 	}
 	
+	/**
+	 * Check that the style attribute doesn't contain script. 
+	 * @param value
+	 * @return
+	 */
 	public boolean checkStyle (String value) {
 		return invalidStyleValue.matcher(value).find() ? false : true;
 	}

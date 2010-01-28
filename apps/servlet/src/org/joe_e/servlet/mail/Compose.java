@@ -57,7 +57,6 @@ public class Compose extends JoeEServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView c) 
 		throws ServletException, IOException {
 		SessionView session = (SessionView) ses;
-		CookieView cookies = (CookieView) c;
 		if (session.getUsername() == null) {
 			res.sendRedirect("/servlet/login");
 			return;
@@ -134,7 +133,6 @@ public class Compose extends JoeEServlet {
 	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView c)
 		throws ServletException, IOException {
 		SessionView session = (SessionView) ses;
-		CookieView cookies = (CookieView) c;
 		if (session.getUsername() == null) {
 			res.sendRedirect("/servlet/login");
 		}

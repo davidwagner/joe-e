@@ -11,7 +11,6 @@ import javax.servlet.http.HttpSession;
 
 import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
-import org.joe_e.servlet.Dispatcher;
 import org.joe_e.servlet.JoeEServlet;
 import org.joe_e.servlet.response.ServletResponseWrapper;
 import org.w3c.dom.Document;
@@ -81,12 +80,6 @@ public class LoginServlet extends JoeEServlet {
 		Element tmp = doc.createElement("h2");
 		tmp.appendChild(doc.createTextNode("Joe-E Mail"));
 		body.appendChild(tmp);
-		if (Dispatcher.getErrorMessage() != null) {
-			tmp = doc.createElement("b");
-			tmp.appendChild(doc.createTextNode(Dispatcher.getErrorMessage()));
-			body.appendChild(tmp);
-			Dispatcher.setErrorMessage(null);
-		}
 		if (session.getErrorMessage() != null && !session.getErrorMessage().equals("")) {
 			tmp = doc.createElement("b");
 			tmp.appendChild(doc.createTextNode(session.getErrorMessage()));

@@ -35,40 +35,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * and performs the necessary session subsetting as specified by that servlet's 
  * SessionView object.
  * 
- * A key difference between this dispatcher behavior and the regular servlet framework
- * is that the Joe-E dispatcher keeps one instance of each servlet per session, rather 
- * than a singleton instance of each servlet. This prevents 
- * 
- * We specify two possible concurrency policies. In the policy.xml file, we allow for
- * "<concurrency>policy</concurrency>" where policy is either "serialized" or "immutable"
- * If policy is "serialized" Then we guarantee that only 1 thread  per session will ever
- * be executing app-level code. TODO: not yet
- * 
- * If policy is "immutable" then we simply do not copy references back to the HttpSession, 
- * and so the only way to change session members is to change members of an object that is
- * contained within the session. In this policy, changing an immutable field locally will not
- * be reflected on the HttpSession. So in a servlet like this:
- * <code>
- * public class TestServlet extends JoeEServlet {
- * 		public class SessionView extends AbstractSessionView {
- * 			public String str;
- * 		}
- * 
- * 		public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses) {
- * 			SessionView session = (SessionView) ses;
- * 			session.str = "hello there";
- * 		}
- * }
- * </code>
- * the HttpSession's str member will not be changed to "hello there". To change this member, we need
- * a wrapper object that contains a pointer to str.
- *  
- * This paradigm is like pass-by-copy with functions; a servlet is given a parameter list, and the
- * calling function does not copy any modifications back to it's own local variables. To change
- * values in the calling function (in this case HttpSession), we need to pass in pointers and
- * the callee (app-level servlet) can change the contents of these pointers (although not the pointer
- * themselves).
- * 
+ * @TODO: with immutable servlets and session wrappers as we do them, do we need to serialize requests?
  * @author akshay
  *
  */
@@ -117,6 +84,8 @@ public class Dispatcher extends HttpServlet {
 	 */
 	public void doGet(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = req.getSession();
+		
+		// initialize the session if it is new
 		if (session.isNew()) {
 			initializer.fillHttpSession(session);
 			transformSession(session);
@@ -126,18 +95,23 @@ public class Dispatcher extends HttpServlet {
 		if (serialized) {
 			lock.lock();
 		}
+		
+		// find the servlet, construct the session and cookie views
 		JoeEServlet servlet = findServlet(session, req.getServletPath());
 		AbstractSessionView sessionview = servlet.getSessionView(req.getSession());
 		AbstractCookieView cookieview = servlet.getCookieView(req.getCookies());
-		String jsFile = jsmappings.get(servlet);
-		String cssFile = cssmappings.get(servlet);
+
 		try {
+			
+			// wrap the response, forward the request, commit the cookies.
 			ServletResponseWrapper responseFacade = new ServletResponseWrapper(response);
 			servlet.doGet(req, responseFacade, sessionview, cookieview);
-			cookieview.finalizeCookies(response);			
-			((ResponseDocument) responseFacade.getDocument()).addJSLink(jsRoot+"/"+jsFile);
-			((ResponseDocument) responseFacade.getDocument()).addCSSLink(cssRoot+"/"+cssFile);
-			responseFacade.reallyFlushBuffer();
+			cookieview.finalizeCookies(response);
+			
+			// link the static files and commit the response. 
+			((ResponseDocument) responseFacade.getDocument()).addJSLink(jsRoot+"/"+jsmappings.get(servlet));
+			((ResponseDocument) responseFacade.getDocument()).addCSSLink(cssRoot+"/"+cssmappings.get(servlet));
+			responseFacade.flushBuffer();
 		} catch(Exception i) {
 			if (serialized) { lock.unlock(); }
 			String msg = i.getMessage();
@@ -163,6 +137,8 @@ public class Dispatcher extends HttpServlet {
 	 */
 	public void doPost(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = req.getSession();
+		
+		// initialize the session if it is new
 		if (session.isNew()) {
 			initializer.fillHttpSession(session);
 			transformSession(session);
@@ -172,18 +148,21 @@ public class Dispatcher extends HttpServlet {
 		if (serialized) {
 			lock.lock();
 		}
+		// find the servlet, construct the session and cookie views
 		JoeEServlet servlet = findServlet(session, req.getServletPath());
 		AbstractSessionView sessionview = servlet.getSessionView(req.getSession());
 		AbstractCookieView cookieview = servlet.getCookieView(req.getCookies());
-		String jsFile = jsmappings.get(servlet);
-		String cssFile = cssmappings.get(servlet);
+		
 		try {
+			// wrap the response, forward the request, commit the cookies.
 			ServletResponseWrapper responseFacade = new ServletResponseWrapper(response);
 			servlet.doPost(req, responseFacade, sessionview, cookieview);
 			cookieview.finalizeCookies(response);
-			((ResponseDocument) responseFacade.getDocument()).addJSLink(jsRoot+"/"+jsFile);
-			((ResponseDocument) responseFacade.getDocument()).addCSSLink(cssRoot+"/"+cssFile);
-			responseFacade.reallyFlushBuffer();
+			
+			// link the static files and commit the response. 
+			((ResponseDocument) responseFacade.getDocument()).addJSLink(jsRoot+"/"+jsmappings.get(servlet));
+			((ResponseDocument) responseFacade.getDocument()).addCSSLink(cssRoot+"/"+cssmappings.get(servlet));
+			responseFacade.flushBuffer();
 		} catch(Exception i) {
 			if (serialized) { lock.unlock(); }
 			String msg = i.getMessage();
@@ -200,7 +179,6 @@ public class Dispatcher extends HttpServlet {
 	/**
 	 * perform a lookup in the url->servlet map for the string s
 	 * add servlets to the session as needed
-	 * @TODO this needs to be cleaned up.
 	 * @param s
 	 * @return the JoeEServlet corresponding to the url s
 	 */
@@ -212,39 +190,37 @@ public class Dispatcher extends HttpServlet {
 		} else if (s.lastIndexOf("/") == s.length()-1) {
 			pattern = s.substring(0, s.lastIndexOf("/")+1)+"*";
 		}
+		
 		JoeEServlet servlet = null;
 		if (servletmapping.get(s) != null) {
-			// instantiate the class.
 			 servlet = servletmapping.get(s);
-		} 
-		else if (!pattern.equals("") && servletmapping.get(pattern) != null) {
+		} else if (!pattern.equals("") && servletmapping.get(pattern) != null) {
 			servlet = (JoeEServlet) servletmapping.get(pattern);
-
 		}
+		
 		if (servlet != null) {
 			if (session.getAttribute(servlet.getClass().getSimpleName()+"__token") == null) {
-
-				try {
-					MessageDigest md5 = MessageDigest.getInstance("md5");
-					md5.update((Long.toHexString(System.currentTimeMillis())).getBytes());
-					session.setAttribute(servlet.getClass().getSimpleName()+"__token", (new BigInteger(md5.digest())).toString(16));
-				} catch (NoSuchAlgorithmException e) {
-					throw new ServletException (e.getMessage());
-				}
+				addXSRFToken(session, servlet.getClass().getSimpleName());
 			}
 			return servlet;
 		}
 		throw new ServletException("Couldn't find url-pattern for " + s);
 	}
 
-	
 	/**
-	 * invalidate a session object and free up space in the perSessionServlets
-	 * data structure. This is how sessions should be invalidated. 
-	 * @param HttpSession
+	 * Generate a random xsrf token and add it as a member of the HttpSession
+	 * @param session
+	 * @param servletName
+	 * @throws ServletException
 	 */
-	public static void invalidateSession(HttpSession session) {
-		session.invalidate();
+	public void addXSRFToken(HttpSession session, String servletName) throws ServletException {
+		try {
+			MessageDigest md5 = MessageDigest.getInstance("md5");
+			md5.update((Long.toHexString(System.currentTimeMillis())).getBytes());
+			session.setAttribute(servletName+"__token", (new BigInteger(md5.digest())).toString(16));
+		} catch (NoSuchAlgorithmException e) {
+			throw new ServletException (e.getMessage());
+		}
 	}
 	
 	/**
@@ -432,12 +408,5 @@ public class Dispatcher extends HttpServlet {
 	 */
 	public static void logMsg(String s) {	
 		Dispatcher.logger.fine(s);
-	}
-	
-	public static String getErrorMessage() {
-		return errorMessage;
-	}
-	public static void setErrorMessage(String e) {
-		errorMessage = e;
 	}
 }

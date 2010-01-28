@@ -15,6 +15,7 @@ import java.io.Writer;
  * API with the servlet API, but while allowing us to run jslint on the response
  * to each request. 
  * @author akshay
+ * @deprecated - we now use a DOM API and aren't trying to run jslint.
  *
  */
 public class BufferedPrintWriter extends PrintWriter {
