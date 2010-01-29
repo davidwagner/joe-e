@@ -18,6 +18,7 @@ import org.w3c.dom.TypeInfo;
  *
  */
 public class ResponseElement extends ElementImpl implements Element, TypeInfo {
+	public static final long serialVersionUID = 1L;
 
 	// The list of allowed attributes. 
 	private static final String[] allowedAttributes = {"abbr", "accept", 

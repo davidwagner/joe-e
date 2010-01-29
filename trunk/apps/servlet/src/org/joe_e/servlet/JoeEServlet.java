@@ -8,8 +8,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import org.joe_e.servlet.response.ServletResponseWrapper;
 
 /**
  * This is the base Servlet class for web applications built in Joe-E using the servlet technology. 
@@ -19,7 +20,8 @@ import javax.servlet.http.HttpSession;
  * @author akshay
  */
 public class JoeEServlet extends HttpServlet implements org.joe_e.Immutable {
-	
+	public static final long serialVersionUID = 1L;
+
 	/**
 	 * All JoeEServlets must have an inner class called SessionView that extends
 	 * org.joe_e.servlet.AbstractSessionView. This class specifies which session variables
@@ -54,7 +56,7 @@ public class JoeEServlet extends HttpServlet implements org.joe_e.Immutable {
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView c) throws ServletException, IOException {
+	public void doGet(HttpServletRequest req, ServletResponseWrapper res, AbstractSessionView ses, AbstractCookieView c) throws ServletException, IOException {
 		throw new ServletException("Unimplemented method in servlet");
 	}
 	
@@ -65,7 +67,7 @@ public class JoeEServlet extends HttpServlet implements org.joe_e.Immutable {
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView c) throws ServletException, IOException {
+	public void doPost(HttpServletRequest req, ServletResponseWrapper res, AbstractSessionView ses, AbstractCookieView c) throws ServletException, IOException {
 		throw new ServletException("Unimplemented method in servlet");	
 	}
 	

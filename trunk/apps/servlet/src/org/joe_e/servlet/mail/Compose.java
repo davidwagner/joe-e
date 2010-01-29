@@ -10,7 +10,6 @@ import javax.mail.internet.MimeMessage;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.joe_e.servlet.AbstractCookieView;
@@ -23,7 +22,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class Compose extends JoeEServlet {
-	
+	public static final long serialVersionUID = 1L;
+
 	public class SessionView extends AbstractSessionView {
 		public SessionView(HttpSession ses) {
 			super(ses);
@@ -62,15 +62,14 @@ public class Compose extends JoeEServlet {
 		return new CookieView(c);
 	}
 
-	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView c) 
+	public void doGet(HttpServletRequest req, ServletResponseWrapper res, AbstractSessionView ses, AbstractCookieView c) 
 		throws ServletException, IOException {
 		SessionView session = (SessionView) ses;
 		if (session.getUsername() == null) {
 			res.sendRedirect("/servlet/login");
 			return;
 		}
-		res.addHeader("Content-type", "text/html");
-		ResponseDocument doc = ((ServletResponseWrapper) res).getDocument();
+		ResponseDocument doc = res.getDocument();
 		Element body = HtmlWriter.printHeader(doc);
 		
 		Element tmp = doc.createElement("h6");
@@ -138,7 +137,7 @@ public class Compose extends JoeEServlet {
 		body.appendChild(form);
 	}
 	
-	public void doPost(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView c)
+	public void doPost(HttpServletRequest req, ServletResponseWrapper res, AbstractSessionView ses, AbstractCookieView c)
 		throws ServletException, IOException {
 		SessionView session = (SessionView) ses;
 		if (session.getUsername() == null) {

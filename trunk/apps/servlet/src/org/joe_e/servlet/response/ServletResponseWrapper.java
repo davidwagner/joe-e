@@ -125,6 +125,7 @@ public class ServletResponseWrapper implements HttpServletResponse {
 			trans.transform(source, result);
 			String xmlString = sw.toString();
 			if (xmlString != null) {
+				response.addHeader("Content-type", "text/html");
 				response.getWriter().write(xmlString);
 				response.flushBuffer();
 			}

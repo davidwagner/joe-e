@@ -37,12 +37,12 @@ list-of-cookies-to-be-set.
 Current framework doesn't support streaming of responses.
 Just a limitation to document in the paper.
 
-If doGet() implementation returns a DOM, then the framework should
+DONE - If doGet() implementation returns a DOM, then the framework should
 set the Content-type to text/html (servlet shouldn't have to do
 that, and should not be allowed to set Content-type to something
 else).
 
-Should HttpServletResponse.addHeader() be suppressed?  "Probably".
+DONE - Should HttpServletResponse.addHeader() be suppressed?  "Probably".
 
 Can JoeEServlet define its own doGet() method where the declared
 type of the 2nd arg is ServletResponseWrapper, rather than
