@@ -22,19 +22,6 @@ public class PostfixClient {
 	private final String hostname = "boink.joe-e.org";
 
 	/**
-	 * Updates the postfix virtual mailboxes database
-	 * This method scans all the files in the accounts directory
-	 * and checks that they are in /etc/postfix/virtual_mailbox_recipients
-	 * if the username is not there, it will add an entry to that file and
-	 * run sudo postmap /etc/postfix/virtual_mailbox_recipients
-	 * @deprecated
-	 * 
-	 */
-	public void updateDatabase(File accounts) {
-		
-	}
-	
-	/**
 	 * Adds the specified username to the virtual_mailbox_recipients file
 	 * and runs the postmap command
 	 * 
