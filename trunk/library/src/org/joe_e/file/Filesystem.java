@@ -122,7 +122,10 @@ public final class Filesystem {
     }
     
     /**
-     * Creates a file for writing.
+     * Creates a file for writing, if and only if the file does
+     * not already exist, and returns an OutputStream for writing to
+     * that file.  Warning: This method is not atomic with
+     * respect to other concurrent modifications to the filesystem.
      * @param file  file to create
      * @return opened output stream
      * @throws IOException    <code>file</code> could not be created
