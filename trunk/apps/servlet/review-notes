@@ -62,6 +62,10 @@ know that requests cannot have side effects.
 
 AbstractCookieView.cookies should probably be protected.
 
+SessionView auto-generator could provide a way to indicate that
+some session fields are servlet-scoped, and automatically prepend
+a prefix indicating which servlet it's associated with.
+
 
 APPLICATION:
 
@@ -194,3 +198,29 @@ forged from addresses, we only need to review AuthenticationAgent
 and LoginServlet (hopefully we can quickly verify that no other
 servlet's SessionView lets them modify the username attribute
 of the session).
+
+CreateAccount shouldn't be able to set the username attribute
+in the session; delete from SessionView.
+
+CreateAccount.doPost() should return after the sendRedirect if
+it detects a XSRF attempt.
+
+An idea: If adding the ability to delete messages, then one
+interesting possibility is to create a wrapper for ReadonlyFile,
+and have the servlets that read messages only get access to this
+wrapper (not the underlying file), so that only the delete servlet
+gets a File object that provides write access; then one could
+point out that to verify that my integrity is guaranteed, we
+only have to review the code of the delete servlet (not the
+other servlets that read the mailbox).
+
+Very minor (not a security bug) in Inbox.doGet(): The loop
+that scans the message looking for the Subject: line probably
+should stop after seeing a blank line, to prevent spoofing of
+subject lines.  Only affects user experience, not security.
+
+Compose's SessionView should not provide access to the mailbox
+file.
+
+Where Compose.doPost() checks the CSRF token, it should return
+after sendRedirect().  Same for where it checks the username.
