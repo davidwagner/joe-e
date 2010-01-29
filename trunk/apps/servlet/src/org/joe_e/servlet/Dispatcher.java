@@ -53,7 +53,7 @@ public class Dispatcher extends HttpServlet {
 	private static String jsRoot;
 	private static String cssRoot;
 	
-	public static Logger logger = Logger.getLogger(Dispatcher.class.getName());
+	private static Logger logger = Logger.getLogger(Dispatcher.class.getName());
 	
 	/**
 	 * initializes the Dispatcher by reading and parsing
@@ -406,7 +406,8 @@ public class Dispatcher extends HttpServlet {
 	 * configuration. 
 	 * @param s
 	 */
-	public static void logMsg(String s) {	
+	public static void logMsg(String s) {
+		s.replaceAll("\n", " ");
 		Dispatcher.logger.fine(s);
 	}
 }

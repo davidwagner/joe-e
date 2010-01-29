@@ -9,7 +9,7 @@ prefix is one of the following:
        ./
        ../
 
-Ways to eliminate reflection when creating SessionView and
+DONE - Ways to eliminate reflection when creating SessionView and
 CookieView if needed for performance
 
 Might be nice if Dispatcher.logger sanitizes string arguments

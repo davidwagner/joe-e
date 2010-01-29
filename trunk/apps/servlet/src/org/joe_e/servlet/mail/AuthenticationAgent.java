@@ -27,7 +27,7 @@ public class AuthenticationAgent {
 	}
 
 	public File authenticate(String username, String password) {
-		Dispatcher.logger.finest("Request to authenticate " + username);
+		Dispatcher.logMsg("Request to authenticate " + username);
 		try {
 			byte[] bytes = ASCII.encode(password);
 			digest.update(bytes);
@@ -35,7 +35,7 @@ public class AuthenticationAgent {
 			Reader reader = ASCII.input(Filesystem.read(Filesystem.file(accounts, username)));
 			BufferedReader in = new BufferedReader(reader);
 			if (hashedPassword.equals(in.readLine())) {
-				Dispatcher.logger.finest("Successfully authenticated " + username);
+				Dispatcher.logMsg("Successfully authenticated " + username);
 				return Filesystem.file(mailboxes, username);
 			}
 		} catch (FileNotFoundException e ) {

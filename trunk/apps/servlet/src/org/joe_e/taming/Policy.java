@@ -2187,13 +2187,15 @@ public class Policy {
         // Type org.joe_e.servlet.Cloner
 
         // Type org.joe_e.servlet.Dispatcher
-        fields.add("org.joe_e.servlet.Dispatcher.logger");
         methods.add("org.joe_e.servlet.Dispatcher.logMsg(String)");
 
         // Type org.joe_e.servlet.JoeEServlet
         constructors.add("org.joe_e.servlet.JoeEServlet()");
 
         // Type org.joe_e.servlet.SessionInitializer
+
+        // Type org.joe_e.servlet.mail.notjoe_e.PostfixClient
+        methods.add("org.joe_e.servlet.mail.notjoe_e.PostfixClient.updateDatabase(String)");
 
         // Type org.joe_e.servlet.mail.notjoe_e.TransportAgent
         methods.add("org.joe_e.servlet.mail.notjoe_e.TransportAgent.send(Message)");
