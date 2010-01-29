@@ -71,9 +71,9 @@ which servlet it's associated with.
 
 APPLICATION:
 
-SessionInit should use SHA1, not MD5
+DONE - SessionInit should use SHA1, not MD5
 
-AuthenticationAgent should inactivate itself immediately after
+DONE - AuthenticationAgent should inactivate itself immediately after
 each successful call to authenticate() (rather than having the
 servlet null out the AuthenticationAgent, as currently happens).
 
@@ -81,14 +81,14 @@ Very minor: Maybe create the MessageDigest instance in AuthenticationAgent
 (in Joe-E code) rather than in SessionInit (Java code)?  Would require
 exposing MessageDigest in taming database safely, if that's safe to do.
 
-AuthenticationAgent.authenticate() should use UTF8.encode() rather
+DONE - AuthenticationAgent.authenticate() should use UTF8.encode() rather
 than ASCII.encode()?  AccountManager.addAccount() should be modified
 to match.
 
 Password hashes should be salted, probably.  AuthenticationAgent
 should read & use the salt.
 
-SessionInit: TransportAgent should only be available to
+DONE - SessionInit: TransportAgent should only be available to
 authenticated users.  Therefore, AuthenticationAgent should
 return both the mailbox and the TransportAgent.
 
