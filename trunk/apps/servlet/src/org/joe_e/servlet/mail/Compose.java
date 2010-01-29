@@ -17,8 +17,8 @@ import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.JoeEServlet;
 import org.joe_e.servlet.mail.notjoe_e.TransportAgent;
+import org.joe_e.servlet.response.ResponseDocument;
 import org.joe_e.servlet.response.ServletResponseWrapper;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -62,7 +62,7 @@ public class Compose extends JoeEServlet {
 			return;
 		}
 		res.addHeader("Content-type", "text/html");
-		Document doc = ((ServletResponseWrapper) res).getDocument();
+		ResponseDocument doc = ((ServletResponseWrapper) res).getDocument();
 		Element body = HtmlWriter.printHeader(doc);
 		
 		Element tmp = doc.createElement("h6");

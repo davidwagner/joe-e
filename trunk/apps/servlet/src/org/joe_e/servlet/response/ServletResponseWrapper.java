@@ -7,7 +7,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
-import org.w3c.dom.*;
 import javax.xml.parsers.*;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.*;
@@ -23,12 +22,12 @@ import javax.xml.transform.stream.*;
 public class ServletResponseWrapper implements HttpServletResponse {
 	
 	HttpServletResponse response;
-	Document doc;
+	ResponseDocument doc;
 
     public ServletResponseWrapper(HttpServletResponse res) throws IOException, ParserConfigurationException {
 		response = res;
-		DocumentBuilderFactory dbfac = ResponseDocumentBuilderFactory.newInstance();
-		DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
+		ResponseDocumentBuilderFactory dbfac = ResponseDocumentBuilderFactory.newInstance();
+		ResponseDocumentBuilder docBuilder = dbfac.newDocumentBuilder();
 		doc = docBuilder.newDocument();
 	}
 
@@ -140,7 +139,7 @@ public class ServletResponseWrapper implements HttpServletResponse {
 	 * Get a Document object that implements the DOM API. 
 	 * @return
 	 */
-    public Document getDocument() {
+    public ResponseDocument getDocument() {
     	return doc;
     }
 	public int getBufferSize() {

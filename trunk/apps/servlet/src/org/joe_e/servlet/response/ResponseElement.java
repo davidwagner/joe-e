@@ -7,6 +7,7 @@ import java.util.regex.*;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.TypeInfo;
 
 /**
@@ -24,24 +25,15 @@ public class ResponseElement extends ElementImpl implements Element, TypeInfo {
 		"cellpadding", "cellspacing", "char", "charoff", "charset", "checked",
 		"cite", "class", "clear", "cols", "colspan", "color", "compact", "coords",
 		"datetime", "dir", "disabled", "enctype", "for", "frame", "headers",
-		"height", "href", "hreflang", "hspace", "id", "ismap", "label", "lang",
+		"height", "hreflang", "hspace", "id", "ismap", "label", "lang",
 		"longdesc", "maxlength", "media", "method", "multiple", "name", "nohref",
 		"noshade", "nowrap", "prompt", "readonly", "rel", "rev", "rows",
-		"rowspan", "rules", "scope", "selected", "shape", "size", "span", "src",
+		"rowspan", "rules", "scope", "selected", "shape", "size", "span",
 		"start", "summary", "tabindex", "target", "title", "type", "usemap",
 		"valign", "value", "vspace", "width"};
 	
 	// places where content can be linked in
 	private static final String[] linkAttributes = {"src", "href"};
-	
-	// illegal link formats
-	private static final Pattern invalidUrl = Pattern.compile(
-			"(^\\s*j\\s*a\\s*v\\s*a\\s*s\\s*c\\s*r\\s*i\\s*p\\s*t\\s*:)|" + // javascript
-			"(^\\s*v\\s*i\\s*e\\s*w\\s*-s\\s*o\\s*u\\s*r\\s*c\\s*e\\s*:)|" + // view-source
-			"(^\\s*d\\s*a\\s*t\\s*a\\s*:)|" +                               // data
-			"(^\\s*v\\s*b\\s*s\\s*s\\s*r\\s*i\\s*p\\s*t\\s*:)|" +           // vbscript
-			"(^\\s*a\\s*b\\s*o\\s*u\\s*t\\s*:)|" +                          // about
-			"(^\\s*s\\s*h\\s*e\\s*l\\s*l\\s*:)", Pattern.CASE_INSENSITIVE); // shell
 	
 	// illegal style formats. 
 	private static final Pattern invalidStyleValue = Pattern.compile(
@@ -57,24 +49,19 @@ public class ResponseElement extends ElementImpl implements Element, TypeInfo {
 		super(d, e.getNodeName());
 	}
 	
+	public Node appendChild(Node n) {
+		return super.appendChild(n);
+	}
+	
 	/**
 	 * To set an attribute, check that the <code>attName</code> is in <code>allowedAttributes</code>
-	 * Then if this is a link attribute, check that the link is legal. Additionally make
+	 * Link attributes cannot be added using this method, use <code>addLinkAttribute</code>. Additionally make
 	 * sure that no element can have type="text/javascript" and that style tags do not
 	 * contain any script. 
 	 */
 	public void setAttribute(String attName, String value) {
 		for (int i = 0; i < allowedAttributes.length; i++) {
 			if (allowedAttributes[i].equals(attName)) {
-				for (int j = 0; j < linkAttributes.length; j++) {
-					if (linkAttributes[j].equals(attName)) {
-						if (checkLink (value))
-							break;
-						else {
-							throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Illegal link: " + value);
-						}
-					}
-				}
 				if (attName.equals("type") && value.length() >= 15 && value.substring(0, 15).equals("text/javascript")) {
 					throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Illegal type attribute value: " + value);
 				}
@@ -91,15 +78,14 @@ public class ResponseElement extends ElementImpl implements Element, TypeInfo {
 		}
 		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Illegal attribute: " + attName);
 	}
-
-	/**
-	 * for now we only allow fully qualified urls beginning with http://.
-	 * TODO: this is really bad, how do we allow for relative urls?
-	 * @param value
-	 * @return
-	 */
-	public boolean checkLink (String value) {
-		return invalidUrl.matcher(value).find() ? false : true;
+	
+	public void addLinkAttribute(String attName, ResponseUrl value) {
+		for (int i = 0; i < linkAttributes.length; i++) {
+			if (attName.equals(linkAttributes[i])) {
+				super.setAttribute(attName, value.getURL());
+			}
+		}
+		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Illegal link attribute: " + attName);
 	}
 	
 	/**

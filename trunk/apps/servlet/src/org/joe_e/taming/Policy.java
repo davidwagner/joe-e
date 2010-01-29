@@ -2188,8 +2188,6 @@ public class Policy {
 
         // Type org.joe_e.servlet.Dispatcher
         fields.add("org.joe_e.servlet.Dispatcher.logger");
-        methods.add("org.joe_e.servlet.Dispatcher.getErrorMessage()");
-        methods.add("org.joe_e.servlet.Dispatcher.setErrorMessage(String)");
         methods.add("org.joe_e.servlet.Dispatcher.logMsg(String)");
 
         // Type org.joe_e.servlet.JoeEServlet
@@ -2197,13 +2195,24 @@ public class Policy {
 
         // Type org.joe_e.servlet.SessionInitializer
 
-        // Type org.joe_e.servlet.mail.notjoe_e.PostfixClient
-        methods.add("org.joe_e.servlet.mail.notjoe_e.PostfixClient.updateDatabase(String)");
-
         // Type org.joe_e.servlet.mail.notjoe_e.TransportAgent
         methods.add("org.joe_e.servlet.mail.notjoe_e.TransportAgent.send(Message)");
 
         // Type org.joe_e.servlet.readonly
+
+        // Type org.joe_e.servlet.response.ResponseDocument
+        methods.add("org.joe_e.servlet.response.ResponseDocument.appendChild(Node)");
+        methods.add("org.joe_e.servlet.response.ResponseDocument.createTextNode(String)");
+        methods.add("org.joe_e.servlet.response.ResponseDocument.createElement(String)");
+
+        // Type org.joe_e.servlet.response.ResponseElement
+        methods.add("org.joe_e.servlet.response.ResponseElement.appendChild(Node)");
+        methods.add("org.joe_e.servlet.response.ResponseElement.addLinkAttribute(String, ResponseUrl)");
+        methods.add("org.joe_e.servlet.response.ResponseElement.setAttribute(String, String)");
+
+        // Type org.joe_e.servlet.response.ResponseUrl
+        constructors.add("org.joe_e.servlet.response.ResponseUrl(String, String)");
+        constructors.add("org.joe_e.servlet.response.ResponseUrl(int, String, String, String, String)");
 
         // Type org.joe_e.servlet.response.ServletResponseWrapper
         methods.add("org.joe_e.servlet.response.ServletResponseWrapper.getDocument()");

@@ -1,6 +1,5 @@
 package org.joe_e.servlet.response;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -27,7 +26,7 @@ public class ResponseDocumentBuilderFactory extends DocumentBuilderFactory {
 	}
 
 	@Override
-	public DocumentBuilder newDocumentBuilder()
+	public ResponseDocumentBuilder newDocumentBuilder()
 			throws ParserConfigurationException {
 		return new ResponseDocumentBuilder();
 	}
