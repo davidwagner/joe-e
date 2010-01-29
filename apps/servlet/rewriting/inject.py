@@ -4,6 +4,8 @@ def buildInjectionString(data):
     # file. It contains the SessionView and CookieView definitions. The next several
     # lines are exclusively for determining what this string should be.
     outputString="""
+// BEGIN AUTO-GENERATED CODE
+
 public SessionView session;
 public CookieView cookies;
 
@@ -25,6 +27,10 @@ public class SessionView extends AbstractSessionView {
             outputString += "\t\tsession.setAttribute(\"__joe-e__"+key+"\", arg);\n\t}\n"
 
     outputString += """}
+
+public AbstractSessionView getSessionView(HttpSession ses) {
+\treturn new SessionView(ses);
+}
 
 public class CookieView extends AbstractCookieView {
 \tpublic CookieView(Cookie[] c) {
@@ -51,7 +57,15 @@ public class CookieView extends AbstractCookieView {
             outputString += "\t\tif (!done) {\n\t\t\tcookies.add(new Cookie(\"__joe-e__"+key+"\", arg));\n"
             outputString += "\t\t}\n\t}\n"
 
-    outputString += "\n}"
+    outputString += """\n}
+
+public AbstractCookieView getCookieView(Cookie[] c) {
+\treturn new CookieView(c);
+}
+
+// END AUTO-GENERATED CODE
+"""
+
     return outputString
 
 def codeInject(data, srcfile, classname):

@@ -83,6 +83,7 @@ public class ResponseElement extends ElementImpl implements Element, TypeInfo {
 		for (int i = 0; i < linkAttributes.length; i++) {
 			if (attName.equals(linkAttributes[i])) {
 				super.setAttribute(attName, value.getURL());
+				return;
 			}
 		}
 		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Illegal link attribute: " + attName);

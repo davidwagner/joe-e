@@ -52,6 +52,10 @@ public class LoginServlet extends JoeEServlet {
 		}
 	}
 	
+	public AbstractSessionView getSessionView(HttpSession ses) {
+		return new SessionView(ses);
+	}
+	
 	public class CookieView extends AbstractCookieView {
 		public CookieView(Cookie[] c) {
 			super(c);

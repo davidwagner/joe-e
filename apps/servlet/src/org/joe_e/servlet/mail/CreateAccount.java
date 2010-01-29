@@ -42,10 +42,18 @@ public class CreateAccount extends JoeEServlet {
 		}
 	}
 	
+	public AbstractSessionView getSessionView(HttpSession ses) {
+		return new SessionView(ses);
+	}
+	
 	public class CookieView extends AbstractCookieView {
 		public CookieView(Cookie[] c) {
 			super(c);
 		}
+	}
+	
+	public AbstractCookieView getCookieView(Cookie[] c) {
+		return new CookieView(c);
 	}
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView c)
