@@ -1,0 +1,4 @@
+class("org.joe_e.servlet.response.ResponseDocument",
+    instance(method(allow, "createElement(String)", comment("allowed")),
+    method(allow, "createTextNode(String)", comment("allowed")),
+    method(allow, "appendChild(Node)", comment("allowed"))))

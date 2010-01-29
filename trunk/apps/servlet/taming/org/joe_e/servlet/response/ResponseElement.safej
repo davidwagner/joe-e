@@ -1,0 +1,4 @@
+class("org.joe_e.servlet.response.ResponseElement",
+  instance(method(allow, "setAttribute(String, String)", comment("allowed")),
+  method(allow, "appendChild(Node)", comment("allowed")),
+  method(allow, "addLinkAttribute(String, ResponseUrl)", comment("allowed"))))
