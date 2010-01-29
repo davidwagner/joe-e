@@ -44,7 +44,7 @@ else).
 
 DONE - Should HttpServletResponse.addHeader() be suppressed?  "Probably".
 
-Can JoeEServlet define its own doGet() method where the declared
+DONE - Can JoeEServlet define its own doGet() method where the declared
 type of the 2nd arg is ServletResponseWrapper, rather than
 HttpServletResponse?  Goal is so that servlets don't have to
 cast their 2nd arg to ServletResponseWrapper.
@@ -60,11 +60,13 @@ confirm that there are only get...() methods in the SessionView,
 and all of their declared return types are immutable, then you
 know that requests cannot have side effects.
 
-AbstractCookieView.cookies should probably be protected.
+DONE - AbstractCookieView.cookies should probably be protected.
 
-SessionView auto-generator could provide a way to indicate that
-some session fields are servlet-scoped, and automatically prepend
-a prefix indicating which servlet it's associated with.
+DONE (It works, but the key in the HttpSession for a CSRF token isn't what the
+Dispatcher thinks it is. If CSRF tokens aren't exposed then we don't have a
+problem) - SessionView auto-generator could provide a way to indicate that some
+session fields are servlet-scoped, and automatically prepend a prefix indicating
+which servlet it's associated with.
 
 
 APPLICATION:

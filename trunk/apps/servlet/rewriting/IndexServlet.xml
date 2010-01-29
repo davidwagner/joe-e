@@ -5,6 +5,7 @@
     <write>False</write>
   </session-member>
   <session-member name="token">
+    <specific>True</specific>
     <type>String</type>
     <read>True</read>
     <write>False</write>

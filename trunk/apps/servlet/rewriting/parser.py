@@ -19,7 +19,7 @@ def start_element(n, attrs):
         index = 1
         name = attrs['name']
         data[index][name] = {}
-    elif n=="read" or n=="type" or n=="write":
+    elif n=="read" or n=="type" or n=="write" or n=="specific":
         loc = n
     else:
         raise Exception("invalid element name " + n)
@@ -47,6 +47,11 @@ def char_data(d):
             data[index][name]["write"] = True
         else:
             data[index][name]["write"] = False
+    elif loc == "specific":
+        if d == "True":
+            data[index][name]["specific"] = True
+        else:
+            data[index][name]["specific"] = False
 
 
 def parseDocument(filename):
@@ -81,6 +86,8 @@ def parseDocument(filename):
                 value["read"] = False
             if "write" not in value.keys():
                 value["write"] = False
+            if "specific" not in value.keys():
+                value["specific"] = False
     for (key,value) in data[0].items():
         if "type" not in value.keys():
             raise Exception("unspecified type for session member: " + key)

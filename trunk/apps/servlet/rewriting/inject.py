@@ -1,5 +1,5 @@
 
-def buildInjectionString(data):
+def buildInjectionString(data, classname):
     # This is the string of entirely new source code that needs to be added to the
     # file. It contains the SessionView and CookieView definitions. The next several
     # lines are exclusively for determining what this string should be.
@@ -19,12 +19,16 @@ public class SessionView extends AbstractSessionView {
 
     # Complete the SessionView definition.
     for (key,value) in data[0].items():
+        if value["specific"]:
+            attrName = "__joe-e__"+classname+"__"+key
+        else:
+            attrName = "__joe-e__"+key
         if value["read"]:
             outputString += "\tpublic " + value["type"] + " get"+key+"() {\n"
-            outputString += "\t\treturn ("+value["type"]+") session.getAttribute(\"__joe-e__"+key+"\");\n\t}\n"
+            outputString += "\t\treturn ("+value["type"]+") session.getAttribute(\""+attrName+"\");\n\t}\n"
         if value["write"]:
             outputString += "\tpublic void set"+key+"("+value["type"]+" arg) {\n"
-            outputString += "\t\tsession.setAttribute(\"__joe-e__"+key+"\", arg);\n\t}\n"
+            outputString += "\t\tsession.setAttribute(\""+attrName+"\", arg);\n\t}\n"
 
     outputString += """}
 
@@ -40,13 +44,17 @@ public class CookieView extends AbstractCookieView {
 
     # complete the CookieView definition
     for (key, value) in data[1].items():
+        if value["specific"]:
+            attrName = "__joe-e__"+classname+"__"+key
+        else:
+            attrName = "__joe-e__"+key
         if value["read"]:
             outputString += "\tpublic String get"+key+"() {\n"
             outputString += "\t\tfor (Cookie c : updatedCookies) {\n"
-            outputString += "\t\t\tif (c.getName().equals(\"__joe-e__"+key+"\")) {\n"
+            outputString += "\t\t\tif (c.getName().equals(\""+attrName+"\")) {\n"
             outputString += "\t\t\t\treturn c.getValue();\n\t\t\t}\n\t\t}\n"
             outputString += "\t\tfor (Cookie c : recievedCookies) {\n"
-            outputString += "\t\t\tif(c.getName().equals(\"__joe-e__"+key+"\")) {\n"
+            outputString += "\t\t\tif(c.getName().equals(\""+attrName+"\")) {\n"
             outputString += "\t\t\t\treturn c.getValue();\n\t\t\t}\n\t\t}\n"
             outputString += "\t\treturn null;\n\t}\n"
             
@@ -54,10 +62,10 @@ public class CookieView extends AbstractCookieView {
             outputString += "\tpublic void set"+key+"(String arg) {\n"
             outputString += "\t\tboolean done = false;\n"
             outputString += "\t\tfor (Cookie c : updatedCookies) {\n"
-            outputString += "\t\t\tif (c.getName().equals(\"__joe-e__"+key+"\")) {\n"
+            outputString += "\t\t\tif (c.getName().equals(\""+attrName+"\")) {\n"
             outputString += "\t\t\t\tc.setValue(arg);\n"
             outputString += "\t\t\t\tdone = true;\n\t\t\t}\n\t\t}\n"
-            outputString += "\t\tif (!done) {\n\t\t\tupdatedCookies.add(new Cookie(\"__joe-e__"+key+"\", arg));\n"
+            outputString += "\t\tif (!done) {\n\t\t\tupdatedCookies.add(new Cookie(\""+attrName+"\", arg));\n"
             outputString += "\t\t}\n\t}\n"
 
     outputString += """\n}
@@ -78,7 +86,7 @@ def codeInject(data, srcfile, classname):
                "import javax.servlet.http.HttpSession;", 
                "import org.joe_e.servlet.AbstractCookieView;",
                "import org.joe_e.servlet.AbstractSessionView;"]
-    injectString = buildInjectionString(data)
+    injectString = buildInjectionString(data, classname)
 
 
     # The following is actually reading the source file and "modifying it" For now

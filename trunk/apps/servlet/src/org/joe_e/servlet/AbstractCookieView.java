@@ -21,8 +21,8 @@ import org.joe_e.array.ConstArray;
 public abstract class AbstractCookieView {
 
 	
-	public ConstArray<Cookie> recievedCookies;
-	public ArrayList<Cookie> updatedCookies;
+	protected ConstArray<Cookie> recievedCookies;
+	protected ArrayList<Cookie> updatedCookies;
 	
 	
 	public AbstractCookieView(Cookie[] c) {		
