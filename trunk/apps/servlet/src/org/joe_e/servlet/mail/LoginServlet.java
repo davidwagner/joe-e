@@ -11,6 +11,8 @@ import javax.servlet.http.HttpSession;
 import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.JoeEServlet;
+import org.joe_e.servlet.mail.AuthenticationAgent.FileTransportPair;
+import org.joe_e.servlet.mail.notjoe_e.TransportAgent;
 import org.joe_e.servlet.response.ResponseDocument;
 import org.joe_e.servlet.response.ServletResponseWrapper;
 import org.w3c.dom.Element;
@@ -49,6 +51,9 @@ public class LoginServlet extends JoeEServlet {
 		}
 		public void setErrorMessage(String arg) {
 			session.setAttribute("__joe-e__errorMessage", arg);
+		}
+		public void setTransportAgent(TransportAgent arg) {
+			session.setAttribute("__joe-e__transportAgent", arg);
 		}
 	}
 	
@@ -148,14 +153,14 @@ public class LoginServlet extends JoeEServlet {
 			res.sendRedirect("/servlet/login");
 			return;
 		}
-		File mailbox = null;
-		if ((mailbox = session.getAuth().authenticate(name, password)) != null) {
+		FileTransportPair pair = session.getAuth().authenticate(name, password);
+		if (pair != null) {
 			session.setAuth(null);
 			session.setUsername(name);
-			session.setMailbox(mailbox);
+			session.setMailbox(pair.f);
+			session.setTransportAgent(pair.t);
 			res.sendRedirect("/servlet/inbox");
-		}
-		else {
+		} else {
 			session.setErrorMessage("Unable to authenticate");
 			res.sendRedirect("/servlet/login");
 		}

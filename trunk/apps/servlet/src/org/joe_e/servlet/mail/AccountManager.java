@@ -13,6 +13,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.joe_e.charset.ASCII;
+import org.joe_e.charset.UTF8;
 import org.joe_e.file.Filesystem;
 import org.joe_e.servlet.Dispatcher;
 import org.joe_e.servlet.mail.notjoe_e.PostfixClient;
@@ -70,7 +71,7 @@ public class AccountManager {
 		}
 		try {
 			Writer out = ASCII.output(Filesystem.writeNew(Filesystem.file(accounts, username)));
-			byte[] bytes = ASCII.encode(password);
+			byte[] bytes = UTF8.encode(password);
 			digest.update(bytes);
 			String hashedPassword = new BigInteger(1,digest.digest()).toString(16);
 			for (char c : hashedPassword.toCharArray()) {
