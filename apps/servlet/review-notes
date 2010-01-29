@@ -26,6 +26,42 @@ should be a wrapper?  Or maybe it can be tamed so it provides no
 authority directly?  Similar for other javax.mail. classes,
 like Transport.  Also look at InternetAddress.
 
+Maybe AbstractCookieView should maintain two lists of cookies:
+(a) a list of the cookies in the request (maybe a ConstArray,
+so the list can't be changed?), (b) a list of cookies to be set
+in the response.  Maybe there should be a get() method that
+first checks the list-of-cookies-to-be-set, then checks the
+request-cookies; and a set() method that appends to the
+list-of-cookies-to-be-set.
+
+Current framework doesn't support streaming of responses.
+Just a limitation to document in the paper.
+
+If doGet() implementation returns a DOM, then the framework should
+set the Content-type to text/html (servlet shouldn't have to do
+that, and should not be allowed to set Content-type to something
+else).
+
+Should HttpServletResponse.addHeader() be suppressed?  "Probably".
+
+Can JoeEServlet define its own doGet() method where the declared
+type of the 2nd arg is ServletResponseWrapper, rather than
+HttpServletResponse?  Goal is so that servlets don't have to
+cast their 2nd arg to ServletResponseWrapper.
+
+Ideally, it would be nice if Dispatcher injects CSRF tokens
+into links, and automatically checks the CSRF tokens for you
+when receiving a POST request, so that the application writer
+doesn't have to strew this throughout their application.
+
+The SessionView mechanism may make it easier for code reviewers
+to check that GET requests have no side effects: if you can
+confirm that there are only get...() methods in the SessionView,
+and all of their declared return types are immutable, then you
+know that requests cannot have side effects.
+
+AbstractCookieView.cookies should probably be protected.
+
 
 APPLICATION:
 
@@ -73,9 +109,88 @@ check that it matches some whitelist/regexp.  Maybe force it
 to be ASCII, no spaces, etc.  The RFC probably specifies a
 regexp for valid usernames.  Usernames should be treated as
 case-insensitive; lowercase it before looking it up in the
-filesystem.
+filesystem.  This also fixes potential bugs in
+PostfixClient.updateDatabase() (e.g., path injection).
 
 AccountManager.addAccount() should probably take a global lock,
 to prevent concurrency issues (e.g., if users try to create two
 accounts simultaneously).  Maybe acquire a lock on
 AccountManager.class, or a static lock object in the class?
+
+AccountManager.addAccount() currently ignores return value
+from PostfixClient.updateDatabase().  Either check return value
+and handle the error case; or maybe PostfixClient.updateDatabase()
+should throw an exception if it encounters an error condition,
+and addAccount() should handle it.
+
+Very minor: PostfixClient.updateDatabase() is not idempotent;
+if you add the same line to the file twice, does Postfix fall
+over?
+
+TransportAgent.send() should probably overwrite or check the
+From: address on the email, to make sure that users cannot send
+forged emails.  Maybe check that there is exactly 1 from address,
+and that it is exactly the user that is currently logged in.
+Maybe TransportAgent instances should be created by
+AuthenticationAgent, with an appropriate from address,
+when the user authenticates, and inserted into the session at
+that time.  Do we need to make sure the date is sensible?
+
+Index.doGet() should return after sendRedirect().
+
+Here are the security properties we want:
+
+1. A web client who does not know Alice's password cannot
+get access to her mailbox (assuming her password is hard to
+guess).
+
+2. An untrusted or malicious servlet can't violate Alice's
+privacy (assuming her password is hard to guess).
+
+3. An untrusted/malicious servlet can't violate the integrity
+of the messages in Alice's mailbox (assuming her password is
+hard to guess).
+
+For property 1, we only need to review the AuthenticationAgent
+and SessionInit, to check that they only hand out a File
+object corresponding to Alice's mailbox to someone who knows
+Alice's password.  Here we are using two properties provided by
+the framework: session isolation; and, a servlet cannot
+"remember" anything beyond the lifetime of a session: all
+of the mutable objects that a servlet can get access to have
+a lifetime restricted to this session.  (That ensures that
+servlets can't remember Alice's password, or her data, from
+a previous login of hers.)  These properties come from the
+fact that servlets are immutable.
+
+For property 2, we need to review every servlet's SessionView
+and CookieView to identify which servlets might have read
+access to Alice's mailbox.  Then, we must review all servlets
+that can read Alice's mailbox to make sure they don't leak
+this data.  If you're not worried about malicious servlets --
+just worried about accidental bugs -- it may be sufficient
+to further restrict attention to those servlets that also
+have transmit ability (e.g., a capability to send outgoing
+email), assuming we also know that there can be at most one
+mailbox provided to each session and that we have "user isolation",
+i.e., that the object graph associated with one user's mailbox
+is disjoint from the object graph associated with another
+user's mailbox.
+
+For property 3, we must review every servlet's SessionView
+and CookieView to identify which servlets might have write
+access to Alice's mailbox.  Here we need "servlet isolation",
+meaning that servlet A can't tamper with servlet B and
+can't invoke servlet B in a way that fools servlet B into
+thinking it was invoked by the user.
+
+LoginServlet (and others?) is checking username attribute of
+session to see if the user is currently authenticated, but that's
+not necessary for security -- it's only for reliability / to
+avoid a confusing user experience.  Elsewhere the username
+is trusted only to prevent Alice from sending email with a
+forged from address.  To check that users can't send email with
+forged from addresses, we only need to review AuthenticationAgent
+and LoginServlet (hopefully we can quickly verify that no other
+servlet's SessionView lets them modify the username attribute
+of the session).
