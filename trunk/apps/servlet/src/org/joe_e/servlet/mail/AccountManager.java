@@ -6,6 +6,8 @@ import java.io.Writer;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Properties;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -30,6 +32,7 @@ public class AccountManager {
 	private File accounts;
 	private MessageDigest digest;
 	private PostfixClient client;
+	private static Lock FSLock = new ReentrantLock();
 	
 	private String subject = "Welcome to Joe-E Mail";
 	private String body = "Welcome to Joe-E Mail";
@@ -58,19 +61,20 @@ public class AccountManager {
 	 * @return <code>true</code> if the account was successfully created
 	 */
 	public boolean addAccount(String username, String password) {
+		FSLock.lock();
 		Dispatcher.logMsg("Request to create account for: " + username);
+		Writer out;
 		try {
-			for (File f : Filesystem.list(accounts)) {
-				if (f.getName().equals(username)) {
-					Dispatcher.logMsg("Username " + username + " already exists");
-					return false;
-				}
-			}
-		} catch (IOException e1) {
+			File userFile = Filesystem.file(accounts, username);
+			out = ASCII.output(Filesystem.writeNew(userFile));
+		} catch (IOException e) {
+			Dispatcher.logMsg("Caught an IO Exception, probably the username already exists");
+			FSLock.unlock();
 			return false;
 		}
+		// at this point we know that the username doesn't exist. Any error handling should clean
+		// up the file system
 		try {
-			Writer out = ASCII.output(Filesystem.writeNew(Filesystem.file(accounts, username)));
 			byte[] bytes = UTF8.encode(password);
 			digest.update(bytes);
 			String hashedPassword = new BigInteger(1,digest.digest()).toString(16);
@@ -81,20 +85,14 @@ public class AccountManager {
 			client.updateDatabase(username);
 		} catch (Exception e) {
 			// clean up the file that we just wrote out
-			try {
-				for(File f : Filesystem.list(accounts)) {
-					if (f.getName().equals(username)) {
-						f.delete();
-					}
-				}
-				Dispatcher.logMsg("Caught an exception, either IO or crypto related, unable to create account");
-				return false;
-			} catch (IOException e1) {
-				Dispatcher.logMsg("Caught an exception, either IO or crypto related, unable to create account");
-				return false;
-			}
+			File f = Filesystem.file(accounts, username);
+			f.delete();
+			Dispatcher.logMsg("Caught an exception, either IO or crypto related, unable to create account");
+			FSLock.unlock();
+			return false;
 		}
 		Dispatcher.logMsg("Successfully created account for " + username);
+		FSLock.unlock();
 		
 		// Now we have to send a welcome email to the account so their directory gets created
 		// args are ok so we can send it to the outgoing mail client
