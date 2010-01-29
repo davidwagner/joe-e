@@ -19,7 +19,8 @@ import org.joe_e.array.ConstArray;
  * files.  A File object grants read and write access to a file or directory.
  * Due to limitations in Java, all file references are to textual file names, not
  * file descriptors.  Multiple operations on a File may thus apply to different
- * incarnations of the file.
+ * incarnations of the file.  For this reason, File objects are not immune
+ * from time-of-check-to-time-of-use vulnerabilities (race conditions).
  */
 public final class Filesystem {
     
@@ -53,7 +54,7 @@ public final class Filesystem {
      * Vets a filename.  Checks that the argument would be interpreted as a
      * file name rather than as a path or relative directory specifier
      * @param name a single filename component, not a relative path
-     * @throws InvalidFilenameException <code>name</code> is rejected\
+     * @throws InvalidFilenameException <code>name</code> is rejected
      */
     static public void checkName(final String name) 
                                        throws InvalidFilenameException {
