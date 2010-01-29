@@ -407,7 +407,7 @@ public class Dispatcher extends HttpServlet {
 	 * @param s
 	 */
 	public static void logMsg(String s) {
-		s.replaceAll("\n", " ");
+		s = s.replaceAll("\n", " ");
 		Dispatcher.logger.fine(s);
 	}
 }

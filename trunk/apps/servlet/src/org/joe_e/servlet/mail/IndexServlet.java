@@ -45,7 +45,12 @@ public class IndexServlet extends JoeEServlet {
 			super(c);
 		}
 		public String getTestCookie() {
-			for (Cookie c : cookies) {
+			for (Cookie c : updatedCookies) {
+				if (c.getName().equals("__joe-e__testCookie")) {
+					return c.getValue();
+				}
+			}
+			for (Cookie c : recievedCookies) {
 				if (c.getName().equals("__joe-e__testCookie")) {
 					return c.getValue();
 				}
@@ -54,14 +59,14 @@ public class IndexServlet extends JoeEServlet {
 		}
 		public void setTestCookie(String arg) {
 			boolean done = false;
-			for (Cookie c : cookies) {
+			for (Cookie c : updatedCookies) {
 				if (c.getName().equals("__joe-e__testCookie")) {
 					c.setValue(arg);
 					done = true;
 				}
 			}
 			if (!done) {
-				cookies.add(new Cookie("__joe-e__testCookie", arg));
+				updatedCookies.add(new Cookie("__joe-e__testCookie", arg));
 			}
 		}
 	}

@@ -2176,7 +2176,8 @@ public class Policy {
         methods.add("org.joe_e.reflect.Reflection.construct(Constructor, Object[])");
 
         // Type org.joe_e.servlet.AbstractCookieView
-        fields.add("org.joe_e.servlet.AbstractCookieView.cookies");
+        fields.add("org.joe_e.servlet.AbstractCookieView.updatedCookies");
+        fields.add("org.joe_e.servlet.AbstractCookieView.recievedCookies");
         constructors.add("org.joe_e.servlet.AbstractCookieView(Cookie[])");
         constructors.add("org.joe_e.servlet.AbstractCookieView()");
 
