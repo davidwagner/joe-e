@@ -81,6 +81,7 @@ public class CreateAccount extends JoeEServlet {
 		}
 		
 		tmp = doc.createElement("form");
+		body.appendChild(tmp);
 		tmp.setAttribute("method", "POST");
 		tmp.setAttribute("action", "/servlet/create");
 		

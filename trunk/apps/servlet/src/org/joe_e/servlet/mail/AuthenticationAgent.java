@@ -33,23 +33,25 @@ public class AuthenticationAgent {
 	}
 
 	public FileTransportPair authenticate(String username, String password) {
-		Dispatcher.logMsg("Request to authenticate " + username);
-		try {
-			byte[] bytes = UTF8.encode(password);
-			digest.update(bytes);
-			String hashedPassword = new BigInteger(1,digest.digest()).toString(16);
-			Reader reader = ASCII.input(Filesystem.read(Filesystem.file(accounts, username)));
-			BufferedReader in = new BufferedReader(reader);
-			if (hashedPassword.equals(in.readLine())) {
-				Dispatcher.logMsg("Successfully authenticated " + username);
-				File f = Filesystem.file(mailboxes, username);
-				active = false;
-				return new FileTransportPair(f, transport);
+		if (active) {
+			Dispatcher.logMsg("Request to authenticate " + username);
+			try {
+				byte[] bytes = UTF8.encode(password);
+				digest.update(bytes);
+				String hashedPassword = new BigInteger(1,digest.digest()).toString(16);
+				Reader reader = ASCII.input(Filesystem.read(Filesystem.file(accounts, username)));
+				BufferedReader in = new BufferedReader(reader);
+				if (hashedPassword.equals(in.readLine())) {
+					Dispatcher.logMsg("Successfully authenticated " + username);
+					File f = Filesystem.file(mailboxes, username);
+					active = false;
+					return new FileTransportPair(f, transport);
+				}
+			} catch (FileNotFoundException e ) {
+			} catch (IOException e) {
+			} catch (IllegalArgumentException e) {
+			} catch (InvalidFilenameException e) {
 			}
-		} catch (FileNotFoundException e ) {
-		} catch (IOException e) {
-		} catch (IllegalArgumentException e) {
-		} catch (InvalidFilenameException e) {
 		}
 		return null;
 	}
