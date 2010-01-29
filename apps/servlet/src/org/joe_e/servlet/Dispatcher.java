@@ -40,6 +40,7 @@ import org.xml.sax.helpers.DefaultHandler;
  *
  */
 public class Dispatcher extends HttpServlet {
+	public static final long serialVersionUID = 1L;
 
 	// If the session gets invalidate for some reason, we should tell the user.
 	public static String errorMessage = "";

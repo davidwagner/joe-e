@@ -1810,7 +1810,6 @@ public class Policy {
 
         // Type javax.servlet.http.HttpServletResponse
         methods.add("javax.servlet.http.HttpServletResponse.sendRedirect(String)");
-        methods.add("javax.servlet.http.HttpServletResponse.addHeader(String, String)");
 
         // Type javax.servlet.http.HttpServletResponseWrapper
 
@@ -2218,6 +2217,7 @@ public class Policy {
         constructors.add("org.joe_e.servlet.response.ResponseUrl(int, String, String, String, String)");
 
         // Type org.joe_e.servlet.response.ServletResponseWrapper
+        methods.add("org.joe_e.servlet.response.ServletResponseWrapper.sendRedirect(String)");
         methods.add("org.joe_e.servlet.response.ServletResponseWrapper.getDocument()");
 
         // Type org.joe_e.taming.Policy

@@ -8,7 +8,6 @@ import java.io.Reader;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.joe_e.charset.ASCII;
@@ -23,6 +22,7 @@ import org.joe_e.servlet.response.ResponseUrl;
 import org.joe_e.servlet.response.ServletResponseWrapper;
 
 public class Inbox extends JoeEServlet {
+	public static final long serialVersionUID = 1L;
 
 
 	public class SessionView extends AbstractSessionView {
@@ -47,7 +47,7 @@ public class Inbox extends JoeEServlet {
 		}
 	}
 	
-	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView c)
+	public void doGet(HttpServletRequest req, ServletResponseWrapper res, AbstractSessionView ses, AbstractCookieView c)
 		throws IOException, ServletException {
 		SessionView session = (SessionView) ses;
 		if (session.getUsername() == null) {
@@ -55,8 +55,7 @@ public class Inbox extends JoeEServlet {
 		    res.sendRedirect("/servlet/login");
 		    return;
 		}
-		res.addHeader("Content-type", "text/html");
-		ResponseDocument doc = ((ServletResponseWrapper) res).getDocument();
+		ResponseDocument doc = res.getDocument();
 		ResponseElement body = HtmlWriter.printHeader(doc);
 		ResponseElement tmp = doc.createElement("h2");
 		tmp.appendChild(doc.createTextNode("Joe-E Mail"));

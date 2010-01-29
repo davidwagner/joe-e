@@ -17,6 +17,7 @@ import com.sun.org.apache.xerces.internal.dom.DocumentImpl;
  *
  */
 public class ResponseDocument extends DocumentImpl implements Document  {
+	public static final long serialVersionUID = 1L;
 
 	// These are the legal tags that can be created. This helps prevent dynamically
 	// generated javascript
