@@ -1,0 +1,81 @@
+FRAMEWORK:
+
+Need to write a URL sanitizer; maybe just check that its
+prefix is one of the following:
+       http:
+       https:
+       mailto:
+       /
+       ./
+       ../
+
+Ways to eliminate reflection when creating SessionView and
+CookieView if needed for performance
+
+Might be nice if Dispatcher.logger sanitizes string arguments
+to escape/remove all newlines, to prevent log injection attacks.
+
+We might want to talk about whether it would be helpful for the
+framework to provide authentication functionality built into the
+framework (since this is one area that's easy for app developers
+to screw up).
+
+TODO: Review taming database to see what of javax.mail.Session is
+exposed.  Maybe it should not be exposed directly, but instead there
+should be a wrapper?  Or maybe it can be tamed so it provides no
+authority directly?  Similar for other javax.mail. classes,
+like Transport.  Also look at InternetAddress.
+
+
+APPLICATION:
+
+SessionInit should use SHA1, not MD5
+
+AuthenticationAgent should inactivate itself immediately after
+each successful call to authenticate() (rather than having the
+servlet null out the AuthenticationAgent, as currently happens).
+
+Very minor: Maybe create the MessageDigest instance in AuthenticationAgent
+(in Joe-E code) rather than in SessionInit (Java code)?  Would require
+exposing MessageDigest in taming database safely, if that's safe to do.
+
+AuthenticationAgent.authenticate() should use UTF8.encode() rather
+than ASCII.encode()?  AccountManager.addAccount() should be modified
+to match.
+
+Password hashes should be salted, probably.  AuthenticationAgent
+should read & use the salt.
+
+SessionInit: TransportAgent should only be available to
+authenticated users.  Therefore, AuthenticationAgent should
+return both the mailbox and the TransportAgent.
+
+A property you have to verify for each app is that the
+SesssionInitializer constructs new object instances for every
+mutable object placed in the session: we want this for isolation
+between sessions, i.e., to preserve the invariant that every
+mutable object is reachable from at most one session.
+
+AccountManager.addAccount() should try to open the file --
+call Filesystem.file(accounts, username) -- instead of looping
+through all files to see if any have the same filename.  This
+is better for performance.  It also fixes a security bug, on
+systems with case-insensitive filenames.  Should rewrite the
+method to simply try to open the file using writeNew(); if that
+fails, then we can return and indicate that the account already
+exists, otherwise we can proceed and fill in the file.  Also,
+the catch clause should be modified: delete the file you just
+created, rather than looping through all files in the
+directory to find the one you wanted to delete.
+
+AccountManager.addAccount() should sanitize username, e.g.,
+check that it matches some whitelist/regexp.  Maybe force it
+to be ASCII, no spaces, etc.  The RFC probably specifies a
+regexp for valid usernames.  Usernames should be treated as
+case-insensitive; lowercase it before looking it up in the
+filesystem.
+
+AccountManager.addAccount() should probably take a global lock,
+to prevent concurrency issues (e.g., if users try to create two
+accounts simultaneously).  Maybe acquire a lock on
+AccountManager.class, or a static lock object in the class?
