@@ -2,7 +2,4 @@
 class("org.joe_e.servlet.Dispatcher",
   static(constructor(suppress, "Dispatcher()", comment("default deny")),
   field(allow, "logger", comment("allowed")),
-  method(allow, "logMsg(String)", comment("allowed")),
-  method(allow, "getErrorMessage()", comment("allowed")),
-  method(allow, "setErrorMessage(String)", comment("allowed"))),
-  instance(method(suppress, "doGet(HttpServletRequest, HttpServletResponse)", comment("default deny"))))
+  method(allow, "logMsg(String)", comment("allowed"))))

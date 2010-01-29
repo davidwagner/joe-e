@@ -137,7 +137,7 @@ public class Dispatcher extends HttpServlet {
 	 */
 	public void doPost(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = req.getSession();
-		
+
 		// initialize the session if it is new
 		if (session.isNew()) {
 			initializer.fillHttpSession(session);

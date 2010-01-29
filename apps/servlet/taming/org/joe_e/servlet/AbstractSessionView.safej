@@ -1,6 +1,4 @@
 # Manually modified safej file for Joe-e mail.
 class("org.joe_e.servlet.AbstractSessionView",
   static(constructor(allow, "AbstractSessionView(HttpSession)", comment("allowed for Joe-E mail. We need this so that Joe-E servlets can extend it and use the default constructor"))),
-  instance(field(allow, "session", comment("allowed")),
-    method(suppress, "fillHttpSession(HttpSession)", comment("default deny")),
-    method(suppress, "fillSessionView(HttpSession)", comment("default deny"))))
+  instance(field(allow, "session", comment("allowed"))))

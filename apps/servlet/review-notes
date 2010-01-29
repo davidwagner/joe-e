@@ -1,6 +1,6 @@
 FRAMEWORK:
 
-Need to write a URL sanitizer; maybe just check that its
+DONE - Need to write a URL sanitizer; maybe just check that its
 prefix is one of the following:
        http:
        https:

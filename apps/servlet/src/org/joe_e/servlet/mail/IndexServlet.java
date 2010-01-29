@@ -2,7 +2,6 @@ package org.joe_e.servlet.mail;
 
 import java.io.IOException;
 
-import org.w3c.dom.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -13,6 +12,9 @@ import javax.servlet.http.HttpSession;
 import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.JoeEServlet;
+import org.joe_e.servlet.response.ResponseDocument;
+import org.joe_e.servlet.response.ResponseElement;
+import org.joe_e.servlet.response.ResponseUrl;
 import org.joe_e.servlet.response.ServletResponseWrapper;
 
 /**
@@ -68,26 +70,26 @@ public class IndexServlet extends JoeEServlet {
 			res.sendRedirect("/servlet/inbox");
 		}
 		res.addHeader("Content-type", "text/html");
-		Document doc = ((ServletResponseWrapper)res).getDocument();
-		Element body = HtmlWriter.printHeader(doc);
+		ResponseDocument doc = ((ServletResponseWrapper)res).getDocument();
+		ResponseElement body = HtmlWriter.printHeader(doc);
 
-		Element tmp = doc.createElement("p");
+		ResponseElement tmp = doc.createElement("p");
 		body.appendChild(tmp);
 		tmp.appendChild(doc.createTextNode("Welcome to Joe-E mail"));
 		tmp = doc.createElement("a");
-		tmp.setAttribute("href","/servlet/login");
+		tmp.addLinkAttribute("href", new ResponseUrl("/servlet/login", null));
 		tmp.appendChild(doc.createTextNode("Log In"));
 		body.appendChild(tmp);
 		body.appendChild(doc.createElement("br"));
 
 		tmp = doc.createElement("a");
-		tmp.setAttribute("href","/servlet/create");
+		tmp.addLinkAttribute("href", new ResponseUrl("/servlet/create", null));
 		tmp.appendChild(doc.createTextNode("Create an Account"));
 		body.appendChild(tmp);
 		body.appendChild(doc.createElement("br"));
 		
 		tmp = doc.createElement("a");
-		tmp.setAttribute("href","/servlet/");
+		tmp.addLinkAttribute("href", new ResponseUrl("/servlet/", null));
 		tmp.appendChild(doc.createTextNode("Stay here"));
 		body.appendChild(tmp);
 		body.appendChild(doc.createElement("br"));

@@ -39,7 +39,7 @@ public class ResponseDocumentBuilder extends DocumentBuilder {
 	}
 
 	@Override
-	public Document newDocument() {
+	public ResponseDocument newDocument() {
 		return new ResponseDocument();
 	}
 

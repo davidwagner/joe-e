@@ -17,9 +17,10 @@ import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.JoeEServlet;
 import org.joe_e.servlet.Dispatcher;
+import org.joe_e.servlet.response.ResponseDocument;
+import org.joe_e.servlet.response.ResponseElement;
+import org.joe_e.servlet.response.ResponseUrl;
 import org.joe_e.servlet.response.ServletResponseWrapper;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 public class Inbox extends JoeEServlet {
 
@@ -51,9 +52,9 @@ public class Inbox extends JoeEServlet {
 		    return;
 		}
 		res.addHeader("Content-type", "text/html");
-		Document doc = ((ServletResponseWrapper) res).getDocument();
-		Element body = HtmlWriter.printHeader(doc);
-		Element tmp = doc.createElement("h2");
+		ResponseDocument doc = ((ServletResponseWrapper) res).getDocument();
+		ResponseElement body = HtmlWriter.printHeader(doc);
+		ResponseElement tmp = doc.createElement("h2");
 		tmp.appendChild(doc.createTextNode("Joe-E Mail"));
 		body.appendChild(tmp);
 		tmp = doc.createElement("h4");
@@ -61,7 +62,7 @@ public class Inbox extends JoeEServlet {
 		body.appendChild(tmp);
 		
 		tmp = doc.createElement("a");
-		tmp.setAttribute("href", "/servlet/compose");
+		tmp.addLinkAttribute("href", new ResponseUrl("/servlet/compose", null));
 		tmp.appendChild(doc.createTextNode("Write an email"));
 		body.appendChild(tmp);
 		body.appendChild(doc.createElement("br"));
@@ -82,7 +83,7 @@ public class Inbox extends JoeEServlet {
 			}
 			if (!"".equals(id) && !"".equals(subject)) {
 				tmp = doc.createElement("a");
-				tmp.setAttribute("href", "/servlet/read?id="+id);
+				tmp.addLinkAttribute("href", new ResponseUrl("/servlet/read", "id="+id));
 				tmp.appendChild(doc.createTextNode(subject));
 				body.appendChild(tmp);
 				body.appendChild(doc.createElement("br"));
@@ -90,7 +91,7 @@ public class Inbox extends JoeEServlet {
 		}
 		
 		tmp = doc.createElement("a");
-		tmp.setAttribute("href", "/servlet/logout");
+		tmp.addLinkAttribute("href", new ResponseUrl("/servlet/logout", null));
 		tmp.appendChild(doc.createTextNode("logout"));
 		body.appendChild(tmp);
 		body.appendChild(doc.createElement("br"));

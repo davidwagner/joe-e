@@ -16,9 +16,10 @@ import org.joe_e.file.Filesystem;
 import org.joe_e.servlet.AbstractCookieView;
 import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.JoeEServlet;
+import org.joe_e.servlet.response.ResponseDocument;
+import org.joe_e.servlet.response.ResponseElement;
+import org.joe_e.servlet.response.ResponseUrl;
 import org.joe_e.servlet.response.ServletResponseWrapper;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 public class Read extends JoeEServlet {
 
@@ -48,13 +49,13 @@ public class Read extends JoeEServlet {
 			return;
 		}
 		res.addHeader("Content-type", "text/html");
-		Document doc = ((ServletResponseWrapper)res).getDocument();
+		ResponseDocument doc = ((ServletResponseWrapper)res).getDocument();
 		if (session.getUsername() == null) {
 		    res.sendRedirect("/servlet/login");
 		}
-		Element body = HtmlWriter.printHeader(doc);
+		ResponseElement body = HtmlWriter.printHeader(doc);
 		
-		Element tmp = doc.createElement("h2");
+		ResponseElement tmp = doc.createElement("h2");
 		tmp.appendChild(doc.createTextNode("Joe-E Mail"));
 		body.appendChild(tmp);
 		
@@ -77,7 +78,7 @@ public class Read extends JoeEServlet {
 			}
 		}
 		tmp = doc.createElement("a");
-		tmp.setAttribute("href", "/servlet/inbox");
+		tmp.addLinkAttribute("href", new ResponseUrl("/servlet/inbox", null));
 		tmp.appendChild(doc.createTextNode("Back to Inbox"));
 		body.appendChild(tmp);
 	}
