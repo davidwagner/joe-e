@@ -42,19 +42,22 @@ public class CookieView extends AbstractCookieView {
     for (key, value) in data[1].items():
         if value["read"]:
             outputString += "\tpublic String get"+key+"() {\n"
-            outputString += "\t\tfor (Cookie c : cookies) {\n"
+            outputString += "\t\tfor (Cookie c : updatedCookies) {\n"
             outputString += "\t\t\tif (c.getName().equals(\"__joe-e__"+key+"\")) {\n"
+            outputString += "\t\t\t\treturn c.getValue();\n\t\t\t}\n\t\t}\n"
+            outputString += "\t\tfor (Cookie c : recievedCookies) {\n"
+            outputString += "\t\t\tif(c.getName().equals(\"__joe-e__"+key+"\")) {\n"
             outputString += "\t\t\t\treturn c.getValue();\n\t\t\t}\n\t\t}\n"
             outputString += "\t\treturn null;\n\t}\n"
             
         if value["write"]:
             outputString += "\tpublic void set"+key+"(String arg) {\n"
             outputString += "\t\tboolean done = false;\n"
-            outputString += "\t\tfor (Cookie c : cookies) {\n"
+            outputString += "\t\tfor (Cookie c : updatedCookies) {\n"
             outputString += "\t\t\tif (c.getName().equals(\"__joe-e__"+key+"\")) {\n"
             outputString += "\t\t\t\tc.setValue(arg);\n"
             outputString += "\t\t\t\tdone = true;\n\t\t\t}\n\t\t}\n"
-            outputString += "\t\tif (!done) {\n\t\t\tcookies.add(new Cookie(\"__joe-e__"+key+"\", arg));\n"
+            outputString += "\t\tif (!done) {\n\t\t\tupdatedCookies.add(new Cookie(\"__joe-e__"+key+"\", arg));\n"
             outputString += "\t\t}\n\t}\n"
 
     outputString += """\n}

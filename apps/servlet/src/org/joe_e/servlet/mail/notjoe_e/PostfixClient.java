@@ -1,7 +1,6 @@
 package org.joe_e.servlet.mail.notjoe_e;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 

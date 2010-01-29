@@ -2,4 +2,5 @@
 class("org.joe_e.servlet.AbstractCookieView",
   static(constructor(allow, "AbstractCookieView()", comment("allowed for Joe-E mail. We need this so that Joe-E servlets can extend it and use the default constructor")),
     constructor(allow, "AbstractCookieView(Cookie[])", comment("allowed"))),
-  instance(field(allow, "cookies", comment("allowed"))))
+  instance(field(allow, "recievedCookies", comment("allowed")),
+  field(allow, "updatedCookies", comment("allowed"))))

@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
+import org.joe_e.array.ConstArray;
+
 /**
  * This class represents a view into some of the cookies associated with the
  * HTTP request. To limit information leakage, and to fully understand the 
@@ -19,23 +21,20 @@ import javax.servlet.http.HttpServletResponse;
 public abstract class AbstractCookieView {
 
 	
-	public ArrayList<Cookie> cookies;
+	public ConstArray<Cookie> recievedCookies;
+	public ArrayList<Cookie> updatedCookies;
 	
 	
-	public AbstractCookieView(Cookie[] c) {
-		cookies = new ArrayList<Cookie>();
-		if (c != null) {
-			for (Cookie ck : c) {
-				cookies.add(ck);
-			}
-		}
+	public AbstractCookieView(Cookie[] c) {		
+		recievedCookies = ConstArray.array(c);
+		updatedCookies = new ArrayList<Cookie>();
 	}
 	
 	/**
 	 * default constructor
 	 */
 	public AbstractCookieView() {
-		cookies = new ArrayList<Cookie>();
+		updatedCookies = new ArrayList<Cookie>();
 	}
 	
 	
@@ -45,7 +44,7 @@ public abstract class AbstractCookieView {
 	 * @param res
 	 */
 	public final void finalizeCookies(HttpServletResponse res) {
-		for (Cookie c : cookies) {
+		for (Cookie c : updatedCookies) {
 			res.addCookie(c);
 		}
 	}

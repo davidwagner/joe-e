@@ -61,7 +61,12 @@ public class LoginServlet extends JoeEServlet {
 			super(c);
 		}
 		public String getTestCookie() {
-			for (Cookie c : cookies) {
+			for (Cookie c : updatedCookies) {
+				if (c.getName().equals("__joe-e__testCookie")) {
+					return c.getValue();
+				}
+			}
+			for (Cookie c : recievedCookies) {
 				if (c.getName().equals("__joe-e__testCookie")) {
 					return c.getValue();
 				}

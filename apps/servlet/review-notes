@@ -12,7 +12,7 @@ prefix is one of the following:
 DONE - Ways to eliminate reflection when creating SessionView and
 CookieView if needed for performance
 
-Might be nice if Dispatcher.logger sanitizes string arguments
+DONE - Might be nice if Dispatcher.logger sanitizes string arguments
 to escape/remove all newlines, to prevent log injection attacks.
 
 We might want to talk about whether it would be helpful for the
@@ -26,7 +26,7 @@ should be a wrapper?  Or maybe it can be tamed so it provides no
 authority directly?  Similar for other javax.mail. classes,
 like Transport.  Also look at InternetAddress.
 
-Maybe AbstractCookieView should maintain two lists of cookies:
+DONE - Maybe AbstractCookieView should maintain two lists of cookies:
 (a) a list of the cookies in the request (maybe a ConstArray,
 so the list can't be changed?), (b) a list of cookies to be set
 in the response.  Maybe there should be a get() method that
