@@ -41,7 +41,7 @@ public class Logout extends JoeEServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse res, AbstractSessionView ses, AbstractCookieView c)
 		throws IOException, ServletException {
 		SessionView session = (SessionView) ses;
-	    Dispatcher.logger.fine("in doGet of Logout");
+	    Dispatcher.logMsg("in doGet of Logout");
 		session.invalidate();
 		res.sendRedirect("/servlet/");
 		return;

@@ -51,7 +51,7 @@ public class Inbox extends JoeEServlet {
 		throws IOException, ServletException {
 		SessionView session = (SessionView) ses;
 		if (session.getUsername() == null) {
-		    Dispatcher.logger.fine("redirecting to /servlet/login");
+		    Dispatcher.logMsg("redirecting to /servlet/login");
 		    res.sendRedirect("/servlet/login");
 		    return;
 		}
