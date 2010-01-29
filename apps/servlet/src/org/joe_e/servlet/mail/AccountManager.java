@@ -54,7 +54,7 @@ public class AccountManager {
 	 * account and sends the user a welcome message. 
 	 * @param username
 	 * @param password
-	 * @return
+	 * @return <code>true</code> if the account was successfully created
 	 */
 	public boolean addAccount(String username, String password) {
 		Dispatcher.logMsg("Request to create account for: " + username);
