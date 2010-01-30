@@ -1612,6 +1612,13 @@ public class Policy {
 
         // Type java.util.logging.XMLFormatter
 
+        // Type java.util.regex.Matcher
+        methods.add("java.util.regex.Matcher.matches()");
+
+        // Type java.util.regex.Pattern
+        methods.add("java.util.regex.Pattern.matcher(CharSequence)");
+        methods.add("java.util.regex.Pattern.compile(String)");
+
         // Type javax.mail.Address
 
         // Type javax.mail.AuthenticationFailedException

@@ -1,0 +1,3 @@
+class("java.util.regex.Pattern",
+  static(method(allow, "compile(String)", comment("ok to make regular expressions"))),
+  instance(method(allow, "matcher(CharSequence)", comment("ok to use regular expression"))))
