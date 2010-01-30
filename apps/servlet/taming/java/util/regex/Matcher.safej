@@ -1,0 +1,2 @@
+class("java.util.regex.Matcher",
+  instance(method(allow, "matches()", comment("ok to use regular expressions"))))

@@ -1,6 +1,9 @@
 package org.joe_e.servlet.mail.notjoe_e;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -28,14 +31,28 @@ public class PostfixClient {
 	 * @param username
 	 */
 	public boolean updateDatabase(String username) {
-		// TODO: again do we have to verify that username is safe?
+		boolean done = false;
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(recipients));
+			String line = null;
+			while ((line = reader.readLine())!= null) {
+				if (line.contains(username+"@"+hostname)) {
+					done = true;
+				}
+			}
+		} catch (FileNotFoundException e1) {
+			return false;
+		} catch (IOException e1) {
+			return false;
+		}
 		
 		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(recipients, true));
-			writer.write(username+"@"+hostname+"\t"+hostname+"/"+username+"/Maildir/");
-			writer.newLine();
-			writer.close();
-			
+			if (!done) {
+				BufferedWriter writer = new BufferedWriter(new FileWriter(recipients, true));
+				writer.write(username+"@"+hostname+"\t"+hostname+"/"+username+"/Maildir/");
+				writer.newLine();
+				writer.close();
+			}
 			Process p = Runtime.getRuntime().exec("/usr/sbin/postmap /etc/postfix/virtual_mailbox_recipients");
 			p.waitFor();
 			if (p.exitValue() == 0) {

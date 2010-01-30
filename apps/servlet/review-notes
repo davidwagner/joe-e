@@ -98,7 +98,7 @@ mutable object placed in the session: we want this for isolation
 between sessions, i.e., to preserve the invariant that every
 mutable object is reachable from at most one session.
 
-AccountManager.addAccount() should try to open the file --
+DONE - AccountManager.addAccount() should try to open the file --
 call Filesystem.file(accounts, username) -- instead of looping
 through all files to see if any have the same filename.  This
 is better for performance.  It also fixes a security bug, on
@@ -110,26 +110,27 @@ the catch clause should be modified: delete the file you just
 created, rather than looping through all files in the
 directory to find the one you wanted to delete.
 
-AccountManager.addAccount() should sanitize username, e.g.,
+DONE - AccountManager.addAccount() should sanitize username, e.g.,
 check that it matches some whitelist/regexp.  Maybe force it
 to be ASCII, no spaces, etc.  The RFC probably specifies a
-regexp for valid usernames.  Usernames should be treated as
-case-insensitive; lowercase it before looking it up in the
-filesystem.  This also fixes potential bugs in
+regexp for valid usernames.  
+
+Usernames should be treated as case-insensitive; lowercase it before looking it
+up in the filesystem.  This also fixes potential bugs in
 PostfixClient.updateDatabase() (e.g., path injection).
 
-AccountManager.addAccount() should probably take a global lock,
+DONE - AccountManager.addAccount() should probably take a global lock,
 to prevent concurrency issues (e.g., if users try to create two
 accounts simultaneously).  Maybe acquire a lock on
 AccountManager.class, or a static lock object in the class?
 
-AccountManager.addAccount() currently ignores return value
+DONE - AccountManager.addAccount() currently ignores return value
 from PostfixClient.updateDatabase().  Either check return value
 and handle the error case; or maybe PostfixClient.updateDatabase()
 should throw an exception if it encounters an error condition,
 and addAccount() should handle it.
 
-Very minor: PostfixClient.updateDatabase() is not idempotent;
+DONE - Very minor: PostfixClient.updateDatabase() is not idempotent;
 if you add the same line to the file twice, does Postfix fall
 over?
 
