@@ -80,8 +80,11 @@ public class Inbox extends JoeEServlet {
 			String id = f.getName();
 			String subject = "";
 			while ((line = in.readLine()) != null) {
+				if (line.equals(""))
+					break;
 				if (line.length() > 7 && line.substring(0, 7).equals("Subject")) {
 					subject = line.substring(8);
+					break;
 				}
 			}
 			if (!"".equals(id) && !"".equals(subject)) {

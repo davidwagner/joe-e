@@ -134,16 +134,18 @@ DONE - Very minor: PostfixClient.updateDatabase() is not idempotent;
 if you add the same line to the file twice, does Postfix fall
 over?
 
-TransportAgent.send() should probably overwrite or check the
+DONE - TransportAgent.send() should probably overwrite or check the
 From: address on the email, to make sure that users cannot send
 forged emails.  Maybe check that there is exactly 1 from address,
 and that it is exactly the user that is currently logged in.
 Maybe TransportAgent instances should be created by
 AuthenticationAgent, with an appropriate from address,
 when the user authenticates, and inserted into the session at
-that time.  Do we need to make sure the date is sensible?
+that time.  
 
-Index.doGet() should return after sendRedirect().
+Do we need to make sure the date is sensible?
+
+DONE - Index.doGet() should return after sendRedirect().
 
 Here are the security properties we want:
 
@@ -202,10 +204,10 @@ and LoginServlet (hopefully we can quickly verify that no other
 servlet's SessionView lets them modify the username attribute
 of the session).
 
-CreateAccount shouldn't be able to set the username attribute
+DONE - CreateAccount shouldn't be able to set the username attribute
 in the session; delete from SessionView.
 
-CreateAccount.doPost() should return after the sendRedirect if
+DONE - CreateAccount.doPost() should return after the sendRedirect if
 it detects a XSRF attempt.
 
 An idea: If adding the ability to delete messages, then one
@@ -217,13 +219,13 @@ point out that to verify that my integrity is guaranteed, we
 only have to review the code of the delete servlet (not the
 other servlets that read the mailbox).
 
-Very minor (not a security bug) in Inbox.doGet(): The loop
+DONE - Very minor (not a security bug) in Inbox.doGet(): The loop
 that scans the message looking for the Subject: line probably
 should stop after seeing a blank line, to prevent spoofing of
 subject lines.  Only affects user experience, not security.
 
-Compose's SessionView should not provide access to the mailbox
+DONE - Compose's SessionView should not provide access to the mailbox
 file.
 
-Where Compose.doPost() checks the CSRF token, it should return
+DONE - Where Compose.doPost() checks the CSRF token, it should return
 after sendRedirect().  Same for where it checks the username.

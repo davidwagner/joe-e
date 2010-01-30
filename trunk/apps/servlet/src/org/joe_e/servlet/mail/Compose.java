@@ -34,9 +34,6 @@ public class Compose extends JoeEServlet {
 		public String getToken() {
 			return (String) session.getAttribute("Compose__token");
 		}
-		public File getMailbox() {
-			return (File) session.getAttribute("__joe-e__mailbox");
-		}
 		public String getErrorMessage() {
 			return (String) session.getAttribute("__joe-e__errorMessage");
 		}
@@ -142,6 +139,7 @@ public class Compose extends JoeEServlet {
 		SessionView session = (SessionView) ses;
 		if (session.getUsername() == null) {
 			res.sendRedirect("/servlet/login");
+			return;
 		}
 		
 		String to = req.getParameter("to");
@@ -151,6 +149,7 @@ public class Compose extends JoeEServlet {
 		if (!token.equals(session.getToken())) {
 			session.setErrorMessage("CSRF attempt");
 			res.sendRedirect("/servlet/compose");
+			return;
 		}
 		if (to == null || subject == null || body == null
 				|| to.equals("") || subject.equals("") || body.equals("") ) {

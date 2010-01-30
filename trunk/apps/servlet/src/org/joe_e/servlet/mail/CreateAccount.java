@@ -28,9 +28,6 @@ public class CreateAccount extends JoeEServlet {
 		public String getToken() {
 			return (String) session.getAttribute("CreateAccount__token");
 		}
-		public void setUsername(String arg) {
-			session.setAttribute("__joe-e__username", arg);
-		}
 		public String getErrorMessage() {
 			return (String) session.getAttribute("__joe-e__errorMessage");
 		}
@@ -132,12 +129,15 @@ public class CreateAccount extends JoeEServlet {
 		if (!secret.equals(session.getToken())) {
 			session.setErrorMessage("XSRF attempt");
 			res.sendRedirect("/servlet/create");
+			return;
 		}
 		
 		if (password1.equals(password2) && session.getManager().addAccount(name, password1)) {
 			res.sendRedirect("/servlet/login");
+			return;
 		} else {
 			res.sendRedirect("/servlet/create");
+			return;
 		}
 	}
 }
