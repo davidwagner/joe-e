@@ -45,6 +45,7 @@ public class AuthenticationAgent {
 					Dispatcher.logMsg("Successfully authenticated " + username);
 					File f = Filesystem.file(mailboxes, username);
 					active = false;
+					transport.setUsername(username);
 					return new FileTransportPair(f, transport);
 				}
 			} catch (FileNotFoundException e ) {

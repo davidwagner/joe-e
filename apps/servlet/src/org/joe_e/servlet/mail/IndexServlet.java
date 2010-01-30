@@ -81,6 +81,7 @@ public class IndexServlet extends JoeEServlet {
 		CookieView cookies = (CookieView) c;
 		if (session.getUsername() != null) {
 			res.sendRedirect("/servlet/inbox");
+			return;
 		}
 		ResponseDocument doc = res.getDocument();
 		ResponseElement body = HtmlWriter.printHeader(doc);
