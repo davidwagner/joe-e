@@ -32,8 +32,8 @@ public class Inbox extends JoeEServlet {
 		public String getUsername() {
 			return (String) session.getAttribute("__joe-e__username");
 		}
-		public File getMailbox() {
-			return (File) session.getAttribute("__joe-e__mailbox");
+		public ReadOnlyFile getMailbox() {
+			return (ReadOnlyFile) session.getAttribute("__joe-e__mailbox");
 		}
 	}
 	
@@ -71,10 +71,9 @@ public class Inbox extends JoeEServlet {
 		body.appendChild(doc.createElement("br"));
 		
 
-		File maildir = Filesystem.file(session.getMailbox(), "Maildir");
-		File newFolder = Filesystem.file(maildir, "new");
-		for (File f : Filesystem.list(newFolder)) {
-			Reader reader = ASCII.input(Filesystem.read(f));
+		ReadOnlyFile newFolder = session.getMailbox().getChild("Maildir").getChild("new");
+		for (ReadOnlyFile f : newFolder.list()) {
+			Reader reader = f.getReader();
 			BufferedReader in = new BufferedReader(reader);
 			String line = "";
 			String id = f.getName();

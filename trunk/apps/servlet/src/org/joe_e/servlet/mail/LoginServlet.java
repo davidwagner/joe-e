@@ -40,8 +40,11 @@ public class LoginServlet extends JoeEServlet {
 		public File getMailbox() {
 			return (File) session.getAttribute("__joe-e__mailbox");
 		}
-		public void setMailbox(File arg) {
+		public void setMailbox(ReadOnlyFile arg) {
 			session.setAttribute("__joe-e__mailbox", arg);
+		}
+		public void setMessageDeleter(DeleteOnlyFile arg) {
+			session.setAttribute("__joe-e__messageDeleter", arg);
 		}
 		public String getErrorMessage() {
 			return (String) session.getAttribute("__joe-e__errorMessage");
@@ -141,7 +144,8 @@ public class LoginServlet extends JoeEServlet {
 		if (pair != null) {
 			session.setAuth(null);
 			session.setUsername(name);
-			session.setMailbox(pair.f);
+			session.setMailbox(pair.r);
+			session.setMessageDeleter(pair.d);
 			session.setTransportAgent(pair.t);
 			res.sendRedirect("/servlet/inbox");
 		} else {

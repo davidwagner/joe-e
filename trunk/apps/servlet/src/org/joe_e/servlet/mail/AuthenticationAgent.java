@@ -58,11 +58,13 @@ public class AuthenticationAgent {
 	}
 	
 	public class FileTransportPair {
-		public File f;
+		public ReadOnlyFile r;
+		public DeleteOnlyFile d;
 		public TransportAgent t;
 		
 		public FileTransportPair(File file, TransportAgent transport) {
-			f = file;
+			r = new ReadOnlyFile(file);
+			d = new DeleteOnlyFile(file);
 			t = transport;
 		}
 	}

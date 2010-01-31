@@ -30,8 +30,8 @@ public class Read extends JoeEServlet {
 		public String getUsername() {
 			return (String) session.getAttribute("__joe-e__username");
 		}
-		public File getMailbox() {
-			return (File) session.getAttribute("__joe-e__mailbox");
+		public ReadOnlyFile getMailbox() {
+			return (ReadOnlyFile) session.getAttribute("__joe-e__mailbox");
 		}
 	}
 	
@@ -68,11 +68,10 @@ public class Read extends JoeEServlet {
 		
 		
 		String msgName = req.getParameter("id");
-		File maildir = Filesystem.file(session.getMailbox(), "Maildir");
-		File newFolder = Filesystem.file(maildir, "new");
-		for (File f : Filesystem.list(newFolder)) {
+		ReadOnlyFile newFolder = session.getMailbox().getChild("Maildir").getChild("new");
+		for (ReadOnlyFile f : newFolder.list()) {
 			if (f.getName().equals(msgName)) {
-				Reader reader = ASCII.input(Filesystem.read(f));
+				Reader reader = f.getReader();
 				BufferedReader in = new BufferedReader(reader);
 				String line = "";
 				String total = "";
@@ -84,6 +83,12 @@ public class Read extends JoeEServlet {
 				body.appendChild(tmp);
 			}
 		}
+		tmp = doc.createElement("br");
+		body.appendChild(tmp);
+		tmp = doc.createElement("a");
+		tmp.addLinkAttribute("href", new ResponseUrl("/servlet/delete", "id="+msgName));
+		body.appendChild(tmp);
+		body.appendChild(doc.createElement("br"));
 		tmp = doc.createElement("a");
 		tmp.addLinkAttribute("href", new ResponseUrl("/servlet/inbox", null));
 		tmp.appendChild(doc.createTextNode("Back to Inbox"));
