@@ -25,9 +25,6 @@ public class CreateAccount extends JoeEServlet {
 		public String getUsername() {
 			return (String) session.getAttribute("__joe-e__username");
 		}
-		public String getToken() {
-			return (String) session.getAttribute("CreateAccount__token");
-		}
 		public String getErrorMessage() {
 			return (String) session.getAttribute("__joe-e__errorMessage");
 		}
@@ -106,13 +103,6 @@ public class CreateAccount extends JoeEServlet {
 		input.setAttribute("name", "password2");
 		span.appendChild(input);
 		
-		// session token
-		input = doc.createElement("input");
-		input.setAttribute("type", "hidden");
-		input.setAttribute("value", session.getToken());
-		input.setAttribute("name", "secret");
-		tmp.appendChild(input);
-		
 		input = doc.createElement("input");
 		input.setAttribute("type", "submit");
 		input.setAttribute("value", "create");
@@ -125,12 +115,6 @@ public class CreateAccount extends JoeEServlet {
 		String name = req.getParameter("username");
 		String password1 = req.getParameter("password1");
 		String password2 = req.getParameter("password2");
-		String secret = req.getParameter("secret");
-		if (!secret.equals(session.getToken())) {
-			session.setErrorMessage("XSRF attempt");
-			res.sendRedirect("/servlet/create");
-			return;
-		}
 		
 		if (password1.equals(password2) && session.getManager().addAccount(name, password1)) {
 			res.sendRedirect("/servlet/login");

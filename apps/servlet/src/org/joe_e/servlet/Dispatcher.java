@@ -102,15 +102,14 @@ public class Dispatcher extends HttpServlet {
 		AbstractSessionView sessionview = servlet.getSessionView(session);
 		AbstractCookieView cookieview = servlet.getCookieView(req.getCookies());
 
-		try {
-			
+		try {	
 			// wrap the response, forward the request, commit the cookies.
 			ServletResponseWrapper responseFacade = new ServletResponseWrapper(response);
 			servlet.doGet(req, responseFacade, sessionview, cookieview);
 			cookieview.finalizeCookies(response);
 			
 			// link the static files and commit the response. 
-			responseFacade.getDocument().addCSRFTokens((String) session.getAttribute(servlet.getClass().getCanonicalName()+"__token"));
+			responseFacade.getDocument().addCSRFTokens((String) session.getAttribute(servlet.getClass().getSimpleName()+"__token"));
 			responseFacade.getDocument().addJSLink(jsRoot+"/"+jsmappings.get(servlet));
 			responseFacade.getDocument().addCSSLink(cssRoot+"/"+cssmappings.get(servlet));
 			responseFacade.flushBuffer();
@@ -155,8 +154,8 @@ public class Dispatcher extends HttpServlet {
 		JoeEServlet servlet = findServlet(session, req.getServletPath());
 
 		// Check the CSRF token. You should do this on every POST request
-		if (req.getParameter("__joe-e__csrftoken") == null || !req.getParameter("__joe-e__csrftoken").equals(session.getAttribute(servlet.getClass().getCanonicalName()+"__token"))) {
-			throw new ServletException ("CSRF attempt");
+		if (req.getParameter("__joe_e__csrftoken") == null || !req.getParameter("__joe-e__csrftoken").equals(session.getAttribute(servlet.getClass().getSimpleName()+"__token"))) {
+			throw new ServletException ("CSRF attempt: " + req.getParameter("__joe-e__csrftoken") + " " + session.getAttribute(servlet.getClass().getSimpleName()+"__token"));
 		}
 
 		AbstractSessionView sessionview = servlet.getSessionView(session);
@@ -418,5 +417,31 @@ public class Dispatcher extends HttpServlet {
 	public static void logMsg(String s) {
 		s = s.replaceAll("\n", " ");
 		Dispatcher.logger.fine(s);
+	}
+	
+	/**
+	 * Helper routine useful for debugging. It just dumps all of the session
+	 * mappings to the log file
+	 * @param ses
+	 */
+	private void logSession(HttpSession ses) {
+		Enumeration<String> names = ses.getAttributeNames();
+		while (names.hasMoreElements()) {
+			String name = names.nextElement();
+			logMsg(name+": " + ses.getAttribute(name));
+		}
+	}
+	
+	/**
+	 * Helper routine useful for debugging. Dumps all of the parameters
+	 * to the log file. 
+	 * @param req
+	 */
+	private void logParameters(HttpServletRequest req) {
+		Enumeration<String> names = req.getParameterNames();
+		while (names.hasMoreElements()) {
+			String name = names.nextElement();
+			logMsg(name+": " + req.getParameter(name));
+		}		
 	}
 }

@@ -43,9 +43,6 @@ public class LoginServlet extends JoeEServlet {
 		public void setMailbox(File arg) {
 			session.setAttribute("__joe-e__mailbox", arg);
 		}
-		public String getToken() {
-			return (String) session.getAttribute("LoginServlet__token");
-		}
 		public String getErrorMessage() {
 			return (String) session.getAttribute("__joe-e__errorMessage");
 		}
@@ -127,19 +124,11 @@ public class LoginServlet extends JoeEServlet {
 		tmp.appendChild(doc.createElement("br"));
 		
 		input = doc.createElement("input");
-		input.setAttribute("type", "hidden");
-		input.setAttribute("value", session.getToken());
-		input.setAttribute("name", "secret");
-		tmp.appendChild(input);
-		
-		input = doc.createElement("input");
 		input.setAttribute("type", "submit");
 		input.setAttribute("value", "login");
 		tmp.appendChild(input);
 		body.appendChild(tmp);
 
-		body.appendChild(tmp);
-		body.appendChild(doc.createTextNode(session.getToken()));
 	}
 	
 	public void doPost(HttpServletRequest req, ServletResponseWrapper res, AbstractSessionView ses, AbstractCookieView c)
@@ -147,12 +136,7 @@ public class LoginServlet extends JoeEServlet {
 		SessionView session = (SessionView) ses;
 		String name = req.getParameter("username");
 		String password = req.getParameter("password");
-		String secret = req.getParameter("secret");
-		if (!session.getToken().equals(secret)) {
-                        session.setErrorMessage("XSRF attempt");
-			res.sendRedirect("/servlet/login");
-			return;
-		}
+		
 		FileTransportPair pair = session.getAuth().authenticate(name, password);
 		if (pair != null) {
 			session.setAuth(null);

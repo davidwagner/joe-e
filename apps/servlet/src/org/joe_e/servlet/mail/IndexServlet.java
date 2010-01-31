@@ -31,9 +31,6 @@ public class IndexServlet extends JoeEServlet {
 		public String getUsername() {
 			return (String) session.getAttribute("__joe-e__username");
 		}
-		public String getToken() {
-			return (String) session.getAttribute("IndexServlet__token");
-		}
 	}
 	
 	public AbstractSessionView getSessionView(HttpSession ses) {
@@ -110,10 +107,7 @@ public class IndexServlet extends JoeEServlet {
 		if (cookies.getTestCookie() != null) {
 		    body.appendChild(doc.createTextNode(cookies.getTestCookie()));
 		}
-		body.appendChild(doc.createElement("br"));
-
-		body.appendChild(doc.createTextNode("token: " + session.getToken()));
-		body.appendChild(doc.createElement("br"));		
+		body.appendChild(doc.createElement("br"));	
 
 		if (cookies.getTestCookie() == null) {
 			cookies.setTestCookie("1");
