@@ -47,8 +47,16 @@
 </servlet>
 <servlet>
   <servlet-name>compose</servlet-name>
+  <url-pattern>/compose</url-pattern>
   <servlet-class>org.joe_e.servlet.mail.Compose</servlet-class>
   <js-file name="compose.js" />
+  <css-file name="index.css" />
+</servlet>
+<servlet>
+  <servlet-name>delete</servlet-name>
+  <url-pattern>/delete</url-pattern>
+  <servlet-class>org.joe_e.servlet.mail.DeleteServlet</servlet-class>
+  <js-file name="index.js" />
   <css-file name="index.css" />
 </servlet>
 <servlet>

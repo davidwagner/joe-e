@@ -2205,6 +2205,7 @@ public class Policy {
         methods.add("org.joe_e.servlet.mail.notjoe_e.PostfixClient.updateDatabase(String)");
 
         // Type org.joe_e.servlet.mail.notjoe_e.TransportAgent
+        methods.add("org.joe_e.servlet.mail.notjoe_e.TransportAgent.setUsername(String)");
         methods.add("org.joe_e.servlet.mail.notjoe_e.TransportAgent.send(Message)");
 
         // Type org.joe_e.servlet.readonly
