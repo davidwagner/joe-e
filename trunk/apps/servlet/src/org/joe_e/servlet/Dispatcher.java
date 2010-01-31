@@ -101,7 +101,7 @@ public class Dispatcher extends HttpServlet {
 		JoeEServlet servlet = findServlet(session, req.getServletPath());
 		AbstractSessionView sessionview = servlet.getSessionView(session);
 		AbstractCookieView cookieview = servlet.getCookieView(req.getCookies());
-
+		String csrfToken = (String) session.getAttribute(servlet.getClass().getSimpleName()+"__token");
 		try {	
 			// wrap the response, forward the request, commit the cookies.
 			ServletResponseWrapper responseFacade = new ServletResponseWrapper(response);
@@ -109,7 +109,7 @@ public class Dispatcher extends HttpServlet {
 			cookieview.finalizeCookies(response);
 			
 			// link the static files and commit the response. 
-			responseFacade.getDocument().addCSRFTokens((String) session.getAttribute(servlet.getClass().getSimpleName()+"__token"));
+			responseFacade.getDocument().addCSRFTokens(csrfToken);
 			responseFacade.getDocument().addJSLink(jsRoot+"/"+jsmappings.get(servlet));
 			responseFacade.getDocument().addCSSLink(cssRoot+"/"+cssmappings.get(servlet));
 			responseFacade.flushBuffer();

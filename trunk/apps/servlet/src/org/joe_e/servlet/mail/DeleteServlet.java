@@ -60,6 +60,7 @@ public class DeleteServlet extends JoeEServlet {
 			body.appendChild(doc.createTextNode("Unable to delete file"));
 			ResponseElement tmp = doc.createElement("a");
 			tmp.addLinkAttribute("href", new ResponseUrl("/servlet/inbox", null));
+			tmp.appendChild(doc.createTextNode("back to inbox"));
 			body.appendChild(tmp);
 		}
 	}

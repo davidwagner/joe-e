@@ -87,6 +87,7 @@ public class Read extends JoeEServlet {
 		body.appendChild(tmp);
 		tmp = doc.createElement("a");
 		tmp.addLinkAttribute("href", new ResponseUrl("/servlet/delete", "id="+msgName));
+		tmp.appendChild(doc.createTextNode("Delete"));
 		body.appendChild(tmp);
 		body.appendChild(doc.createElement("br"));
 		tmp = doc.createElement("a");
