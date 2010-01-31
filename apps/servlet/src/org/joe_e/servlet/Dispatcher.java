@@ -154,7 +154,7 @@ public class Dispatcher extends HttpServlet {
 		JoeEServlet servlet = findServlet(session, req.getServletPath());
 
 		// Check the CSRF token. You should do this on every POST request
-		if (req.getParameter("__joe_e__csrftoken") == null || !req.getParameter("__joe-e__csrftoken").equals(session.getAttribute(servlet.getClass().getSimpleName()+"__token"))) {
+		if (req.getParameter("__joe-e__csrftoken") == null || !req.getParameter("__joe-e__csrftoken").equals(session.getAttribute(servlet.getClass().getSimpleName()+"__token"))) {
 			throw new ServletException ("CSRF attempt: " + req.getParameter("__joe-e__csrftoken") + " " + session.getAttribute(servlet.getClass().getSimpleName()+"__token"));
 		}
 
