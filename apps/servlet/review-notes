@@ -208,14 +208,13 @@ in the session; delete from SessionView.
 DONE - CreateAccount.doPost() should return after the sendRedirect if
 it detects a XSRF attempt.
 
-An idea: If adding the ability to delete messages, then one
-interesting possibility is to create a wrapper for ReadonlyFile,
-and have the servlets that read messages only get access to this
-wrapper (not the underlying file), so that only the delete servlet
-gets a File object that provides write access; then one could
-point out that to verify that my integrity is guaranteed, we
-only have to review the code of the delete servlet (not the
-other servlets that read the mailbox).
+DONE - An idea: If adding the ability to delete messages, then one interesting
+possibility is to create a wrapper for ReadonlyFile, and have the servlets that
+read messages only get access to this wrapper (not the underlying file), so that
+only the delete servlet gets a File object that provides write access; then one
+could point out that to verify that my integrity is guaranteed, we only have to
+review the code of the delete servlet (not the other servlets that read the
+mailbox).
 
 DONE - Very minor (not a security bug) in Inbox.doGet(): The loop
 that scans the message looking for the Subject: line probably
