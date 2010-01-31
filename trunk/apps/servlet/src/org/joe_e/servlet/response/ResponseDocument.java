@@ -95,7 +95,7 @@ public class ResponseDocument extends DocumentImpl implements Document  {
 			Node form = forms.item(i);
 			Element input = super.createElement("input");
 			input.setAttribute("type", "hidden");
-			input.setAttribute("name", "__joe_e__csrftoken");
+			input.setAttribute("name", "__joe-e__csrftoken");
 			input.setAttribute("value", token);
 			form.insertBefore(input, form.getFirstChild());
 		}
