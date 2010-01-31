@@ -99,7 +99,7 @@ public class Dispatcher extends HttpServlet {
 		
 		// find the servlet, construct the session and cookie views
 		JoeEServlet servlet = findServlet(session, req.getServletPath());
-		AbstractSessionView sessionview = servlet.getSessionView(req.getSession());
+		AbstractSessionView sessionview = servlet.getSessionView(session);
 		AbstractCookieView cookieview = servlet.getCookieView(req.getCookies());
 
 		try {
@@ -110,8 +110,9 @@ public class Dispatcher extends HttpServlet {
 			cookieview.finalizeCookies(response);
 			
 			// link the static files and commit the response. 
-			((ResponseDocument) responseFacade.getDocument()).addJSLink(jsRoot+"/"+jsmappings.get(servlet));
-			((ResponseDocument) responseFacade.getDocument()).addCSSLink(cssRoot+"/"+cssmappings.get(servlet));
+			responseFacade.getDocument().addCSRFTokens((String) session.getAttribute(servlet.getClass().getCanonicalName()+"__token"));
+			responseFacade.getDocument().addJSLink(jsRoot+"/"+jsmappings.get(servlet));
+			responseFacade.getDocument().addCSSLink(cssRoot+"/"+cssmappings.get(servlet));
 			responseFacade.flushBuffer();
 		} catch(Exception i) {
 			if (serialized) { lock.unlock(); }
@@ -149,9 +150,16 @@ public class Dispatcher extends HttpServlet {
 		if (serialized) {
 			lock.lock();
 		}
+		
 		// find the servlet, construct the session and cookie views
 		JoeEServlet servlet = findServlet(session, req.getServletPath());
-		AbstractSessionView sessionview = servlet.getSessionView(req.getSession());
+
+		// Check the CSRF token. You should do this on every POST request
+		if (req.getParameter("__joe-e__csrftoken") == null || !req.getParameter("__joe-e__csrftoken").equals(session.getAttribute(servlet.getClass().getCanonicalName()+"__token"))) {
+			throw new ServletException ("CSRF attempt");
+		}
+
+		AbstractSessionView sessionview = servlet.getSessionView(session);
 		AbstractCookieView cookieview = servlet.getCookieView(req.getCookies());
 		
 		try {
@@ -161,8 +169,8 @@ public class Dispatcher extends HttpServlet {
 			cookieview.finalizeCookies(response);
 			
 			// link the static files and commit the response. 
-			((ResponseDocument) responseFacade.getDocument()).addJSLink(jsRoot+"/"+jsmappings.get(servlet));
-			((ResponseDocument) responseFacade.getDocument()).addCSSLink(cssRoot+"/"+cssmappings.get(servlet));
+			responseFacade.getDocument().addJSLink(jsRoot+"/"+jsmappings.get(servlet));
+			responseFacade.getDocument().addCSSLink(cssRoot+"/"+cssmappings.get(servlet));
 			responseFacade.flushBuffer();
 		} catch(Exception i) {
 			if (serialized) { lock.unlock(); }

@@ -88,4 +88,16 @@ public class ResponseDocument extends DocumentImpl implements Document  {
 			}
 		}
 	}
+	
+	public void addCSRFTokens(String token) {
+		NodeList forms = this.getElementsByTagName("form");
+		for (int i = 0; i < forms.getLength(); i++) {
+			Node form = forms.item(i);
+			Element input = super.createElement("input");
+			input.setAttribute("type", "hidden");
+			input.setAttribute("name", "__joe_e__csrftoken");
+			input.setAttribute("value", token);
+			form.insertBefore(input, form.getFirstChild());
+		}
+	}
 }
