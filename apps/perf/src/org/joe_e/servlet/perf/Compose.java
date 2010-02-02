@@ -72,7 +72,6 @@ public class Compose extends HttpServlet {
 		} catch (Exception e) {
 			session.setAttribute("errorMessage", "There something wrong, please try again");
 			res.sendRedirect("/perf/compose");
-			//doGet(request, response);
 			return;
 		}
 		

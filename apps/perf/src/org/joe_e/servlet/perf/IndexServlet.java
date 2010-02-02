@@ -17,14 +17,9 @@ public class IndexServlet extends HttpServlet {
 		if (session.getAttribute("username") != null) {
 			res.sendRedirect("/perf/inbox");
 		}
-		res.addHeader("Content-type", "text/html");
 		PrintWriter out = res.getWriter();
-		HtmlWriter.printHeader(out);
-		out.println("<body>" +
-				"<p>Welcome to Joe-E mail</p>" +
-				"<a href=\"/perf/login\">Log In</a><br />" +
-				"<a href=\"/perf/create\">Create an Account</a><br />");
-		out.println("<a href=\"/servlet/\">Stay here</a><br />");
+		out.println("<html>\n<head>\n<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n<title>Joe-E Mail</title><link href=\"static/css/index.css\" rel=\"stylesheet\" type=\"text/css\">\n"+
+			"</head>\n<body>\n<p>Welcome to Joe-E mail</p>\n<a href=\"/perf/login\">Log In</a>\n<br>\n<a href=\"/perf/create\">Create an Account</a>\n<br>\n<a href=\"/perf/\">Stay here</a><br />\n");
 		if (req.getCookies() != null) {
 			boolean done = false;
 			for (Cookie c : req.getCookies()) {

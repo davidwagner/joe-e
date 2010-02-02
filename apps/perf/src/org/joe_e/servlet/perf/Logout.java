@@ -16,5 +16,6 @@ public class Logout extends HttpServlet {
 		session.setAttribute("username", null);
 		session.invalidate();
 		res.sendRedirect("/perf/");
+		return;
 	}
 }
