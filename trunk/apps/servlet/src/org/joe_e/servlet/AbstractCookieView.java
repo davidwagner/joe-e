@@ -26,7 +26,11 @@ public abstract class AbstractCookieView {
 	
 	
 	public AbstractCookieView(Cookie[] c) {		
-		recievedCookies = ConstArray.array(c);
+        if (c != null) {
+            recievedCookies = ConstArray.array(c);
+        } else {
+            recievedCookies = ConstArray.array(new Cookie[0]);
+        }
 		updatedCookies = new ArrayList<Cookie>();
 	}
 	
