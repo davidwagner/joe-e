@@ -70,7 +70,7 @@ public class CreateAccount extends HttpServlet {
 			File newAcc = new File(accounts, name);
 			newAcc.createNewFile();
 			byte[] bytes = password.getBytes();
-			MessageDigest digest = MessageDigest.getInstance("md5");
+			MessageDigest digest = MessageDigest.getInstance("sha");
 			digest.update(bytes);
 			String hashedPassword = new BigInteger(1, digest.digest()).toString(16);
 			Writer out = new FileWriter(newAcc);

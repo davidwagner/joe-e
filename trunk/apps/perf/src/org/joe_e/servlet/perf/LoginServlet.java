@@ -27,10 +27,10 @@ public class LoginServlet extends HttpServlet {
 		res.addHeader("Content-type", "text/html");
 		HtmlWriter.printHeader(out);
 		out.println("<body><h2>Joe-E Mail</h2>");
-		out.println("<p>Log in</p>");
+		out.println("<b>Log in</b>");
 		out.println("<form method=\"POST\" action=\"/perf/login\">");
-		out.println("<span>Username: <input type=\"text\" value=\"\" name=\"username\" /></span>");
-		out.println("<span>Password: <input type=\"password\" value=\"\" name=\"password\" /></span>");
+		out.println("<span>Username: <input type=\"text\" value=\"\" name=\"username\" /></span><br />");
+		out.println("<span>Password: <input type=\"password\" value=\"\" name=\"password\" /></span><br />");
 		out.println("<input type=\"submit\" value=\"login\"></form></body>");
 		HtmlWriter.printFooter(out);
 		out.flush();
@@ -55,7 +55,7 @@ public class LoginServlet extends HttpServlet {
 		File accounts = new File("/Users/akshay/Desktop/perfaccounts/");
 		try {
 			byte[] bytes = password.getBytes();
-			MessageDigest digest = MessageDigest.getInstance("md5");
+			MessageDigest digest = MessageDigest.getInstance("sha");
 			digest.update(bytes);
 			String hashedPassword = new BigInteger(1, digest.digest()).toString(16);
 			for (File acc : accounts.listFiles()) {
