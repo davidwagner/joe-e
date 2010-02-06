@@ -81,6 +81,13 @@
   <css-file name="index.css" />
 </servlet>
 <servlet>
+  <servlet-name>readtest</servlet-name>
+  <url-pattern>/readtest</url-pattern>
+  <servlet-class>org.joe_e.servlet.mail.notjoe_e.ReadTest</servlet-class>
+  <js-file name="index.js" />
+  <css-file name="index.css" />
+</servlet>
+<servlet>
   <servlet-name>testbufferedwriter</servlet-name>
   <url-pattern>/testbufferedwriter</url-pattern>
   <servlet-class>org.joe_e.servlet.mail.TestBufferedPrintWriter</servlet-class>
