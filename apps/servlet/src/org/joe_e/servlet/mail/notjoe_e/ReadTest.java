@@ -15,7 +15,6 @@ import org.joe_e.servlet.AbstractSessionView;
 import org.joe_e.servlet.JoeEServlet;
 import org.joe_e.servlet.mail.HtmlWriter;
 import org.joe_e.servlet.mail.ReadOnlyFile;
-import org.joe_e.servlet.mail.Read.SessionView;
 import org.joe_e.servlet.response.ResponseDocument;
 import org.joe_e.servlet.response.ResponseElement;
 import org.joe_e.servlet.response.ResponseUrl;
@@ -48,37 +47,47 @@ public class ReadTest extends JoeEServlet {
 		ReadOnlyFile newFolder = new ReadOnlyFile(new File("/var/mail/vhosts/boink.joe-e.org/p1"));
 		ResponseDocument doc = res.getDocument();
 		ResponseElement body = HtmlWriter.printHeader(doc);
-		
 		ResponseElement tmp = doc.createElement("h2");
 		tmp.appendChild(doc.createTextNode("Joe-E Mail"));
 		body.appendChild(tmp);
-		
-		
-		String msgName = req.getParameter("id");
-		for (ReadOnlyFile f : newFolder.list()) {
-			if (f.getName().equals(msgName)) {
-				Reader reader = f.getReader();
-				BufferedReader in = new BufferedReader(reader);
-				String line = "";
-				String total = "";
-				tmp = doc.createElement("p");
-				while ((line = in.readLine()) != null) {
-					total += line + "\n";
-				}
-				tmp.appendChild(doc.createTextNode(total));
-				body.appendChild(tmp);
-			}
-		}
-		tmp = doc.createElement("br");
+		tmp = doc.createElement("h4");
+		tmp.appendChild(doc.createTextNode("inbox of p1"));
 		body.appendChild(tmp);
+		
 		tmp = doc.createElement("a");
-		tmp.addLinkAttribute("href", new ResponseUrl("/servlet/delete", "id="+msgName));
-		tmp.appendChild(doc.createTextNode("Delete"));
+		tmp.addLinkAttribute("href", new ResponseUrl("/servlet/compose", null));
+		tmp.appendChild(doc.createTextNode("Write an email"));
 		body.appendChild(tmp);
 		body.appendChild(doc.createElement("br"));
+		
+
+		for (ReadOnlyFile f : newFolder.list()) {
+			Reader reader = f.getReader();
+			BufferedReader in = new BufferedReader(reader);
+			String line = "";
+			String id = f.getName();
+			String subject = "";
+			while ((line = in.readLine()) != null) {
+				if (line.equals(""))
+					break;
+				if (line.length() > 7 && line.substring(0, 7).equals("Subject")) {
+					subject = line.substring(8);
+					break;
+				}
+			}
+			if (!"".equals(id) && !"".equals(subject)) {
+				tmp = doc.createElement("a");
+				tmp.addLinkAttribute("href", new ResponseUrl("/servlet/read", "id="+id));
+				tmp.appendChild(doc.createTextNode(subject));
+				body.appendChild(tmp);
+				body.appendChild(doc.createElement("br"));
+			}
+		}
+		
 		tmp = doc.createElement("a");
-		tmp.addLinkAttribute("href", new ResponseUrl("/servlet/inbox", null));
-		tmp.appendChild(doc.createTextNode("Back to Inbox"));
+		tmp.addLinkAttribute("href", new ResponseUrl("/servlet/logout", null));
+		tmp.appendChild(doc.createTextNode("logout"));
 		body.appendChild(tmp);
+		body.appendChild(doc.createElement("br"));
 	}
 }
