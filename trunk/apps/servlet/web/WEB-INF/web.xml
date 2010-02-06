@@ -90,7 +90,7 @@
        <init-param>
          <param-name>policy</param-name>
          <!-- TODO: needs to be updated for each app -->
-         <param-value>/home/akshayk/research/servlet/policy.xml</param-value>
+         <param-value>/Users/akshay/Documents/workspace/servlet/policy.xml</param-value>
        </init-param>
        <load-on-startup>1</load-on-startup>
     </servlet>

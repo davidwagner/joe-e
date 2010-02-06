@@ -3,8 +3,8 @@ import time
 import os
 import urllib2
 
-URLBASE = "http://boink.cs.berkeley.edu:8080/"
-SLEEPTIME = 300
+URLBASE = "http://localhost:8080/"
+SLEEPTIME = 180
 BASEDIR = "throughput/"
 APPNAME = "servlet/"
 
@@ -29,14 +29,15 @@ class SThread(threading.Thread):
 	self.file.write(output)
 	self.file.flush()
 
-for kk in [1,5, 10, 15, 20]:
-    for iters in range(10):
-	for jj in ["perf", "servlet"]:
+for kk in [10]:
+    for iters in range(1):
+	for jj in ["servlet"]:
 	    os.mkdir(BASEDIR+jj+str(kk)+"-"+str(iters))
-	    os.popen("/usr/lib/apache-tomcat/bin/shutdown.sh").read()
-	    time.sleep(5)
-	    os.popen("/usr/lib/apache-tomcat/bin/startup.sh").read()
-	    time.sleep(15)
+# 	    os.popen("/usr/lib/apache-tomcat/bin/shutdown.sh").read()
+# 	    time.sleep(5)
+# 	    os.popen("/usr/lib/apache-tomcat/bin/startup.sh").read()
+# 	    time.sleep(15)
+            urllib2.urlopen("http://www.google.com")
 	    print "Starting experiment ... "
 	    print "*** Running " + jj + " with " + str(kk) + "threads ***"
 	
