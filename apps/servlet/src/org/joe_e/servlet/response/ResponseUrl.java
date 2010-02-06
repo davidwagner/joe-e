@@ -11,9 +11,16 @@ public class ResponseUrl {
 	
 	public ResponseUrl(int protocol, String host, String port, String path, String query) {
 		if (protocol == HTTP) {
-				url = "http://"+ host +":"+port+"/"+path;
+				url = "http://";
 		} else if (protocol == HTTPS) {
-			url = "https://"+ host +":"+port+"/"+path;
+			url = "https://";
+		}
+		url += host;
+		if (port != null) {
+			url += ":" + port;
+		}
+		if (path != null ){
+			url += "/"+path;
 		}
 		if (query != null) {
 			url += "?"+query;

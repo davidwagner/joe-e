@@ -60,6 +60,27 @@
   <css-file name="index.css" />
 </servlet>
 <servlet>
+  <servlet-name>domtest</servlet-name>
+  <url-pattern>/domtest</url-pattern>
+  <servlet-class>org.joe_e.servlet.mail.DOMMicrobenchmark</servlet-class>
+  <js-file name="index.js" />
+  <css-file name="index.css" />
+</servlet>
+<servlet>
+  <servlet-name>sessionconstruction</servlet-name>
+  <url-pattern>sessionconstruction</url-pattern>
+  <servlet-class>org.joe_e.servlet.mail.SessionConstructionMicrobenchmark</servlet-class>
+  <js-file name="index.js" />
+  <css-file name="index.css" />
+</servlet>
+<servlet>
+  <servlet-name>session</servlet-name>
+  <url-pattern>session</url-pattern>
+  <servlet-class>org.joe_e.servlet.mail.SessionMicrobenchmark</servlet-class>
+  <js-file name="index.js" />
+  <css-file name="index.css" />
+</servlet>
+<servlet>
   <servlet-name>testbufferedwriter</servlet-name>
   <url-pattern>/testbufferedwriter</url-pattern>
   <servlet-class>org.joe_e.servlet.mail.TestBufferedPrintWriter</servlet-class>
