@@ -34,7 +34,7 @@ first checks the list-of-cookies-to-be-set, then checks the
 request-cookies; and a set() method that appends to the
 list-of-cookies-to-be-set.
 
-Current framework doesn't support streaming of responses.
+DONE - Current framework doesn't support streaming of responses.
 Just a limitation to document in the paper.
 
 DONE - If doGet() implementation returns a DOM, then the framework should
