@@ -9,6 +9,7 @@ import java.io.Reader;
 import java.io.StringWriter;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
@@ -27,7 +28,8 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class DomReadTest {
+public class DomReadTest extends HttpServlet {
+	
 	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		try {
 			DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
