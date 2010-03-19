@@ -2,13 +2,15 @@
 
 = Introduction to Joe-E =
 
-Our [http://www.cs.berkeley.edu/~daw/joe-e/nsf-poster.pdf poster]
-provides a brief overview to Joe-E
+We have written a [http://www.cs.berkeley.edu/~daw/papers/joe-e-ndss10.pdf scientific paper] with a detailed overview of Joe-E and its design.
+Also, our [http://www.cs.berkeley.edu/~daw/joe-e/nsf-poster.pdf poster]
+provides a brief overview to Joe-E.
 
+Also, you can find a list of our [publications] on Joe-E.
 
 = Joe-E Language Specification =
 
-The [http://www.cs.berkeley.edu/~daw/joe-e/spec-20080203.pdf latest draft of the language spec] is from Feb. 3, 2008.
+The [http://www.cs.berkeley.edu/~daw/joe-e/spec-20090918.pdf latest draft of the language spec] is from September 18, 2009.
 
 = Introduction to Object Capabilities =
 
