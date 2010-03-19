@@ -6,7 +6,7 @@ We have written a [http://www.cs.berkeley.edu/~daw/papers/joe-e-ndss10.pdf scien
 Also, our [http://www.cs.berkeley.edu/~daw/joe-e/nsf-poster.pdf poster]
 provides a brief overview to Joe-E.
 
-Also, you can find a list of our [publications] on Joe-E.
+Also, you can find a list of our [Publications scientific publications] on Joe-E.
 
 = Joe-E Language Specification =
 
