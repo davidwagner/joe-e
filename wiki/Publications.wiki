@@ -1,0 +1,16 @@
+#summary Technical publications related to the Joe-E project
+
+For those interested in learning more about Joe-E, here is a list of technical publications on the Joe-E project and related topics.
+
+= The Design of Joe-E =
+
+Adrian Mettler, David Wagner, and Tyler Close. "[http://www.cs.berkeley.edu/~daw/papers/joe-e-ndss10.pdf Joe-E: A Security-Oriented Subset of Java]".  NDSS 2010.
+
+
+
+
+= Applications of Joe-E =
+
+Akshay Krishnamurthy, Adrian Mettler, and David Wagner.  "[http://www.cs.berkeley.edu/~daw/papers/capsules-www10.pdf Fine-Grained Privilege Separation for Web Applications]".  WWW 2010.
+
+Matthew Finifter, Adrian Mettler, Naveen Sastry, and David Wagner.  "[http://www.cs.berkeley.edu/~daw/papers/pure-ccs08.pdf Verifiable Functional Purity in Java]".  ACM CCS 2008.
