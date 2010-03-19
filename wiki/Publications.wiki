@@ -1,13 +1,12 @@
 #summary Technical publications related to the Joe-E project
 
-For those interested in learning more about Joe-E, here is a list of technical publications on the Joe-E project and related topics.
+For those interested in learning more about Joe-E, here is a list of scientific publications and technical papers on the Joe-E project and related topics.
 
 = The Design of Joe-E =
 
 Adrian Mettler, David Wagner, and Tyler Close. "[http://www.cs.berkeley.edu/~daw/papers/joe-e-ndss10.pdf Joe-E: A Security-Oriented Subset of Java]".  NDSS 2010.
 
-
-
+Adrian Mettler and David Wagner.  "[http://www.cs.berkeley.edu/~daw/joe-e/spec-20090918.pdf The Joe-E Language Specification, Version 1.1]".  September 18, 2009.
 
 = Applications of Joe-E =
 
