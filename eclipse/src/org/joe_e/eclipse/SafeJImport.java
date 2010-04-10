@@ -34,6 +34,10 @@ public class SafeJImport {
                              IJavaProject project) throws JavaModelException {
         new Consumer(err, dir, taming, project).process();
         err.println("Taming database imported.");
+        /* Hack: uncomment to export safej files for a package
+        SafeJBuild sjb = new SafeJBuild(System.err, new File("/tmp"));
+        sjb.processLibraryPackage("java.util", project);
+        */
     }
    
     static class Consumer implements SafeJConsumer {
@@ -220,9 +224,12 @@ public class SafeJImport {
                 if (overrider == null) {
                     propagate.add(m);
                 } else if (!enabled.containsKey(overrider)) {
-                    err.println("ERROR: Enabled method " + m + " overriden " +
-                                "by disabled method " + overrider);
-                } 
+                    err.println("ERROR: Type " +
+                                overrider.getDeclaringType().getFullyQualifiedName()
+                                + " suppresses method " + Taming.getFlatSignature(m)
+                                + " enabled in supertype " +
+                                m.getDeclaringType().getElementName());
+                }
             }
             
             if (enabled != null) {
