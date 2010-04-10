@@ -1,0 +1,10 @@
+# auto-generated safej: default deny everything
+class("java.util.AbstractMap$SimpleEntry",
+  static(constructor(suppress, "SimpleEntry(Entry<? extends K,? extends V>)", comment("default deny")),
+    constructor(suppress, "SimpleEntry(K, V)", comment("default deny"))),
+  instance(method("equals(Object)"),
+    method(suppress, "getKey()", comment("default deny")),
+    method(suppress, "getValue()", comment("default deny")),
+    method(suppress, "hashCode()", comment("default deny")),
+    method(suppress, "setValue(V)", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))

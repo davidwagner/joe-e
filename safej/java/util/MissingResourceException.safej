@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.util.MissingResourceException",
+  honorary("org.joe_e.Powerless"),
+  static(constructor(suppress, "MissingResourceException(String, String, String)", comment("default deny"))),
+  instance(method(suppress, "getClassName()", comment("default deny")),
+    method(suppress, "getKey()", comment("default deny"))))

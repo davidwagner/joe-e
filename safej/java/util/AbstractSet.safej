@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.util.AbstractSet",
+  static(constructor(suppress, "AbstractSet()", comment("default deny"))),
+  instance(method("equals(Object)"),
+    method(suppress, "hashCode()", comment("default deny")),
+    method(suppress, "removeAll(Collection<?>)", comment("default deny"))))

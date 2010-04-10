@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.util.InvalidPropertiesFormatException",
+  honorary("org.joe_e.Powerless"),
+  static(constructor(suppress, "InvalidPropertiesFormatException(String)", comment("default deny")),
+    constructor(suppress, "InvalidPropertiesFormatException(Throwable)", comment("default deny"))))

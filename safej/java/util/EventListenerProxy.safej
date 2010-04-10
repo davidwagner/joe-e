@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.util.EventListenerProxy",
+  static(constructor(suppress, "EventListenerProxy(EventListener)", comment("default deny"))),
+  instance(method(suppress, "getListener()", comment("default deny"))))

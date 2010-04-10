@@ -1,0 +1,5 @@
+# auto-generated safej: default deny everything
+class("java.util.ServiceConfigurationError",
+  honorary("org.joe_e.Powerless"),
+  static(constructor(suppress, "ServiceConfigurationError(String)", comment("default deny")),
+    constructor(suppress, "ServiceConfigurationError(String, Throwable)", comment("default deny"))))

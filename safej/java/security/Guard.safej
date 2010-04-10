@@ -1,0 +1,3 @@
+# Deny everything
+class("java.security.Guard",
+    instance(method(suppress, "checkGuard(Object)", comment("default deny"))))

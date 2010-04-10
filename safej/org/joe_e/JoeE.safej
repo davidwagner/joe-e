@@ -2,4 +2,5 @@
 class("org.joe_e.JoeE",
   static(method("abort(Error)"),
     method("instanceOf(Object, Class<?>)"),
+    method("isFrozen(Object)"),
     method("isSubtypeOf(Class<?>, Class<?>)")))

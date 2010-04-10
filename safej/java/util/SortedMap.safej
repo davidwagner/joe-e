@@ -1,0 +1,11 @@
+# auto-generated safej: default deny everything
+class("java.util.SortedMap",
+  instance(method(suppress, "comparator()", comment("default deny")),
+    method(suppress, "entrySet()", comment("default deny")),
+    method(suppress, "firstKey()", comment("default deny")),
+    method(suppress, "headMap(K)", comment("default deny")),
+    method(suppress, "keySet()", comment("default deny")),
+    method(suppress, "lastKey()", comment("default deny")),
+    method(suppress, "subMap(K, K)", comment("default deny")),
+    method(suppress, "tailMap(K)", comment("default deny")),
+    method(suppress, "values()", comment("default deny"))))

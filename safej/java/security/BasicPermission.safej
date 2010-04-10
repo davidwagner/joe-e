@@ -1,0 +1,9 @@
+# Deny everything
+class("java.security.BasicPermission",
+  static(constructor(suppress, "BasicPermission(String)", comment("default deny")),
+    constructor(suppress, "BasicPermission(String, String)")),
+  instance(method("equals(Object)"),
+    method(suppress, "getActions()", comment("default deny")),
+    method(suppress, "hashCode()", comment("default deny")),
+    method(suppress, "implies(Permission)", comment("default deny")),
+    method(suppress, "newPermissionCollection()", comment("default deny"))))

@@ -1,7 +1,8 @@
 # auto-generated safej: default deny everything
 class("java.io.ObjectStreamClass",
   static(field(suppress, "NO_FIELDS", comment("default deny")),
-    method(suppress, "lookup(Class<?>)", comment("default deny"))),
+    method(suppress, "lookup(Class<?>)", comment("default deny")),
+    method(suppress, "lookupAny(Class<?>)", comment("default deny"))),
   instance(method(suppress, "forClass()", comment("default deny")),
     method(suppress, "getField(String)", comment("default deny")),
     method(suppress, "getFields()", comment("default deny")),

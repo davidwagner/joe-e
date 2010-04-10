@@ -2,4 +2,6 @@
 class("java.io.IOException",
   honorary("org.joe_e.Powerless"),
   static(constructor("IOException()"),
-    constructor("IOException(String)")))
+    constructor("IOException(String)"),
+    constructor("IOException(Throwable)"),
+    constructor("IOException(String, Throwable)")))

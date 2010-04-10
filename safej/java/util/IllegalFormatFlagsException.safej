@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.util.IllegalFormatFlagsException",
+  honorary("org.joe_e.Powerless"),
+  static(constructor(suppress, "IllegalFormatFlagsException(String)", comment("default deny"))),
+  instance(method(suppress, "getFlags()", comment("default deny")),
+    method(suppress, "getMessage()", comment("default deny"))))

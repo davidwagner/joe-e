@@ -1,0 +1,8 @@
+# auto-generated safej: default deny everything
+class("java.util.ServiceLoader",
+  static(method(suppress, "load(Class<S>)", comment("default deny")),
+    method(suppress, "load(Class<S>, ClassLoader)", comment("default deny")),
+    method(suppress, "loadInstalled(Class<S>)", comment("default deny"))),
+  instance(method(suppress, "iterator()", comment("default deny")),
+    method(suppress, "reload()", comment("default deny")),
+    method(suppress, "toString()", comment("default deny"))))
