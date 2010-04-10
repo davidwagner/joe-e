@@ -203,13 +203,21 @@ public class SafeJImport {
                     }
                 }
             }
-                      
+            
+            IMethod[] curMethods = current.getMethods();
+            HashMap<String, IMethod> relevantMethods = new HashMap<String, IMethod>();
+            for (IMethod m : curMethods) {
+                if (!m.isConstructor() && Taming.isRelevant(current, m)) {
+                    relevantMethods.put(Taming.getFlatSignature(m), m);
+                }
+            }
+            
             for (IMethod m : methodsNeeded) {
                 // TODO: may be broken for generics due to erasure?
                 // TEST!
-                IMethod overrider = current.getMethod(m.getElementName(),
-                                                      m.getParameterTypes());
-                if (!overrider.exists()) {
+                IMethod overrider = relevantMethods.get(Taming.getFlatSignature(m));
+                
+                if (overrider == null) {
                     propagate.add(m);
                 } else if (!enabled.containsKey(overrider)) {
                     err.println("ERROR: Enabled method " + m + " overriden " +
@@ -233,7 +241,7 @@ public class SafeJImport {
             }
         }
         
-        public void consumeClass(String className, String comment, 
+        public void consumeClass(final String className, String comment, 
                                  List<String> honoraries, 
                                  List<Member> staticMembers,
                                  List<Member> instanceMembers) {
@@ -252,8 +260,13 @@ public class SafeJImport {
                 new HashMap<IMethod, String>();
             final Map<IField, String> disabledFields =
                 new HashMap<IField, String>();
-            
+                      
             class MemberProcessor {
+                private void failImporting(String problem) throws ImportFailure {
+                    err.println( "ERROR: Importing " + className + " failed: " + problem);
+                    throw new ImportFailure();
+                }
+                
                 void processMember(Member m, boolean isStatic) 
                                     throws JavaModelException, ImportFailure {
                     switch (m.kind) {
@@ -262,7 +275,7 @@ public class SafeJImport {
                         relevantFields.remove(m.identifier);
                         
                         if (field == null) {
-                            failImporting("Error: unknown or duplicate field " + 
+                            failImporting("Unknown or duplicate field " + 
                                           m.identifier);
                         } else {
                             boolean actuallyStatic = 
@@ -288,10 +301,10 @@ public class SafeJImport {
                     case CONSTRUCTOR:
                         IMethod ctor = relevantConstructors.get(m.identifier);
                         if (!relevantConstructors.containsKey(m.identifier)) {
-                            failImporting("Error: Unknown or duplicate " + 
+                            failImporting("Unknown or duplicate " + 
                                           "constructor " + m.identifier);
                         } else if (!isStatic) {
-                            failImporting("Error: Constructor in instance " +
+                            failImporting("Constructor in instance " +
                                           "member list");
                         }
                         
@@ -309,7 +322,7 @@ public class SafeJImport {
                         relevantMethods.remove(m.identifier);
                         
                         if (method == null) {
-                            failImporting("Error: unknown or duplicate method "
+                            failImporting("Unknown or duplicate method "
                                           + m.identifier);
                         } else if (isStatic 
                                    && !Flags.isStatic(method.getFlags())) {
@@ -552,11 +565,7 @@ public class SafeJImport {
             }
         }
         */
-        private void failImporting(String problem) throws ImportFailure {
-            err.println( "Importing failed: " + problem);
-            throw new ImportFailure();
-        }
-        
+     
         private void warn(String problem) {
             if (Preferences.isDebugEnabled()) {
                 err.println("WARNING: " + problem);
