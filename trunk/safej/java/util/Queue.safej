@@ -1,0 +1,8 @@
+# auto-generated safej: default deny everything
+class("java.util.Queue",
+  instance(method(suppress, "add(E)", comment("default deny")),
+    method(suppress, "element()", comment("default deny")),
+    method(suppress, "offer(E)", comment("default deny")),
+    method(suppress, "peek()", comment("default deny")),
+    method(suppress, "poll()", comment("default deny")),
+    method(suppress, "remove()", comment("default deny"))))

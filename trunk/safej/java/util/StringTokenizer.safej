@@ -1,0 +1,11 @@
+# auto-generated safej: default deny everything
+class("java.util.StringTokenizer",
+  static(constructor(suppress, "StringTokenizer(String)", comment("default deny")),
+    constructor(suppress, "StringTokenizer(String, String)", comment("default deny")),
+    constructor(suppress, "StringTokenizer(String, String, boolean)", comment("default deny"))),
+  instance(method(suppress, "countTokens()", comment("default deny")),
+    method(suppress, "hasMoreElements()", comment("default deny")),
+    method(suppress, "hasMoreTokens()", comment("default deny")),
+    method(suppress, "nextElement()", comment("default deny")),
+    method(suppress, "nextToken()", comment("default deny")),
+    method(suppress, "nextToken(String)", comment("default deny"))))

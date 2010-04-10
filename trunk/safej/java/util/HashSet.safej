@@ -1,0 +1,14 @@
+# auto-generated safej: default deny everything
+class("java.util.HashSet",
+  static(constructor(suppress, "HashSet()", comment("default deny")),
+    constructor(suppress, "HashSet(Collection<? extends E>)", comment("default deny")),
+    constructor(suppress, "HashSet(int)", comment("default deny")),
+    constructor(suppress, "HashSet(int, float)", comment("default deny"))),
+  instance(method(suppress, "add(E)", comment("default deny")),
+    method(suppress, "clear()", comment("default deny")),
+    method("clone()"),
+    method(suppress, "contains(Object)", comment("default deny")),
+    method(suppress, "isEmpty()", comment("default deny")),
+    method(suppress, "iterator()", comment("default deny")),
+    method(suppress, "remove(Object)", comment("default deny")),
+    method(suppress, "size()", comment("default deny"))))

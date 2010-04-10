@@ -1,0 +1,18 @@
+# auto-generated safej: default deny everything
+class("java.util.ResourceBundle$Control",
+  static(field(suppress, "FORMAT_CLASS", comment("default deny")),
+    field(suppress, "FORMAT_DEFAULT", comment("default deny")),
+    field(suppress, "FORMAT_PROPERTIES", comment("default deny")),
+    field(suppress, "TTL_DONT_CACHE", comment("default deny")),
+    field(suppress, "TTL_NO_EXPIRATION_CONTROL", comment("default deny")),
+    constructor(suppress, "Control()", comment("default deny")),
+    method(suppress, "getControl(List<String>)", comment("default deny")),
+    method(suppress, "getNoFallbackControl(List<String>)", comment("default deny"))),
+  instance(method(suppress, "getCandidateLocales(String, Locale)", comment("default deny")),
+    method(suppress, "getFallbackLocale(String, Locale)", comment("default deny")),
+    method(suppress, "getFormats(String)", comment("default deny")),
+    method(suppress, "getTimeToLive(String, Locale)", comment("default deny")),
+    method(suppress, "needsReload(String, Locale, String, ClassLoader, ResourceBundle, long)", comment("default deny")),
+    method(suppress, "newBundle(String, Locale, String, ClassLoader, boolean)", comment("default deny")),
+    method(suppress, "toBundleName(String, Locale)", comment("default deny")),
+    method(suppress, "toResourceName(String, String)", comment("default deny"))))

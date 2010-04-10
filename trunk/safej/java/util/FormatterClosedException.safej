@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.util.FormatterClosedException",
+  honorary("org.joe_e.Powerless"),
+  static(constructor(suppress, "FormatterClosedException()", comment("default deny"))))

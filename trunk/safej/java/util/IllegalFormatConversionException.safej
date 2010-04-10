@@ -1,0 +1,7 @@
+# auto-generated safej: default deny everything
+class("java.util.IllegalFormatConversionException",
+  honorary("org.joe_e.Powerless"),
+  static(constructor(suppress, "IllegalFormatConversionException(char, Class<?>)", comment("default deny"))),
+  instance(method(suppress, "getArgumentClass()", comment("default deny")),
+    method(suppress, "getConversion()", comment("default deny")),
+    method(suppress, "getMessage()", comment("default deny"))))

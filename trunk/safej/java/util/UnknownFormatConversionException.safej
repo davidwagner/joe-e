@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.util.UnknownFormatConversionException",
+  honorary("org.joe_e.Powerless"),
+  static(constructor(suppress, "UnknownFormatConversionException(String)", comment("default deny"))),
+  instance(method(suppress, "getConversion()", comment("default deny")),
+    method(suppress, "getMessage()", comment("default deny"))))

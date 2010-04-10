@@ -1,0 +1,7 @@
+# auto-generated safej: default deny everything
+class("java.util.ListResourceBundle",
+  static(constructor(suppress, "ListResourceBundle()", comment("default deny"))),
+  instance(method(suppress, "getContents()", comment("default deny")),
+    method(suppress, "getKeys()", comment("default deny")),
+    method(suppress, "handleGetObject(String)", comment("default deny")),
+    method(suppress, "handleKeySet()", comment("default deny"))))

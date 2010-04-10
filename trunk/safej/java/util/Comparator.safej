@@ -1,0 +1,4 @@
+# auto-generated safej: default deny everything
+class("java.util.Comparator",
+  instance(method(suppress, "compare(T, T)", comment("default deny")),
+    method(suppress, "equals(Object)", comment("default deny"))))

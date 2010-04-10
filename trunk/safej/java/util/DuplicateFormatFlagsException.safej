@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.util.DuplicateFormatFlagsException",
+  honorary("org.joe_e.Powerless"),
+  static(constructor(suppress, "DuplicateFormatFlagsException(String)", comment("default deny"))),
+  instance(method(suppress, "getFlags()", comment("default deny")),
+    method(suppress, "getMessage()", comment("default deny"))))

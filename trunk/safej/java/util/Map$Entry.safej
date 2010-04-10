@@ -1,0 +1,7 @@
+# auto-generated safej: default deny everything
+class("java.util.Map$Entry",
+  instance(method(suppress, "equals(Object)", comment("default deny")),
+    method(suppress, "getKey()", comment("default deny")),
+    method(suppress, "getValue()", comment("default deny")),
+    method(suppress, "hashCode()", comment("default deny")),
+    method(suppress, "setValue(V)", comment("default deny"))))

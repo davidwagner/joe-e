@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.util.IllegalFormatWidthException",
+  honorary("org.joe_e.Powerless"),
+  static(constructor(suppress, "IllegalFormatWidthException(int)", comment("default deny"))),
+  instance(method(suppress, "getMessage()", comment("default deny")),
+    method(suppress, "getWidth()", comment("default deny"))))

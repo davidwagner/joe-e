@@ -1,0 +1,17 @@
+# auto-generated safej: default deny everything
+class("java.util.UUID",
+  static(constructor(suppress, "UUID(long, long)", comment("default deny")),
+    method(suppress, "fromString(String)", comment("default deny")),
+    method(suppress, "nameUUIDFromBytes(byte[])", comment("default deny")),
+    method(suppress, "randomUUID()", comment("default deny"))),
+  instance(method(suppress, "clockSequence()", comment("default deny")),
+    method(suppress, "compareTo(UUID)", comment("default deny")),
+    method("equals(Object)"),
+    method(suppress, "getLeastSignificantBits()", comment("default deny")),
+    method(suppress, "getMostSignificantBits()", comment("default deny")),
+    method(suppress, "hashCode()", comment("default deny")),
+    method(suppress, "node()", comment("default deny")),
+    method(suppress, "timestamp()", comment("default deny")),
+    method(suppress, "toString()", comment("default deny")),
+    method(suppress, "variant()", comment("default deny")),
+    method(suppress, "version()", comment("default deny"))))

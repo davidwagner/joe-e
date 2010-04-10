@@ -1,0 +1,17 @@
+# auto-generated safej: default deny everything
+class("java.util.Set",
+  instance(method(suppress, "add(E)", comment("default deny")),
+    method(suppress, "addAll(Collection<? extends E>)", comment("default deny")),
+    method(suppress, "clear()", comment("default deny")),
+    method(suppress, "contains(Object)", comment("default deny")),
+    method(suppress, "containsAll(Collection<?>)", comment("default deny")),
+    method(suppress, "equals(Object)", comment("default deny")),
+    method(suppress, "hashCode()", comment("default deny")),
+    method(suppress, "isEmpty()", comment("default deny")),
+    method(suppress, "iterator()", comment("default deny")),
+    method(suppress, "remove(Object)", comment("default deny")),
+    method(suppress, "removeAll(Collection<?>)", comment("default deny")),
+    method(suppress, "retainAll(Collection<?>)", comment("default deny")),
+    method(suppress, "size()", comment("default deny")),
+    method(suppress, "toArray()", comment("default deny")),
+    method(suppress, "toArray(T[])", comment("default deny"))))

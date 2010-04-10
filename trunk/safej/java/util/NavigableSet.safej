@@ -1,0 +1,17 @@
+# auto-generated safej: default deny everything
+class("java.util.NavigableSet",
+  instance(method(suppress, "ceiling(E)", comment("default deny")),
+    method(suppress, "descendingIterator()", comment("default deny")),
+    method(suppress, "descendingSet()", comment("default deny")),
+    method(suppress, "floor(E)", comment("default deny")),
+    method(suppress, "headSet(E)", comment("default deny")),
+    method(suppress, "headSet(E, boolean)", comment("default deny")),
+    method(suppress, "higher(E)", comment("default deny")),
+    method(suppress, "iterator()", comment("default deny")),
+    method(suppress, "lower(E)", comment("default deny")),
+    method(suppress, "pollFirst()", comment("default deny")),
+    method(suppress, "pollLast()", comment("default deny")),
+    method(suppress, "subSet(E, E)", comment("default deny")),
+    method(suppress, "subSet(E, boolean, E, boolean)", comment("default deny")),
+    method(suppress, "tailSet(E)", comment("default deny")),
+    method(suppress, "tailSet(E, boolean)", comment("default deny"))))

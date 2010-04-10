@@ -1,0 +1,10 @@
+# auto-generated safej: default deny everything
+class("java.util.Dictionary",
+  static(constructor(suppress, "Dictionary()", comment("default deny"))),
+  instance(method(suppress, "elements()", comment("default deny")),
+    method(suppress, "get(Object)", comment("default deny")),
+    method(suppress, "isEmpty()", comment("default deny")),
+    method(suppress, "keys()", comment("default deny")),
+    method(suppress, "put(K, V)", comment("default deny")),
+    method(suppress, "remove(Object)", comment("default deny")),
+    method(suppress, "size()", comment("default deny"))))

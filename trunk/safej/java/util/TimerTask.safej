@@ -1,0 +1,6 @@
+# auto-generated safej: default deny everything
+class("java.util.TimerTask",
+  static(constructor(suppress, "TimerTask()", comment("default deny"))),
+  instance(method(suppress, "cancel()", comment("default deny")),
+    method(suppress, "run()", comment("default deny")),
+    method(suppress, "scheduledExecutionTime()", comment("default deny"))))
