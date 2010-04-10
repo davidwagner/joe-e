@@ -84,14 +84,16 @@ public class SafeJParse {
                                       staticMembers, instanceMembers);
             } else {
                 consumer.disabledClass(className, comment);
-            }             
+            }          
+            
+            in.close();
         } catch (FileNotFoundException fnfe) {
             fnfe.printStackTrace(err);
         } catch (IOException ioe) {
             ioe.printStackTrace(err);
         } catch (ParseFailure pf) {
          
-        }
+        } 
     }
     
     /**
