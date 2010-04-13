@@ -1,6 +1,6 @@
 # auto-generated safej: default deny everything
 class("java.io.FilePermission",
-  static(constructor(suppress, "FilePermission(String, String)", comment("default deny"))),
+  static(constructor(suppress, "FilePermission(String, String)", comment("<a href='http://slightlyrandombrokenthoughts.blogspot.com/2009/12/filepermission-class-leaks-sensitive.html'>can be used to test file existence</a>"))),
   instance(method("equals(Object)"),
     method(suppress, "getActions()", comment("default deny")),
     method(suppress, "hashCode()", comment("default deny")),
