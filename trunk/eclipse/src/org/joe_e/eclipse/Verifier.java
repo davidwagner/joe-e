@@ -825,6 +825,10 @@ public class Verifier {
                     addProblem("Custom serialization behavior is not allowed.",
                                name);
                 }
+            } else if (name.getIdentifier().equals("readObjectNoData")
+                       && md.parameters().size() == 0) {
+                addProblem("Custom serialization behavior is not allowed.",
+                        name);
             } else if (name.getIdentifier().equals("writeObject")
                        && md.parameters().size() == 1) {
                 SingleVariableDeclaration arg = 
@@ -834,7 +838,26 @@ public class Verifier {
                     addProblem("Custom serialization behavior is not allowed.",
                                name);
                 }    
-            }
+            } else if (name.getIdentifier().equals("readExternal")
+                       && md.parameters().size() == 1) {
+                SingleVariableDeclaration arg = 
+                    (SingleVariableDeclaration) md.parameters().get(0);
+                if (arg.getType().resolveBinding().getQualifiedName()
+                       .equals("java.io.ObjectInput")) {
+                    addProblem("Custom serialization behavior is not allowed.",
+                               name);
+                }                    
+            } else if (name.getIdentifier().equals("writeExternal")
+                       && md.parameters().size() == 1) {
+                SingleVariableDeclaration arg = 
+                    (SingleVariableDeclaration) md.parameters().get(0);
+                if (arg.getType().resolveBinding().getQualifiedName()
+                       .equals("java.io.ObjectOutput")) {
+                    addProblem("Custom serialization behavior is not allowed.",
+                               name);
+                }
+            } 
+    
                 
             if (md.isConstructor()) {
                 List<?> statements = md.getBody().statements();
