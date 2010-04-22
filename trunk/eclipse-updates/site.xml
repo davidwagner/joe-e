@@ -5,4 +5,5 @@
    </description>
    <feature url="features/org.joe_e_2.2.0.jar" id="org.joe_e" version="2.2.0"/>
    <feature url="features/org.joe_e_2.2.1.jar" id="org.joe_e" version="2.2.1"/>
+   <feature url="features/org.joe_e_2.2.2.jar" id="org.joe_e" version="2.2.2"/>
 </site>
