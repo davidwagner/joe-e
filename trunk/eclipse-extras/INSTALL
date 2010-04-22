@@ -1,25 +1,35 @@
-Installation instructions for the Command Line Joe-E Verifier
+Installation and usage instructions for the Command-line Joe-E Verifier
 
 Requirements:
-(1) A working installation of eclipse including Java development tools
-    (3.3 or later)  Any download from eclipse.org will work except the one
-    that is specifically for C and C++ development; it just needs to be
-    unpacked.
+Java 1.5 or later.  The taming database provided now assumes a Java 1.6
+set of class libraries, so 1.6 is strongly recommended.
+
+A working installation of eclipse including Java development tools
+(3.3 or later)  Any download from eclipse.org will work except the one
+that is specifically for C and C++ development; it just needs to be
+unpacked.
 
 Included in this tarball:
 (1) The Joe-E for Eclipse plugin.
 
 (2) The Joe-E library 
 
-(3) The latest version of the Joe-E taming database
+(3) The latest version of the Joe-E taming database (safej files)
 
 (4) The shell script "verify.sh"
+
+(5) A JAR containing the compiled runtime taming database
+    (This class is as link dependency of the Joe-E library used to
+    check taming data at runtime.  The included version corresponds
+    to the included taming database; a custom version should be built
+    with the interactive Eclipse plugin if using a custom taming databse.)
 
 Instructions:
 (1) You need to install the Joe-E eclipse plugin somewhere that Eclipse
     can find it.  The easiest way to do this is to drop the
     org.joe_e_2.x.x.jar file into the eclipse/dropins directory of an unpacked
-    Eclipse tarball from eclipse.org
+    Eclipse 3.4 (Ganymede) tarball from eclipse.org.  For Eclipse 3.3, you
+    can place it in the eclipse/plugins directory.
 
     For installer or package-manager installed Eclipse installation, the
     location for added plugins varies between distributions.  On Debian,
@@ -27,11 +37,33 @@ Instructions:
     ~/.eclipse/org.eclipse.sdk.ide/updates/eclipse/plugins directory
 
     On OS X (for sytemwide installation): Put the plugin file into 
-    /Applications/eclipse/plugins/
+    /Applications/eclipse/dropins or /Applications/eclipse/plugins
 
 (2) Edit verify.sh, and fill in the three variables at the top of the file.
     For ECLIPSE_PLUGINS_DIR, make sure you put the global plugins directory,
     which might be different from where you moved the Joe-E plugin to. For the
     other two variables, unless you move the library and taming database
-    elsewhere, you can put the full path to the directory containing
-    this file.
+    elsewhere, use the full path to this directory, followed by the file names
+    (library-2.x.x.jar and taming-20xxxxxx respectively).
+
+(3) Invoke the verify.sh script from the root of the directory containing Joe-E
+    source code to verify, or use the -source option to specify a directory
+    root for the source code.  You may use the CLASSPATH environment variable
+    (or modify verify.sh) to specify additional classpath entries required to
+    compile your code.
+
+    The verify.sh script takes the following optinos.  They are actually defined
+    by the underlying program that the script calls, but their behavior here is
+    described assuming that verify.sh is used.
+
+    -source PATH    The path to the source classes to be verified.
+                    Defaults to the current directory.
+    -taming PATH    The location of the taming database.  This
+		    overrides the setting in verify.sh
+    -classpath PATH_OR_JAR[:PATH_OR_JAR]...
+                    The compilation classpath, which must include the Joe-E
+                    library.  Overrides the setting for the Joe-E library in
+		    verify.sh and the CLASSPATH environment variable
+    -markasjoee     Mark all packages as Joe-E packages.
+    -fail           Fail if any package isn't Joe-E.
+    -verbose        Enable additional debugging output.
