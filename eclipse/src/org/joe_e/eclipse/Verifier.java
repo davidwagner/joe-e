@@ -826,7 +826,7 @@ public class Verifier {
                                name);
                 }
             } else if (name.getIdentifier().equals("readObjectNoData")
-                       && md.parameters().size() == 0) {
+                       && md.parameters().isEmpty()) {
                 addProblem("Custom serialization behavior is not allowed.",
                         name);
             } else if (name.getIdentifier().equals("writeObject")
