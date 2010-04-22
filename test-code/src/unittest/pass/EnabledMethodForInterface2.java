@@ -8,6 +8,6 @@ interface HasTTaker<T> {
 
 // implements generic interface generically
 public class EnabledMethodForInterface2<T> extends EnabledMethodTakesT 
-										implements HasTTaker3<T> {
+										implements HasTTaker<T> {
 
 }
