@@ -2,7 +2,7 @@
 <feature
       id="org.joe_e"
       label="Joe-E Verifier"
-      version="2.2.1"
+      version="2.2.2"
       provider-name="joe-e.org">
 
    <description url="http://www.joe-e.org">
