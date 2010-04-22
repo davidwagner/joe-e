@@ -3,13 +3,13 @@
 <repository name='Joe-E for Eclipse' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1.0.0'>
   <properties size='2'>
     <property name='p2.compressed' value='false'/>
-    <property name='p2.timestamp' value='1246574660443'/>
+    <property name='p2.timestamp' value='1271909827722'/>
   </properties>
   <references size='2'>
-    <repository url='http://eclipse.joe-e.org' type='1' options='0'/>
     <repository url='http://eclipse.joe-e.org' type='0' options='0'/>
+    <repository url='http://eclipse.joe-e.org' type='1' options='0'/>
   </references>
-  <units size='18'>
+  <units size='21'>
     <unit id='org.joe_e.feature.group' version='2.1.0' singleton='false'>
       <update id='org.joe_e.feature.group' range='[0.0.0,2.1.0)' severity='0'/>
       <properties size='5'>
@@ -508,7 +508,7 @@
       <touchpointData size='1'>
         <instructions size='1'>
           <instruction key='manifest'>
-            Bundle-ManifestVersion: 2&#xA;Bundle-Name: Joe_E Plug-in&#xA;Bundle-Version: 2.0.0&#xA;Eclipse-LazyStart: true&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime,org.eclipse.core.resources,org.eclipse.jdt,org.eclipse.jdt.source,org.eclipse.jdt.core,org.eclipse.ui.editors&#xA;Bundle-SymbolicName: Joe_E; singleton:=true&#xA;Bundle-Localization: plugin&#xA;Manifest-Version: 1.0&#xA;Bundle-Activator: org.joe_e.eclipse.Plugin&#xA;
+            Bundle-ManifestVersion: 2&#xA;Bundle-Name: Joe_E Plug-in&#xA;Bundle-Version: 2.0.0&#xA;Eclipse-LazyStart: true&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime,org.eclipse.core.resources,org.eclipse.jdt,org.eclipse.jdt.source,org.eclipse.jdt.core,org.eclipse.ui.editors&#xA;Bundle-SymbolicName: Joe_E; singleton:=true&#xA;Bundle-Localization: plugin&#xA;Manifest-Version: 1.0&#xA;Bundle-Activator: org.joe_e.eclipse.Plugin
           </instruction>
         </instructions>
       </touchpointData>
@@ -539,7 +539,7 @@
       <touchpointData size='1'>
         <instructions size='1'>
           <instruction key='manifest'>
-            Bundle-ManifestVersion: 2&#xA;Bundle-Name: Joe_E Plug-in&#xA;Bundle-Version: 0.5&#xA;Eclipse-LazyStart: true&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime,org.eclipse.core.resources,org.eclipse.jdt,org.eclipse.jdt.source,org.eclipse.jdt.core,org.eclipse.ui.editors&#xA;Bundle-SymbolicName: Joe_E; singleton:=true&#xA;Bundle-Localization: plugin&#xA;Manifest-Version: 1.0&#xA;Bundle-Activator: org.joe_e.eclipse.Plugin&#xA;
+            Bundle-ManifestVersion: 2&#xA;Bundle-Name: Joe_E Plug-in&#xA;Bundle-Version: 0.5&#xA;Eclipse-LazyStart: true&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime,org.eclipse.core.resources,org.eclipse.jdt,org.eclipse.jdt.source,org.eclipse.jdt.core,org.eclipse.ui.editors&#xA;Bundle-SymbolicName: Joe_E; singleton:=true&#xA;Bundle-Localization: plugin&#xA;Manifest-Version: 1.0&#xA;Bundle-Activator: org.joe_e.eclipse.Plugin
           </instruction>
         </instructions>
       </touchpointData>
@@ -570,7 +570,7 @@
       <touchpointData size='1'>
         <instructions size='1'>
           <instruction key='manifest'>
-            Bundle-ManifestVersion: 2&#xA;Bundle-Name: Joe_E Plug-in&#xA;Bundle-Version: 1.0.0&#xA;Eclipse-LazyStart: true&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime,org.eclipse.core.resources,org.eclipse.jdt,org.eclipse.jdt.source,org.eclipse.jdt.core,org.eclipse.ui.editors&#xA;Bundle-SymbolicName: Joe_E; singleton:=true&#xA;Bundle-Localization: plugin&#xA;Manifest-Version: 1.0&#xA;Bundle-Activator: org.joe_e.eclipse.Plugin&#xA;
+            Bundle-ManifestVersion: 2&#xA;Bundle-Name: Joe_E Plug-in&#xA;Bundle-Version: 1.0.0&#xA;Eclipse-LazyStart: true&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime,org.eclipse.core.resources,org.eclipse.jdt,org.eclipse.jdt.source,org.eclipse.jdt.core,org.eclipse.ui.editors&#xA;Bundle-SymbolicName: Joe_E; singleton:=true&#xA;Bundle-Localization: plugin&#xA;Manifest-Version: 1.0&#xA;Bundle-Activator: org.joe_e.eclipse.Plugin
           </instruction>
         </instructions>
       </touchpointData>
@@ -598,7 +598,7 @@
       <touchpointData size='1'>
         <instructions size='1'>
           <instruction key='manifest'>
-            Bundle-ManifestVersion: 2&#xA;Bundle-Activator: org.joe_e.eclipse.Plugin&#xA;Bundle-RequiredExecutionEnvironment: J2SE-1.5&#xA;Bundle-Localization: &#xA;Bundle-Name: Joe-E Plug-in&#xA;Require-Bundle: org.eclipse.core.runtime,org.eclipse.core.resources,org.eclipse.jdt.core,org.eclipse.ui&#xA;Bundle-ActivationPolicy: lazy&#xA;Manifest-Version: 1.0&#xA;Bundle-SymbolicName: org.joe_e;singleton:=true&#xA;Bundle-Version: 2.2.1&#xA;Eclipse-LazyStart: true&#xA;
+            Bundle-ManifestVersion: 2&#xA;Bundle-Activator: org.joe_e.eclipse.Plugin&#xA;Bundle-RequiredExecutionEnvironment: J2SE-1.5&#xA;Bundle-Localization: &#xA;Bundle-Name: Joe-E Plug-in&#xA;Require-Bundle: org.eclipse.core.runtime,org.eclipse.core.resources,org.eclipse.jdt.core,org.eclipse.ui&#xA;Bundle-ActivationPolicy: lazy&#xA;Manifest-Version: 1.0&#xA;Bundle-SymbolicName: org.joe_e;singleton:=true&#xA;Bundle-Version: 2.2.1&#xA;Eclipse-LazyStart: true
           </instruction>
         </instructions>
       </touchpointData>
@@ -629,7 +629,7 @@
       <touchpointData size='1'>
         <instructions size='1'>
           <instruction key='manifest'>
-            Bundle-ManifestVersion: 2&#xA;Bundle-Name: Joe_E Plug-in&#xA;Bundle-Version: 1.0.1&#xA;Eclipse-LazyStart: true&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime,org.eclipse.core.resources,org.eclipse.jdt,org.eclipse.jdt.source,org.eclipse.jdt.core,org.eclipse.ui.editors&#xA;Bundle-SymbolicName: Joe_E; singleton:=true&#xA;Bundle-Localization: plugin&#xA;Manifest-Version: 1.0&#xA;Bundle-Activator: org.joe_e.eclipse.Plugin&#xA;
+            Bundle-ManifestVersion: 2&#xA;Bundle-Name: Joe_E Plug-in&#xA;Bundle-Version: 1.0.1&#xA;Eclipse-LazyStart: true&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime,org.eclipse.core.resources,org.eclipse.jdt,org.eclipse.jdt.source,org.eclipse.jdt.core,org.eclipse.ui.editors&#xA;Bundle-SymbolicName: Joe_E; singleton:=true&#xA;Bundle-Localization: plugin&#xA;Manifest-Version: 1.0&#xA;Bundle-Activator: org.joe_e.eclipse.Plugin
           </instruction>
         </instructions>
       </touchpointData>
@@ -670,6 +670,107 @@
       <copyright>
         Copyright (c) 2005-08, Regents of the University of California.&#xA;All rights reserved.
       </copyright>
+    </unit>
+    <unit id='org.joe_e.feature.jar' version='2.2.2'>
+      <update id='org.joe_e.feature.jar' range='[0.0.0,2.2.2)' severity='0'/>
+      <properties size='4'>
+        <property name='org.eclipse.equinox.p2.name' value='Joe-E Verifier'/>
+        <property name='org.eclipse.equinox.p2.description' value='The Joe-E subset of the Java language.&#xA;Includes a verifier that can be enabled for Java projects that&#xA;checks source files for adherence to the Joe-E Language Specification.'/>
+        <property name='org.eclipse.equinox.p2.description.url' value='http://www.joe-e.org'/>
+        <property name='org.eclipse.equinox.p2.provider' value='joe-e.org'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='org.joe_e.feature.jar' version='2.2.2'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='feature' version='1.0.0'/>
+        <provided namespace='org.eclipse.update.feature' name='org.joe_e' version='2.2.2'/>
+      </provides>
+      <filter>
+        (org.eclipse.update.install.features=true)
+      </filter>
+      <artifacts size='1'>
+        <artifact classifier='org.eclipse.update.feature' id='org.joe_e' version='2.2.2'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='zipped'>
+            true
+          </instruction>
+        </instructions>
+      </touchpointData>
+      <licenses size='1'>
+        <license>
+          This software is available under the terms of the revised BSD&#xA;license.&#xA;&#xA;Redistribution and use in source and binary forms, with or without&#xA;modification, are permitted provided that the following conditions&#xA;are met:&#xA;* Redistributions of source code must retain the above copyright&#xA;notice, this list of conditions and the following disclaimer.&#xA;* Redistributions in binary form must reproduce the above copyright&#xA;notice, this list of conditions and the following disclaimer&#xA;in the documentation and/or other materials provided with the&#xA;distribution.&#xA;* Neither the name of the University of California, Berkeley&#xA;nor the names of its contributors may be used to endorse or promote&#xA;products derived from this software without specific prior written&#xA;permission.&#xA;&#xA;THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS&#xA;IS&apos;&apos; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT&#xA;LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS&#xA;FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE&#xA;REGENTS AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,&#xA;INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,&#xA;BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;&#xA;LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER&#xA;CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT&#xA;LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING&#xA;IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF&#xA;THE POSSIBILITY OF SUCH DAMAGE.
+        </license>
+      </licenses>
+      <copyright>
+        Copyright (c) 2005-08, Regents of the University of California.&#xA;All rights reserved.
+      </copyright>
+    </unit>
+    <unit id='org.joe_e.feature.group' version='2.2.2' singleton='false'>
+      <update id='org.joe_e.feature.group' range='[0.0.0,2.2.2)' severity='0'/>
+      <properties size='5'>
+        <property name='org.eclipse.equinox.p2.name' value='Joe-E Verifier'/>
+        <property name='org.eclipse.equinox.p2.description' value='The Joe-E subset of the Java language.&#xA;Includes a verifier that can be enabled for Java projects that&#xA;checks source files for adherence to the Joe-E Language Specification.'/>
+        <property name='org.eclipse.equinox.p2.description.url' value='http://www.joe-e.org'/>
+        <property name='org.eclipse.equinox.p2.provider' value='joe-e.org'/>
+        <property name='org.eclipse.equinox.p2.type.group' value='true'/>
+      </properties>
+      <provides size='1'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='org.joe_e.feature.group' version='2.2.2'/>
+      </provides>
+      <requires size='9'>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.core.runtime' range='3.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.core.resources' range='3.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.jdt.source' range='3.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.jdt.core' range='3.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.ui.editors' range='3.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.ui' range='3.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.jdt' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.joe_e' range='[2.2.1,2.2.1]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.joe_e.feature.jar' range='[2.2.2,2.2.2]'>
+          <filter>
+            (org.eclipse.update.install.features=true)
+          </filter>
+        </required>
+      </requires>
+      <touchpoint id='null' version='0.0.0'/>
+      <licenses size='1'>
+        <license>
+          This software is available under the terms of the revised BSD&#xA;license.&#xA;&#xA;Redistribution and use in source and binary forms, with or without&#xA;modification, are permitted provided that the following conditions&#xA;are met:&#xA;* Redistributions of source code must retain the above copyright&#xA;notice, this list of conditions and the following disclaimer.&#xA;* Redistributions in binary form must reproduce the above copyright&#xA;notice, this list of conditions and the following disclaimer&#xA;in the documentation and/or other materials provided with the&#xA;distribution.&#xA;* Neither the name of the University of California, Berkeley&#xA;nor the names of its contributors may be used to endorse or promote&#xA;products derived from this software without specific prior written&#xA;permission.&#xA;&#xA;THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS&#xA;IS&apos;&apos; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT&#xA;LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS&#xA;FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE&#xA;REGENTS AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,&#xA;INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,&#xA;BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;&#xA;LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER&#xA;CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT&#xA;LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING&#xA;IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF&#xA;THE POSSIBILITY OF SUCH DAMAGE.
+        </license>
+      </licenses>
+      <copyright>
+        Copyright (c) 2005-08, Regents of the University of California.&#xA;All rights reserved.
+      </copyright>
+    </unit>
+    <unit id='org.joe_e' version='2.2.2'>
+      <update id='org.joe_e' range='[0.0.0,2.2.2)' severity='0'/>
+      <properties size='1'>
+        <property name='org.eclipse.equinox.p2.name' value='Joe-E Plug-in'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='org.joe_e' version='2.2.2'/>
+        <provided namespace='osgi.bundle' name='org.joe_e' version='2.2.2'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='4'>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.resources' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.jdt.core' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='org.joe_e' version='2.2.2'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-ManifestVersion: 2&#xA;Bundle-Activator: org.joe_e.eclipse.Plugin&#xA;Bundle-RequiredExecutionEnvironment: J2SE-1.5&#xA;Require-Bundle: org.eclipse.core.runtime,org.eclipse.core.resources,org.eclipse.jdt.core,org.eclipse.ui&#xA;Bundle-Name: Joe-E Plug-in&#xA;Bundle-Localization: &#xA;Bundle-ActivationPolicy: lazy&#xA;Manifest-Version: 1.0&#xA;Bundle-SymbolicName: org.joe_e;singleton:=true&#xA;Bundle-Version: 2.2.2&#xA;Eclipse-LazyStart: true&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
     </unit>
   </units>
 </repository>
