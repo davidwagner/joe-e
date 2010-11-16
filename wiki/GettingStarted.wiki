@@ -21,7 +21,7 @@ Note that other than providing some Java code with the Joe-E library, Joe-E does
 
 = Requirements =
 
-Joe-E requires Java 1.5 (not Java 6). The code is compatible, but using a later version would require a compatible version of the taming database, as a few additional methods were genericized between 1.5 and 1.6. The taming database provided only works for the Java 1.5 class library.
+Joe-E requires Java 6, as of the latest version of the taming database.
 
 Joe-E also requires [http://www.eclipse.org/ Eclipse], the popular IDE for Java. There is a command-line version of the verifier too, but it (currently) consists of a wrapper around the Eclipse runtime... In other words, *you have to download and install Eclipse, even if you are not going to use it as an IDE for Joe-E development.* Version 3.3 or greater is required for the command line version (i.e., codenames "Europa" or "Ganymede"); older versions (3.x) should work with the interactive plugin.
 
@@ -87,7 +87,7 @@ To manually install the plugin, copy the `org.joe_e_2.x.x.jar` file from the tar
 == Configuration ==
 
 Before enabling the plug-in for a project, the project must have the
-Joe-E library on the classpath. This is necessary both for running the verifier from
+*Joe-E library* on the classpath. This is necessary both for running the verifier from
 Eclipse, and for linking and running the project's code itself.  Add
 library-2.x.x.jar as an External JAR in the project's classpath.  This
 is set in the project's Properties window (obtained by right-clicking
@@ -96,7 +96,7 @@ and selecting Properties).  Select "Java Build Path" on the left, the
 right.
 
 Before using the plugin, you must also tell it the location of the
-taming database.  Choose "Window -> Preferences" ("Eclipse ->
+*taming database*.  Choose "Window -> Preferences" ("Eclipse ->
 Preferences" on a Mac) from the menu bar, select the Joe-E pane, and
 select the directory where you placed the taming files.  This is a
 global setting that doesn't have to be repeated for each project
@@ -104,7 +104,7 @@ global setting that doesn't have to be repeated for each project
 
 == Using the Verifier ==
 
-To enable Joe-E for a project, right-click on it and select 
+To *enable Joe-E for a project*, right-click on it and select 
 "Enable Joe-E Verifier".  This is a toggle option, and is checked
 when the verifier is enabled.  Enabling the verifier should trigger a full run
 of the verifier.  The verifier is configured as a builder in Eclipse, so it
@@ -112,9 +112,9 @@ will be run the same way as you run the Java compiler in Eclipse.  If
 Auto-Build is on (the default), it will run automatically on a file when it is
 modified and saved, or when changes to other files necessitate re-verification.
 
-Joe-E packages are identified by whether or not the package is annotated with the *org.joe_e.IsJoeE* annotation type.  This can be added to a package by creating a file named package-info.java in the package directory containing the line "@org.joe_e.IsJoeE package package.name;" where package.name is the name of the package. Once you've created this file once, you can copy and paste the file to other projects; Eclipse is smart enough to fix the package name.
+Once the verifier is enabled for a project, it will still only verify packages in that project that are marked as being Joe-E code.  Non-Joe-E packages will not be looked at and thus will not generate Joe-E errors.  This allows Joe-E and unrestricted Java code to coexist in the same project.  To *mark a package as Joe-E so it will be verified*, annotate it with the `org.joe_e.IsJoeE` annotation type.  This can be done by creating a file named `package-info.java` in the package directory containing the line `@org.joe_e.IsJoeE package package.name;` where `package.name` is the name of the package. Once you've created this file once, you can copy and paste the file to other projects; Eclipse is smart enough to fix the package name.
 
-To *run* a Joe-E program it is necessary to have a copy of the `org.joe_e.taming.Policy` class which contains the runtime taming database, on the classpath.  If you are using the taming database from this site unmodified, you can just download the JAR containing this class, org.joe_e.taming-200xxxxx.jar; it is also included in the commandline tarball starting with version 2.2.0a.
+To *run* a Joe-E program it is necessary to have a copy of the `org.joe_e.taming.Policy` class, which contains the *runtime taming database*, on the classpath.  If you are using the taming database from this site unmodified, you can just download the JAR containing this class, org.joe_e.taming-200xxxxx.jar; it is also included in the commandline tarball starting with version 2.2.0a.
 
 If you make any custom taming decisions (e.g. to allow the use of a third-party library by Joe-E code), you can generate the `org.joe_e.taming.Policy` class from the taming database using the interactive verifier.  This is done by 
   # selecting a Joe-E project where you want this class to be generated
