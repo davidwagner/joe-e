@@ -25,7 +25,7 @@ public class ExtendsHasInner extends HasInner {
     
     int foo3;
     
-	class ExtendsInner extends Inner {
+	class ExtendsInner extends Inner implements Immutable {
         Object o = ExtendsHasInner.this;
 		int barf;
 	}
