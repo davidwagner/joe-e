@@ -62,7 +62,13 @@ public final class Filesystem {
         if (name.equals("") || name.equals(".") || name.equals("..")) {
             throw new InvalidFilenameException();
         }
-
+        // Null bytes are bad news, as they are allowed in Java strings but
+        // silently truncate C strings.  If not prohibited, they could be used
+        // to effectively bypass the above checks.
+        if (name.indexOf('\0') != -1) {
+            throw new InvalidFilenameException();
+        }
+        
         // Check for path separator char.
         if (name.indexOf(File.separatorChar) != -1) {
             throw new InvalidFilenameException();
