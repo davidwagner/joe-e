@@ -14,6 +14,6 @@ Akshay Krishnamurthy, Adrian Mettler, and David Wagner.  "[http://www.cs.berkele
 
 Matthew Finifter, Adrian Mettler, Naveen Sastry, and David Wagner.  "[http://www.cs.berkeley.edu/~daw/papers/pure-ccs08.pdf Verifiable Functional Purity in Java]".  ACM CCS 2008.
 
-= Joe-E's Overlay Type System =
+= Joe-E's Class Properties and Overlay Type System =
 
 Adrian Mettler and David Wagner. "[http://www.cs.berkeley.edu/~amettler/joeetypes-plas10.pdf Class Properties for Security Review in an Object-Capability Subset of Java (Short Paper)]". PLAS 2010.
