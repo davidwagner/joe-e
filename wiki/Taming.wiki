@@ -33,9 +33,9 @@ to mention.
 The Joe-E taming policy is a whitelist.
 By default, everything starts off being disabled for use by Joe-E code.  We only enable methods from the Java library after manual review of their documented behavior.  So far, our effort has focused on basic, common classes, primarily in java.lang and java.util.
 
-For things like data structures that don't relate to the outside world, a method can be safely enabled if it is:
-- deterministic, as defined in the [http://www.cs.berkeley.edu/~amettler/pure-ccs08.pdf purity paper]
-- has effects, if any, only on the method's arguments (including the this pointer)
+For things like data structures that don't relate to the outside world, a method can be safely enabled if:
+  * it is deterministic, as defined in the [http://www.cs.berkeley.edu/~amettler/pure-ccs08.pdf purity paper], and
+  * it has effects, if any, only on the method's arguments (including the this pointer)
 
 For classes that represent external resources like filesystems or network connections (or Java-specific ones like its memory manager or other global- or thread-scoped resources), things are trickier. Essentially, any method that has any kind of elevated privilege (access to state or effects not possible otherwise), must require an explicit object reference that acts as a capability to authorize that method's invocation.  For example, to read or write data from a file, one needs a java.io.File object designating the file that one can access. 
 
