@@ -39,6 +39,9 @@ For libraries like data structures that don't interact with the outside world, a
 
 For classes that represent external resources like filesystems or network connections (or Java-specific shared entities like the Java memory manager or other global- or thread-scoped resources), things are trickier. Essentially, any method that has any kind of elevated privilege (access to state or ability to cause side effects not possible otherwise) must require an explicit object reference that acts as a capability to authorize that method's invocation.  For example, it should only be possible to read or write data from a file if one has a java.io.File object designating the file to be accessed; we must make sure the taming policy does not expose any Java library method that violates this security property.
 
+Our approach to taming is based upon the use of taming in the E programming
+language; for more on taming, read about E's [http://www.combex.com/papers/darpa-review/security-review.html#taming use of taming and safej files] and [http://www.erights.org/elib/legacy/taming.html the criteria E uses for taming].  However, our taming decisions were made independently from E; we borrow concepts, but not E's taming database.
+
 =Taming Implementation=
 Taming decisions are contained in the taming database.  The taming database consists of a set of a hierarchy of directories representing packages, and within each package's directory, a safej file for each class that has an entry in the taming database.  For example, the taming policy for `java.io.File` can be found in `safej/java/io/File.safej`.
 
