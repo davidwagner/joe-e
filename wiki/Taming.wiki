@@ -24,7 +24,10 @@ unruly class library into a capability-secure subset. The Joe-E
 verifier restricts Joe-E programs so they can mention only classes,
 constructors, methods, and fields in this tamed subset. If
 the source code mentions anything outside of this subset,
-the Joe-E verifier ﬂags this as an error.
+the Joe-E verifier ﬂags this as an error.  The taming policy
+specifies the subset of classes, constructors, methods, and
+fields from the Java libraries that Joe-E programs are permitted
+to mention.
 
 =Taming Policy=
 By default, everything starts off being disabled for use by Joe-E code.  We have only enabled methods from the library after manual review of their documentated behavior.  So far, our effort has focused on basic, common classes, primarily in java.lang and java.util.
