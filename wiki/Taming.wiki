@@ -21,7 +21,7 @@ those constructors, methods, and fields that are compatible
 with the principle that all privileges must be granted via a
 capability. We call this activity taming, because it turns an
 unruly class library into a capability-secure subset. The Joe-E
-verifier allows Joe-E programs to mention only classes,
+verifier restricts Joe-E programs so they can mention only classes,
 constructors, methods, and fields in this tamed subset. If
 the source code mentions anything outside of this subset,
 the Joe-E verifier ﬂags this as an error.
