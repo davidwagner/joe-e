@@ -30,7 +30,8 @@ fields from the Java libraries that Joe-E programs are permitted
 to mention.
 
 =Taming Policy=
-By default, everything starts off being disabled for use by Joe-E code.  We have only enabled methods from the library after manual review of their documentated behavior.  So far, our effort has focused on basic, common classes, primarily in java.lang and java.util.
+The Joe-E taming policy is a whitelist.
+By default, everything starts off being disabled for use by Joe-E code.  We only enable methods from the Java library after manual review of their documented behavior.  So far, our effort has focused on basic, common classes, primarily in java.lang and java.util.
 
 For things like data structures that don't relate to the outside world, a method can be safely enabled if it is:
 - deterministic, as defined in the [http://www.cs.berkeley.edu/~amettler/pure-ccs08.pdf purity paper]
