@@ -42,7 +42,7 @@ For classes that represent external resources like filesystems or network connec
 Our approach to taming is based upon [http://www.combex.com/papers/darpa-review/security-review.html#taming the use of taming in the E programming language], and we adopt the same [http://www.erights.org/elib/legacy/taming.html criteria E uses for taming].  However, our taming decisions were made independently from E; we borrow concepts, but not E's taming database.
 
 =Taming Implementation=
-Taming decisions are contained in the taming database.  The taming database consists of a set of a hierarchy of directories representing packages, and within each package's directory, a safej file for each class that has an entry in the taming database.  For example, the taming policy for `java.io.File` can be found in `safej/java/io/File.safej`.
+Taming decisions are contained in the taming database.  The taming database consists of a hierarchy of directories representing packages, and within each package's directory, a safej file for each class that has an entry in the taming database.  For example, the taming policy for `java.io.File` can be found in `safej/java/io/File.safej`.
 
 Each safej file records several kinds of information:
   * The static fields, static methods, and constructors that Joe-E code is allowed to mention are listed in the `static(...)` portion of the safej file.
