@@ -12,24 +12,26 @@ public class Vetting {
                          "hello..good-bye"};
         String[] fail = {"yes/no", ".", "..", "../asdf", "T/Y", "/join", "..\0", "\0", ".\0",
                          "..\0ok", "\0\1\2", "\0../.."};
-        String[] withBackslashes = {"\\", "yes\\no", "..\\asdf", "T\\Y", "\\join"};
+        String[] depends = {"\\", "yes\\no", "..\\asdf", "T\\Y", "\\join"};
+        
+        File base = new File("blarg");
         
         for (String p : pass) {
-            Filesystem.checkName(p);
+            Filesystem.file(base, p);
         }
     
         for (String f : fail) {
             try {
-                Filesystem.checkName(f);
+                Filesystem.file(base, f);
                 assert false;
             } catch (InvalidFilenameException ife) {
             
             }
         }
         
-        for (String b : withBackslashes) {
+        for (String d : depends) {
             try {
-                Filesystem.checkName(b);
+                Filesystem.file(base, d);
                 assert File.pathSeparatorChar != '\\';
             } catch (InvalidFilenameException ife) {
                 assert File.pathSeparatorChar == '\\';
