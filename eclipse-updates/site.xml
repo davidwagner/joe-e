@@ -8,5 +8,9 @@
    <feature url="features/org.joe_e_2.2.2.jar" id="org.joe_e" version="2.2.2">
       <category name="all"/>
    </feature>
-   <category-def name="all" label="All Features"/>
+   <category-def name="all" label="All Features">
+      <description>
+         There&apos;s only one feature, and it&apos;s in this category
+      </description>
+   </category-def>
 </site>
