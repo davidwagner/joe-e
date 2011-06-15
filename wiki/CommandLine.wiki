@@ -2,7 +2,12 @@
 
 == Installation and Configuration ==
 
-See GettingStarted for all the details.
+The Joe-E distribution provides a shell script that scans your source tree and produces a plain-text report of all Joe-E security violations found.  This is useful for unit testing (as explained above), or if you won't be using Eclipse for programming; some IDEs, such as Emacs, might be able to process the output of this script directly.
+
+  # Edit the `verify.sh` script from the directory where you untarred Joe-E, and fill in the three variables at the top of the file. For ECLIPSE_PLUGINS_DIR, make sure you put the *global* plugins directory (ie the location of the file `org.eclipse.equinox.launcher.<someversion>.jar`), not a per-user directory.  For the other two variables, use the full path to the respective file names from the tarball (ie `/some/where/library-2.x.x.jar` and `/some/where/taming-200xxxxx` respectively).
+  # Try it out from a command prompt: {{{ ./verify.sh -source /your/source/directory }}} This should produce a list of errors on the standard output.
+
+See CommandLine for more details on how to operate the command-line verifier.
 
 == Use ==
 
